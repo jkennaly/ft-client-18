@@ -8,4 +8,4 @@ import "./index.css";
 
 import App from './components/layout/App.jsx';
 
-m.render(root, <App />);
+m.mount(root, App);
