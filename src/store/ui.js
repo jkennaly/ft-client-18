@@ -295,7 +295,7 @@ exports.clearSelection = () => exports.selected = []
 exports.addSelection = select => exports.selected.push(select)
 exports.removeSelection = select => exports.selected = exports.selected.filter(s => s !== select)
 exports.toggleSelection = select => {
-	console.log('toggle clicked')
+	//console.log('toggle clicked')
 	exports.selected.indexOf(select) > -1 ? 
 	exports.removeSelection(select) : 
 	exports.selected = [select]

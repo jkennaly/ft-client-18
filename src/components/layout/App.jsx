@@ -61,6 +61,9 @@ const App = {
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector(".main-stage");
 
+        var hashStr = window.location.hash;
+        hashStr = hashStr.replace(/^#?\/?/, '');
+        localStorage.setItem('raw_token', hashStr);
 		auth.handleAuthentication();
 
 		m.route(mainStage, "/auth", {

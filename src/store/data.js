@@ -52,6 +52,9 @@ const loadListGen = schema => () => m.request({
 const ts = () => Math.round((new Date()).getTime() / 1000)
 
 const idFieldFilter = field => field !== 'deleted' && field !== 'timestamp' && field !== 'phptime' && field !== 'festival_series' && field !== 'name' && field !== 'year' && field !== 'content' && field !== 'value' && field !== 'description' && field !== 'level' && field !== 'default' && field !== 'website' && field !== 'language' && field !== 'cost' && field !== 'basedate' && field !== 'mode' && field !== 'start' && field !== 'end'
+const tokenFunction = function(xhr) {
+	xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('id_token'))
+}
 
 const remoteData = {
 	Messages: {
@@ -81,6 +84,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Messages",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Messages.list = result.filter(d => !d.deleted)
@@ -130,6 +134,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Series",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Series.list = result.filter(d => !d.deleted)
@@ -184,6 +189,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Festivals",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Festivals.list = result.filter(d => !d.deleted)
@@ -238,6 +244,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Dates",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Dates.list = result.filter(d => !d.deleted)
@@ -291,6 +298,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Days",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Days.list = result.filter(d => !d.deleted)
@@ -348,6 +356,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Sets",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Sets.list = result.filter(d => !d.deleted)
@@ -382,6 +391,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Venues",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Venues.list = result.filter(d => !d.deleted)
@@ -404,6 +414,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Organizers",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Organizers.list = result.filter(d => !d.deleted)
@@ -430,6 +441,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Places",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Places.list = result.filter(d => !d.deleted)
@@ -457,6 +469,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Lineups",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Lineups.list = result.filter(d => !d.deleted)
@@ -486,6 +499,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/ArtistPriorities",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.ArtistPriorities.list = result.filter(d => !d.deleted)
@@ -508,6 +522,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/StagePriorities",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.StagePriorities.list = result.filter(d => !d.deleted)
@@ -530,6 +545,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/StageLayouts",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.StageLayouts.list = result.filter(d => !d.deleted)
@@ -552,6 +568,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/PlaceTypes",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.PlaceTypes.list = result.filter(d => !d.deleted)
@@ -584,6 +601,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Artists",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Artists.list = result.filter(d => !d.deleted)
@@ -606,6 +624,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/ParentGenres",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.ParentGenres.list = result.filter(d => !d.deleted)
@@ -628,6 +647,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Genres",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Genres.list = result.filter(d => !d.deleted)
@@ -650,6 +670,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/ArtistGenres",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.ArtistGenres.list = result.filter(d => !d.deleted)
@@ -672,6 +693,7 @@ const remoteData = {
 			return m.request({
 		    method: "GET",
 		    url: "/api/Users",
+		  	config: tokenFunction
 		})
 		.then(result => {
 			remoteData.Users.list = result.filter(d => !d.deleted)

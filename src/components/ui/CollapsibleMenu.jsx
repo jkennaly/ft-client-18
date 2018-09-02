@@ -25,7 +25,7 @@ const CollapsibleMenu = {
             <div class={classes(attrs)}>
                     {attrs.menu.map(i => <MenuItem 
                     	display={_.isString(i) ? i : i[0]} 
-                    	selected={attrs.selected === i}
+                    	selected={attrs.selected.indexOf(i) > -1}
                     	stateChange={attrs.stateChange}
                         menuName={attrs.menuName}
                         idFields={attrs.idFields}
