@@ -7,7 +7,8 @@
 /coverage
 
 # production
-/build
+/dist
+deploy.js
 
 # misc
 .DS_Store

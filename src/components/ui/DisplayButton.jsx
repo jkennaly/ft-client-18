@@ -10,7 +10,7 @@ import {getAllContexts} from '../../store/ui';
 
 const possibleStates = {
 	perspective: getAllPerspectives,
-	context:  getAllContexts
+	context:  getAllContexts,
 };
 
 // Local state
@@ -19,7 +19,7 @@ import {getAppContext} from '../../store/ui';
 
 const localState = {
 	perspective: getAppPerspective,
-	context:  getAppContext
+	context:  getAppContext,
 };
 
 // change state
@@ -28,7 +28,7 @@ import {setAppContext} from '../../store/ui';
 
 const newState = {
 	perspective: setAppPerspective,
-	context:  setAppContext
+	context:  setAppContext,
 };
 
 // active selections
@@ -50,7 +50,7 @@ const DisplayButton = {
 				selected={currentState(attrs)()} 
 				stateChange={changeState(attrs)}
 			/>
-			<div class="nav-button" onclick={() => {console.log('click'); toggleSelection(attrs.display)}}>
+			<div class="nav-button" onclick={() => {toggleSelection(attrs.display)}}>
 				{attrs.icon}
 				<div>
 					{currentState(attrs)()}

@@ -1,6 +1,7 @@
 /* index.css */
 
 @import url('https://fonts.googleapis.com/css?family=Rubik');
+@charset "UTF-8";
 
 body,
 html {
@@ -39,6 +40,7 @@ html {
     display: flex;
     flex-direction: column;
     padding: 1em;
+    overflow-y: scroll;
 }
 
 .nav-button {
@@ -61,6 +63,9 @@ html {
 .stage-banner {
     position: relative;
     margin: 0.5em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .stage-banner svg {
@@ -73,7 +78,7 @@ html {
 }
 
 .stage-title {
-    text-align: center;
+    text-align: left;
     padding: 1em 0;
     margin: 0.5em;
     color: #EE5F28;
@@ -81,7 +86,29 @@ html {
     font-weight: bold;
     font-size: 110%;
     letter-spacing: 2px;
+    display: inline-block;
+    width: 12%;
 }
+
+.ft-banner-button-container {
+    display: flex;
+    flex-direction: row;
+    width: 38%;
+    justify-content: flex-end;
+    height: 1em;
+}
+
+.banner-button {
+    display: flex;
+    flex-direction: row;
+    text-align: right;
+    justify-content: flex-end;
+}
+
+.banner-button svg {
+    position: relative;
+}
+
 
 .card-container {
     flex: display;
@@ -111,6 +138,69 @@ html {
     font-size: 100%;
 }
 
+.ft-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1em 0.5em 1em;
+    margin: 0.5em;
+    font-size: 100%;
+    background: white;
+}
+
+.ft-fields {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.ft-name-fields {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+}
+
+.ft-set-diff-fields {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    text-transform: uppercase;
+    font-size: 85%;
+    margin: 0.5em 0 0;
+}
+
+.ft-set-diff-fields > .ft-name-field {
+    width: 25%;
+}
+
+.ft-set-name-fields {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.ft-set-name-field {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.ft-average-rating-field {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+}
+
+.ft-spacer {
+    margin: 0 0.25em 0;
+}
+
+.ft-field {
+    display: flex;
+    margin: 0 0.25em 0;
+    font-size: 100%;
+}
+
 .ui-button {
     display: flex;
     justify-content: center;
@@ -128,9 +218,17 @@ html {
     display: inline-block;
 }
 
-.collapsible-menu-list {
-    list-style-type: none;
-    padding: 0;
+.banner-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.banner-menu-content {
+    position: absolute;
+    top: 0.5em;
+    background-color: #f1f1f1;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
 }
 
 .menu-content {
@@ -141,9 +239,13 @@ html {
     z-index: 1;
 }
 
+.sub-menu-content {
+    z-index: 2;
+    right: 0.5em;
+}
+
 .menu-item {
     display: inline-block;
-    overflow: hidden;
     width: 10em;
 }
 
