@@ -10,6 +10,7 @@ import DateVenueField from './fields/date/DateVenueField.jsx'
 import DateBaseField from './fields/date/DateBaseField.jsx'
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
 import DayCard from '../../components/cards/DayCard.jsx';
+import SetCard from '../../components/cards/SetCard.jsx';
 
 import {remoteData} from '../../store/data';
 
