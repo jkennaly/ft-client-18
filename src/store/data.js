@@ -40,6 +40,13 @@ const CONFERENCES = [{
 	}
 ];
 
+const reqOptionsCreate = config => dataFieldName => data => { return {
+    method: "POST",
+    url: "/api/" + dataFieldName,
+  	config: config,
+  	data: data
+}}
+
 //TODO: when data is requested:
 //if that data is present check cache validity with the server. return local data if valid
 	//or get an update from the server and supply that
@@ -53,8 +60,30 @@ const ts = () => Math.round((new Date()).getTime() / 1000)
 
 const idFieldFilter = field => field !== 'deleted' && field !== 'timestamp' && field !== 'phptime' && field !== 'festival_series' && field !== 'name' && field !== 'year' && field !== 'content' && field !== 'value' && field !== 'description' && field !== 'level' && field !== 'default' && field !== 'website' && field !== 'language' && field !== 'cost' && field !== 'basedate' && field !== 'mode' && field !== 'start' && field !== 'end'
 const tokenFunction = function(xhr) {
-	xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('id_token'))
+	xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'))
 }
+
+const logResult = result => {
+	console.log(result)
+	return result
+}
+
+const forceRemoteLoad = dataField => result => {
+	dataField.lastRemoteLoad = 0
+	return result
+}
+
+const reloadAndLog = dataField => {
+	const loadField = forceRemoteLoad(dataField)
+	return result => _.flow([logResult, loadField])(result)
+}
+
+const assignDataToList = dataField => result => {
+	dataField.list = result
+	return result
+}
+
+const removeDeletedFilter = result => result.filter(d => !d.deleted)
 
 const remoteData = {
 	Messages: {
@@ -82,16 +111,14 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Messages.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Messages",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Messages.list = result.filter(d => !d.deleted)
-				return result
-		})
-		.catch(onRejected => remoteData.Messages.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Messages",
+		  		config: tokenFunction
+			})
+				.then(removeDeletedFilter)
+				.then(assignDataToList(remoteData.Messages))
+				.catch(reloadAndLog(remoteData.Messages))
+		}
 	},
 	Series: {
 		list: [],
@@ -132,16 +159,24 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Series.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Series",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Series.list = result.filter(d => !d.deleted)
-			return result
+			    method: "GET",
+			    url: "/api/Series",
+			  	config: tokenFunction
 			})
-		.catch(onRejected => remoteData.Series.lastRemoteLoad = 0)
-	}
+				.then(assignDataToList(remoteData.Series))
+				.catch(reloadAndLog(remoteData.Series))
+		},
+		create: data => {
+			const dataFieldName = 'Series'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return m.request(reqOptionsCreate(tokenFunction)(dataFieldName)(data))
+				.then(forceRemoteLoad(remoteData.Series))
+				.catch(logResult)
+		}
+
 	},
 	Festivals: {
 		list: [],
@@ -170,6 +205,7 @@ const remoteData = {
 		},
 		getSuperId: id => remoteData.Festivals.getSeriesId(id),
 		getSubIds: id => remoteData.Festivals.getSubDateIds(id),
+		getLineupArtistIds: id => remoteData.Lineups.getFestivalArtistIds(id),
 		
 		getEventName: id => {
 			const v = remoteData.Festivals.get(id)
@@ -187,16 +223,23 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Festivals.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Festivals",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Festivals.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Festivals.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Festivals",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Festivals))
+				.catch(reloadAndLog(remoteData.Festivals))
+		},
+		create: data => {
+			const dataFieldName = 'Festivals'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return m.request(reqOptionsCreate(tokenFunction)(dataFieldName)(data))
+				.then(forceRemoteLoad(remoteData.Festivals))
+				.catch(logResult)
+		}
 	},
 	Dates: {
 		list: [],
@@ -242,16 +285,24 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Dates.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Dates",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Dates.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Dates.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Dates",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Dates))
+				.catch(reloadAndLog(remoteData.Dates))
+		},
+		createWithDays: data => {
+			const dataFieldName = 'Dates/createWithDays'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return m.request(reqOptionsCreate(tokenFunction)(dataFieldName)(data))
+				.then(forceRemoteLoad(remoteData.Dates))
+				.then(forceRemoteLoad(remoteData.Days))
+				.catch(logResult)
+		}
 	},
 	Days: {
 		list: [],
@@ -296,16 +347,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Days.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Days",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Days.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Days.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Days",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Days))
+				.catch(reloadAndLog(remoteData.Days))
+		}
 	},
 	Sets: {
 		list: [],
@@ -354,16 +402,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Sets.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Sets",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Sets.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Sets.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Sets",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Sets))
+				.catch(reloadAndLog(remoteData.Sets))
+		}
 	},
 	Venues: {
 		list: [],
@@ -389,16 +434,23 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Venues.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Venues",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Venues.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Venues.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Venues",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Venues))
+				.catch(reloadAndLog(remoteData.Venues))
+		},
+		create: data => {
+			const dataFieldName = 'Venues'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return m.request(reqOptionsCreate(tokenFunction)(dataFieldName)(data))
+				.then(forceRemoteLoad(remoteData.Venues))
+				.catch(logResult)
+		}
 	},
 	Organizers: {
 		list: [],
@@ -412,16 +464,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Organizers.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Organizers",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Organizers.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Organizers.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Organizers",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Organizers))
+				.catch(reloadAndLog(remoteData.Organizers))
+		}
 	},
 	Places: {
 		list: [],
@@ -439,16 +488,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Places.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Places",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Places.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Places.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Places",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Places))
+				.catch(reloadAndLog(remoteData.Places))
+		}
 	},
 	Lineups: {
 		list: [],
@@ -460,6 +506,8 @@ const remoteData = {
 			if(!target) return
 			return target.priority
 		},
+		festHasLineup: fest => _.some(remoteData.Lineups.list, l => l.festival === fest),
+		getFestivalArtistIds: fest => remoteData.Lineups.list.filter(l => l.festival === fest).map(l => l.band),
 		loadList: () => {
 			if(ts() > remoteData.Lineups.remoteInterval + remoteData.Lineups.lastRemoteLoad) remoteData.Lineups.remoteLoad()
 
@@ -467,16 +515,24 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Lineups.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Lineups",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Lineups.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Lineups.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Lineups",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Lineups))
+				.catch(reloadAndLog(remoteData.Lineups))
+		},
+		upload: (data, festivalId) => {
+			const dataFieldName = 'Artists/festivalLineup/' + festivalId
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return m.request(reqOptionsCreate(tokenFunction)(dataFieldName)(data))
+				.then(forceRemoteLoad(remoteData.Lineups))
+				.then(forceRemoteLoad(remoteData.Artists))
+				.catch(logResult)
+		}
 	},
 	ArtistPriorities: {
 		list: [],
@@ -490,6 +546,12 @@ const remoteData = {
 			return data.name
 
 		},
+		getLevel: id => {
+			const data = remoteData.ArtistPriorities.get(id)
+			if(!data) return
+			return data.level
+
+		},
 		loadList: () => {
 			if(ts() > remoteData.ArtistPriorities.remoteInterval + remoteData.ArtistPriorities.lastRemoteLoad) remoteData.ArtistPriorities.remoteLoad()
 
@@ -497,16 +559,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.ArtistPriorities.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/ArtistPriorities",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.ArtistPriorities.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.ArtistPriorities.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/ArtistPriorities",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.ArtistPriorities))
+				.catch(reloadAndLog(remoteData.ArtistPriorities))
+		}
 	},
 	StagePriorities: {
 		list: [],
@@ -520,16 +579,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.StagePriorities.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/StagePriorities",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.StagePriorities.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.StagePriorities.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/StagePriorities",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.StagePriorities))
+				.catch(reloadAndLog(remoteData.StagePriorities))
+		}
 	},
 	StageLayouts: {
 		list: [],
@@ -543,16 +599,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.StageLayouts.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/StageLayouts",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.StageLayouts.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.StageLayouts.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/StageLayouts",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.StageLayouts))
+				.catch(reloadAndLog(remoteData.StageLayouts))
+		}
 	},
 	PlaceTypes: {
 		list: [],
@@ -566,16 +619,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.PlaceTypes.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/PlaceTypes",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.PlaceTypes.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.PlaceTypes.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/PlaceTypes",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.PlaceTypes))
+				.catch(reloadAndLog(remoteData.PlaceTypes))
+		}
 	},
 	Artists: {
 		list: [],
@@ -599,16 +649,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Artists.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Artists",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Artists.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Artists.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Artists",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Artists))
+				.catch(reloadAndLog(remoteData.Artists))
+		}
 	},
 	ParentGenres: {
 		list: [],
@@ -622,16 +669,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.ParentGenres.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/ParentGenres",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.ParentGenres.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.ParentGenres.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/ParentGenres",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.ParentGenres))
+				.catch(reloadAndLog(remoteData.ParentGenres))
+		}
 	},
 	Genres: {
 		list: [],
@@ -645,16 +689,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Genres.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Genres",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Genres.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Genres.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Genres",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Genres))
+				.catch(reloadAndLog(remoteData.Genres))
+		}
 	},
 	ArtistGenres: {
 		list: [],
@@ -668,16 +709,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.ArtistGenres.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/ArtistGenres",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.ArtistGenres.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.ArtistGenres.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/ArtistGenres",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.ArtistGenres))
+				.catch(reloadAndLog(remoteData.ArtistGenres))
+		}
 	},
 	Users: {
 		list: [],
@@ -691,16 +729,13 @@ const remoteData = {
 		remoteLoad: () => {
 			remoteData.Users.lastRemoteLoad = ts()
 			return m.request({
-		    method: "GET",
-		    url: "/api/Users",
-		  	config: tokenFunction
-		})
-		.then(result => {
-			remoteData.Users.list = result.filter(d => !d.deleted)
-			return result
-		})
-		.catch(onRejected => remoteData.Users.lastRemoteLoad = 0)
-	}
+		    	method: "GET",
+		    	url: "/api/Users",
+		  		config: tokenFunction
+			})
+				.then(assignDataToList(remoteData.Users))
+				.catch(reloadAndLog(remoteData.Users))
+		}
 	}
 }
 

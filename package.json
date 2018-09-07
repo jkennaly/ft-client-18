@@ -24,7 +24,10 @@
   "dependencies": {
     "auth0-js": "^9.3.1",
     "lodash": "^4.17.10",
-    "mithril": "^1.1.6"
+    "mithril": "^1.1.6",
+    "moment": "^2.22.2",
+    "moment-timezone": "^0.5.21",
+    "promise-polyfill": "^8.1.0"
   },
   "scripts": {
     "start": "webpack-dev-server --open",

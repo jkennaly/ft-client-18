@@ -10,9 +10,11 @@ import {getAppContext} from '../../store/ui';
 
 const DateCard = {
   view: ({ attrs }) =>
-    <div class="ft-card" onclick={() => m.route.set("/dates" + "/" + getAppContext() + '/' + attrs.eventId)}>
+    <div class="ft-card" onclick={() => m.route.set("/dates" + "/" + getAppContext() + '/' + attrs.eventId + (attrs.eventId === 'new' && attrs.festivalId ? '/' + attrs.festivalId : ''))}>
       <div class="ft-fields">
-        <ComposedNameField fieldValue={remoteData.Dates.getEventName(attrs.eventId)} />
+        {attrs.eventId !== 'new' ? 
+        <ComposedNameField fieldValue={remoteData.Dates.getEventName(attrs.eventId)} /> : 
+        <ComposedNameField fieldValue={'New Date'} />}
     </div>
     </div>
 };

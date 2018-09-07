@@ -24,6 +24,12 @@ import DateDetail from '../../components/detailViewsPregame/DateDetail.jsx';
 import DayDetail from '../../components/detailViewsPregame/DayDetail.jsx';
 import SetDetail from '../../components/detailViewsPregame/SetDetail.jsx';
 import ArtistDetail from '../../components/detailViewsPregame/ArtistDetail.jsx';
+
+import CreateSeries from '../../components/createFestivals/series/createSeries.jsx';
+import CreateFestival from '../../components/createFestivals/festivals/createFestival.jsx';
+import CreateDate from '../../components/createFestivals/dates/createDate.jsx';
+import CreateVenue from '../../components/createFestivals/venues/createVenue.jsx';
+
 // Mock data
 import {getMockData} from '../../store/data';
 
@@ -57,6 +63,12 @@ const FormView = () => [
 	</CardContainer>
 ];
 
+const forceLoginRoute = err => {
+	console.log(err)
+	m.route.set("/auth")
+
+}
+
 const App = {
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector(".main-stage");
@@ -72,226 +84,262 @@ const App = {
 			},
 			"/conferences": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						m.route.set("/" + getAppPerspective() + "/" + getAppContext()) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => m.route.set("/" + getAppPerspective() + "/" + getAppContext()))
+						.catch(forceLoginRoute)
 
 			},
 			"/cfp": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/entry": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						({view: () => FormView()}) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => {view: () => FormView()})
+						.catch(forceLoginRoute)
 			},
 			"/manage/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/manage/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/social/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/social/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/users/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/users/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/artists/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(ArtistView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => ArtistView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/artists/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(ArtistView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => ArtistView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/fests/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/fests/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/dates/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(DateView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => DateView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/dates/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(DateView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => DateView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/series/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SeriesView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SeriesView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/series/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SeriesView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SeriesView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/sets/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SetView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SetView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/sets/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SetView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SetView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/stages/pregame": {
 				onmatch: () =>
-					auth.isAuthenticated() ?						
-					(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()						
+					.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
 			},
 			"/stages/gametime": {
 				onmatch: () =>
-					auth.isAuthenticated() ?						
-					(FestivalView(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()						
+					.then(() => FestivalView(auth))
+						.catch(forceLoginRoute)
+			},
+			"/venues/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateVenue(auth))
+						.catch(forceLoginRoute)
 			},
 			"/users/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SeriesDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SeriesDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/users/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SeriesDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SeriesDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/artists/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(ArtistDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => ArtistDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/artists/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(ArtistDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => ArtistDetail(auth))
+						.catch(forceLoginRoute)
+			},
+			"/fests/pregame/new/:seriesId": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateFestival(auth))
+						.catch(forceLoginRoute)
+			},
+			"/fests/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateFestival(auth))
+						.catch(forceLoginRoute)
 			},
 			"/fests/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/fests/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(FestivalDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => FestivalDetail(auth))
+						.catch(forceLoginRoute)
+			},
+			"/dates/pregame/new/:festivalId": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateDate(auth))
+						.catch(forceLoginRoute)
+			},
+			"/dates/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateDate(auth))
+						.catch(forceLoginRoute)
 			},
 			"/dates/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(DateDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => DateDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/dates/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(DateDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => DateDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/days/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(DayDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => DayDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/days/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(DayDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => DayDetail(auth))
+						.catch(forceLoginRoute)
+			},
+			"/series/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateSeries(auth))
+						.catch(forceLoginRoute)
 			},
 			"/series/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SeriesDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SeriesDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/series/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SeriesDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SeriesDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/sets/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SetDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SetDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/sets/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?
-						(SetDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()
+						.then(() => SetDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/stages/pregame/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?						
-					(SeriesDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()						
+					.then(() => SeriesDetail(auth))
+						.catch(forceLoginRoute)
 			},
 			"/stages/gametime/:id": {
 				onmatch: () =>
-					auth.isAuthenticated() ?						
-					(SeriesDetail(auth)) :
-						m.route.set("/auth")
+					auth.getAccessToken()						
+					.then(() => SeriesDetail(auth))
+						.catch(forceLoginRoute)
 			}
 		});
 		m.mount(document.getElementById("DisplayBar"), DisplayBar)

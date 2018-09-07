@@ -55,6 +55,8 @@ const FestivalView = (auth) => { return {
 			title="Festival" 
 			/>
 		<CardContainer>
+		{getAppContext() === 'pregame' ? <FestivalCard eventId={'new'}/> : ''}
+			
 			{
 				remoteData.Festivals.list
 					.filter(filterFunction())

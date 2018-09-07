@@ -1,6 +1,7 @@
 // EntryForm.jsx
 
 import {setMockData} from "../store/data";
+import UIButton from './ui/UIButton.jsx';
 
 const entryFormHandler = (formDOM) => {
 
@@ -35,7 +36,6 @@ const entryFormHandler = (formDOM) => {
 };
 
 const m = require('mithril');
-import UIButton from './ui/UIButton.jsx';
 
 const EntryForm = {
 	data: {

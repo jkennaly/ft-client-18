@@ -30,10 +30,10 @@ const sortFunction = () => {
 	const currentSorts = _.uniq(getCurrentSorts(getAppContext(), getAppPerspective()))
 	if(currentSorts.length < 2) return baseFunc
 	const fieldName = selecterFields(currentSorts[1])[0]
-	console.log('base sortFunction')
-	console.log(baseFunc)
-	console.log(currentSorts)
-	console.log(fieldName)
+	//console.log('base sortFunction')
+	//console.log(baseFunc)
+	//console.log(currentSorts)
+	//console.log(fieldName)
 	return baseFunc(currentSorts[1], fieldName)
 	
 }
@@ -52,6 +52,7 @@ const SeriesView = (auth) => { return {
 			title="Festival Series" 
 			/>
 		<CardContainer>
+			{getAppContext() === 'pregame' ? <SeriesCard eventId={'new'}/> : ''}
 			{
 
 				remoteData.Series.list
