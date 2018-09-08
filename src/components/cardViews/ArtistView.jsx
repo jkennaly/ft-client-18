@@ -55,7 +55,7 @@ const ArtistView = (auth) => { return {
 		remoteData.Messages.loadList()
 		remoteData.ArtistPriorities.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<StageBanner 
 			action={() => auth.logout()} 
 			title="Artist" 

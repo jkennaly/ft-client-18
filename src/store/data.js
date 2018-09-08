@@ -1,6 +1,7 @@
 // data.js
 const m = require("mithril");
 const _ = require('lodash');
+var moment = require('moment-timezone');
 
 const CONFERENCES = [{
 	name: "auth0 conf",
@@ -282,6 +283,29 @@ const remoteData = {
 			if(ts() > remoteData.Dates.remoteInterval + remoteData.Dates.lastRemoteLoad) remoteData.Dates.remoteLoad()
 
 		},
+		getStartMoment: id => {
+			const date = remoteData.Dates.get(id)
+			const timezone = remoteData.Venues.getTimezone(date.venue)
+			return moment.tz(date.basedate, timezone).subtract(1, 'days')
+		},
+		getEndMoment: id => {
+			const days = remoteData.Dates.getSubDayIds(id)
+			return remoteData.Dates.getStartMoment(id).add(days.length + 2, 'days')
+		},
+		current: () => remoteData.Dates.list.filter(d => {
+			//now is greater than the start moment but less than the end moment
+			var now = moment()
+			var start = remoteData.Dates.getStartMoment(d.id)
+			var end = remoteData.Dates.getEndMoment(d.id)
+			return now.isBetween(start, end, 'day')
+		}),
+		soon: () => remoteData.Dates.list.filter(d => {
+			//now is greater than the start moment but less than the end moment
+			var now = moment().add(1, 'days')
+			var start = remoteData.Dates.getStartMoment(d.id)
+			var end = moment().add(30, 'days')
+			return start.isBetween(now, end, 'day')
+		}),
 		remoteLoad: () => {
 			remoteData.Dates.lastRemoteLoad = ts()
 			return m.request({
@@ -423,6 +447,11 @@ const remoteData = {
 			const v = remoteData.Venues.get(id)
 			if(!v || !v.name) return ''
 			return v.name
+		},
+		getTimezone: id => {
+			const v = remoteData.Venues.get(id)
+			if(!v || !v.name) return ''
+			return v.timezone
 		},
 		getPlaceNames: () => remoteData.Venues.list.map(x => x.name),
 		getPlaceNamesWithIds: () => remoteData.Venues.list.map(x => [x.name, x.id]),

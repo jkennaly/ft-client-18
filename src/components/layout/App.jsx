@@ -5,6 +5,7 @@ const m = require('mithril');
 import MainStage from './MainStage.jsx';
 import NavBar from './NavBar.jsx';
 import DisplayBar from './DisplayBar.jsx';
+import Launcher from './Launcher.jsx';
 
 // Components
 import StageBanner from '../../components/ui/StageBanner.jsx';
@@ -56,13 +57,6 @@ const WelcomeView = () => [
 	</div>
 ];
 
-const FormView = () => [
-	<StageBanner action={() => auth.logout()} title="Add Conference" />,
-	<CardContainer>
-		<EntryForm />
-	</CardContainer>
-];
-
 const forceLoginRoute = err => {
 	console.log(err)
 	m.route.set("/auth")
@@ -72,21 +66,19 @@ const forceLoginRoute = err => {
 const App = {
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector(".main-stage");
-
+/*
         var hashStr = window.location.hash;
         hashStr = hashStr.replace(/^#?\/?/, '');
         localStorage.setItem('raw_token', hashStr);
+*/
 		auth.handleAuthentication();
 
 		m.route(mainStage, "/auth", {
 			"/auth": {
 				view: () => WelcomeView()
 			},
-			"/conferences": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => m.route.set("/" + getAppPerspective() + "/" + getAppContext()))
-						.catch(forceLoginRoute)
+			"/launcher": {
+				onmatch: () => Launcher(auth)
 
 			},
 			"/cfp": {
@@ -95,17 +87,8 @@ const App = {
 						.then(() => FestivalView(auth))
 						.catch(forceLoginRoute)
 			},
-			"/entry": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => {view: () => FormView()})
-						.catch(forceLoginRoute)
-			},
 			"/manage/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
+				onmatch: () => Launcher(auth)
 			},
 			"/manage/gametime": {
 				onmatch: () =>

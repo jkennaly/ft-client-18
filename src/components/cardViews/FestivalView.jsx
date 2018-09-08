@@ -48,7 +48,7 @@ const FestivalView = (auth) => { return {
 		remoteData.Festivals.loadList()
 		remoteData.Series.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<StageBanner 
 			action={() => auth.logout()}
 			idFields={remoteData.Festivals.idFields()}

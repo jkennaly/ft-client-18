@@ -19,7 +19,7 @@ const SeriesDetail = (auth) => { return {
 		remoteData.Festivals.loadList()
 		remoteData.Series.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<DetailBanner 
 			action={() => auth.logout()}
 			title={remoteData.Series.getEventName(parseInt(m.route.param('id'), 10))} 

@@ -14,7 +14,7 @@ const setSession = function(authResult) {
     localStorage.setItem('id_token', authResult.idToken);
     localStorage.setItem('expires_at', expiresAt);
     // navigate to the home route
-    m.route.set('/series/pregame');
+    m.route.set('/launcher');
   }
 const tokenFunction = function(xhr) {
   xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'))
@@ -41,7 +41,7 @@ export default class Auth {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
         this.getFtUserId();
-        m.route.set('/series/pregame');
+        //m.route.set('/launcher');
       } else if (err) {
         m.route.set('/auth');
         console.log(err);

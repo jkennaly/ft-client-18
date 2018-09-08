@@ -15,7 +15,7 @@ const ArtistDetail = (auth) => { return {
 	oninit: () => {
 		remoteData.Artists.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<DetailBanner 
 			action={() => auth.logout()}
 			title={remoteData.Artists.getName(parseInt(m.route.param('id'), 10))} 

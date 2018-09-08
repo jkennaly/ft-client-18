@@ -32,7 +32,7 @@ const FestivalDetail = (auth) => { return {
 		remoteData.Artists.loadList()
 		remoteData.ArtistPriorities.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<DetailBanner 
 			action={() => auth.logout()}
 			title={remoteData.Festivals.getEventName(parseInt(m.route.param('id'), 10))} 

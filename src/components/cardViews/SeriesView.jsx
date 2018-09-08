@@ -43,7 +43,7 @@ const filterFunction = () => getFilter(getAppContext(), getAppPerspective())
 
 const SeriesView = (auth) => { return {
 	oninit: remoteData.Series.loadList,
-	view: () => <div>
+	view: () => <div class="main-stage">
 		
 		<StageBanner 
 			action={() => auth.logout()}

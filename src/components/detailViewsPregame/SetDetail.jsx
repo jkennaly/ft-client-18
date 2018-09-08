@@ -20,7 +20,7 @@ const SetDetail = (auth) => { return {
 		remoteData.Messages.loadList()
 		remoteData.ArtistPriorities.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<DetailBanner 
 			action={() => auth.logout()}
 			title={remoteData.Sets.getEventName(parseInt(m.route.param('id'), 10))} 

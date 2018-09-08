@@ -28,7 +28,7 @@ const DateDetail = (auth) => { return {
 		remoteData.ArtistPriorities.loadList()
 		remoteData.Venues.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<DetailBanner 
 			action={() => auth.logout()}
 			title={remoteData.Dates.getEventName(parseInt(m.route.param('id'), 10))} 

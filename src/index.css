@@ -48,6 +48,7 @@ html {
     font-size: 150%;
     cursor: pointer;
     align-items: center;
+    flex-direction: column;
 }
 
 .nav-button input{
@@ -66,6 +67,14 @@ html {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.launcher-container {
+    flex-direction: column;
+}
+
+.stage-banner-container {
+    width: 100%;
 }
 
 .stage-banner svg {
@@ -237,6 +246,11 @@ html {
     background-color: #f1f1f1;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    flex-wrap: wrap-reverse;
+    justify-content: flex-start;
+    align-items: flex-start;
 }
 
 .sub-menu-content {
@@ -312,5 +326,49 @@ html {
     justify-content: center;
     color: white;
 }
+
+.widget-container section, div, footer {
+  display:flex;
+}
+
+.widget-container section {
+  margin:10px;
+}
+
+.widget-container {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    flex: display;
+    flex-direction: row;
+    overflow-y: scroll;
+}
+
+.widget-container section {
+  border:1px solid black;
+  flex-direction:column;
+  height:300px;
+  width:300px;
+}
+
+.widget-container div {
+  flex-grow:1;
+}
+
+.widget-container header {
+  border-bottom:1px solid black;
+  color: white;
+}
+
+.widget-container footer {
+  border-top:1px solid black;
+  flex-direction:row;
+  justify-content:flex-end;
+}
+
+.widget-container footer > span {
+  flex-grow:1;
+}
+
 
 .hidden { display:none; }

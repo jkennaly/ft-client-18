@@ -47,7 +47,7 @@ const DateView = (auth) => { return {
 		remoteData.Festivals.loadList()
 		remoteData.Dates.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<StageBanner 
 			action={() => auth.logout()} 
 			title="Date" 

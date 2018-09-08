@@ -47,7 +47,7 @@ const DayView = (auth) => { return {
 		remoteData.Dates.loadList()
 		remoteData.Days.loadList()
 	},
-	view: () => <div>
+	view: () => <div class="main-stage">
 		<StageBanner 
 			action={() => auth.logout()}
 			idFields={remoteData.Days.idFields()}
