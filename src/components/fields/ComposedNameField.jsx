@@ -4,9 +4,9 @@ const m = require("mithril");
 
 const ComposedNameField = {
 	view: ({ attrs }) =>
-		<div class="ft-field">
+		<span class="ft-field">
 			{attrs.fieldValue}
-		</div >
+		</span >
 };
 
 export default ComposedNameField;

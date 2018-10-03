@@ -4,12 +4,15 @@
 const m = require("mithril");
 const _ = require("lodash");
 
-import DetailBanner from '../ui/DetailBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import SeriesCard from '../../components/cards/SeriesCard.jsx';
 import DateCard from '../../components/cards/DateCard.jsx';
 import NavCard from '../../components/cards/NavCard.jsx';
 import ArtistCard from '../../components/cards/ArtistCard.jsx';
+
+import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
+import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 
 import {remoteData} from '../../store/data';
 import {getAppContext} from '../../store/ui';
@@ -28,15 +31,18 @@ const FestivalDetail = (auth) => { return {
 		remoteData.Festivals.loadList()
 		remoteData.Series.loadList()
 		remoteData.Dates.loadList()
+		remoteData.Days.loadList()
 		remoteData.Lineups.loadList()
 		remoteData.Artists.loadList()
 		remoteData.ArtistPriorities.loadList()
+		remoteData.Messages.loadList()
 	},
 	view: () => <div class="main-stage">
-		<DetailBanner 
-			action={() => auth.logout()}
+			<LauncherBanner 
 			title={remoteData.Festivals.getEventName(parseInt(m.route.param('id'), 10))} 
-		/>
+				
+			
+			/>
 		{getAppContext() === 'pregame' && !remoteData.Lineups.festHasLineup(parseInt(m.route.param('id'), 10)) ? 
 		<div><label for="lineup-uploader">
         {`Upload a file with the artist list (one name per line)`}
@@ -53,7 +59,8 @@ const FestivalDetail = (auth) => { return {
 					remoteData.Festivals.getSuperId
 					)('id')
 				}/>
-		<CardContainer>
+			<WidgetContainer>
+		<FixedCardWidget header="Festival Dates">
 			{
 				_.flow(
 					m.route.param, parseInt,
@@ -65,8 +72,8 @@ const FestivalDetail = (auth) => { return {
 						eventId={data.id}
 					/>)
 			}
-		</CardContainer>
-		<CardContainer>
+		</FixedCardWidget>		
+		<FixedCardWidget header="Festival Lineup">
 			{
 				_.flow(
 					m.route.param, parseInt,
@@ -87,7 +94,8 @@ const FestivalDetail = (auth) => { return {
 						festivalId={_.flow(m.route.param, parseInt)('id')}
 					/>)
 			}
-		</CardContainer>
+		</FixedCardWidget>	
+		</WidgetContainer>
 	</div>
 }}
 export default FestivalDetail;

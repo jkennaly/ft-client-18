@@ -5,7 +5,7 @@ const m = require("mithril");
 const _ = require('lodash');
 
 
-import StageBanner from '../../components/ui/StageBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import ArtistCard from '../../components/cards/ArtistCard.jsx';
 
@@ -56,11 +56,9 @@ const ArtistView = (auth) => { return {
 		remoteData.ArtistPriorities.loadList()
 	},
 	view: () => <div class="main-stage">
-		<StageBanner 
-			action={() => auth.logout()} 
-			title="Artist" 
-			idFields={remoteData.Artists.idFields()}
-		/>
+			<LauncherBanner 
+				title="FestivalTime Artists" 
+			/>
 		<CardContainer>
 			{
 				_.take(remoteData.Artists.list

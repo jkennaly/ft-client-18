@@ -15,12 +15,12 @@ const getSeriesName = id => {
 const SeriesNameField = {
 	oninit: remoteData.Series.loadList,
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
+		<span class="ft-name-field">
 			{(getSeriesName(attrs.seriesId))}
 			
 		
 		
-		</div >
+		</span >
 };
 
 export default SeriesNameField;

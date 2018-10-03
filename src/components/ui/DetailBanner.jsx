@@ -13,7 +13,7 @@ const DetailBanner = {
 	view: ({ attrs }) =>
 		<div class="stage-banner">
 			<DetailTitle title={attrs.title} />
-			<LogoutButton action={attrs.action} />
+			<DisplayButton icon={<i class="fas fa-bars"/>} />
 		</div>
 };
 

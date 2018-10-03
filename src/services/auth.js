@@ -43,8 +43,8 @@ export default class Auth {
         this.getFtUserId();
         //m.route.set('/launcher');
       } else if (err) {
-        m.route.set('/auth');
         console.log(err);
+        m.route.set('/auth');
       }
     });
   }
@@ -75,14 +75,14 @@ export default class Auth {
   }
 
 
-  logout() {
+  logout(skipRoute) {
     // Clear Access Token and ID Token from local storage
     localStorage.removeItem('access_token');
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
     localStorage.removeItem('ft_user_id');
     // navigate to the default route
-    m.route.set('/auth');
+    if(!skipRoute) m.route.set('/auth');
   }
 
   isAuthenticated() {
@@ -94,8 +94,12 @@ export default class Auth {
 
   getAccessToken() {
     const currentToken = localStorage.getItem('access_token')
+    //console.log('getAccessToken')
     if(!currentToken) return Promise.reject('no logged in user; requires manual login')
     const tokenValid = this.isAuthenticated()
+    //console.log(tokenValid)
+    //console.log(currentToken)
+
     const _this = this
     var promise = tokenValid ? Promise.resolve(currentToken) : new Promise((resolve, reject) => _this.auth0.checkSession({},
         function(err, result) {

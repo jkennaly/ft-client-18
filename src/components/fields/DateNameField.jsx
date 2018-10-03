@@ -15,9 +15,9 @@ const getDateName = id => {
 const DateNameField = {
 	oninit: remoteData.Dates.loadList,
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
+		<span class="ft-name-field">
 			{(getDateName(attrs.dateId))}
-		</div >
+		</span >
 };
 
 export default DateNameField;

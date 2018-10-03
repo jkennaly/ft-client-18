@@ -4,7 +4,7 @@
 const m = require("mithril");
 const _ = require("lodash");
 
-import DetailBanner from '../ui/DetailBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
 
@@ -20,9 +20,8 @@ const SeriesDetail = (auth) => { return {
 		remoteData.Series.loadList()
 	},
 	view: () => <div class="main-stage">
-		<DetailBanner 
-			action={() => auth.logout()}
-			title={remoteData.Series.getEventName(parseInt(m.route.param('id'), 10))} 
+			<LauncherBanner 
+				title={remoteData.Series.getEventName(parseInt(m.route.param('id'), 10))} 
 		/>
 		{remoteData.Series.get(parseInt(m.route.param('id'), 10)) ? <SeriesDescriptionField id={parseInt(m.route.param('id'), 10)} /> : ''}
 		{remoteData.Series.get(parseInt(m.route.param('id'), 10)) ? <SeriesWebsiteField id={parseInt(m.route.param('id'), 10)} /> : ''}

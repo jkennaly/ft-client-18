@@ -49,9 +49,9 @@ const EventNameField = {
 		remoteData.Artists.loadList()
 	},
 	view: ({ attrs }) =>
-		<div class="ft-field">
+		<span class="ft-field">
 			{getEventName(attrs.superId, attrs.eventTier, attrs.nameFrag)}
-		</div >
+		</span >
 };
 
 export default EventNameField;

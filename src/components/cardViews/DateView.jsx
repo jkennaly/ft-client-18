@@ -3,7 +3,7 @@
 
 const m = require("mithril");
 
-import StageBanner from '../../components/ui/StageBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import DateCard from '../../components/cards/DateCard.jsx';
 
@@ -48,11 +48,9 @@ const DateView = (auth) => { return {
 		remoteData.Dates.loadList()
 	},
 	view: () => <div class="main-stage">
-		<StageBanner 
-			action={() => auth.logout()} 
-			title="Date" 
-			idFields={remoteData.Dates.idFields()}
-		/>
+			<LauncherBanner 
+				title="FestivalTime Dates" 
+			/>
 		<CardContainer>
 			{
 				remoteData.Dates.list

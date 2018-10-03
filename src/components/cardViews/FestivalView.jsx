@@ -3,7 +3,7 @@
 
 const m = require("mithril");
 
-import StageBanner from '../../components/ui/StageBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
 
@@ -49,10 +49,9 @@ const FestivalView = (auth) => { return {
 		remoteData.Series.loadList()
 	},
 	view: () => <div class="main-stage">
-		<StageBanner 
-			action={() => auth.logout()}
-			idFields={remoteData.Festivals.idFields()}
-			title="Festival" 
+		
+			<LauncherBanner 
+				title="FestivalTime Years" 
 			/>
 		<CardContainer>
 		{getAppContext() === 'pregame' ? <FestivalCard eventId={'new'}/> : ''}

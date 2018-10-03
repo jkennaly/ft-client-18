@@ -12,10 +12,10 @@ import  MainEventField from './MainEventField.jsx';
 
 const SetNameField = {
 	view: ({ attrs }) =>
-		<div class="ft-set-name-field">
+		<span class="ft-set-name-field">
 	        <ComposedNameField fieldValue={attrs.artistName + ' @'} />
 	        <MainEventField seriesId={attrs.seriesId} festivalId={attrs.festivalId} />
-		</div >
+		</span >
 };
 
 export default SetNameField;

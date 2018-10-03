@@ -4,7 +4,7 @@
 const m = require("mithril");
 const _ = require("lodash");
 
-import StageBanner from '../../components/ui/StageBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import SeriesCard from '../../components/cards/SeriesCard.jsx';
 
@@ -45,11 +45,9 @@ const SeriesView = (auth) => { return {
 	oninit: remoteData.Series.loadList,
 	view: () => <div class="main-stage">
 		
-		<StageBanner 
-			action={() => auth.logout()}
-			idFields={remoteData.Series.idFields()}
-			filterPreLoad={getFilterPreLoad(getAppContext(), getAppPerspective())}
-			title="Festival Series" 
+		
+			<LauncherBanner 
+				title="Festivals" 
 			/>
 		<CardContainer>
 			{getAppContext() === 'pregame' ? <SeriesCard eventId={'new'}/> : ''}

@@ -4,7 +4,7 @@
 const m = require("mithril");
 const _ = require("lodash");
 
-import DetailBanner from '../ui/DetailBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../store/data';
 
@@ -21,9 +21,8 @@ const SetDetail = (auth) => { return {
 		remoteData.ArtistPriorities.loadList()
 	},
 	view: () => <div class="main-stage">
-		<DetailBanner 
-			action={() => auth.logout()}
-			title={remoteData.Sets.getEventName(parseInt(m.route.param('id'), 10))} 
+			<LauncherBanner 
+				title={remoteData.Sets.getEventName(parseInt(m.route.param('id'), 10))}  
 			/>
 		<span>
 

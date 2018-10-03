@@ -4,13 +4,16 @@
 const m = require("mithril");
 const _ = require("lodash");
 
-import DetailBanner from '../ui/DetailBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import DateVenueField from './fields/date/DateVenueField.jsx'
 import DateBaseField from './fields/date/DateBaseField.jsx'
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
 import DayCard from '../../components/cards/DayCard.jsx';
 import SetCard from '../../components/cards/SetCard.jsx';
+
+import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
+import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 
 import {remoteData} from '../../store/data';
 
@@ -29,10 +32,10 @@ const DateDetail = (auth) => { return {
 		remoteData.Venues.loadList()
 	},
 	view: () => <div class="main-stage">
-		<DetailBanner 
-			action={() => auth.logout()}
-			title={remoteData.Dates.getEventName(parseInt(m.route.param('id'), 10))} 
-		/>
+			<LauncherBanner 
+				title={remoteData.Dates.getEventName(parseInt(m.route.param('id'), 10))} 
+		
+			/>
 		{remoteData.Dates.get(parseInt(m.route.param('id'), 10)) ? <DateVenueField id={parseInt(m.route.param('id'), 10)} /> : ''}
 		{remoteData.Dates.get(parseInt(m.route.param('id'), 10)) ? <DateBaseField id={parseInt(m.route.param('id'), 10)} /> : ''}
 		<FestivalCard seriesId={_.flow(
@@ -51,7 +54,8 @@ const DateDetail = (auth) => { return {
 				)('id')
 			}
 		/>
-		<CardContainer>
+			<WidgetContainer>
+		<FixedCardWidget header="Festival Days">
 			{
 				_.flow(
 					m.route.param, parseInt,
@@ -62,8 +66,8 @@ const DateDetail = (auth) => { return {
 						eventId={data.id}
 					/>)
 			}
-		</CardContainer>
-		<CardContainer>
+		</FixedCardWidget>
+		<FixedCardWidget header="Scheduled Sets">
 			{
 				_.flow(
 					m.route.param, parseInt,
@@ -92,7 +96,8 @@ const DateDetail = (auth) => { return {
 					artistPriorityName={remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(data.band, remoteData.Days.getFestivalId(data.day)))}
 					/>)
 			}
-		</CardContainer>
+		</FixedCardWidget>
+			</WidgetContainer>
 	</div>
 }}
 export default DateDetail;

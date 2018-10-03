@@ -15,12 +15,12 @@ const getDayName = id => {
 const DayNameField = {
 	oninit: remoteData.Days.loadList,
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
+		<span class="ft-name-field">
 			{(getDayName(attrs.dayId))}
 			
 		
 		
-		</div >
+		</span >
 };
 
 export default DayNameField;

@@ -15,9 +15,9 @@ const getFestivalYear = id => {
 const FestivalYearField = {
 	oninit: remoteData.Dates.loadList,
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
+		<span class="ft-name-field">
 			{(getFestivalYear(attrs.festivalId))}
-		</div >
+		</span >
 };
 
 export default FestivalYearField;

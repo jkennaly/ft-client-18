@@ -10,13 +10,13 @@ import Launcher from './Launcher.jsx';
 // Components
 import StageBanner from '../../components/ui/StageBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
+import ConfirmLogout from '../../components/layout/ConfirmLogout.jsx';
 import SeriesView from '../../components/cardViews/SeriesView.jsx';
 import SetView from '../../components/cardViews/SetView.jsx';
 import DateView from '../../components/cardViews/DateView.jsx';
 import DayView from '../../components/cardViews/DayView.jsx';
 import FestivalView from '../../components/cardViews/FestivalView.jsx';
 import ArtistView from '../../components/cardViews/ArtistView.jsx';
-import EntryForm from '../../components/EntryForm.jsx';
 import UIButton from '../../components/ui/UIButton.jsx';
 
 import SeriesDetail from '../../components/detailViewsPregame/SeriesDetail.jsx';
@@ -30,6 +30,12 @@ import CreateSeries from '../../components/createFestivals/series/createSeries.j
 import CreateFestival from '../../components/createFestivals/festivals/createFestival.jsx';
 import CreateDate from '../../components/createFestivals/dates/createDate.jsx';
 import CreateVenue from '../../components/createFestivals/venues/createVenue.jsx';
+import AssignDays from '../../components/createFestivals/sets/AssignDays.jsx';
+import AssignSetStages from '../../components/createFestivals/sets/AssignStages.jsx';
+import AssignTimes from '../../components/createFestivals/sets/AssignTimes.jsx';
+import SetStages from '../../components/createFestivals/festivals/SetStages.jsx';
+import SetLineup from '../../components/createFestivals/lineups/SetLineup.jsx';
+import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 
 // Mock data
 import {getMockData} from '../../store/data';
@@ -65,7 +71,7 @@ const forceLoginRoute = err => {
 
 const App = {
 	oncreate: (vnode) => {
-		const mainStage = vnode.dom.querySelector(".main-stage");
+		const mainStage = vnode.dom.querySelector("#main-stage");
 /*
         var hashStr = window.location.hash;
         hashStr = hashStr.replace(/^#?\/?/, '');
@@ -73,12 +79,18 @@ const App = {
 */
 		auth.handleAuthentication();
 
-		m.route(mainStage, "/auth", {
+		m.route(mainStage, "/launcher", {
 			"/auth": {
-				view: () => WelcomeView()
+				onmatch: () => {
+					auth.logout(true)
+				},
+				render: WelcomeView
+			},
+			"/confirm/logout": {
+				onmatch: ConfirmLogout
 			},
 			"/launcher": {
-				onmatch: () => Launcher(auth)
+				onmatch: Launcher
 
 			},
 			"/cfp": {
@@ -88,7 +100,7 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/manage/pregame": {
-				onmatch: () => Launcher(auth)
+				onmatch: Launcher
 			},
 			"/manage/gametime": {
 				onmatch: () =>
@@ -183,19 +195,55 @@ const App = {
 			"/stages/pregame": {
 				onmatch: () =>
 					auth.getAccessToken()						
-					.then(() => FestivalView(auth))
+						.then(() => FestivalView(auth))
 						.catch(forceLoginRoute)
 			},
 			"/stages/gametime": {
 				onmatch: () =>
 					auth.getAccessToken()						
-					.then(() => FestivalView(auth))
+						.then(() => FestivalView(auth))
 						.catch(forceLoginRoute)
 			},
 			"/venues/pregame/new": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(() => CreateVenue(auth))
+						.catch(forceLoginRoute)
+			},
+			"/sets/pregame/assignDays": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(AssignDays)
+						.catch(forceLoginRoute)
+			},
+			"/sets/pregame/assignTimes": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(AssignTimes)
+						.catch(forceLoginRoute)
+			},
+			"/sets/pregame/assignStages": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(AssignSetStages)
+						.catch(forceLoginRoute)
+			},
+			"/fests/pregame/assignStages": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(SetStages)
+						.catch(forceLoginRoute)
+			},
+			"/fests/pregame/assignLineup": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(SetLineup)
+						.catch(forceLoginRoute)
+			},
+			"/artists/pregame/fix": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(FixArtist)
 						.catch(forceLoginRoute)
 			},
 			"/users/pregame/:id": {
@@ -213,13 +261,13 @@ const App = {
 			"/artists/pregame/:id": {
 				onmatch: () =>
 					auth.getAccessToken()
-						.then(() => ArtistDetail(auth))
+						.then(ArtistDetail)
 						.catch(forceLoginRoute)
 			},
 			"/artists/gametime/:id": {
 				onmatch: () =>
 					auth.getAccessToken()
-						.then(() => ArtistDetail(auth))
+						.then(ArtistDetail)
 						.catch(forceLoginRoute)
 			},
 			"/fests/pregame/new/:seriesId": {
@@ -325,13 +373,13 @@ const App = {
 						.catch(forceLoginRoute)
 			}
 		});
-		m.mount(document.getElementById("DisplayBar"), DisplayBar)
+		//m.mount(document.getElementById("DisplayBar"), DisplayBar)
 	},
 	view: ({ children }) =>
 		<div class="App">
-			<MainStage>
+			<div id="main-stage">
 				{children}
-			</MainStage>
+			</div>
 			<div id="DisplayBar" />
 		</div>
 };

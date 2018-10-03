@@ -15,12 +15,12 @@ const getStageName = id => {
 const StageNameField = {
 	oninit: remoteData.Places.loadList,
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
+		<span class="ft-name-field">
 			{(getStageName(attrs.stageId))}
 			
 		
 		
-		</div >
+		</span >
 };
 
 export default StageNameField;

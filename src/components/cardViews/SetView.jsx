@@ -5,7 +5,7 @@ const m = require("mithril");
 const _ = require('lodash');
 
 
-import StageBanner from '../../components/ui/StageBanner.jsx';
+import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import SetCard from '../../components/cards/SetCard.jsx';
 
@@ -57,11 +57,9 @@ const SetView = (auth) => { return {
 		remoteData.ArtistPriorities.loadList()
 	},
 	view: () => <div class="main-stage">
-		<StageBanner 
-			action={() => auth.logout()} 
-			title="Set" 
-			idFields={remoteData.Sets.idFields()}
-		/>
+			<LauncherBanner 
+				title="FestivalTime Sets" 
+			/>
 		<CardContainer>
 			{
 				_.take(remoteData.Sets.list
@@ -82,6 +80,6 @@ const SetView = (auth) => { return {
 					/>)
 			}
 		</CardContainer>
-	</div>
+		</div>
 }}
 export default SetView;

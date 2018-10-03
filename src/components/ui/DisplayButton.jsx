@@ -4,59 +4,56 @@ const m = require("mithril");
 
 import CollapsibleMenu from './CollapsibleMenu.jsx';
 
-// possible state
-import {getAllPerspectives} from '../../store/ui';
-import {getAllContexts} from '../../store/ui';
+// Services
+import Auth from '../../services/auth.js';
+const auth = new Auth();
 
-const possibleStates = {
-	perspective: getAllPerspectives,
-	context:  getAllContexts,
-};
 
-// Local state
-import {getAppPerspective} from '../../store/ui';
-import {getAppContext} from '../../store/ui';
+const DisplayButton = vnode => {
+	var menuHidden = true
+	var userValid = true
+	const validUserItem = {
+			name: 'Logout',
+			path: '/confirm/logout'
+		}
+	const invalidUserItem = {
+			name: 'Login',
+			path: '/auth'
+		}
 
-const localState = {
-	perspective: getAppPerspective,
-	context:  getAppContext,
-};
-
-// change state
-import {setAppPerspective} from '../../store/ui';
-import {setAppContext} from '../../store/ui';
-
-const newState = {
-	perspective: setAppPerspective,
-	context:  setAppContext,
-};
-
-// active selections
-import {selected} from '../../store/ui';
-
-// change selections
-import {toggleSelection} from '../../store/ui';
-
-const allStates = attrs => possibleStates[attrs.display]
-const currentState = attrs => localState[attrs.display]
-const changeState = attrs => val => newState[attrs.display](val)
-const hideDisplay = attrs => selected.indexOf(attrs.display) < 0
-const DisplayButton = {
-	view: ({ attrs }) =>
-		<div>
+	const menuList = [
+		{
+			name: 'Launcher',
+			path: '/launcher'
+		},
+		{
+			name: 'Festivals',
+			path: '/series/pregame'
+		}
+	]
+	return {
+		oninit: () => {
+			auth.getFtUserId()
+				.then(id => userValid = id)
+				.catch(() => {userValid = false; m.redraw()})
+		},
+		onupdate: () => {
+			auth.getFtUserId()
+				.then(id => userValid = id)
+				.catch(() => {userValid = false; m.redraw()})
+		},
+		view: ({ attrs }) => <div>
 			<CollapsibleMenu 
-				menu={allStates(attrs)()} 
-				collapsed={hideDisplay(attrs)} 
-				selected={currentState(attrs)()} 
-				stateChange={changeState(attrs)}
+				menu={menuList.concat([userValid ? validUserItem : invalidUserItem])} 
+				collapsed={menuHidden}
+				itemClicked={() => menuHidden = true}
 			/>
-			<div class="nav-button" onclick={() => {toggleSelection(attrs.display)}}>
+			<div class="nav-button" onclick={() => menuHidden = !menuHidden}>
 				{attrs.icon}
-				<div>
-					{currentState(attrs)()}
-				</div>
 			</div>
 		</div>
-};
+	};
+
+}
 
 export default DisplayButton;
