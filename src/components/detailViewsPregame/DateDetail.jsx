@@ -1,7 +1,7 @@
 // DateDetail.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';
@@ -11,13 +11,30 @@ import DateBaseField from './fields/date/DateBaseField.jsx'
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
 import DayCard from '../../components/cards/DayCard.jsx';
 import SetCard from '../../components/cards/SetCard.jsx';
+import ArtistCard from '../../components/cards/ArtistCard.jsx';
 
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 
 import {remoteData} from '../../store/data';
 
-const DateDetail = (auth) => { return {
+const DateDetail = (auth) => { 
+	var sets = []
+	var lineup = []
+	var festivalId = 0
+
+	const initDom = vnode => {
+		sets = _.flow(
+					m.route.param, parseInt,
+					remoteData.Dates.getSubSetIds,
+					remoteData.Sets.getMany)('id')
+		festivalId = _.flow(
+				m.route.param, parseInt,
+				remoteData.Dates.getSuperId
+				)('id')
+		lineup = remoteData.Lineups.forFestival(festivalId)
+	}
+	return {
 	oninit: () => {
 		remoteData.Series.loadList()
 		remoteData.Festivals.loadList()
@@ -31,6 +48,8 @@ const DateDetail = (auth) => { return {
 		remoteData.ArtistPriorities.loadList()
 		remoteData.Venues.loadList()
 	},
+	oncreate: initDom,
+	onupdate: initDom,
 	view: () => <div class="main-stage">
 			<LauncherBanner 
 				title={remoteData.Dates.getEventName(parseInt(m.route.param('id'), 10))} 
@@ -43,11 +62,7 @@ const DateDetail = (auth) => { return {
 				remoteData.Dates.getSeriesId,
 				)('id')
 			}
-			festivalId={_.flow(
-				m.route.param, parseInt,
-				remoteData.Dates.getSuperId
-				)('id')
-			}
+			festivalId={festivalId}
 			eventId={_.flow(
 				m.route.param, parseInt,
 				remoteData.Dates.getSuperId
@@ -69,13 +84,8 @@ const DateDetail = (auth) => { return {
 		</FixedCardWidget>
 		<FixedCardWidget header="Scheduled Sets">
 			{
-				_.flow(
-					m.route.param, parseInt,
-					remoteData.Dates.getSubSetIds,
-					remoteData.Sets.getMany)('id')
+				sets
 					.sort((a, b) => {
-						const dayId = _.flow(m.route.param, parseInt)('id')
-						const festivalId = remoteData.Dates.getFestivalId(dayId)
 						const aPriId = remoteData.Lineups.getPriFromArtistFest(a.band, festivalId)
 						const bPriId = remoteData.Lineups.getPriFromArtistFest(b.band, festivalId)
 						if(aPriId === bPriId) return remoteData.Sets.getEventName(a.id).localeCompare(remoteData.Sets.getEventName(b.id))
@@ -97,6 +107,24 @@ const DateDetail = (auth) => { return {
 					/>)
 			}
 		</FixedCardWidget>
+		{sets.length ? '' : <FixedCardWidget header="Festival Lineup">
+					{
+						lineup
+							.sort((a, b) => {
+								const aPriId = remoteData.Lineups.getPriFromArtistFest(a.band, festivalId)
+								const bPriId = remoteData.Lineups.getPriFromArtistFest(b.band, festivalId)
+								if(aPriId === bPriId) return 0
+								const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
+								const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
+								return aPriLevel - bPriLevel
+							})
+							.map(l => remoteData.Artists.get(l.band))
+					.map(data => <ArtistCard 
+						data={data}
+						festivalId={festivalId}
+					/>)
+					}
+				</FixedCardWidget>}
 			</WidgetContainer>
 	</div>
 }}

@@ -1,6 +1,6 @@
 // CardContainer.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const CardContainer = {
   view: ({ children }) => {

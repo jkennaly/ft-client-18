@@ -2,7 +2,7 @@
 
 // BannerButton.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const BannerButton = {
 	view: ({ attrs }) =>

@@ -1,6 +1,6 @@
 // WidgetContainer.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const WidgetContainer = {
   view: ({ children }) => {

@@ -1,6 +1,6 @@
 // StageTitle.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const StageTitle = {
 	view: ({ attrs }) =>

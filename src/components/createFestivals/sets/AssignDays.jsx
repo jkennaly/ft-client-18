@@ -11,7 +11,7 @@
 //table headers are day names for the date
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 // Services
 import Auth from '../../../services/auth.js';
@@ -22,6 +22,8 @@ import {remoteData} from '../../../store/data';
 import DateSelector from '../../detailViewsPregame/fields/date/DateSelector.jsx'
 import FestivalSelector from '../../detailViewsPregame/fields/festival/FestivalSelector.jsx'
 
+
+import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import UIButton from '../../ui/UIButton.jsx';
 
@@ -127,10 +129,13 @@ const AssignDays = (vnode) => {
 			auth.getFtUserId()
 				.then(id => userId = id)
 				.then(m.redraw)
-				.catch(console.log)
+				.catch(err => m.route.set('/auth'))
 		},
-		view: () =>
-			<div class="main-stage">
+		view: () => <div class="main-stage">
+			<LauncherBanner 
+				title="Assign artists to days"
+			/>
+    
 				<div>
 					<label for="series">
 				        {`Festival Name`}

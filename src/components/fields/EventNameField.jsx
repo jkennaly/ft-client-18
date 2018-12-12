@@ -1,6 +1,6 @@
 // ComposedNameField.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 import {remoteData} from '../../store/data';

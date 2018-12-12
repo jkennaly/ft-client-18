@@ -1,7 +1,7 @@
 // FestivalDetail.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';
@@ -48,7 +48,10 @@ const FestivalDetail = (auth) => { return {
         {`Upload a file with the artist list (one name per line)`}
       </label>
       <input id="lineup-uploader" type="file" name="lineup-file" onchange={upload(parseInt(m.route.param('id'), 10))}/></div> : ''}
-		{getAppContext() === 'pregame' ? <DateCard festivalId={parseInt(m.route.param('id'), 10)}  eventId={'new'}/> : ''}
+		{getAppContext() === 'pregame' && _.flow(
+					m.route.param, parseInt,
+					remoteData.Festivals.eventActive
+					)('id') ? <DateCard festivalId={parseInt(m.route.param('id'), 10)}  eventId={'new'}/> : ''}
 			<SeriesCard data={_.flow(
 					m.route.param, parseInt,
 					remoteData.Festivals.getSuperId,

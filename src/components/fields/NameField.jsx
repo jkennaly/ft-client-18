@@ -1,6 +1,6 @@
 // NameField.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const NameField = {
 	view: ({ attrs }) =>

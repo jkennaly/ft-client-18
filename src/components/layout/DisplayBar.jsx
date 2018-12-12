@@ -1,6 +1,6 @@
 // DisplayBar.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 import DisplayButton from '../ui/DisplayButton.jsx';
 

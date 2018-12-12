@@ -1,6 +1,6 @@
 // FestivalTimePicker.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const FestivalTimePicker = vnode => {
 	var meridiem='AM'

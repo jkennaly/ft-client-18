@@ -4,7 +4,7 @@
 //	icon
 //	idFields
 
-const m = require("mithril");
+import m from 'mithril'
 
 import CollapsibleMenu from './CollapsibleMenu.jsx';
 

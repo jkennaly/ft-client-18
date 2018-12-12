@@ -1,10 +1,11 @@
 // ArtistReviewCard.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 import  ComposedNameField from '../fields/ComposedNameField.jsx';
 import  NameField from '../fields/NameField.jsx';
 import  AverageRatingField from '../fields/AverageRatingField.jsx';
+import  UserAvatarField from '../fields/UserAvatarField.jsx';
 import {remoteData} from '../../store/data';
 
 const defaultClick = attrs => () => 0
@@ -16,17 +17,13 @@ const ArtistReviewCard = vnode => {
   var rating = 0
   var comment = ''
   const initDom = ({attrs}) => {
-    const u = attrs.messageArray[0].fromuser
-    const y = _.take(attrs.messageArray[0].timestamp, 4)
     const rm = attrs.messageArray.filter(m => m.messageType === 2)
     const r = rm.length ? rm[0].content : 0
     const cm = attrs.messageArray.filter(m => m.messageType === 1)
     const c = cm.length ? cm[0].content : 0
-    author = u ? remoteData.Users.getName(u) : author
-    year = y ? y : year
     rating = r ? r : rating
     comment = c ? c : comment
-    m.redraw()
+    //m.redraw()
   }
   return {
   	oninit: () => {
@@ -38,11 +35,7 @@ const ArtistReviewCard = vnode => {
     onupdate: initDom,
     view: ({ attrs }) =>
       <div class="ft-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
-          <div class="ft-vertical-fields">
-            <span>{author}</span>
-            <span>{year}</span>
-            
-          </div>
+          <UserAvatarField data={attrs.messageArray[0]} />
           <AverageRatingField averageRating={rating} />
           <span>{comment}</span>
       </div>

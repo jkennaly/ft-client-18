@@ -1,6 +1,6 @@
 // DisplayButton.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 import CollapsibleMenu from './CollapsibleMenu.jsx';
 
@@ -29,6 +29,10 @@ const DisplayButton = vnode => {
 		{
 			name: 'Festivals',
 			path: '/series/pregame'
+		},
+		{
+			name: 'Admin',
+			path: '/admin'
 		}
 	]
 	return {

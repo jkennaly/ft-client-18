@@ -11,7 +11,7 @@
 //table headers are day names for the date
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 // Services
 import Auth from '../../../services/auth.js';
@@ -21,6 +21,8 @@ import {remoteData} from '../../../store/data';
 
 import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.jsx'
 
+
+import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import UIButton from '../../ui/UIButton.jsx';
 
@@ -150,10 +152,12 @@ const AssignSetStages = (vnode) => {
 			auth.getFtUserId()
 				.then(id => userId = id)
 				.then(m.redraw)
-				.catch(console.log)
+				.catch(err => m.route.set('/auth'))
 		},
-		view: () =>
-			<div class="main-stage">
+		view: () => <div class="main-stage">
+			<LauncherBanner 
+				title="Assign artists to stages"
+			/>
 				<EventSelector 
 						seriesId={seriesId}
 						festivalId={festivalId}

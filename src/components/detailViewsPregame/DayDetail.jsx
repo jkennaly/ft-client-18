@@ -1,7 +1,7 @@
 // DayDetail.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';

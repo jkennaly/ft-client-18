@@ -1,6 +1,6 @@
 // MenuField.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 const classes = attrs => 'menu-field ' + (attrs.selected ? 'menu-item-selected' : '')
 const MenuField = {
 	view: ({ attrs }) =>

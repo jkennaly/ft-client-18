@@ -1,12 +1,14 @@
 // createVenue.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 var moment = require('moment-timezone');
 
 import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';
+
+import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -58,7 +60,10 @@ const CreateVenue = (auth) => { return {
 			.then(() => m.redraw())
 			.catch(err => console.log(err))
 	},
-	view: (vnode) =>
+	view: (vnode) => <div class="main-stage">
+      <LauncherBanner 
+        title="Create new enue"
+      />
     <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
       <label for="venue-name">
         {`Venue Name`}
@@ -92,8 +97,9 @@ const CreateVenue = (auth) => { return {
         {`Street Address`}
       </label>
       <input id="street-address" type="text" name="streetAddress" />
-	    <UIButton action={() => entryFormHandler(vnode.dom, userId)} buttonName="SAVE" />
+	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId)} buttonName="SAVE" />
 	  </form>
+    </div>
     
 }}
 export default CreateVenue;

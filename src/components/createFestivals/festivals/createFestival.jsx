@@ -1,12 +1,14 @@
 // createFestival.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../../components/cards/FestivalCard.jsx';
+
+import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -58,9 +60,13 @@ const CreateFestival = (auth) => { return {
 		auth.getFtUserId()
 			.then(id => userId = id)
 			.then(() => m.redraw())
-			.catch(err => console.log(err))
+				.catch(err => m.route.set('/auth'))
 	},
-	view: (vnode) =>
+	view: (vnode) => <div class="main-stage">
+			<LauncherBanner 
+				title="Add year"
+			/>
+    
     <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
       <label for="series">
         {`Festival Series`}
@@ -76,8 +82,9 @@ const CreateFestival = (auth) => { return {
         {`Festival Year`}
       </label>
       <input id="event-name" type="text" name="year" />
-	    <UIButton action={() => entryFormHandler(vnode.dom, userId)} buttonName="SAVE" />
+	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId)} buttonName="SAVE" />
 	  </form>
+	  </div>
     
 }}
 export default CreateFestival;

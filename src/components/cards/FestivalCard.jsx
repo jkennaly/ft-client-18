@@ -1,9 +1,10 @@
 // FestivalCard.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 import  MainEventField from '../fields/MainEventField.jsx';
 import  ComposedNameField from '../fields/ComposedNameField.jsx';
+import  NameField from '../fields/NameField.jsx';
 import {getAppContext} from '../../store/ui';
 
 import {remoteData} from '../../store/data';
@@ -14,6 +15,9 @@ const FestivalCard = {
       <div class="ft-fields">
         {attrs.eventId !== 'new' ? <MainEventField seriesId={remoteData.Festivals.getSeriesId(attrs.eventId)} festivalId={attrs.eventId} /> : <ComposedNameField fieldValue={'New Festival Year'} />}
       </div>
+      {attrs.artistId ? <div class="ft-set-diff-fields">
+          {remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(attrs.artistId, attrs.eventId))}
+        </div> : ''}
     </div>
 };
 

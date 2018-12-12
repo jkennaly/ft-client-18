@@ -11,7 +11,7 @@
 //table headers are day names for the date
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 // Services
 import Auth from '../../../services/auth.js';
@@ -23,7 +23,10 @@ import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.j
 
 import ArtistCard from '../../cards/ArtistCard.jsx'
 import ScheduleSet from '../../fields/ScheduleSet.jsx'
-import SetScheduleModal from './SetScheduleModal.jsx'
+import SetScheduleModal from '../../modals/SetScheduleModal.jsx'
+
+
+import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import ScheduleLadder from '../../layout/ScheduleLadder.jsx'
 import WidgetContainer from '../../layout/WidgetContainer.jsx'
@@ -123,12 +126,15 @@ const AssignTimes = (vnode) => {
 					
 						})
 				.then(m.redraw)
-				.catch(console.log)
+				.catch(err => m.route.set('/auth'))
 		},
 		oncreate: () => {
 
 },
 		view: ({attrs}) => <div class="main-stage">
+			<LauncherBanner 
+				title="Assign set times"
+			/>
 			<EventSelector 
 					seriesId={seriesId}
 					festivalId={festivalId}

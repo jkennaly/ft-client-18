@@ -3,7 +3,7 @@
 //	averageRating
 //	pretext
 
-const m = require("mithril");
+import m from 'mithril'
 
 import RatingStar from '../ui/RatingStar.jsx';
 //import './vendor/SimpleStarRating/SimpleStarRating.css'

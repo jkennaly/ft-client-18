@@ -1,5 +1,5 @@
 // EventSelector.jsx
-const m = require("mithril");
+import m from 'mithril'
 
 import StageSelector from '../place/StageSelector.jsx'
 import DaySelector from '../day/DaySelector.jsx'

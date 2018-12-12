@@ -4,7 +4,7 @@ import Auth from '../../services/auth.js';
 const auth = new Auth();
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
@@ -13,6 +13,7 @@ import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import SeriesCard from '../../components/cards/SeriesCard.jsx';
 import DateCard from '../../components/cards/DateCard.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
+import ArtistCard from '../../components/cards/ArtistCard.jsx';
 import NavCard from '../../components/cards/NavCard.jsx';
 
 import {remoteData} from '../../store/data';
@@ -24,6 +25,13 @@ const Launcher = (vnode) => { return {
 		remoteData.Dates.loadList()
 		remoteData.Venues.loadList()
 		remoteData.Days.loadList()
+		remoteData.Artists.loadList()
+		remoteData.Lineups.loadList()
+		remoteData.Messages.loadList()
+		remoteData.Sets.loadList()
+		remoteData.Images.loadList()
+		auth.getFtUserId()
+			.catch(err => m.route.set('/auth'))
 	},
 	view: () => 
 	<div class="launcher-container">
@@ -35,12 +43,6 @@ const Launcher = (vnode) => { return {
 		</div>
 		<div>
 			<WidgetContainer>
-				<FixedCardWidget header="All Festivals">
-				{
-					remoteData.Series.list
-						.map(series => <SeriesCard data={series} eventId={series.id}/>)
-				}
-				</FixedCardWidget>
 				<FixedCardWidget header="Current Festival Dates">
 				{
 					remoteData.Dates.current()
@@ -57,16 +59,25 @@ const Launcher = (vnode) => { return {
 						/>)
 				}
 				</FixedCardWidget>
-				<FixedCardWidget header="Create Festivals">
-					<SeriesCard eventId="new"/>
-					<FestivalCard eventId="new"/>
-					<DateCard eventId="new"/>
-					<NavCard fieldValue="Fix Artist Names" action={() => m.route.set("/artists/pregame/fix")}/>
-					<NavCard fieldValue="Assign Artists to Festival" action={() => m.route.set("/fests/pregame/assignLineup")}/>
-					<NavCard fieldValue="Assign Stages to Festival" action={() => m.route.set("/fests/pregame/assignStages")}/>
-					<NavCard fieldValue="Assign Artists to Days" action={() => m.route.set("/sets/pregame/assignDays")}/>
-					<NavCard fieldValue="Assign Artists to Stages" action={() => m.route.set("/sets/pregame/assignStages")}/>
-					<NavCard fieldValue="Enter Set Times" action={() => m.route.set("/sets/pregame/assignTimes")}/>
+				<FixedCardWidget header="Upcoming Festivals">
+				{
+					remoteData.Festivals.future()
+						.map(data => <FestivalCard 
+							eventId={data.id}
+						/>)
+				}
+				</FixedCardWidget>
+				<FixedCardWidget header="Artist Discovery">
+				{
+					//three from next event
+					//one ft chosen
+					//one from fav event (future if possible, past if not)
+					//balance (up to 5 total) from highest uncommented priority
+					_.take(remoteData.Artists.virgins(), 5)
+						.map(data => <ArtistCard 
+							data={data}
+						/>)
+				}
 				</FixedCardWidget>
 			</WidgetContainer>
 		</div>

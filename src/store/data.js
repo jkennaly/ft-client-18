@@ -1,6 +1,6 @@
 // data.js
-const m = require("mithril");
-const _ = require('lodash');
+import m from 'mithril'
+//import _ from 'lodash'
 const Promise = require('promise-polyfill').default
 
 // Services
@@ -8,43 +8,6 @@ import Auth from '../services/auth.js';
 const auth = new Auth();
 var moment = require('moment-timezone');
 
-const CONFERENCES = [{
-	name: "auth0 conf",
-	location: "Orlando, FL",
-	date: "06/30/2018",
-	favorite: true,
-	CFP: true,
-	CFPDate: "04/20/2018",
-	CFPCompleted: false
-},
-	{
-		name: "Mithril conf",
-		location: "Boston, MA",
-		date: "05/10/2018",
-		favorite: true,
-		CFP: false,
-		CFPDate: "",
-		CFPCompleted: false
-	},
-	{
-		name: "ngSurf",
-		location: "San Diego, CA",
-		date: "04/26/2018",
-		favorite: true,
-		CFP: true,
-		CFPDate: "03/15/2018",
-		CFPCompleted: true
-	},
-	{
-		name: "MySQL Conf",
-		location: "Miami, FL",
-		date: "03/17/2018",
-		favorite: false,
-		CFP: false,
-		CFPDate: "",
-		CFPCompleted: false
-	}
-];
 
 const reqOptionsCreate = config => (dataFieldName, method = 'POST') => data => { return {
     method: method,
@@ -99,6 +62,21 @@ const assignDataToList = dataField => result => {
 
 const removeDeletedFilter = result => result.filter(d => !d.deleted)
 
+const subjectDataField = type => {return {
+	'10': 'Messages',
+	'6': 'Series',
+	'7': 'Festivals',
+	'8': 'Dates',
+	'9': 'Days',
+	'3': 'Sets',
+	'5': 'Venues',
+	'4': 'Places',
+	'2': 'Artists',
+	'1': 'Users'
+}[type]}
+
+var dateBaseCache = {}
+
 const remoteData = {
 	Messages: {
 		list: [],
@@ -106,23 +84,41 @@ const remoteData = {
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Messages.lastRemoteLoad = ts() - remoteData.Messages.remoteInterval + 1,
 		remoteInterval: 86400,
-		gameTimeRatings: () => remoteData.Messages.list.filter(m => (m.subjectType === 3) && (m.messageType === 2)),
-		setAverageRating: id => {
+		get: id => _.find(remoteData.Messages.list, p => p.id === id),
+		getMany: ids => remoteData.Messages.list.filter(d => ids.indexOf(d.id) > -1),
+		getName: id => {
+			const v = remoteData.Messages.get(id)
+			if(!v || !v.content) return ''
+			//fromuser to touser re:subjectName
+			const fromField = remoteData.Users.getName(v.fromuser)
+			const toField = v.touser ? ' to ' + remoteData.Users.getName(v.touser) : ''
+			const subjectName = ' re: ' + remoteData[subjectDataField(v.subjectType)].getName(v.subject)
+			return _.truncate(subjectName)
+		},
+		aboutType: sType => remoteData.Messages.list.filter(m => m.subjectType === sType),
+		ofType: mType => remoteData.Messages.list.filter(m => m.messageType === mType),
+		byAuthor: author => remoteData.Messages.list.filter(m => m.fromuser === author),
+		ofAndAbout: (mType, sType) => remoteData.Messages.list.filter(m => m.messageType === mType && m.subjectType === sType),
+		ofAboutAndBy: (mType, sType, author) => remoteData.Messages.list.filter(m => m.messageType === mType && m.subjectType === sType && m.fromuser === author),
+		aboutSets: () => remoteData.Messages.list.filter(m => m.subjectType === 3),
+		gameTimeRatings: () => remoteData.Messages.aboutSets().filter(m => m.messageType === 2),
+		setAverageRating: setId => {
 			const gameTimeRatings = remoteData.Messages.gameTimeRatings()
 			const filtered = gameTimeRatings
-				.filter(m => (m.subject === id))
+				.filter(m => (m.subject === setId))
 			const retVal = _.meanBy(filtered,
 							m => parseInt(m.content, 10))
 			//console.log('msg length: ' + remoteData.Messages.list.length)
 			//console.log('filtered length: ' + filtered.length)
 			//console.log('setAverageRating: ' + retVal)
-			//console.log('setId: ' + id)
+			//console.log('setId: ' + setId)
 			//console.log('gameTimeRatings.length: ' + gameTimeRatings.length)
 			return retVal ? retVal : 0
 		},
 		forArtist: artistId => remoteData.Messages.list
-			.filter(m => (m.subjectType === 2) && (m.subject === artistId))
-			.sort((a, b) => a.subject - b.subject),
+			.filter(m => (m.subjectType === 2) && (m.subject === artistId)),
+		forSet: setId => remoteData.Messages.aboutSets()
+			.filter(m => m.subject === setId),
 		forArtistReviewCard: artistId => remoteData.Messages.list
 			.filter(m => (m.subjectType === 2) && (m.subject === artistId) && m.fromuser)
 			.reduce((final, me) => {
@@ -148,7 +144,66 @@ const remoteData = {
 				.then(removeDeletedFilter)
 				.then(assignDataToList(remoteData.Messages))
 				.catch(reloadAndLog(remoteData.Messages))
+		},
+		create: data => {
+			const dataFieldName = 'Messages'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
+				.then(() => remoteData[dataFieldName].list.push(data))
+				.then(forceRemoteLoad(remoteData.Messages))
+				.catch(logResult)
 		}
+	},
+	Images: {
+		list: [],
+		assignList: newList => remoteData.Images.list = newList,
+		lastRemoteLoad: 0,
+		reload: () => remoteData.Images.lastRemoteLoad = ts() - remoteData.Images.remoteInterval + 1,
+		remoteInterval: 86400,
+		get: id => _.find(remoteData.Images.list, p => p.id === id),
+		getMany: ids => remoteData.Images.list.filter(d => ids.indexOf(d.id) > -1),
+		getTitle: id => remoteData.Images.get(id).title,
+		getSrc: id => remoteData.Images.get(id).url,
+		getAttributionAr: id => {
+			const el = remoteData.Images.get(id)
+			return el ? [el.title, el.sourceUrl, el.author, el.license, el.licenseUrl] : []
+		},
+		getName: id => remoteData.Images.getTitle(id),
+		forArtist: artistId => remoteData.Images.list
+			.filter(m => (m.subjectType === 2) && (m.subject === artistId)),
+		forSubject: (subjectType, subject) => remoteData.Images.list
+			.filter(m => (m.subjectType === subjectType) && (m.subject === subject)),
+		loadList: () => {
+			if(ts() > remoteData.Images.remoteInterval + remoteData.Images.lastRemoteLoad) remoteData.Images.remoteLoad()
+		},
+		remoteLoad: () => {
+			remoteData.Images.lastRemoteLoad = ts()
+			return auth.getAccessToken()
+				.then(result => m.request({
+				    method: "GET",
+				    url: "/api/Images",
+				  	config: tokenFunction(result)
+				}))
+				.then(assignDataToList(remoteData.Images))
+				.catch(reloadAndLog(remoteData.Images))
+		},
+		create: data => {
+			const dataFieldName = 'Images'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
+				.then(() => remoteData[dataFieldName].list.push(data))
+				.then(forceRemoteLoad(remoteData.Images))
+				.catch(logResult)
+		}
+
 	},
 	Series: {
 		list: [],
@@ -168,6 +223,7 @@ const remoteData = {
 		},
 		getEventNames: () => remoteData.Series.list.map(x => x.name),
 		getEventNamesWithIds: () => remoteData.Series.list.map(x => [x.name, x.id]),
+		getName: id => remoteData.Series.getEventName(id),
 		getSubFestivalIds: id => {
 			//console.log('Series getSubFestivalIds for ' + id + ' chosen from among ' + remoteData.Festivals.list.length)
 			return remoteData.Festivals.list.filter(s => s.series === id).map(s => s.id)
@@ -245,7 +301,7 @@ const remoteData = {
 		getPeerIds: id => remoteData.Series.getSubIds(remoteData.Festivals.getSuperId(id))
 			.filter(x => x !== id),
 		getLineupArtistIds: id => remoteData.Lineups.getFestivalArtistIds(id),
-		
+		eventActive: id => remoteData.Festivals.get(id) && (parseInt(remoteData.Festivals.get(id).year, 10) >= (new Date().getFullYear())),
 		getEventName: id => {
 			const v = remoteData.Festivals.get(id)
 			if(!v || !v.year) return ''
@@ -255,10 +311,19 @@ const remoteData = {
 		getEventNamesWithIds: superId => remoteData.Festivals.list
 			.filter(e => !superId || e.series === superId)
 			.map(x => [remoteData.Festivals.getEventName(x.id), x.id]),
+		getName: id => remoteData.Festivals.getEventName(id),
 		loadList: () => {
 			if(ts() > remoteData.Festivals.remoteInterval + remoteData.Festivals.lastRemoteLoad) remoteData.Festivals.remoteLoad()
 
 		},
+		future: _.memoize(() => {
+			//console.log('' + remoteData.Festivals.list.length + '-' + remoteData.Dates.list.length)
+			const futureDates = remoteData.Dates.future()
+			//console.log(futureDates.length)
+			return remoteData.Festivals.getMany(futureDates
+				.map(d => d.festival))
+			}, 
+			() => '' + remoteData.Festivals.list.length + '-' + remoteData.Dates.list.length),
 		remoteLoad: () => {
 			remoteData.Festivals.lastRemoteLoad = ts()
 			return auth.getAccessToken()
@@ -329,17 +394,21 @@ const remoteData = {
 		getEventNamesWithIds: superId => remoteData.Dates.list
 			.filter(e => !superId || e.festival === superId)
 			.map(x => [remoteData.Festivals.getEventName(x.festival) + ' ' + x.name, x.id]),
+		getName: id => remoteData.Dates.getEventName(id),
 		loadList: () => {
 			if(ts() > remoteData.Dates.remoteInterval + remoteData.Dates.lastRemoteLoad) remoteData.Dates.remoteLoad()
 
 		},
 		getBaseMoment: id => {
+			if(dateBaseCache[id]) return moment(dateBaseCache[id])
 			const date = remoteData.Dates.get(id)
 			if(!date) throw 'remoteData.Dates.getBaseMoment nonexistent date ' + id
 			const timezone = remoteData.Venues.getTimezone(date.venue)
 			const momentString = date.basedate + ' 10:00'
 			const momentFormat = 'Y-M-D H:mm'
-			return moment.tz(momentString, momentFormat, timezone)
+			const m = moment.tz(momentString, momentFormat, timezone)
+			dateBaseCache[id] = m
+			return moment(m)
 		},
 		getStartMoment: id => remoteData.Dates.getBaseMoment(id).subtract(1, 'days'),
 		getEndMoment: id => {
@@ -353,13 +422,29 @@ const remoteData = {
 			var end = remoteData.Dates.getEndMoment(d.id)
 			return now.isBetween(start, end, 'day')
 		}),
-		soon: () => remoteData.Dates.list.filter(d => {
-			//now is greater than the start moment but less than the end moment
-			var now = moment().add(1, 'days')
-			var start = remoteData.Dates.getStartMoment(d.id)
-			var end = moment().add(30, 'days')
-			return start.isBetween(now, end, 'day')
-		}),
+		soon: () => {
+			const current = remoteData.Dates.current()
+				.map(d => d.id)
+			return remoteData.Dates.list.filter(d => {
+					//now is greater than the start moment but less than the end moment
+					var now = moment()
+					var start = remoteData.Dates.getStartMoment(d.id)
+					var end = moment().add(30, 'days')
+					return start.isBetween(now, end, 'day')
+				})
+					.filter(d => current.indexOf(d.id) < 0)
+		},
+		future: () => {
+			const current = remoteData.Dates.current()
+				.map(d => d.id)
+			return remoteData.Dates.list.filter(d => {
+				//now is greater than the start moment but less than the end moment
+				var now = moment()
+				var start = remoteData.Dates.getStartMoment(d.id)
+				return start.isAfter(now, 'day')
+			})
+				.filter(d => current.indexOf(d.id) < 0)
+		},
 		remoteLoad: () => {
 			remoteData.Dates.lastRemoteLoad = ts()
 			return auth.getAccessToken()
@@ -424,6 +509,7 @@ const remoteData = {
 		getEventNamesWithIds: superId => remoteData.Days.list
 			.filter(e => !superId || e.date === superId)
 			.map(x => [remoteData.Dates.getEventName(x.date) + ' ' + x.name, x.id]),
+		getName: id => remoteData.Days.getEventName(id),
 		loadList: () => {
 			if(ts() > remoteData.Days.remoteInterval + remoteData.Days.lastRemoteLoad) remoteData.Days.remoteLoad()
 
@@ -497,8 +583,11 @@ const remoteData = {
 		getEventNamesWithIds: superId => remoteData.Sets.list
 			.filter(e => !superId || e.day === superId)
 			.map(x => [remoteData.Sets.getEventName(x.id), x.id]),
+		getName: id => remoteData.Sets.getEventName(id),
 		forDayAndStage: (day, stage) => remoteData.Sets.list
 			.filter(s => s.day === day && s.stage === stage),
+		forArtist: artistId => remoteData.Sets.list
+			.filter(s => s.band === artistId),
 		loadList: () => {
 			if(ts() > remoteData.Sets.remoteInterval + remoteData.Sets.lastRemoteLoad) remoteData.Sets.remoteLoad()
 
@@ -621,6 +710,7 @@ const remoteData = {
 		},
 		getPlaceNames: () => remoteData.Venues.list.map(x => x.name),
 		getPlaceNamesWithIds: () => remoteData.Venues.list.map(x => [x.name, x.id]),
+		getName: id => remoteData.Venues.getPlaceName(id),
 		
 		loadList: () => {
 			if(ts() > remoteData.Venues.remoteInterval + remoteData.Venues.lastRemoteLoad) remoteData.Venues.remoteLoad()
@@ -657,7 +747,7 @@ const remoteData = {
 		remoteInterval: 86400,
 		getMany: ids => remoteData.Organizers.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => {
-			if(ts() > remoteData.rganizers.remoteInterval + remoteData.rganizers.lastRemoteLoad) remoteData.rganizers.remoteLoad()
+			if(ts() > remoteData.Organizers.remoteInterval + remoteData.Organizers.lastRemoteLoad) remoteData.Organizers.remoteLoad()
 
 		},
 		remoteLoad: () => {
@@ -693,6 +783,7 @@ const remoteData = {
 		idFields: () => remoteData.Places.list.length ? 
 			Object.keys(remoteData.Places.list[0]).filter(idFieldFilter) : 
 			[],
+		getName: id => remoteData.Places.get(id).name,
 		loadList: () => {
 			if(ts() > remoteData.Places.remoteInterval + remoteData.Places.lastRemoteLoad) return remoteData.Places.remoteLoad()
 			return Promise.resolve(true)
@@ -741,6 +832,7 @@ const remoteData = {
 		reload: () => remoteData.Lineups.lastRemoteLoad = ts() - remoteData.Lineups.remoteInterval + 1,
 		remoteInterval: 86400,
 		getMany: ids => remoteData.Lineups.list.filter(d => ids.indexOf(d.id) > -1),
+		forFestival: fest => remoteData.Lineups.list.filter(d => d.festival === fest),
 		getPriFromArtistFest: (artist, fest) => {
 			const target = _.find(remoteData.Lineups.list, p => p.festival === fest && p.band === artist)
 			if(!target) return
@@ -751,9 +843,18 @@ const remoteData = {
 			if(!target) return
 			return target.id
 		},
-		festivalsForArtist: artist => _.uniq(remoteData.Lineups.list
-			.filter(p => p.band === artist)
+		artistLineups: artist => remoteData.Lineups.list
+			.filter(p => p.band === artist),
+		peakArtistPriLevel: _.memoize(artist => _.min(remoteData.Lineups.artistLineups(artist)
+			.map(l => remoteData.ArtistPriorities.getLevel(l.priority))
+			.filter(l => l)), 
+			artist => '' + artist + '-' + remoteData.Lineups.list.length + '-' + remoteData.ArtistPriorities.list.length),
+		festivalsForArtist: artist => _.uniq(remoteData.Lineups.artistLineups(artist)
 			.map(p => p.festival)),
+		artistInLineup: artist => _.some(remoteData.Lineups.list,
+			p => p.band === artist),
+		artistInFestival: _.memoize((artist, fest) => _.some(remoteData.Lineups.list,
+					p => p.band === artist && p.festival === fest), (artist, fest) => '' + artist + '-' + fest),
 		forFestival: fest => remoteData.Lineups.list.filter(l => l.festival === fest),
 		festHasLineup: fest => _.some(remoteData.Lineups.list, l => l.festival === fest),
 		getFestivalArtistIds: fest => remoteData.Lineups.list.filter(l => l.festival === fest).map(l => l.band),
@@ -766,6 +867,18 @@ const remoteData = {
 		loadList: () => {
 			if(ts() > remoteData.Lineups.remoteInterval + remoteData.Lineups.lastRemoteLoad) remoteData.Lineups.remoteLoad()
 
+		},
+		create: data => {
+			const dataFieldName = 'Lineups'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+				//set last remote load to 0
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
+				.then(() => remoteData[dataFieldName].list.push(data))
+				.then(forceRemoteLoad(remoteData.Lineups))
+				.catch(logResult)
 		},
 		remoteLoad: () => {
 			remoteData.Lineups.lastRemoteLoad = ts()
@@ -1001,6 +1114,26 @@ const remoteData = {
 			return data.name
 
 		},
+		virgins: () => remoteData.Artists.list
+			.filter(a => remoteData.Lineups.artistInLineup(a.id))
+			.filter(ar => !remoteData.Messages.forArtist(ar.id).length)
+			.sort((a, b) => {
+				//primary: in a lineup for a festival in the future
+				const futures = remoteData.Festivals.future()
+				const aFuture = _.some(futures, f => remoteData.Lineups.artistInFestival(a.id, f.id))
+				const bFuture = _.some(futures, f => remoteData.Lineups.artistInFestival(b.id, f.id))
+				const usePrimary = aFuture ? !bFuture : bFuture
+				if(usePrimary && aFuture) return -1
+				if(usePrimary && bFuture) return 1
+				//secondary: peak priority level
+				const al = remoteData.Lineups.peakArtistPriLevel(a.id)
+				const bl = remoteData.Lineups.peakArtistPriLevel(b.id)
+				return al -bl
+			}),
+			//no comment
+			//no rating
+			//no set with a rating
+			//no set with a comment
 		idFields: () => remoteData.Artists.list.length ? 
 			Object.keys(remoteData.Artists.list[0]).filter(idFieldFilter) : 
 			[],
@@ -1126,12 +1259,18 @@ const remoteData = {
 			return data.username
 
 		},
+		getPic: id => {
+			const data = remoteData.Users.get(id)
+			if(!data) return ''
+			return data.picture
+
+		},
 		remoteLoad: () => {
 			remoteData.Users.lastRemoteLoad = ts()
 			return auth.getAccessToken()
 				.then(result => m.request({
 		    	method: "GET",
-		    	url: "/api/Users",
+		    	url: "/api/Profiles",
 		  		config: tokenFunction(result)
 			}))
 				.then(assignDataToList(remoteData.Users))
@@ -1140,10 +1279,51 @@ const remoteData = {
 	}
 }
 
+const subjectData = {
+	name: (sub, type) => remoteData[subjectDataField(type)].getName(sub),
+	ratingBy: (sub, type, author) => {
+		const mType = 2
+		//const ratings = remoteData.Messages.ofType(mType)
+		//const aboutArtists = remoteData.Messages.aboutType(type)
+		//const byAuthor = remoteData.Messages.byAuthor(author)
+		const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
+		const subRating = authorRatings.filter(m => m.subject === sub)
+
+		const rate = subRating.length ? parseInt(subRating[0].content, 10) : 0
+		//console.log('subjectData ratingBy ' + rate + ' sub: ' + sub + 'type: ' + type + 'author: ' + author)
+		//console.log('subjectData authorRatings ' + authorRatings.length)
+		//console.log('subjectData aboutArtists ' + aboutArtists.length)
+		//console.log('subjectData ratings ' + ratings.length)
+		//console.log('subjectData byAuthor ' + byAuthor.length)
+		//console.log('subjectData byAuthor add ' + (author + 1))
+		//console.log('subjectData byFromuser add ' + (remoteData.Messages.list[0].fromuser + 1))
+		//console.log('subjectData subRating ' + subRating.length)
+		return rate
+	},
+	commentBy: (sub, type, author) => {
+		const mType = 1
+		//const ratings = remoteData.Messages.ofType(mType)
+		//const aboutArtists = remoteData.Messages.aboutType(type)
+		//const byAuthor = remoteData.Messages.byAuthor(author)
+		const authorComments = remoteData.Messages.ofAboutAndBy(mType, type, author)
+		const subComment = authorComments.filter(m => m.subject === sub)
+
+		const comment = subComment.length ? subComment[0].content : ''
+		//console.log('subjectData ratingBy ' + comment + ' sub: ' + sub + 'type: ' + type + 'author: ' + author)
+		//console.log('subjectData authorRatings ' + authorRatings.length)
+		//console.log('subjectData aboutArtists ' + aboutArtists.length)
+		//console.log('subjectData ratings ' + ratings.length)
+		//console.log('subjectData byAuthor ' + byAuthor.length)
+		//console.log('subjectData byAuthor add ' + (author + 1))
+		//console.log('subjectData byFromuser add ' + (remoteData.Messages.list[0].fromuser + 1))
+		//console.log('subjectData subRating ' + subRating.length)
+		return comment
+	},
+	imagePreset: type => 'artist'
+}
+
 
 
 exports.remoteData = remoteData
+exports.subjectData = subjectData
 
-
-exports.getMockData = () => CONFERENCES;
-exports.setMockData = (conference) => CONFERENCES.push(conference);

@@ -68,11 +68,13 @@ th {
     flex: 10;
     display: flex;
     flex-direction: column;
-    padding: 1em;
+    padding: 85px 5px 5px 5px;
     overflow-y: scroll;
 }
 
 .nav-button {
+    position: fixed;
+    right: 0.5em;
     color: white;
     font-size: 150%;
     cursor: pointer;
@@ -85,6 +87,8 @@ th {
 }
 
 .nav-button svg {
+    position: absolute;
+    right: 0;
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -97,33 +101,39 @@ th {
     flex-direction: row;
     align-items: center;
     flex-grow: 1;
+    background-image: url("img/Crowdshot.jpg");
 }
 
 .launcher-container {
     flex-direction: column;
+    padding: 85px 5px 5px 5px;
 }
 
 .stage-banner-container {
+    position: fixed;
+    top: 0;
     width: 100%;
+    height: 80px;
 }
 
 .stage-banner svg {
     position: absolute;
-    color: #EE5F28;
+    color: #F7B9A1;
     right: 0;
     top: 47%;
     transform: translateY(-50%);
-    font-size: 120%;
+    font-size: 180%;
 }
 
 .stage-title {
     text-align: left;
-    padding: 1em 0;
-    margin: 0.5em;
-    color: #EE5F28;
+    padding: 10px 0;
+    margin: 5px;
+    /* color: #EE5F28; */
+    color: #F7B9A1;
     text-transform: uppercase;
     font-weight: bold;
-    font-size: 110%;
+    font-size: 180%;
     letter-spacing: 2px;
     display: inline-block;
 }
@@ -208,6 +218,13 @@ th {
     min-height: 1.5em;
 }
 
+.ft-fields-with-thumbnail {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    min-height: 1.5em;
+}
+
 .ft-name-fields {
     display: flex;
     flex-direction: row;
@@ -218,6 +235,11 @@ th {
     display: flex;
     flex-direction: column;
     justify-content: left;
+}
+
+.ft-horizontal-fields {
+    display: flex;
+    flex-direction: row;
 }
 
 .ft-set-diff-fields {
@@ -250,6 +272,13 @@ th {
     display: flex;
     flex-direction: row;
     justify-content: left;
+}
+
+.ft-rating-field {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    font-size: 200%;
 }
 
 .ft-spacer {
@@ -464,6 +493,13 @@ th {
     display: flex;
     flex-direction: column;
     background-color: #99ff66;
+    align-items: center;
+    width:400px;
+}
+
+.modal-textarea {
+    width:350px;
+    height:175px;
 }
 
 .schedule-ladder {
@@ -533,6 +569,31 @@ th {
 .quarter {
     flex-shrink: 0;
     flex-grow: 0;
+}
+
+.ft-full-image {
+    display: flex;
+    flex-direction: column;
+}
+
+.ft-full-image > image {
+    display: flex;
+    flex-grow: 1;
+}
+
+.ft-full-image > .ft-image-attribution {
+    display: flex;
+    flex-shrink: 1;
+    flex-grow: 0;
+}
+
+.ft-image-attribution a {
+    color: lightskyblue;
+    font-size: 75%;
+}
+
+.ft-card-thumbnail {
+    width: 50px;
 }
 
 .hidden { display:none; }

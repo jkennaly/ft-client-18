@@ -11,7 +11,7 @@
 //	festivalId
 //  averageRating
 
-const m = require("mithril");
+import m from 'mithril'
 
 import  SetNameField from '../fields/SetNameField.jsx';
 import  NameField from '../fields/NameField.jsx';

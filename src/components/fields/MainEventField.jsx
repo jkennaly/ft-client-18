@@ -2,7 +2,7 @@
 //attrs: 	seriesId
 //			festivalId
 
-const m = require("mithril");
+import m from 'mithril'
 
 import  FestivalYearField from './FestivalYearField.jsx';
 import  SeriesNameField from './SeriesNameField.jsx';

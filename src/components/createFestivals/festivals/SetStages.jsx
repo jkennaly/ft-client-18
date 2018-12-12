@@ -5,7 +5,7 @@ const auth = new Auth();
 
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 const dragula = require("dragula");
 const Promise = require('promise-polyfill').default
@@ -16,7 +16,7 @@ import FixedCardWidget from '../../../components/widgets/FixedCard.jsx';
 import NavCard from '../../../components/cards/NavCard.jsx';
 import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.jsx'
 import UIButton from '../../ui/UIButton.jsx';
-import TextEntryModal from '../../ui/TextEntryModal.jsx';
+import TextEntryModal from '../../modals/TextEntryModal.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -106,7 +106,7 @@ const SetStages = (vnode) => {
 			auth.getFtUserId()
 				.then(id => userId = id)
 				.then(m.redraw)
-				.catch(console.log)
+				.catch(err => m.route.set('/auth'))
 		},
 		view: () => 
 		<div class="launcher-container">

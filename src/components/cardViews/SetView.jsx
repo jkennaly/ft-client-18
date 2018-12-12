@@ -1,8 +1,8 @@
 // SetView.jsx
 
 
-const m = require("mithril");
-const _ = require('lodash');
+import m from 'mithril'
+//import _ from 'lodash'
 
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';

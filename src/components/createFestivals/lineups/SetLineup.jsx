@@ -5,14 +5,14 @@ const auth = new Auth();
 
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 const Promise = require('promise-polyfill').default
 
 import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 import NavCard from '../../../components/cards/NavCard.jsx';
 import FestivalSelector from '../../detailViewsPregame/fields/festival/FestivalSelector.jsx'
-import ArtistEntryModal from './ArtistEntryModal.jsx'
+import ArtistEntryModal from '../../modals/ArtistEntryModal.jsx'
 
 import UIButton from '../../../components/ui/UIButton.jsx';
 import {remoteData} from '../../../store/data';
@@ -109,7 +109,7 @@ const SetLineup = (vnode) => {
 			auth.getFtUserId()
 				.then(id => userId = id)
 				.then(m.redraw)
-				.catch(console.log)
+				.catch(err => m.route.set('/auth'))
 		},
 		view: () => <div class="launcher-container">
 			<div class="stage-banner-container">

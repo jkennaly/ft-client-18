@@ -1,13 +1,15 @@
 // createDate.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 var moment = require('moment');
 
 import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';
 import DateCard from '../../../components/cards/DateCard.jsx';
+
+import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -69,9 +71,13 @@ const CreateDate = (auth) => { return {
 		auth.getFtUserId()
 			.then(id => userId = id)
 			.then(() => m.redraw())
-			.catch(err => console.log(err))
+				.catch(err => m.route.set('/auth'))
 	},
-	view: (vnode) =>
+	view: (vnode) => <div class="main-stage">
+			<LauncherBanner 
+				title="Add date"
+			/>
+    
     <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
       <label for="festival">
         {`Festival`}
@@ -104,8 +110,9 @@ const CreateDate = (auth) => { return {
         {`End Date (same as start date for single day festival)`}
       </label>
       <input id="event-end" type="date" name="enddate" />
-	    <UIButton action={() => entryFormHandler(vnode.dom, userId)} buttonName="SAVE" />
+	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId)} buttonName="SAVE" />
 	  </form>
+	  </div>
     
 }}
 export default CreateDate;

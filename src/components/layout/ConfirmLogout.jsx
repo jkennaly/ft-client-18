@@ -1,6 +1,6 @@
 // ConfirmLogout.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 import UIButton from '../ui/UIButton.jsx'
 

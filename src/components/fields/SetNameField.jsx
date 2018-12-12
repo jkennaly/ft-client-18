@@ -4,8 +4,8 @@
 //	seriesId
 //	festivalId
 
-const m = require("mithril");
-//const _ = require('lodash');
+import m from 'mithril'
+////import _ from 'lodash'
 
 import  ComposedNameField from './ComposedNameField.jsx';
 import  MainEventField from './MainEventField.jsx';

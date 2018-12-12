@@ -1,6 +1,6 @@
 // DayCard.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 import  ComposedNameField from '../fields/ComposedNameField.jsx';
 import {remoteData} from '../../store/data'

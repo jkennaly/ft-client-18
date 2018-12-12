@@ -1,5 +1,5 @@
 // FestivalSelector.jsx
-const m = require("mithril");
+import m from 'mithril'
 
 import {remoteData} from '../../../../store/data'
 

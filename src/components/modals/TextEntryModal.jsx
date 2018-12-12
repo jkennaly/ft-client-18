@@ -1,11 +1,11 @@
 // TextEntryModal.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 // change selections
-import UIButton from './UIButton.jsx';
+import UIButton from '../ui/UIButton.jsx';
 
 const classes = attrs => 'modal ' + (attrs.display ? '' : 'hidden')
 var textValue = ''

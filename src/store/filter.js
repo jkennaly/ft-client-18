@@ -1,6 +1,6 @@
 // filter.js
-const m = require("mithril");
-const _ = require('lodash');
+import m from 'mithril'
+//import _ from 'lodash'
 
 import fieldSelecter from './fieldSelecter.js'
 import {remoteData} from './data';

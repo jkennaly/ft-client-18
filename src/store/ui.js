@@ -9,7 +9,7 @@ import {availableSelecters} from './sort.js'
 import {possibleSelecters} from './sort.js'
 import {possibleFilterSelecters} from './filter.js'
 
-const m = require("mithril");
+import m from 'mithril'
 
 const perspectives = [
 	'manage',

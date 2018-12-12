@@ -1,6 +1,6 @@
 // index.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 const root = document.getElementById("app");
 
 // Styles

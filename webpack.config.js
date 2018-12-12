@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
 	mode: "development",
@@ -16,14 +17,21 @@ module.exports = {
 			filename: "index.html",
 			inject: "body",
 			favicon: 'src/favicon.ico'
-		})
+		}),
+		new webpack.ProvidePlugin({
+	        $: "jquery",
+	        jQuery: "jquery",
+	        _: "lodash",
+	        cloudy: "cloudinary-core"
+    	})
 	],
 	output: {
 		path: path.resolve(__dirname, './dist'),
 		filename: 'bundle.js',
 	},
 	module: {
-		rules: [{
+		rules: [
+		      {
 			test: /\.jsx$/,
 			exclude: /(node_modules)/,
 			use: {
@@ -46,9 +54,10 @@ module.exports = {
                 loader: 'url-loader',
                 options: { 
                     limit: 8000, // Convert images < 8kb to base64 strings
-                    name: 'images/[hash]-[name].[ext]'
+                    name: 'img/[name].[ext]'
                 } 
             }]
-}]
+		}
+]
 	}
 };

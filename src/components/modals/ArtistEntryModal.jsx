@@ -1,12 +1,13 @@
 // ArtistEntryModal.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 // change selections
-import UIButton from '../../../components/ui/UIButton.jsx';
-import {remoteData} from '../../../store/data';
+import UIButton from '../../components/ui/UIButton.jsx';
+import ArtistSelector from '../detailViewsPregame/fields/artist/ArtistSelector.jsx'
+import {remoteData} from '../../store/data';
 
 const classes = attrs => 'modal ' + (attrs.display ? '' : 'hidden')
 var textValue = ''
@@ -34,16 +35,18 @@ const ArtistEntryModal = {
                 //if not, create the artist, then return that id
                 if(selectedId || !textValue.length) {
                     attrs.hide()
-                    attrs.action(Promise.resolve(remoteData.Artists.get(selectedId)))
+                    attrs.action(remoteData.Lineups.create({band: selectedId, festival: attrs.festivalId}))
+                    return
                 }
                 //make sure the name is not in thr list
                 const matchedArtist = _.find(remoteData.Artists.list, a => _.toLower(a.name) === _.toLower(textValue))
                 if(matchedArtist && matchedArtist.id) {
                     attrs.hide()
-                    attrs.action(Promise.resolve(matchedArtist))
+                    attrs.action(remoteData.Lineups.create({band: matchedArtist.id, festival: attrs.festivalId}))
+                    return
                 }
 
-                attrs.action(remoteData.Lineups.addArtist({name: textValue}, attrs.festivalId)
+                if(textValue) attrs.action(remoteData.Lineups.addArtist({name: textValue}, attrs.festivalId)
                     .then(result => {attrs.hide();return result;}))
                     .then(result => {m.redraw(); return result})
 

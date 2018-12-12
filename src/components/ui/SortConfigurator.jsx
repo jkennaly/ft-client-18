@@ -1,7 +1,7 @@
 // CollapsibleMenu.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 
 // change selections
 import {toggleSelection} from '../../store/ui';

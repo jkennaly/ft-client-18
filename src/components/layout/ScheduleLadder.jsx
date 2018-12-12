@@ -1,6 +1,6 @@
 // ScheduleLadder.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 import  ScheduleLabel from '../fields/ScheduleLabel.jsx';
 
 const labelDefault = [

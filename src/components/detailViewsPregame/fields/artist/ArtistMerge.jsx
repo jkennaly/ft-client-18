@@ -1,7 +1,7 @@
 // ArtistMerge.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 
 // change selections

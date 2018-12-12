@@ -1,6 +1,6 @@
 // DragCardContainer.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const DragCardContainer = {
   view: ({ children }) => {

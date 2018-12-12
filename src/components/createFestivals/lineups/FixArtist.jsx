@@ -5,7 +5,7 @@ const auth = new Auth();
 
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 const Promise = require('promise-polyfill').default
 
@@ -18,19 +18,27 @@ import ArtistMerge from '../../detailViewsPregame/fields/artist/ArtistMerge.jsx'
 import {remoteData} from '../../../store/data';
 
 const FixArtist = (vnode) => { 
+	var artistId = 0
+	var select = ''
 	var fixType = 0
 	const fixTypeChange = e => {
 		//console.log(e.target.value)
 		fixType = parseInt(e.target.value, 10)
-		m.redraw()
+		const artistString = artistId ? '/' + artistId : ''
+		const fixString = fixType ? (fixType === 1 ? '?type=spelling' : '?type=merge') : ''
+		m.route.set('/artists/pregame/fix' + artistString + fixString)
 	}
 	return {
 		oninit: () => {
 			remoteData.Artists.loadList()
 			remoteData.ArtistAliases.loadList()
+			artistId = parseInt(m.route.param('id'), 10)
+			select = m.route.param('type')
+			fixType = select ? (select === 'spelling' ? 1 : (select === 'merge' ? 2 : 0) ) : 0
+	
 			auth.getFtUserId()
 				.then(m.redraw)
-				.catch(console.log)
+				.catch(err => m.route.set('/auth'))
 		},
 		view: () => 
 		<div class="launcher-container">
@@ -45,14 +53,14 @@ const FixArtist = (vnode) => {
 			        {`Select the type of fix to make:`}
 			    </label>
 				    <select id="fix-type" name="fix-type" onchange={fixTypeChange}>
-				    	<option value={0} selected="selected">{`Type of fix`}</option>
-						<option value={1} >{`Spelling`}</option>
-						<option value={2} >{`Merge`}</option>
+				    	<option value={0} selected={!select ? "selected" : false}>{`Type of fix`}</option>
+						<option value={1} selected={select === 'spelling' ? "selected" : false}>{`Spelling`}</option>
+						<option value={2} selected={select === 'merge' ? "selected" : false}>{`Merge`}</option>
 
 			    	</select>
 			</div>
-			<ArtistSpelling display={fixType === 1} />
-			<ArtistMerge display={fixType === 2} />
+			<ArtistSpelling display={fixType === 1} sel={artistId} />
+			<ArtistMerge display={fixType === 2} sel={artistId} />
 		</div>
 }}
 export default FixArtist;

@@ -2,7 +2,7 @@
 
 import auth0 from 'auth0-js';
 import AUTH0_DATA from './auth0-variables';
-const m = require("mithril");
+import m from 'mithril'
 const Promise = require('promise-polyfill').default
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
@@ -53,13 +53,13 @@ export default class Auth {
 
   getFtUserId() {
     const currentId = localStorage.getItem('ft_user_id')
-    if(currentId) return Promise.resolve(currentId)
+    if(currentId) return Promise.resolve(parseInt(currentId, 10))
     const tokenValid = this.isAuthenticated()
     if(!tokenValid) return Promise.reject('current user is not authorized')
     const _this = this
     var promise = m.request({
           method: "GET",
-          url: "/api/Users/getUserId",
+          url: "/api/Profiles/getUserId",
           config: tokenFunction,
           data: {
             idToken: localStorage.getItem('id_token')

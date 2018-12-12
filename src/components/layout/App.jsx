@@ -3,9 +3,9 @@
 const m = require('mithril');
 
 import MainStage from './MainStage.jsx';
-import NavBar from './NavBar.jsx';
 import DisplayBar from './DisplayBar.jsx';
 import Launcher from './Launcher.jsx';
+import Admin from './Admin.jsx';
 
 // Components
 import StageBanner from '../../components/ui/StageBanner.jsx';
@@ -37,16 +37,12 @@ import SetStages from '../../components/createFestivals/festivals/SetStages.jsx'
 import SetLineup from '../../components/createFestivals/lineups/SetLineup.jsx';
 import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 
-// Mock data
-import {getMockData} from '../../store/data';
-
 
 // Local state
 import {getAppPerspective} from '../../store/ui';
 import {getAppContext} from '../../store/ui';
 
 
-const CONFERENCES = getMockData();
 
 
 
@@ -90,17 +86,24 @@ const App = {
 				onmatch: ConfirmLogout
 			},
 			"/launcher": {
-				onmatch: Launcher
-
-			},
-			"/cfp": {
 				onmatch: () =>
 					auth.getAccessToken()
-						.then(() => FestivalView(auth))
+						.then(Launcher)
 						.catch(forceLoginRoute)
+
+			},
+			"/admin": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(Admin)
+						.catch(forceLoginRoute)
+
 			},
 			"/manage/pregame": {
-				onmatch: Launcher
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(Launcher)
+						.catch(forceLoginRoute)
 			},
 			"/manage/gametime": {
 				onmatch: () =>
@@ -241,6 +244,12 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/artists/pregame/fix": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(FixArtist)
+						.catch(forceLoginRoute)
+			},
+			"/artists/pregame/fix/:id": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(FixArtist)

@@ -1,12 +1,12 @@
 // NavButton.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const NavButton = {
 	view: ({ attrs }) =>
-		<a class="nav-button" href={`#!/${attrs.path}`}>
-			{attrs.icon}
-		</a>
+		<button type="button" onclick={attrs.action}>
+			{attrs.fieldValue}
+		</button>
 };
 
 export default NavButton;

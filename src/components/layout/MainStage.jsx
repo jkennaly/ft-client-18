@@ -1,6 +1,6 @@
 // MainStage.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const MainStage = {
 	view: (vnode) =>

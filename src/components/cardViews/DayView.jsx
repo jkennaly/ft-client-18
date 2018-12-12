@@ -1,7 +1,7 @@
 // DayView.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';

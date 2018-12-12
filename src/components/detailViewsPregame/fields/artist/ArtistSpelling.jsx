@@ -5,7 +5,7 @@ const auth = new Auth();
 
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 const dragula = require("dragula");
 const Promise = require('promise-polyfill').default
@@ -15,7 +15,7 @@ import FixedCardWidget from '../../../../components/widgets/FixedCard.jsx';
 import NavCard from '../../../../components/cards/NavCard.jsx';
 import ArtistSelector from '../../../detailViewsPregame/fields/artist/ArtistSelector.jsx'
 import UIButton from '../../../ui/UIButton.jsx';
-import TextEntryModal from '../../../ui/TextEntryModal.jsx';
+import TextEntryModal from '../../../modals/TextEntryModal.jsx';
 
 import {remoteData} from '../../../../store/data';
 
@@ -85,7 +85,7 @@ const ArtistSpelling = (vnode) => {
 	const artistChange = e => {
 		//console.log(e.target.value)
 		artistId = parseInt(e.target.value, 10)
-		artist = remoteData.Artists.get(artistId)
+		artist = artistId ? remoteData.Artists.get(artistId) : {}
 		newArtistNames = []
 		clearMovedStages()
 		m.redraw()
@@ -110,15 +110,23 @@ const ArtistSpelling = (vnode) => {
 		oninit: () => {
 			remoteData.Artists.loadList()
 			remoteData.ArtistAliases.loadList()
+			artistId = parseInt(m.route.param('id'), 10)
 			auth.getFtUserId()
 				.then(id => userId = id)
 				.then(m.redraw)
-				.catch(console.log)
+				.catch(err => m.route.set('/auth'))
+		},
+		onupdate: vnode => {
+
+			artist = artistId ? remoteData.Artists.get(artistId) : {}
+			//console.log('ArtistSpelling oninit')
+			//console.log(artistId)
 		},
 		view: ({attrs}) => 
 		<div class={classes(attrs)}>
 			<ArtistSelector 
 				label="Drag the artist names between boxes to fix:"
+                sel={attrs.sel}
 				artistChange={artistChange}
 			/>
 			<div>
@@ -127,7 +135,7 @@ const ArtistSpelling = (vnode) => {
 			<div>
 				<WidgetContainer>
 					<FixedCardWidget header="Display Name">
-						{artistId ? <NavCard fieldValue={artist.name} /> : ''}
+						{artist ? <NavCard fieldValue={artist.name} key={artist.id} /> : ''}
 					</FixedCardWidget>
 					<FixedCardWidget header="Other Names">
 						{

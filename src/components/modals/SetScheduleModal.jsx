@@ -1,17 +1,17 @@
 // SetScheduleModal.jsx
 
 
-const m = require("mithril");
+import m from 'mithril'
 const _ = require("lodash");
 var moment = require('moment-timezone');
 
 // change selections
-import ComposedNameField from '../../../components/fields/ComposedNameField.jsx';
-import StageNameField from '../../../components/fields/StageNameField.jsx';
-import ArtistNameField from '../../../components/fields/ArtistNameField.jsx';
-import UIButton from '../../../components/ui/UIButton.jsx';
-import FestivalTimePicker from '../../../components/ui/FestivalTimePicker.jsx';
-import {remoteData} from '../../../store/data';
+import ComposedNameField from '../../components/fields/ComposedNameField.jsx';
+import StageNameField from '../../components/fields/StageNameField.jsx';
+import ArtistNameField from '../../components/fields/ArtistNameField.jsx';
+import UIButton from '../../components/ui/UIButton.jsx';
+import FestivalTimePicker from '../../components/ui/FestivalTimePicker.jsx';
+import {remoteData} from '../../store/data';
 
 const upsertSet = data => 0
 const classes = attrs => 'modal ' + (attrs.display ? '' : 'hidden')

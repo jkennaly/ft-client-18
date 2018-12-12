@@ -1,8 +1,8 @@
 // DateNameField.jsx
 //attrs: dateId
 
-const m = require("mithril");
-//const _ = require('lodash');
+import m from 'mithril'
+////import _ from 'lodash'
 
 import {remoteData} from '../../store/data';
 
