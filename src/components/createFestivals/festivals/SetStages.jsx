@@ -6,7 +6,7 @@ const auth = new Auth();
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 const dragula = require("dragula");
 const Promise = require('promise-polyfill').default
 
@@ -114,13 +114,14 @@ const SetStages = (vnode) => {
 				<LauncherBanner 
 					action={() => auth.logout()}
 					title="Set up Stages" 
-				/>
-				<EventSelector 
-					seriesId={seriesId}
-					festivalId={festivalId}
-					seriesChange={seriesChange}
-					festivalChange={festivalChange}
-				/>
+				>
+					<EventSelector 
+						seriesId={seriesId}
+						festivalId={festivalId}
+						seriesChange={seriesChange}
+						festivalChange={festivalChange}
+					/>
+				</LauncherBanner>
 			</div>
 			<div>
 				<UIButton action={e => addingStage = true} buttonName="New Stage" />

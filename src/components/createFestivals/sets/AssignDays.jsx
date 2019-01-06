@@ -12,7 +12,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 // Services
 import Auth from '../../../services/auth.js';
 const auth = new Auth();
@@ -134,7 +134,8 @@ const AssignDays = (vnode) => {
 		view: () => <div class="main-stage">
 			<LauncherBanner 
 				title="Assign artists to days"
-			/>
+			>
+			</LauncherBanner>
     
 				<div>
 					<label for="series">

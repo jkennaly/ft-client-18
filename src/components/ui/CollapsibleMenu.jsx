@@ -12,7 +12,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 
 

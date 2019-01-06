@@ -2,7 +2,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 import {remoteData, subjectData} from '../../store/data.js'
 

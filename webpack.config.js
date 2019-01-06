@@ -19,9 +19,9 @@ module.exports = {
 			favicon: 'src/favicon.ico'
 		}),
 		new webpack.ProvidePlugin({
-	        $: "jquery",
-	        jQuery: "jquery",
-	        _: "lodash",
+	        //$: "jquery",
+	        //jQuery: "jquery",
+	        //_: "lodash",
 	        cloudy: "cloudinary-core"
     	})
 	],
@@ -35,13 +35,21 @@ module.exports = {
 			test: /\.jsx$/,
 			exclude: /(node_modules)/,
 			use: {
-				loader: 'babel-loader'
+				loader: 'babel-loader',
+		        options: {
+			      'plugins': ['lodash'],
+			      'presets': [['@babel/env', { 'targets': { 'node': 6 } }]]
+			    }
 			}
 		}, {
 			test: /\.js$/,
 			exclude: /(node_modules)/,
 			use: {
-				loader: 'babel-loader'
+				loader: 'babel-loader',
+		        options: {
+		      'plugins': ['lodash'],
+		      'presets': [['@babel/env', { 'targets': { 'node': 6 } }]]
+		    }
 			}
 		}, {
 			test: /\.css$/,

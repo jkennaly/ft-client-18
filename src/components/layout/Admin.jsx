@@ -5,7 +5,6 @@ const auth = new Auth();
 
 
 import m from 'mithril'
-const _ = require("lodash");
 
 import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
@@ -47,6 +46,7 @@ const Admin = (vnode) => { return {
 					<SeriesCard eventId="new"/>
 					<FestivalCard eventId="new"/>
 					<DateCard eventId="new"/>
+					<NavCard fieldValue="New Venue" action={() => m.route.set("/venues/pregame/new")}/>
 					<NavCard fieldValue="Fix Artist Names" action={() => m.route.set("/artists/pregame/fix")}/>
 					<NavCard fieldValue="Assign Artists to Festival" action={() => m.route.set("/fests/pregame/assignLineup")}/>
 					<NavCard fieldValue="Assign Stages to Festival" action={() => m.route.set("/fests/pregame/assignStages")}/>

@@ -2,8 +2,9 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
-var moment = require('moment');
+import _ from 'lodash'
+
+import moment from 'moment-timezone';
 
 import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';

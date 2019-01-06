@@ -6,7 +6,7 @@ const auth = new Auth();
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 const Promise = require('promise-polyfill').default
 
 import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';

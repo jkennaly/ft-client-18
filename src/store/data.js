@@ -1,12 +1,12 @@
 // data.js
 import m from 'mithril'
-//import _ from 'lodash'
+import _ from 'lodash'
+import moment from 'moment-timezone'
 const Promise = require('promise-polyfill').default
 
 // Services
 import Auth from '../services/auth.js';
 const auth = new Auth();
-var moment = require('moment-timezone');
 
 
 const reqOptionsCreate = config => (dataFieldName, method = 'POST') => data => { return {
@@ -75,9 +75,27 @@ const subjectDataField = type => {return {
 	'1': 'Users'
 }[type]}
 
+const simpleDate = str => moment(str, 'YYYY-MM-DD', true).isValid()
+
+const researchApplicable = (content, opt) => {
+	if(!content) return true
+	if(simpleDate(content)) return moment().isSameOrBefore(moment(content, 'YYYY-MM-DD', true), 'day')
+	//if content starts with 'fest' and opt.festival is defined then parse the festivalId
+	const optFest = opt.festivalId
+	const contentFest = content.indexOf('fest ') === 0
+	const contentFestId = contentFest && parseInt(content.slice(5), 10)
+	if(optFest) {
+		if (optFest === contentFestId) return true
+		return false
+	} else {
+		if(contentFestId) return false
+	}
+	return true
+}
+
 var dateBaseCache = {}
 
-const remoteData = {
+export const remoteData = {
 	Messages: {
 		list: [],
 		assignList: newList => remoteData.Messages.list = newList,
@@ -128,6 +146,26 @@ const remoteData = {
 					.sort((a, b) => a.messageType - b.messageType)
 				return final
 			}, {}),
+		forced: ({artistIds, festivalId}) => _.uniq(remoteData.Messages.list
+			.filter(m => m.fromuser ===  m.touser && m.subjectType === 2 && m.messageType === 4 && _.includes(artistIds, m.subject))
+			.filter(m => researchApplicable(m.content, {festivalId: festivalId}))
+			.map(m => m.subject)),
+		skipped: ({artistIds, festivalId}) => _.uniq(remoteData.Messages.list
+			.filter(m => m.fromuser ===  m.touser && m.subjectType === 2 && m.messageType === 5 && _.includes(artistIds, m.subject))
+			.filter(m => researchApplicable(m.content, {festivalId: festivalId}))
+			.map(m => m.subject)),
+		saved: ({artistIds, festivalId}) => _.uniq(remoteData.Messages.list
+			.filter(m => m.fromuser ===  m.touser && m.subjectType === 2 && m.messageType === 6 && _.includes(artistIds, m.subject))
+			.filter(m => researchApplicable(m.content, {festivalId: festivalId}))
+			.map(m => m.subject)),
+		hidden: ({artistIds, festivalId}) => _.uniq(remoteData.Messages.list
+			.filter(m => m.fromuser ===  m.touser && m.subjectType === 2 && m.messageType === 7 && _.includes(artistIds, m.subject))
+			.filter(m => researchApplicable(m.content, {festivalId: festivalId}))
+			.map(m => m.subject)),
+		recentRatings: (artistIds, author) => _.uniq(remoteData.Messages.list
+			.filter(m => m.subjectType === 2 && m.messageType === 2 && m.fromuser === author && _.includes(artistIds, m.subject))
+			.filter(m => moment(m.timestamp).add(1, 'y').isAfter())
+			.map(m => m.subject)),
 		loadList: () => {
 			if(ts() > remoteData.Messages.remoteInterval + remoteData.Messages.lastRemoteLoad) return remoteData.Messages.remoteLoad()
 			return Promise.resolve(true)
@@ -301,6 +339,51 @@ const remoteData = {
 		getPeerIds: id => remoteData.Series.getSubIds(remoteData.Festivals.getSuperId(id))
 			.filter(x => x !== id),
 		getLineupArtistIds: id => remoteData.Lineups.getFestivalArtistIds(id),
+		getResearchList: (id, author) => {
+			const artists = remoteData.Artists.getMany(remoteData.Lineups.getFestivalArtistIds(id))
+			const artistIds = artists
+				.map(a => a.id)
+			const researchObject = {
+				forces: remoteData.Messages.forced({
+					artistIds: artistIds,
+					festivalId: id
+				}),
+				skips: remoteData.Messages.skipped({
+					artistIds: artistIds,
+					festivalId: id
+				}),
+				saves: remoteData.Messages.saved({
+					artistIds: artistIds,
+					festivalId: id
+				}),
+				hides: remoteData.Messages.hidden({
+					artistIds: artistIds,
+					festivalId: id
+				}),
+				recents: remoteData.Messages.recentRatings({
+					artistIds: artistIds,
+					author: author
+				})
+			}
+			return artists
+				.filter(a => {
+					//in
+					const forced = _.includes(researchObject.forces, a.id)
+					//out
+					const recent = !forced && _.includes(researchObject.recents, a.id)
+					const skipped = !forced && !recent && _.includes(researchObject.skips, a.id)
+					const saved = !forced && !recent && !skipped && _.includes(researchObject.saves, a.id)
+					const hidden = !forced && !recent && !skipped && !saved && _.includes(researchObject.hides, a.id)
+					return forced || !recent && !skipped && !saved && !hidden
+				})
+				.sort((a, b) => {
+					const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, id)
+					const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, id)
+					if(aPriId === bPriId) return a.name.localeCompare(b.name)
+					const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
+					const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
+					return aPriLevel - bPriLevel
+		})},
 		eventActive: id => remoteData.Festivals.get(id) && (parseInt(remoteData.Festivals.get(id).year, 10) >= (new Date().getFullYear())),
 		getEventName: id => {
 			const v = remoteData.Festivals.get(id)
@@ -1279,7 +1362,7 @@ const remoteData = {
 	}
 }
 
-const subjectData = {
+export const subjectData = {
 	name: (sub, type) => remoteData[subjectDataField(type)].getName(sub),
 	ratingBy: (sub, type, author) => {
 		const mType = 2
@@ -1321,9 +1404,3 @@ const subjectData = {
 	},
 	imagePreset: type => 'artist'
 }
-
-
-
-exports.remoteData = remoteData
-exports.subjectData = subjectData
-

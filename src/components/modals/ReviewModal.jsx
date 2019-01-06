@@ -3,7 +3,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 // change selections
 import UIButton from '../../components/ui/UIButton.jsx';
@@ -21,6 +21,36 @@ const ReviewModal = vnode => {
     var comment = subjectData.commentBy(vnode.attrs.subject.sub, vnode.attrs.subject.type, vnode.attrs.user)
     var localRating = 0
     var localComment = ''
+
+    const submit = attrs => e => {
+        //console.log('ReviewModal')
+        //console.log(textValue)
+        //console.log(selectedId)
+        //if there is a selected id, return it
+        //if not, create the artist, then return that id
+        attrs.hide()
+        console.log('Save')
+        console.log('localRating ' + localRating)
+        console.log('localComment ' + localComment)
+        const newRatingMessage = localRating && localRating !== rating
+        const newCommentMessage = localComment && localComment !== comment
+        if(newRatingMessage) remoteData.Messages.create({
+            fromuser: attrs.user,
+            subject: attrs.subject.sub,
+            subjectType: attrs.subject.type,
+            messageType: 2,
+            content: '' + localRating
+
+        })
+        if(newCommentMessage) remoteData.Messages.create({
+            fromuser: attrs.user,
+            subject: attrs.subject.sub,
+            subjectType: attrs.subject.type,
+            messageType: 1,
+            content: localComment
+
+        })
+    }
     return {
         onupdate: vnode => {
             name = subjectData.name(vnode.attrs.subject.sub, vnode.attrs.subject.type)
@@ -38,55 +68,19 @@ const ReviewModal = vnode => {
                     onchange={e => localComment = e.target.value} 
                     value={comment} 
                     class="modal-textarea"
+                    onkeypress={e => {
+                        if(e.keyCode === 13) return submit(attrs)(e)
+                    }}
                     />
-                {
-                    /*
-
-                    */
-                //subject name
-
-                //rating stars
-
-                //comment entry
-            }
-            
-                
 
                 <UIButton action={e => {
                     attrs.hide()
                     console.log('cancel')
 
                 }} buttonName="Cancel" />
-                <UIButton action={e => {
-                    //console.log('ReviewModal')
-                    //console.log(textValue)
-                    //console.log(selectedId)
-                    //if there is a selected id, return it
-                    //if not, create the artist, then return that id
-                    attrs.hide()
-                    console.log('Save')
-                    console.log('localRating ' + localRating)
-                    console.log('localComment ' + localComment)
-                    const newRatingMessage = localRating && localRating !== rating
-                    const newCommentMessage = localComment && localComment !== comment
-                    if(newRatingMessage) remoteData.Messages.create({
-                        fromuser: attrs.user,
-                        subject: attrs.subject.sub,
-                        subjectType: attrs.subject.type,
-                        messageType: 2,
-                        content: '' + localRating
-
-                    })
-                    if(newCommentMessage) remoteData.Messages.create({
-                        fromuser: attrs.user,
-                        subject: attrs.subject.sub,
-                        subjectType: attrs.subject.type,
-                        messageType: 1,
-                        content: localComment
-
-                    })
+                <UIButton action={submit(attrs)
                     //
-                }} buttonName="Save" />
+                } buttonName="Save" />
             </div>
         </div>
 }};

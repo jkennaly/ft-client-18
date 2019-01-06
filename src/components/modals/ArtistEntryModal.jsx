@@ -2,7 +2,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 // change selections
 import UIButton from '../../components/ui/UIButton.jsx';

@@ -20,11 +20,11 @@ import  StageNameField from '../fields/StageNameField.jsx';
 import  DayNameField from '../fields/DayNameField.jsx';
 import  DateNameField from '../fields/DateNameField.jsx';
 import  AverageRatingField from '../fields/AverageRatingField.jsx';
-import {getAppContext} from '../../store/ui';
+
 
 const SetCard = {
   view: ({ attrs }) =>
-    <div class="ft-card" onclick={() => m.route.set("/sets" + "/" + getAppContext() + '/' + attrs.eventId)}>
+    <div class="ft-card" onclick={() => m.route.set("/sets" + "/pregame" + '/' + attrs.eventId)}>
       <div class="ft-set-name-fields">
         <SetNameField 
           artistName={attrs.artistName} 

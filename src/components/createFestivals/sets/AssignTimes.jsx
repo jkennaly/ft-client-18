@@ -12,7 +12,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 // Services
 import Auth from '../../../services/auth.js';
 const auth = new Auth();
@@ -134,18 +134,19 @@ const AssignTimes = (vnode) => {
 		view: ({attrs}) => <div class="main-stage">
 			<LauncherBanner 
 				title="Assign set times"
-			/>
-			<EventSelector 
-					seriesId={seriesId}
-					festivalId={festivalId}
-					dateId={dateId}
-					dayId={dayId}
-					festivalChange={festivalChange}
-					seriesChange={seriesChange}
-					dateChange={dateChange}
-					dayChange={dayChange}
-					stageChange={stageChange}
+			>
+				<EventSelector 
+						seriesId={seriesId}
+						festivalId={festivalId}
+						dateId={dateId}
+						dayId={dayId}
+						festivalChange={festivalChange}
+						seriesChange={seriesChange}
+						dateChange={dateChange}
+						dayChange={dayChange}
+						stageChange={stageChange}
 				/>
+			</LauncherBanner>
 		    {!dayId || !stageId ? '' : <div class={userId > 0 ? '' : 'hidden' }>
 		    	<WidgetContainer>	
 					<FixedCardWidget header="Festival Lineup" quarter={true} containerClasses={'artist-pool'}>

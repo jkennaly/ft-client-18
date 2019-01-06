@@ -2,7 +2,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
@@ -13,9 +13,10 @@ import ArtistCard from '../../components/cards/ArtistCard.jsx';
 
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
+import ResearchWidget from '../../components/widgets/canned/ResearchWidget.jsx';
 
 import {remoteData} from '../../store/data';
-import {getAppContext} from '../../store/ui';
+
 
 const upload = festival => e => {
     var file = e.target.files[0]
@@ -43,12 +44,12 @@ const FestivalDetail = (auth) => { return {
 				
 			
 			/>
-		{getAppContext() === 'pregame' && !remoteData.Lineups.festHasLineup(parseInt(m.route.param('id'), 10)) ? 
+		{!remoteData.Lineups.festHasLineup(parseInt(m.route.param('id'), 10)) ? 
 		<div><label for="lineup-uploader">
         {`Upload a file with the artist list (one name per line)`}
       </label>
       <input id="lineup-uploader" type="file" name="lineup-file" onchange={upload(parseInt(m.route.param('id'), 10))}/></div> : ''}
-		{getAppContext() === 'pregame' && _.flow(
+		{_.flow(
 					m.route.param, parseInt,
 					remoteData.Festivals.eventActive
 					)('id') ? <DateCard festivalId={parseInt(m.route.param('id'), 10)}  eventId={'new'}/> : ''}
@@ -98,6 +99,7 @@ const FestivalDetail = (auth) => { return {
 					/>)
 			}
 		</FixedCardWidget>	
+		<ResearchWidget list={[]} />
 		</WidgetContainer>
 	</div>
 }}

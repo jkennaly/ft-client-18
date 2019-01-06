@@ -2,8 +2,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
-var moment = require('moment-timezone');
+import _ from 'lodash'
 
 // change selections
 import ComposedNameField from '../../components/fields/ComposedNameField.jsx';

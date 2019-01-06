@@ -1,13 +1,11 @@
 // StageBanner.jsx
 
-const m = require('mithril');
+import m from 'mithril';
 
 import StageTitle from './StageTitle.jsx';
 import LogoutButton from './LogoutButton.jsx';
 
 import BannerButton from '../ui/BannerButton.jsx';
-import FilterButton from '../ui/FilterButton.jsx';
-import SortButton from '../ui/SortButton.jsx';
 
 const StageBanner = {
 	view: ({ attrs }) =>

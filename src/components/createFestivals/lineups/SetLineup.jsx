@@ -6,7 +6,7 @@ const auth = new Auth();
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 const Promise = require('promise-polyfill').default
 
 import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
@@ -112,27 +112,28 @@ const SetLineup = (vnode) => {
 				.catch(err => m.route.set('/auth'))
 		},
 		view: () => <div class="launcher-container">
-			<div class="stage-banner-container">
+			<div class="stage-banner-outer-container">
 				<LauncherBanner 
 					action={() => auth.logout()}
 					title="Artist Lineup" 
-				/>
-				<div>
-					<label for="series">
-				        {`Festival Name`}
-				    </label>
-					    <select id="series" name="series" onchange={seriesChange}>
-					    	<option value={0} selected="selected">{`Select a festival`}</option>
-				      		{remoteData.Series.getEventNamesWithIds()
-					      		.map(s => <option value={s[1]}>{s[0]}</option>)
-					      	}
-				    	</select>
-					<FestivalSelector 
-						seriesId={seriesId}
-						festivalId={festivalId}
-						festivalChange={festivalChange}
-					/>
-			    </div>
+				>
+					<div>
+						<label for="series">
+					        {`Festival Name`}
+					    </label>
+						    <select id="series" name="series" onchange={seriesChange}>
+						    	<option value={0} selected="selected">{`Select a festival`}</option>
+					      		{remoteData.Series.getEventNamesWithIds()
+						      		.map(s => <option value={s[1]}>{s[0]}</option>)
+						      	}
+					    	</select>
+						<FestivalSelector 
+							seriesId={seriesId}
+							festivalId={festivalId}
+							festivalChange={festivalChange}
+						/>
+				    </div>
+				</LauncherBanner>
 			</div>
 			{festivalId ? <div class="main-stage">
 				<label for="lineup-uploader">

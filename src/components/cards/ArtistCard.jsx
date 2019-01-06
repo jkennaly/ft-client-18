@@ -6,9 +6,9 @@ import  ComposedNameField from '../fields/ComposedNameField.jsx';
 import  NameField from '../fields/NameField.jsx';
 import  CircleNail from '../fields/CircleNail.jsx';
 import {remoteData} from '../../store/data';
-import {getAppContext} from '../../store/ui';
 
-const defaultClick = attrs => () => m.route.set("/artists" + "/" + getAppContext() + '/' + attrs.data.id)
+
+const defaultClick = attrs => () => m.route.set("/artists" + "/pregame" + '/' + attrs.data.id)
 
 const ArtistCard = {
 	oninit: () => {

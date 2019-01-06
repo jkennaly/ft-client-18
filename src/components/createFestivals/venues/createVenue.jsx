@@ -2,8 +2,9 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
-var moment = require('moment-timezone');
+import _ from 'lodash'
+
+import moment from 'moment-timezone'
 
 import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';
@@ -62,7 +63,7 @@ const CreateVenue = (auth) => { return {
 	},
 	view: (vnode) => <div class="main-stage">
       <LauncherBanner 
-        title="Create new enue"
+        title="Create new Venue"
       />
     <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
       <label for="venue-name">

@@ -5,7 +5,7 @@ const auth = new Auth();
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';

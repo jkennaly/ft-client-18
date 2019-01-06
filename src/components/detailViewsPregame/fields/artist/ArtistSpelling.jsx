@@ -6,7 +6,7 @@ const auth = new Auth();
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 const dragula = require("dragula");
 const Promise = require('promise-polyfill').default
 

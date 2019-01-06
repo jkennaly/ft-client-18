@@ -2,7 +2,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';
 

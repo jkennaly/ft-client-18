@@ -1,11 +1,10 @@
-// Admin.jsx
+// Discussion.jsx
 // Services
 import Auth from '../../services/auth.js';
 const auth = new Auth();
 
 
 import m from 'mithril'
-const _ = require("lodash");
 
 import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
@@ -18,18 +17,9 @@ import NavCard from '../../components/cards/NavCard.jsx';
 
 import {remoteData} from '../../store/data';
 
-const Admin = (vnode) => { return {
+const Discussion = (vnode) => { return {
 	oninit: () => {
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Venues.loadList()
-		remoteData.Days.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Lineups.loadList()
 		remoteData.Messages.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Images.loadList()
 		auth.getFtUserId()
 			.catch(err => m.route.set('/auth'))
 	},
@@ -37,25 +27,26 @@ const Admin = (vnode) => { return {
 	<div class="launcher-container">
 		<div class="stage-banner-container">
 			<LauncherBanner 
-				action={() => auth.logout()}
-				title="FestivalTime Admin" 
+				title="Discussion " 
 			/>
 		</div>
+		{
+			//subject image/name
+			//comment/rating
+			//each discussion point with 0 repyTo
+			//threaded discussions, hidden behind Show button
+				//starterPoint
+				//discussionBlock
+				//for each unread point:
+					//leadPoint
+					//highlightPoint
+		}
 		<div>
 			<WidgetContainer>
 				<FixedCardWidget header="Create Festivals">
-					<SeriesCard eventId="new"/>
-					<FestivalCard eventId="new"/>
-					<DateCard eventId="new"/>
-					<NavCard fieldValue="Fix Artist Names" action={() => m.route.set("/artists/pregame/fix")}/>
-					<NavCard fieldValue="Assign Artists to Festival" action={() => m.route.set("/fests/pregame/assignLineup")}/>
-					<NavCard fieldValue="Assign Stages to Festival" action={() => m.route.set("/fests/pregame/assignStages")}/>
-					<NavCard fieldValue="Assign Artists to Days" action={() => m.route.set("/sets/pregame/assignDays")}/>
-					<NavCard fieldValue="Assign Artists to Stages" action={() => m.route.set("/sets/pregame/assignStages")}/>
-					<NavCard fieldValue="Enter Set Times" action={() => m.route.set("/sets/pregame/assignTimes")}/>
 				</FixedCardWidget>
 			</WidgetContainer>
 		</div>
 	</div>
 }}
-export default Admin;
+export default Discussion;

@@ -2,7 +2,7 @@
 
 
 import m from 'mithril'
-const _ = require("lodash");
+import _ from 'lodash'
 
 import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';

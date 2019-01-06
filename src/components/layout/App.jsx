@@ -1,11 +1,12 @@
 // App.jsx
 
-const m = require('mithril');
+import m from 'mithril';
 
 import MainStage from './MainStage.jsx';
 import DisplayBar from './DisplayBar.jsx';
 import Launcher from './Launcher.jsx';
 import Admin from './Admin.jsx';
+import Discussion from './Discussion.jsx';
 
 // Components
 import StageBanner from '../../components/ui/StageBanner.jsx';
@@ -38,9 +39,6 @@ import SetLineup from '../../components/createFestivals/lineups/SetLineup.jsx';
 import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 
 
-// Local state
-import {getAppPerspective} from '../../store/ui';
-import {getAppContext} from '../../store/ui';
 
 
 
@@ -96,6 +94,13 @@ const App = {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(Admin)
+						.catch(forceLoginRoute)
+
+			},
+			"/discussion/:messageId": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(Discussion)
 						.catch(forceLoginRoute)
 
 			},
