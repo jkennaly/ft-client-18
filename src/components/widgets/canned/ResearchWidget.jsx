@@ -40,7 +40,7 @@ const ResearchWidget = vnode => {
 		view: (vnode) => <FixedCardWidget header="Festival Research">
 			<ReviewModal 
 				display={reviewing} 
-				hide={sub => {removed.push(sub.sub);reviewing = false;}}
+				hide={sub => {if(sub) removed.push(sub.sub);reviewing = false;}}
 				subject={subjectObject}
 				user={userId}
 		    />
