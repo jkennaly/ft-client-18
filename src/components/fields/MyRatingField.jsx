@@ -4,14 +4,23 @@
 //	pretext
 
 import m from 'mithril'
+import _ from 'lodash'
 
 import RatingStar from '../ui/RatingStar.jsx';
 
 const MyRatingField = vnode => {
-	var showRating = vnode.attrs.currentRating
+	var showRating = _.clone(vnode.attrs.currentRating)
+	var lastFlag = _.clone(vnode.attrs.changeFlag)
 	return {
 		onupdate: vnode => {
-			showRating = vnode.attrs.currentRating
+			//console.log(' updating MyRatingField changeFlag ' + lastFlag + '=>' + vnode.attrs.changeFlag)
+			//console.log('pre MyRatingField showRating ' + showRating)
+			if(!vnode.attrs.changeFlag || vnode.attrs.changeFlag <= lastFlag) return
+			lastFlag = _.clone(vnode.attrs.changeFlag)
+			showRating = _.clone(vnode.attrs.currentRating)
+			m.redraw()
+			//console.log('MyRatingField showRating ' + showRating)
+			//console.log('MyRatingField vnode.attrs.currentRating ' + vnode.attrs.currentRating)
 		},
 		view: ({ attrs }) =>
 		<span class="ft-rating-field">{attrs.pretext}
@@ -21,7 +30,6 @@ const MyRatingField = vnode => {
 			<RatingStar filled={showRating >= 3.95} action={e => {showRating = 4; if(attrs.action) attrs.action(showRating);}}/>
 			<RatingStar filled={showRating >= 4.95} action={e => {showRating = 5; if(attrs.action) attrs.action(showRating);}}/>
 		</span>
-	    //<!-- Results in a set of 15 stars, 10.5 of them selected -->
 }};
 
 export default MyRatingField;

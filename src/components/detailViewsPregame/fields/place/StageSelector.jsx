@@ -12,7 +12,7 @@ const StageSelector = {
 		<label for="stage">
 	        {`Festival Stage`}
 	    </label>
-		    <select id="stage" name="stage" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.stageChange}>
+		    <select id="ft-stage-selector" name="stage" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.stageChange}>
 		    	<option value={0} selected={"selected"}>{`Select a stage`}</option>
 	      		{remoteData.Places.forFestival(attrs.festivalId)
 	      			.filter(p => p.type === 1)

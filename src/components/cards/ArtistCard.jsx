@@ -5,6 +5,7 @@ import m from 'mithril'
 import  ComposedNameField from '../fields/ComposedNameField.jsx';
 import  NameField from '../fields/NameField.jsx';
 import  CircleNail from '../fields/CircleNail.jsx';
+import  ResearchOverlay from '../cardOverlays/ResearchOverlay.jsx'
 import {remoteData} from '../../store/data';
 
 
@@ -16,9 +17,16 @@ const ArtistCard = {
     remoteData.Lineups.loadList()
 		remoteData.ArtistPriorities.loadList()
 	},
-  view: ({ attrs }) => <div class="ft-card" onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
+  view: ({ attrs }) => <div class="ft-card" key={'artist-' + attrs.data.id} onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
     <div class="ft-fields-with-thumbnail">
-      <CircleNail subjectType={2} subject={attrs.data.id} />
+      {attrs.overlay === 'research' && attrs.data ? <ResearchOverlay 
+        artistId={attrs.data.id}
+        reviewSubject={attrs.reviewSubject}
+      /> : ''}
+      {attrs.data ? <CircleNail 
+        subjectType={2} 
+        subject={attrs.data.id}
+      /> : ''}
       <div class="ft-vertical-fields">
         <div class="ft-fields">
           {attrs.data ? <ComposedNameField fieldValue={`${attrs.data.name}`} /> : ''}

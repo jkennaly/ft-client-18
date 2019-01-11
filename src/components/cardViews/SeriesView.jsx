@@ -13,8 +13,6 @@ import {remoteData} from '../../store/data';
 const SeriesView = (auth) => { return {
 	oninit: remoteData.Series.loadList,
 	view: () => <div class="main-stage">
-		
-		
 			<LauncherBanner 
 				title="Festivals" 
 			/>

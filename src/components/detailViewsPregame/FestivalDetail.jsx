@@ -40,15 +40,14 @@ const FestivalDetail = (auth) => { return {
 	},
 	view: () => <div class="main-stage">
 			<LauncherBanner 
-			title={remoteData.Festivals.getEventName(parseInt(m.route.param('id'), 10))} 
-				
-			
+				title={remoteData.Festivals.getEventName(parseInt(m.route.param('id'), 10))} 
 			/>
 		{!remoteData.Lineups.festHasLineup(parseInt(m.route.param('id'), 10)) ? 
-		<div><label for="lineup-uploader">
-        {`Upload a file with the artist list (one name per line)`}
-      </label>
-      <input id="lineup-uploader" type="file" name="lineup-file" onchange={upload(parseInt(m.route.param('id'), 10))}/></div> : ''}
+			<div><label for="lineup-uploader">
+        	{`Upload a file with the artist list (one name per line)`}
+	        </label>
+	        <input id="lineup-uploader" type="file" name="lineup-file" onchange={upload(parseInt(m.route.param('id'), 10))}/>
+      	</div> : ''}
 		{_.flow(
 					m.route.param, parseInt,
 					remoteData.Festivals.eventActive
@@ -63,6 +62,7 @@ const FestivalDetail = (auth) => { return {
 					remoteData.Festivals.getSuperId
 					)('id')
 				}/>
+				
 			<WidgetContainer>
 		<FixedCardWidget header="Festival Dates">
 			{

@@ -12,7 +12,7 @@ const SeriesSelector = {
 			<label for="series">
 		        {`Festival Name`}
 		    </label>
-			    <select id="series" name="series" onchange={attrs.seriesChange}>
+			    <select id="ft-series-selector" name="series" onchange={attrs.seriesChange}>
 			    	<option value={0} selected="selected">{`Select a festival`}</option>
 		      		{remoteData.Series.getEventNamesWithIds()
 			      		.map(s => <option value={s[1]}>{s[0]}</option>)

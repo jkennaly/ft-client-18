@@ -32,15 +32,12 @@ const Admin = (vnode) => { return {
 		auth.getFtUserId()
 			.catch(err => m.route.set('/auth'))
 	},
-	view: () => 
-	<div class="launcher-container">
-		<div class="stage-banner-container">
+	view: () => <div class="main-stage">
 			<LauncherBanner 
 				action={() => auth.logout()}
 				title="FestivalTime Admin" 
 			/>
-		</div>
-		<div>
+		<div class="main-stage-content">
 			<WidgetContainer>
 				<FixedCardWidget header="Create Festivals">
 					<SeriesCard eventId="new"/>

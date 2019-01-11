@@ -5,6 +5,7 @@ import m from 'mithril';
 import MainStage from './MainStage.jsx';
 import DisplayBar from './DisplayBar.jsx';
 import Launcher from './Launcher.jsx';
+import Research from './Research.jsx';
 import Admin from './Admin.jsx';
 import Discussion from './Discussion.jsx';
 
@@ -87,6 +88,13 @@ const App = {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(Launcher)
+						.catch(forceLoginRoute)
+
+			},
+			"/research": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(Research)
 						.catch(forceLoginRoute)
 
 			},

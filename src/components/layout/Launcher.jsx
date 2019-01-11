@@ -33,15 +33,12 @@ const Launcher = (vnode) => { return {
 		auth.getFtUserId()
 			.catch(err => m.route.set('/auth'))
 	},
-	view: () => 
-	<div class="launcher-container">
-		<div class="stage-banner-container">
-			<LauncherBanner 
-				action={() => auth.logout()}
-				title="FestivalTime Launcher" 
-			/>
-		</div>
-		<div>
+	view: () => <div class="main-stage">
+		<LauncherBanner 
+			action={() => auth.logout()}
+			title="FestivalTime Launcher" 
+		/>
+		<div class="main-stage-content">
 			<WidgetContainer>
 				<FixedCardWidget header="Current Festival Dates">
 				{

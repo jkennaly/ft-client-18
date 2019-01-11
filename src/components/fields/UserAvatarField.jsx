@@ -2,24 +2,28 @@
 //attrs: userId
 
 import m from 'mithril'
-////import _ from 'lodash'
+import _ from 'lodash'
 
 import {remoteData} from '../../store/data';
 
 
 const UserAvatarField = vnode => {
   var author = ''
-  var year = 2000
   var src = ''
   const initDom = ({attrs}) => {
-    const u = attrs.data.fromuser
-    const y = _.take(attrs.data.timestamp, 4)
+    if(author) return
+    const u = attrs.data
     const s = remoteData.Users.getPic(u)
     const newAuthor = remoteData.Users.getName(u)
-    author = u ? newAuthor : author
-    year = y ? y : year
+    const authorChange = newAuthor !== author
+    const srcChange = src !== s
+    author = newAuthor ? newAuthor : author
     src = s ? s : src
-    if(!author && newAuthor) m.redraw()
+    //console.log('UserAvatarField author ' + author)
+    //console.log('UserAvatarField authorChange ' + authorChange)
+    //console.log('UserAvatarField src ' + src)
+    //console.log(attrs.data)
+    if(authorChange || srcChange) m.redraw()
   }
 
 	return {
@@ -30,7 +34,6 @@ const UserAvatarField = vnode => {
 			<img src={src} />
 			<div class="ft-vertical-fields">
 	            <span>{author}</span>
-	            <span>{year}</span>
 	            
 	        </div>
         </div>

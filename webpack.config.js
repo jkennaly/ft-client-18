@@ -1,15 +1,30 @@
 const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const WorkboxPlugin = require('workbox-webpack-plugin')
 const webpack = require("webpack");
 
 module.exports = {
-	mode: "development",
+	mode: "production",
 	entry: './src/index.jsx',
-	devtool: "inline-source-map",
+	devtool: "source-map",
 	devServer: {
 		contentBase: "./dist"
 	},
+	 optimization: {
+    minimizer: [
+      new TerserPlugin({
+    parallel: true,
+    terserOptions: {
+      ecma: 6,
+    },
+  }),
+      new OptimizeCSSAssetsPlugin({})
+    ]
+  },
 	plugins: [
 		new CleanWebpackPlugin(["dist"]),
 		new HtmlWebpackPlugin({
@@ -18,12 +33,23 @@ module.exports = {
 			inject: "body",
 			favicon: 'src/favicon.ico'
 		}),
+		new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css"
+    }),
 		new webpack.ProvidePlugin({
 	        //$: "jquery",
 	        //jQuery: "jquery",
 	        //_: "lodash",
 	        cloudy: "cloudinary-core"
-    	})
+    	}),
+    	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+     new WorkboxPlugin.GenerateSW({
+       // these options encourage the ServiceWorkers to get in there fast 
+       // and not allow any straggling "old" SWs to hang around
+       clientsClaim: true,
+       skipWaiting: true
+     })
 	],
 	output: {
 		path: path.resolve(__dirname, './dist'),
@@ -53,7 +79,8 @@ module.exports = {
 			}
 		}, {
 			test: /\.css$/,
-			use: ['style-loader', 'css-loader']
+			use: [MiniCssExtractPlugin.loader,
+          'css-loader']
 		},
         {
             test: /\.(png|jp(e*)g|svg)$/,  

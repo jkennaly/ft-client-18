@@ -1,7 +1,7 @@
 // data.js
 import m from 'mithril'
 import _ from 'lodash'
-import moment from 'moment-timezone'
+import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 const Promise = require('promise-polyfill').default
 
 // Services
@@ -162,7 +162,7 @@ export const remoteData = {
 			.filter(m => m.fromuser ===  m.touser && m.subjectType === 2 && m.messageType === 7 && _.includes(artistIds, m.subject))
 			.filter(m => researchApplicable(m.content, {festivalId: festivalId}))
 			.map(m => m.subject)),
-		recentRatings: (artistIds, author) => _.uniq(remoteData.Messages.list
+		recentRatings: ({artistIds, author}) => _.uniq(remoteData.Messages.list
 			.filter(m => m.subjectType === 2 && m.messageType === 2 && m.fromuser === author && _.includes(artistIds, m.subject))
 			.filter(m => moment(m.timestamp).add(1, 'y').isAfter())
 			.map(m => m.subject)),
@@ -194,6 +194,23 @@ export const remoteData = {
 				.then(() => remoteData[dataFieldName].list.push(data))
 				.then(forceRemoteLoad(remoteData.Messages))
 				.catch(logResult)
+		},
+		upsert: data => {
+			const end = 'Messages'
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end, 'PUT')(data)))
+				.then(forceRemoteLoad(remoteData.Messages))
+				.catch(logResult)
+
+		},
+		updateInstance: (id, data) => {
+			const end = 'Messages/' + id
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end, 'PUT')(data)))
+				.then(forceRemoteLoad(remoteData.Messages))
+				.then(() => m.redraw())
+				.catch(logResult)
+
 		}
 	},
 	Images: {
@@ -1362,36 +1379,39 @@ export const remoteData = {
 	}
 }
 
-export const subjectData = {
-	name: (sub, type) => remoteData[subjectDataField(type)].getName(sub),
-	ratingBy: (sub, type, author) => {
+const getRating = (sub, type, author) => {
 		const mType = 2
-		//const ratings = remoteData.Messages.ofType(mType)
-		//const aboutArtists = remoteData.Messages.aboutType(type)
-		//const byAuthor = remoteData.Messages.byAuthor(author)
 		const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
 		const subRating = authorRatings.filter(m => m.subject === sub)
 
-		const rate = subRating.length ? parseInt(subRating[0].content, 10) : 0
-		//console.log('subjectData ratingBy ' + rate + ' sub: ' + sub + 'type: ' + type + 'author: ' + author)
-		//console.log('subjectData authorRatings ' + authorRatings.length)
-		//console.log('subjectData aboutArtists ' + aboutArtists.length)
-		//console.log('subjectData ratings ' + ratings.length)
-		//console.log('subjectData byAuthor ' + byAuthor.length)
-		//console.log('subjectData byAuthor add ' + (author + 1))
-		//console.log('subjectData byFromuser add ' + (remoteData.Messages.list[0].fromuser + 1))
-		//console.log('subjectData subRating ' + subRating.length)
+		const message = subRating[0]
+		return message
+	}
+
+const getComment = (sub, type, author) => {
+		const mType = 1
+		const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
+		const subRating = authorRatings.filter(m => m.subject === sub)
+
+		const message = subRating[0]
+		return message
+	}
+
+export const subjectData = {
+	name: (sub, type) => type && sub ? remoteData[subjectDataField(type)].getName(sub) : '',
+	ratingBy: (sub, type, author) => {
+		const message = getRating(sub, type, author)
+		const rate = message && message.content ? parseInt(message.content, 10) : 0
 		return rate
 	},
+	ratingId: (sub, type, author) => {
+		const message = getRating(sub, type, author)
+		const id = message && message.id
+		return id
+	},
 	commentBy: (sub, type, author) => {
-		const mType = 1
-		//const ratings = remoteData.Messages.ofType(mType)
-		//const aboutArtists = remoteData.Messages.aboutType(type)
-		//const byAuthor = remoteData.Messages.byAuthor(author)
-		const authorComments = remoteData.Messages.ofAboutAndBy(mType, type, author)
-		const subComment = authorComments.filter(m => m.subject === sub)
-
-		const comment = subComment.length ? subComment[0].content : ''
+		const message = getComment(sub, type, author)
+		const comment = message && message.content ? message.content : ''
 		//console.log('subjectData ratingBy ' + comment + ' sub: ' + sub + 'type: ' + type + 'author: ' + author)
 		//console.log('subjectData authorRatings ' + authorRatings.length)
 		//console.log('subjectData aboutArtists ' + aboutArtists.length)
@@ -1401,6 +1421,11 @@ export const subjectData = {
 		//console.log('subjectData byFromuser add ' + (remoteData.Messages.list[0].fromuser + 1))
 		//console.log('subjectData subRating ' + subRating.length)
 		return comment
+	},
+	commentId: (sub, type, author) => {
+		const message = getComment(sub, type, author)
+		const id = message && message.id
+		return id
 	},
 	imagePreset: type => 'artist'
 }

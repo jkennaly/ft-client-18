@@ -27,6 +27,10 @@ const DisplayButton = vnode => {
 			path: '/launcher'
 		},
 		{
+			name: 'Research',
+			path: '/research'
+		},
+		{
 			name: 'Festivals',
 			path: '/series/pregame'
 		},

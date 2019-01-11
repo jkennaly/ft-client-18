@@ -1,5 +1,6 @@
 // DateSelector.jsx
 import m from 'mithril'
+import _ from 'lodash'
 
 import {remoteData} from '../../../../store/data'
 
@@ -13,7 +14,7 @@ const DateSelector = {
 					<label for="date">
 				        {`Festival Date`}
 				    </label>
-					    <select id="date" name="date" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.dateChange}>
+					    <select id="ft-date-selector" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.dateChange}>
 					    	<option value={0} selected={ attrs.dateId ? '' : "selected"}>{`Select a date`}</option>
 				      		{_.flow(
 				      			remoteData.Festivals.getSubIds,

@@ -21,7 +21,7 @@ const EventSelector = vnode => {
 			remoteData.Days.loadList()
 			remoteData.Places.loadList()
 		},
-		view: ({attrs}) => <div>
+		view: ({attrs}) => <div class="ft-event-selector" id="ft-event-selector">
 			{!attrs.seriesChange ? '' : <SeriesSelector 
 				seriesId={attrs.seriesId}
 				seriesChange={attrs.seriesChange}

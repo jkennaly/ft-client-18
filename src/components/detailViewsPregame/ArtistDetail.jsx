@@ -54,9 +54,9 @@ const ArtistDetail = (vnode) => {
 					<CloudImageField subjectType={2} subject={artistId} />
 				</FixedCardWidget>
 				{artist ? <FixedCardWidget header="Listen & Review" >
-									<SpotifyCard fieldValue={artist.name} />
-									<ReviewCard type="artist" data={artist} />
-								</FixedCardWidget> : ''}
+					<SpotifyCard fieldValue={artist.name} />
+					<ReviewCard type="artist" data={artist} />
+				</FixedCardWidget> : ''}
 				<AdminWidget header="Artist Admin">
 					<NavCard fieldValue="Fix Artist Names" action={() => m.route.set("/artists/pregame/fix/" + artistId)}/>
 				</AdminWidget>

@@ -1,5 +1,6 @@
 // FestivalSelector.jsx
 import m from 'mithril'
+import _ from 'lodash'
 
 import {remoteData} from '../../../../store/data'
 
@@ -13,7 +14,7 @@ const FestivalSelector = {
 					<label for="festival">
 				        {`Festival Year`}
 				    </label>
-					    <select id="festival" name="festival" class={attrs.seriesId ? '' : 'hidden'} onchange={attrs.festivalChange}>
+					    <select  id="ft-festival-selector"name="festival" class={attrs.seriesId ? '' : 'hidden'} onchange={attrs.festivalChange}>
 					    	<option value={0} selected={ attrs.festivalId ? '' : "selected"}>{`Select a date`}</option>
 				      		{_.flow(
 				      			remoteData.Series.getSubIds,
