@@ -38,18 +38,12 @@ const FestivalDetail = (auth) => { return {
 		remoteData.Days.loadList()
 		remoteData.Sets.loadList()
 		remoteData.Venues.loadList()
-		remoteData.Organizers.loadList()
 		remoteData.Places.loadList()
 		remoteData.Lineups.loadList()
       	remoteData.ArtistPriorities.loadList()
       	remoteData.StagePriorities.loadList()
-      	remoteData.StageLayouts.loadList()
-		remoteData.PlaceTypes.loadList()
       	remoteData.ArtistAliases.loadList()
 		remoteData.Artists.loadList()
-		remoteData.ParentGenres.loadList()
-		remoteData.Genres.loadList()
-		remoteData.ArtistGenres.loadList()
 		remoteData.Users.loadList()
 	},
 	view: () => <div class="main-stage">

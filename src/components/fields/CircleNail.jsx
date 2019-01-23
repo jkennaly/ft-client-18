@@ -15,6 +15,7 @@ const CircleNail = vnode => {
     var userId = 0
     var sub = '' + vnode.attrs.subject + '-' + vnode.attrs.subjectType + '-' + remoteData.Images.list.length
     var imagePath = ''
+    /*
     const initDom = vnode => {
         const newSub = '' + vnode.attrs.subject + '-' + vnode.attrs.subjectType + '-' + remoteData.Images.list.length
         const cached = _.get(pathCache, newSub)
@@ -55,17 +56,24 @@ const CircleNail = vnode => {
             //m.redraw()
         } 
     }
+    */
     return {
+        /*
         oncreate: initDom,
         onupdate: initDom,
+        */
         view: vnode => <div class="ft-card-thumbnail">
-            {imagePath ? 
-                m.trust(cl.imageTag(imagePath, {
-                    alt: "artist image", 
-                    width: 50, 
-                    height: 50,
-                    crop: "thumb", 
-                    radius: 'max'}).toHtml()) : 
+            {remoteData.Images.forSubject(vnode.attrs.subjectType, vnode.attrs.subject)
+                .filter(i => i.url).length ? 
+                    m.trust(cl.imageTag(remoteData.Images.forSubject(vnode.attrs.subjectType, vnode.attrs.subject)
+                        .filter(i => i.url)[0]
+                        .url.substring(remoteData.Images.forSubject(vnode.attrs.subjectType, vnode.attrs.subject)
+                        .filter(i => i.url)[0].url.indexOf('artists/')), {
+                            alt: "artist image", 
+                            width: 50, 
+                            height: 50,
+                            crop: "thumb", 
+                            radius: 'max'}).toHtml()) : 
             ''}
       </div>
 }}
