@@ -20,8 +20,6 @@ import RatingStar from '../ui/RatingStar.jsx';
 		*/
 
 const AverageRatingField = {
-	oninit: () => {
-	},
 	view: ({ attrs }) =>
 	<span>
 		<RatingStar filled={attrs.averageRating >= 0.95} />

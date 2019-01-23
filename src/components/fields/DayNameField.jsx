@@ -13,7 +13,6 @@ const getDayName = id => {
 }
 
 const DayNameField = {
-	oninit: remoteData.Days.loadList,
 	view: ({ attrs }) =>
 		<span class="ft-name-field">
 			{(getDayName(attrs.dayId))}

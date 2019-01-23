@@ -12,11 +12,6 @@ import {remoteData} from '../../store/data';
 const defaultClick = attrs => () => m.route.set("/artists" + "/pregame" + '/' + attrs.data.id)
 
 const ArtistCard = {
-	oninit: () => {
-    remoteData.Festivals.loadList()
-    remoteData.Lineups.loadList()
-		remoteData.ArtistPriorities.loadList()
-	},
   view: ({ attrs }) => <div class="ft-card" key={'artist-' + attrs.data.id} onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
     <div class="ft-fields-with-thumbnail">
       {attrs.overlay === 'research' && attrs.data ? <ResearchOverlay 

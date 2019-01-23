@@ -19,7 +19,7 @@ import {remoteData} from '../../../store/data';
 const ResearchWidget = vnode => {
 	var userId = 0
 	const routeId = _.flow(m.route.param, parseInt)('id')
-	var festivalId = routeId
+	var festivalId = routeId ? routeId : 0
 	var reviewing = false
 	var subjectObject = {}
 	var removed = []
@@ -51,10 +51,6 @@ const ResearchWidget = vnode => {
 						data={data}
 						festivalId={festivalId}
 						overlay={'research'}
-						addImage = {s => {
-							subjectObject = _.clone(s)
-							addingImage = true
-						}}
 						reviewSubject={s => {subjectObject = _.clone(s); reviewing = true;}}
 					/>)
 			}

@@ -30,7 +30,6 @@ const CloudImageField = vnode => {
     }
     return {
         oninit: function (vnode) {
-            remoteData.Images.loadList()
             auth.getFtUserId()
                 .then(id => userId = id)
                 .then(m.redraw)

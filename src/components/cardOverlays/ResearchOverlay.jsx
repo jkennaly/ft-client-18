@@ -8,9 +8,6 @@ import ListenButton from './fifty/ListenButton.jsx'
 
 
 const ResearchOverlay = {
-	oninit: () => {
-    remoteData.Festivals.loadList()
-	},
   view: ({ attrs }) => <div class="ft-card-overlay">
     <ReviewButton 
       subjectType={2} 

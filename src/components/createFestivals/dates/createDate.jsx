@@ -65,10 +65,22 @@ var userId = 0
 
 const CreateDate = (auth) => { return {
 	oninit: () => {
+		remoteData.Messages.loadList()
+		remoteData.MessagesMonitors.loadList()
+		remoteData.Images.loadList()
 		remoteData.Series.loadList()
 		remoteData.Festivals.loadList()
 		remoteData.Dates.loadList()
+		remoteData.Days.loadList()
+		remoteData.Sets.loadList()
 		remoteData.Venues.loadList()
+		remoteData.Places.loadList()
+		remoteData.Lineups.loadList()
+      	remoteData.ArtistPriorities.loadList()
+      	remoteData.StagePriorities.loadList()
+      	remoteData.ArtistAliases.loadList()
+		remoteData.Artists.loadList()
+		remoteData.Users.loadList()
 		auth.getFtUserId()
 			.then(id => userId = id)
 			.then(() => m.redraw())

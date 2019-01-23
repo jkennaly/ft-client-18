@@ -45,6 +45,17 @@ th {
     width: 100%;
 }
 
+#upgrade-notice {
+    position: fixed;
+    top: 0;
+    background-color: #4B0082;
+    left: 50%;
+    transform: translateX(-50%);  
+    font-variant: small-caps;
+    font-size: 40px;  
+    z-index: 10;
+}
+
 .App {
     display: flex;
     flex-direction: column;
@@ -207,28 +218,6 @@ th {
     overflow-y: scroll;
 }
 
-.conference-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 0.5em;
-    margin: 0.5em;
-    font-size: 100%;
-    background: white;
-}
-
-.conference-fields {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.conference-field {
-    display: flex;
-    margin: 0.5em;
-    font-size: 100%;
-}
-
 .ft-card {
     display: flex;
     flex-direction: column;
@@ -252,6 +241,53 @@ th {
     background: white;
     flex-shrink: 0;
     color: black;
+    width: calc(100% - 4em);
+    position: relative;
+}
+
+.ft-card-title {
+    color: white;
+    background-color: black;
+    min-height: 25px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.ft-card-overlay {
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    position: absolute;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+    opacity: 0.5;
+    top: 0;
+    left: 0;
+}
+
+.quarter {
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 25px;
+    color: red;
+    font-size: 25px;
+    background-color: black;
+    text-align: center;
+}
+
+.ft-fifty-button {
+    width: 50px;
+    min-height: 50px;
+    color: red;
+    background-color: blue;
+    font-size: 20px;
+    text-align: center;
+    margin: 0px 5px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .ft-fields {
@@ -285,6 +321,7 @@ th {
 .ft-horizontal-fields {
     display: flex;
     flex-direction: row;
+    position: relative;
 }
 
 .ft-set-diff-fields {
@@ -441,14 +478,6 @@ th {
     color: white;
 }
 
-.widget-container section, div, footer {
-  display:flex;
-}
-
-.widget-container section {
-  margin:10px;
-}
-
 .widget-container {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -459,11 +488,16 @@ th {
     overflow-y: scroll;
 }
 
+.widget-container section, div, footer {
+  display:flex;
+}
+
 .widget-container section {
   border:1px solid black;
   flex-direction:column;
   max-height:300px;
   width:300px;
+  margin:10px;
 }
 /*
 .widget-container div {
@@ -524,7 +558,7 @@ th {
     background-color: #99ff66;
     align-items: center;
     width:300px;
-    height:320px;
+    min-height:320px;
     opacity: 1.0;
 }
 
@@ -597,11 +631,6 @@ th {
     height: 4px;
 }
 
-.quarter {
-    flex-shrink: 0;
-    flex-grow: 0;
-}
-
 .ft-full-image {
     display: flex;
     flex-direction: column;
@@ -625,30 +654,6 @@ th {
 
 .ft-card-thumbnail {
     width: 50px;
-}
-
-.ft-card-overlay {
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    position: absolute;
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: stretch;
-    opacity: 0.5;
-}
-
-.ft-fifty-button {
-    width: 50px;
-    color: red;
-    background-color: blue;
-    font-size: 20px;
-    text-align: center;
-    margin: 0px 5px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .hidden { display:none; }

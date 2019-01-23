@@ -403,6 +403,7 @@ const App = {
 				{children}
 			</div>
 			<div id="DisplayBar" />
+			<div id="upgrade-notice" class="hidden">upgrade</div>
 		</div>
 };
 

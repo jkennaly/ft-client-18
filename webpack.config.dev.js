@@ -4,7 +4,6 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const WorkboxPlugin = require('workbox-webpack-plugin')
 const webpack = require("webpack");
 
 module.exports = {
@@ -28,13 +27,8 @@ module.exports = {
 	        //_: "lodash",
 	        cloudy: "cloudinary-core"
     	}),
-    	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-     new WorkboxPlugin.GenerateSW({
-       // these options encourage the ServiceWorkers to get in there fast 
-       // and not allow any straggling "old" SWs to hang around
-       clientsClaim: true,
-       skipWaiting: true
-     })
+    	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+
 	],
 	output: {
 		path: path.resolve(__dirname, './dist'),

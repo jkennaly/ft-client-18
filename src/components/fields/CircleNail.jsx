@@ -34,7 +34,7 @@ const CircleNail = vnode => {
         if(_.isString(cached)) {
             sub = '' + newSub
             imagePath = cached
-            m.redraw()
+            //m.redraw()
             return
         }
         if(false && vnode.attrs.subject === 1230) console.log('CircleNail imagecheck for newSub ' + newSub)
@@ -52,13 +52,10 @@ const CircleNail = vnode => {
         sub = '' + newSub
         if(imagePath !== prevPath){
             _.set(pathCache, sub, imagePath)
-            m.redraw()
+            //m.redraw()
         } 
     }
     return {
-        oninit: function (vnode) {
-            remoteData.Images.loadList()
-        },
         oncreate: initDom,
         onupdate: initDom,
         view: vnode => <div class="ft-card-thumbnail">

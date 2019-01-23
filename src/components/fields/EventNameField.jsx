@@ -40,14 +40,6 @@ const getEventName = _.memoize((id, eventAr, suffix) => {
 
 
 const EventNameField = {
-	oninit: () => {
-		remoteData.Festivals.loadList()
-		remoteData.Series.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Artists.loadList()
-	},
 	view: ({ attrs }) =>
 		<span class="ft-field">
 			{getEventName(attrs.superId, attrs.eventTier, attrs.nameFrag)}

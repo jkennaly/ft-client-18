@@ -13,7 +13,6 @@ const getArtistName = id => {
 }
 
 const ArtistNameField = {
-	oninit: remoteData.Artists.loadList,
 	view: ({ attrs }) =>
 		<span class="ft-name-field">
 			{(getArtistName(attrs.artistId))}

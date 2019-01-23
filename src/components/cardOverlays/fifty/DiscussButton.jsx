@@ -1,31 +1,31 @@
-// ReviewButton.jsx
+// DiscussButton.jsx
 
 import m from 'mithril'
 // Services
 
 import  ComposedNameField from '../../fields/ComposedNameField.jsx';
+import  ReviewModal from '../../modals/ReviewModal.jsx';
 
 const getSubject = attrs => {
-	console.log('ReviewButton subject ' + attrs.subject )
+	//console.log('DiscussButton subject ' + attrs.subject )
 	return {
 				sub: attrs.subject,
-				type: attrs.subjectType ? attrs.subjectType : 2
+				type: attrs.subjectType ? attrs.subjectType : 10
 
 	}
 }
 
-const ReviewButton = vnode => { 
+const DiscussButton = vnode => { 
 	return {
 	  view: ({ attrs }) =>
 	    <div class="ft-fifty-button" onclick={e => {
 	    	const sub = getSubject(attrs)
-	    	attrs.reviewSubject(sub)
+	    	attrs.discussSubject(sub, attrs.messageArray, attrs.rating)
 	    	e.stopPropagation()
 	    }} >
 	      
-	      <i class="fas fa-comment"/>
-	      <i class="fas fa-star"/>
+	      <i class="fas fa-comments"/>
 	    </div>
 }};
 
-export default ReviewButton;
+export default DiscussButton;

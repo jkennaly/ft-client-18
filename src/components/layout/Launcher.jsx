@@ -20,16 +20,22 @@ import {remoteData} from '../../store/data';
 
 const Launcher = (vnode) => { return {
 	oninit: () => {
+		remoteData.Messages.loadList()
+		remoteData.MessagesMonitors.loadList()
+		remoteData.Images.loadList()
 		remoteData.Series.loadList()
 		remoteData.Festivals.loadList()
 		remoteData.Dates.loadList()
-		remoteData.Venues.loadList()
 		remoteData.Days.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Lineups.loadList()
-		remoteData.Messages.loadList()
 		remoteData.Sets.loadList()
-		remoteData.Images.loadList()
+		remoteData.Venues.loadList()
+		remoteData.Places.loadList()
+		remoteData.Lineups.loadList()
+      	remoteData.ArtistPriorities.loadList()
+      	remoteData.StagePriorities.loadList()
+      	remoteData.ArtistAliases.loadList()
+		remoteData.Artists.loadList()
+		remoteData.Users.loadList()
 		auth.getFtUserId()
 			.catch(err => m.route.set('/auth'))
 	},

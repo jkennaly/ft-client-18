@@ -13,7 +13,6 @@ const getStageName = id => {
 }
 
 const StageNameField = {
-	oninit: remoteData.Places.loadList,
 	view: ({ attrs }) =>
 		<span class="ft-name-field">
 			{(getStageName(attrs.stageId))}

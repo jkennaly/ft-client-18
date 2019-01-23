@@ -3,6 +3,7 @@
 import auth0 from 'auth0-js';
 import AUTH0_DATA from './auth0-variables';
 import m from 'mithril'
+import localforage from 'localforage'
 const Promise = require('promise-polyfill').default
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
@@ -19,6 +20,10 @@ const setSession = function(authResult) {
 const tokenFunction = function(xhr) {
   xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'))
 }
+
+var userIdPromiseCache = {}
+var memId = 0
+
 export default class Auth {
   auth0 = new auth0.WebAuth({
     domain: AUTH0_DATA.DOMAIN,
@@ -37,6 +42,7 @@ export default class Auth {
     this.auth0.parseHash((err, authResult) => {
       //console.log(window.location)
       //console.log(window.location.hash)
+      //console.log('handleAuthentication')
       //console.log(authResult)
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
@@ -51,11 +57,16 @@ export default class Auth {
 
   setSession = setSession
 
+
   getFtUserId() {
     const currentId = localStorage.getItem('ft_user_id')
     if(currentId) return Promise.resolve(parseInt(currentId, 10))
     const tokenValid = this.isAuthenticated()
-    if(!tokenValid) return Promise.reject('current user is not authorized')
+    if(!tokenValid) {
+      userIdPromiseCache = {}
+      return Promise.reject('current user is not authorized')
+    }
+    if(userIdPromiseCache.then) return userIdPromiseCache
     const _this = this
     var promise = m.request({
           method: "GET",
@@ -71,18 +82,21 @@ export default class Auth {
           localStorage.setItem('ft_user_id', id)
           return id
         })
+        .catch(err => {
+          console.log('get userId failed')
+          console.log(err)
+        })
+    userIdPromiseCache = promise
     return promise
   }
 
 
   logout(skipRoute) {
     // Clear Access Token and ID Token from local storage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('expires_at');
-    localStorage.removeItem('ft_user_id');
+    localStorage.clear()
+    localforage.clear()
     // navigate to the default route
-    if(!skipRoute) m.route.set('/auth');
+    if(!skipRoute) m.route.set('/auth')
   }
 
   isAuthenticated() {
