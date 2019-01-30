@@ -43,7 +43,7 @@ const CloudImageField = vnode => {
             {images.length && images[0].id ? <AttributionField imageId={images[0].id}/> : ''}
             {!images.length || !images[0].id ? <NavButton fieldValue="Add image" action={e => addingImage = true} /> : ''}
             {!images.length || !images[0].id ? <a 
-                href={"https://www.google.com/search?q=" + encodeURIComponent(subjectData.name(vnode.attrs.subject, vnode.attrs.subjectType)) + "&hs=lbE&channel=fs&tbm=isch&source=lnt&tbs=sur:fc&sa=X"} 
+                href={"https://www.google.com/search?q=" + encodeURIComponent(subjectData.name(vnode.attrs.subject, vnode.attrs.subjectType)) + "+site%3Acommons.wikimedia.org&hs=lbE&channel=fs&tbm=isch&source=lnt&tbs=sur:fc&sa=X"} 
                 target="_blank"><NavButton fieldValue="Image Search" /></a> : ''}
 
                 <ImageModal 

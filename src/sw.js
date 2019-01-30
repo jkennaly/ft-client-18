@@ -18,7 +18,7 @@ limitations under the License.
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.5.0/workbox-sw.js');
 
 if (workbox) {
-  	console.log(`Yay! Workbox is loaded 🎉`);
+  	//console.log(`Yay! Workbox is loaded 🎉`);
 
   	workbox.skipWaiting()
   	//workbox.clientsClaim()
@@ -36,9 +36,9 @@ if (workbox) {
 		  }),
 		  'POST'
 	);
-/*
+
 	workbox.routing.registerRoute(
-  		new RegExp("cloudinary.com/(.*)"),
+  		new RegExp("(.*)widget.cloudinary.com/(.*)"),
   		workbox.strategies.cacheFirst({
       		cacheName: 'cloud-images',
 		    plugins: [
@@ -52,9 +52,9 @@ if (workbox) {
 		    ],
   		}),
 	);
-*/
+
 	workbox.routing.registerRoute(
-  		new RegExp("fontawesome.com/(.*)"),
+  		new RegExp("(.*)fontawesome.com/(.*)"),
   		workbox.strategies.cacheFirst({
       		cacheName: 'fonts',
 		    plugins: [
@@ -70,7 +70,7 @@ if (workbox) {
 	);
 
 	workbox.routing.registerRoute(
-  		new RegExp("googleapis.com/(.*)"),
+  		new RegExp("(.*)googleapis.com/(.*)"),
   		workbox.strategies.cacheFirst({
       		cacheName: 'fonts',
 		    plugins: [
@@ -86,7 +86,7 @@ if (workbox) {
 	);
 
 	workbox.routing.registerRoute(
-  		new RegExp("gstatic.com/(.*)"),
+  		new RegExp("(.*)gstatic.com/(.*)"),
   		workbox.strategies.cacheFirst({
       		cacheName: 'fonts',
 		    plugins: [

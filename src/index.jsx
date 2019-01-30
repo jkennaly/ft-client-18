@@ -16,7 +16,7 @@ if ('serviceWorker' in navigator) {
    // The event listener that is fired when the service worker updates
    // Here we reload the page
     navigator.serviceWorker.addEventListener('controllerchange', function () {
-      	console.log('serviceWorker controllerchange')
+      	//console.log('serviceWorker controllerchange')
       if (refreshing) return;
       window.location.reload();
       refreshing = true;
@@ -24,13 +24,13 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js').then(registration => {
       registration.addEventListener('updatefound', () => {
-      	console.log('serviceWorker updatefound')
+      	//console.log('serviceWorker updatefound')
 
         // An updated service worker has appeared in registration.installing!
         const newWorker = registration.installing;
 
         newWorker.addEventListener('statechange', () => {
-      	console.log('serviceWorker statechange')
+      	//console.log('serviceWorker statechange')
 
           // Has service worker state changed?
           switch (newWorker.state) {
@@ -46,7 +46,7 @@ if ('serviceWorker' in navigator) {
           }
         });
       });
-      console.log('SW registered: ', registration);
+      //console.log('SW registered: ', registration);
     }).catch(registrationError => {
       console.log('SW registration failed: ', registrationError);
     });

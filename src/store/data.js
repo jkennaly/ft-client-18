@@ -45,7 +45,9 @@ const tokenFunction = token => function(xhr) {
 const fullRequest = (url, dataFieldName) => authResult => m.request({
 	method: "GET",
 	//use the dataFieldName after the last dot to access api
-	url: url ? url : "/api/" + dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1),
+	url: url ? url : "/api/" + dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1) + 
+		(dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1) === 'Messages' ? 
+			'?filter[order]=id%20DESC&filter[limit]=200' : ''),
 		config: tokenFunction(authResult)
 })
 
@@ -84,6 +86,7 @@ const assignDataToList = dataField => result => {
 
 	//console.log('assigningList length')
 	//console.log(dataField.list.length)
+
 	dataField.assignList(result)
 	//console.log(dataField.list.length)
 	return result
@@ -105,8 +108,8 @@ const stale = (interval, lastRemoteLoad) => {
 
 const localLastRemoteLoadValid = (key, interval) => localforage.getItem(key + '.lastRemoteLoad')
 	.then(lastRemoteLoad => stale(interval, lastRemoteLoad))
-	.then(logText('localLastRemoteLoadValid ' + key))
-	.then(logResult)
+	//.then(logText('localLastRemoteLoadValid ' + key))
+	//.then(logResult)
 
 const getMeta = dataFieldName => localforage
 	.getItem(dataFieldName + '_meta')
@@ -115,9 +118,14 @@ const getMeta = dataFieldName => localforage
 	//use a partial update if dataFieldName_meta.timestamps[1] is defined and truthy in localforage
 		//if performing a partial update, load the timestamp to the update function and then return it
 	//otherwise return the full update function
-const getUpdateFunctionPromise = dataFieldName => getMeta(dataFieldName)
-	.then(meta => {
-		const usePartialUpdate = meta && meta.timestamps && meta.timestamps.length && meta.timestamps[1]
+const getUpdateFunctionPromise = dataFieldName => Promise.all([
+	getMeta(dataFieldName), 
+	localforage.getItem(dataFieldName + '.lastRemoteLoad')])
+	.then(val => {
+		const meta = val[0]
+		const lastRemoteLoad = val[1]
+		const localDataDefined = lastRemoteLoad && meta && meta.timestamps && meta.timestamps.length
+		const usePartialUpdate = localDataDefined  && meta.timestamps[1]
 		const updateFunction = usePartialUpdate ? updateRequest(meta.timestamps[1]) : fullRequest
 		return updateFunction
 	})
@@ -157,10 +165,10 @@ const updateList = (dataField, dataFieldName) => {
 	const nextRemoteCheck = dataField.remoteInterval + dataField.lastRemoteLoad
 	if(dataFieldName === 'remoteData.Messages') {
 		console.log('remoteData.Messages updateList skip ' + (now < nextRemoteCheck))
+		console.log('remoteData.Messages updateList remoteLoad time left ' + (nextRemoteCheck - now))
 	}
 	if(now < nextRemoteCheck) return Promise.resolve(true)
 	if(false && dataFieldName === 'remoteData.Messages') {
-		console.log('remoteData.Messages updateList remoteLoad reqd ' + (now - nextRemoteCheck))
 		console.log('remoteData.Messages updateList remoteLoad nextRemoteCheck ' + (nextRemoteCheck))
 	}
 	//check if there is local data present
@@ -170,57 +178,109 @@ const updateList = (dataField, dataFieldName) => {
 		.catch(err => console.log(err))
 
 }
+
+const unionLocalList = dataFieldName => {
+	const oldDataPromise = localforage.getItem(dataFieldName)
+	return newData => oldDataPromise
+		.then(oldData => {
+			//if there's no old data, save the entire result[0]
+			if(!oldData || !oldData.length) {
+				localforage.setItem(dataFieldName, newData)
+			//if there is old data, splice the old data with the new data
+			}	else {
+				localforage.setItem(dataFieldName, _.unionBy(newData, oldData, 'id'))
+				
+				}
+			return newData
+		})
+		.catch(err => console.log(err))
+}
+
+const defaultMeta = {timestamps: [Infinity, 0], ids: [Infinity, 0]}
+
+const calcMeta = (data, baseMeta = {timestamps: [Infinity, 0], ids: [Infinity, 0]}) => (data.data ? data.data : data)
+	.reduce((metaTemp, el, index) => {
+		const m = moment(el.timestamp).valueOf()
+		const i = el.id
+
+		const oldest = m && m < metaTemp.timestamps[0]
+		const newest = m && m > metaTemp.timestamps[1]
+		metaTemp.timestamps[0] = oldest ? m : metaTemp.timestamps[0]
+		metaTemp.timestamps[1] = newest ? m : metaTemp.timestamps[1]
+
+		const lowest = i && i < metaTemp.ids[0]
+		const highest = i && i > metaTemp.ids[1]
+		metaTemp.ids[0] = lowest ? i : metaTemp.ids[0]
+		metaTemp.ids[1] = highest ? i : metaTemp.ids[1]
+
+		metaTemp.length = index + 1
+
+		return metaTemp
+	}, _.clone(baseMeta))
+
+const validMeta = meta => meta && meta.timestamps && meta.timestamps.length &&
+	meta.ids && meta.ids.length
+
+const combineMetas = (a, b) => { return {
+	timestamps: [
+		a.timestamps[0] < b.timestamps[0] ? a.timestamps[0] : b.timestamps[0],
+		a.timestamps[1] > b.timestamps[1] ? a.timestamps[1] : b.timestamps[1]
+	],
+	ids: [
+		a.ids[0] < b.ids[0] ? a.ids[0] : b.ids[0],
+		a.ids[1] > b.ids[1] ? a.ids[1] : b.ids[1]
+	]
+}}
+
+const combineWithLocalMetaPromise = dataFieldName => newMeta => localforage
+	.getItem(dataFieldName + '_meta')
+	.then(oldMeta => {
+		const oldValid = validMeta(oldMeta)
+		const newValid = validMeta(newMeta)
+		if(!newValid) throw dataFieldName + ' invalid meta: ' + JSON.stringify(newMeta)
+		const combinedMeta = oldValid ? combineMetas(newMeta, oldMeta) : newMeta
+		return combinedMeta
+	})
+	.then(newLocalMeta => localforage.setItem(dataFieldName + '_meta', newLocalMeta))
+
+
+const saveLocalList = (lastRemoteLoad, dataFieldName) => result => {
+
+	if(!result || !result[0] || !result[0].length) return result
+	const meta = calcMeta(result[0])
+
+	combineWithLocalMetaPromise(dataFieldName)(meta)
+		.catch(err => console.log(err))
+
+	unionLocalList(dataFieldName)(result[0])
+	
+	if(false && dataFieldName === 'remoteData.Messages') {
+		console.log('remoteData.Messages saveLocalList lastRemoteLoad ' + result[1])
+	}
+	localforage.setItem(dataFieldName + '.lastRemoteLoad', result[1])
+		.catch(err => console.log(err))
+	return result
+}
+
 const loadRemote = (dataField, dataFieldName, url) => {
 	
-	if(dataFieldName === 'remoteData.Messages') {
+	if(false && dataFieldName === 'remoteData.Messages') {
 		console.log('remoteData.Messages loadRemote')
 }
 	const authChain = auth.getAccessToken()
 	const requestFunctionChain = getUpdateFunctionPromise(dataFieldName)
 	
-
 	return Promise.all([authChain, requestFunctionChain])
 		.then(values => values[1](url, dataFieldName)(values[0]))
 		.then(removeDeletedFilter)
-		.then(saveLocalList(dataField, dataFieldName))
-		.then(logText('remote assign'))
 		.then(result => {
-			dataField.lastRemoteLoad = ts()
-			return result
+			const now = ts()
+			return [result, now]
 		})
+		.then(saveLocalList(dataField.lastRemoteLoad, dataFieldName))
+		//.then(logText('remote assign'))
 		.then(assignDataToList(dataField))
 		.catch(err => console.log(err))
-}
-
-const saveLocalList = ({lastRemoteLoad}, dataFieldName) => result => {
-	const meta = result
-		.reduce((meta, el) => {
-			const m = moment(el.timestamp).valueOf()
-			const i = el.id
-			meta.timestamps[0] = m && m < meta.timestamps[0] ? m : meta.timestamps[0]
-			meta.timestamps[1] = m && m > meta.timestamps[1] ? m : meta.timestamps[1]
-			meta.ids[0] = i && i < meta.ids[0] ? i : meta.ids[0]
-			meta.ids[1] = i && i > meta.ids[1] ? i : meta.ids[1]
-			return meta
-		}, {timestamps: [Infinity, 0], ids: [Infinity, 0]})
-	localforage.setItem(dataFieldName + '_meta', meta)
-		.catch(err => console.log(err))
-	localforage.getItem(dataFieldName)
-		.then(oldData => {
-			//if there's no old data, save the entire result
-			if(!oldData || !oldData.length) {
-				localforage.setItem(dataFieldName, result)
-			//if there is old data, splice the old data with the new data
-			}	else {
-				localforage.setItem(dataFieldName, _.unionBy(result, oldData, 'id'))
-				
-				}
-		})
-	
-		.catch(err => console.log(err))
-	localforage.setItem(dataFieldName + '.lastRemoteLoad', lastRemoteLoad)
-		.catch(err => console.log(err))
-	return result
 }
 
 const removeDeletedFilter = result => result.filter(d => !d.deleted)
@@ -265,16 +325,27 @@ const researchApplicable = (content, opt) => {
 }
 
 var dateBaseCache = {}
-
 var eventConnectedCache = {}
+var bulkUpdateSubjectCache = {}
 
 export const remoteData = {
 	Messages: {
 		list: [],
-		assignList: newList => remoteData.Messages.list = newList,
+		clear: () => {
+			remoteData.Messages.list = []
+			remoteData.Messages.lastRemoteLoad = 0
+		},
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Messages.list = _.unionBy(newList, remoteData.Messages.list, 'id')
+			remoteData.Messages.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Messages.list = _.unionBy(newList, remoteData.Messages.list, 'id')
+			
+		},
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Messages.lastRemoteLoad = ts() - remoteData.Messages.remoteInterval + 1,
-		remoteInterval: 6000,
+		remoteInterval: 60,
 		get: id => _.find(remoteData.Messages.list, p => p.id === id),
 		getMany: ids => remoteData.Messages.list.filter(d => ids.indexOf(d.id) > -1),
 		getName: id => {
@@ -290,15 +361,21 @@ export const remoteData = {
 		//follow the message chain until reaching a message that is not about a message
 		messageEventConnection: e => {
 			const mConnect = m => {
+				if(!m) return false
 				const typeString = subjectDataField(m.subjectType)
 				if(typeString !== 'Messages') return remoteData[typeString].messageEventConnection(e)(m)
 				return mConnect(remoteData.Messages.get(m.subject))
-		}},
+			}
+			return mConnect
+		},
 		eventConnectedFilter: e => m => {
 			const cachePath = '' + e.subject + '.' + e.subjectType + '.' + m.subject + '.' + m.subjectType
 			const cacheValue = _.get(eventConnectedCache, cachePath)
 			if(!_.isUndefined(cacheValue)) return cacheValue
 			const typeString = subjectDataField(m.subjectType)
+		//console.log('remoteData.Messages.eventConnectedFilter cachePath')
+		//console.log(typeString)
+		//console.log(cachePath)
 			const connected = (m && (!e || remoteData[typeString].messageEventConnection(e)(m))) && true || false 
 			//console.log('remoteData.Messages.eventConnectedFilter event')
 			//console.log(e)
@@ -378,6 +455,73 @@ export const remoteData = {
 			.map(m => m.subject)),
 		loadList: () => updateList(remoteData.Messages, 'remoteData.Messages'),
 		remoteLoad: () => loadRemote(remoteData.Messages, 'remoteData.Messages'),
+		loadForFestival: festivalId => {
+			const eventSubjectObject = remoteData.Festivals.getSubjectObject(festivalId)
+			//check if the festival has already been loaded
+			const dataFieldName = 'Messages'
+			const end = dataFieldName + '/forFestival/'
+			if(!bulkUpdateSubjectCache[end]) bulkUpdateSubjectCache[end] = {}
+
+			const alreadyLoaded = bulkUpdateSubjectCache[end][festivalId]
+			if(alreadyLoaded) return
+			bulkUpdateSubjectCache[end][festivalId] = true
+
+
+				//get the raw data
+			const bulkUpdatePromise = auth.getAccessToken()
+				.then(token => m.request(reqOptionsCreate(tokenFunction(token))(end + festivalId, 'GET')()))
+				.then(result => result.data)
+				.catch(err => {
+					bulkUpdateSubjectCache[end][festivalId] = false
+					console.log('remoteData.Messages loadForFestival bulkUpdatePromise')
+					console.log(err)
+				})
+
+				//append to mem
+			const memAppend = bulkUpdatePromise
+				.then(remoteData.Messages.backfillList)
+				.catch(err => {
+					bulkUpdateSubjectCache[end][festivalId] = false
+					console.log('remoteData.Messages loadForFestival memAppend')
+					console.log(err)
+				})
+				/*
+				.then(result => {
+					console.log('loadForFestival memAppend')
+					console.log(remoteData.Messages.list.length)
+					return result
+				})
+				*/
+
+				//append to local
+			const localAppend = bulkUpdatePromise
+				.then(unionLocalList('remoteData.' + dataFieldName))
+				.catch(err => {
+					bulkUpdateSubjectCache[end][festivalId] = false
+					console.log('remoteData.Messages loadForFestival localAppend')
+					console.log(err)
+				})
+
+				//update local meta data
+			const localMetaUpdate = bulkUpdatePromise
+				//.then(logResult)
+				.then(calcMeta)
+				.then(combineWithLocalMetaPromise('remoteData.' + dataFieldName))
+				.catch(err => {
+					bulkUpdateSubjectCache[end][festivalId] = false
+					console.log('remoteData.Messages loadForFestival localMetaUpdate')
+					console.log(err)
+				})
+
+			return Promise.all([memAppend, localAppend, localMetaUpdate])
+				.then(arr => {m.redraw(); return arr})
+				.catch(err => {
+					bulkUpdateSubjectCache[end][festivalId] = false
+					console.log('remoteData.Messages loadForFestival Promise.all')
+					console.log(err)
+				})
+
+		},
 		create: data => {
 			const dataFieldName = 'Messages'
 			//((assume data was validated in form))
@@ -410,10 +554,14 @@ export const remoteData = {
 	},
 	MessagesMonitors: {
 		list: [],
-		assignList: newList => remoteData.MessagesMonitors.list = newList,
+		assignList: newList => remoteData.MessagesMonitors.list = _.unionBy(newList, remoteData.MessagesMonitors.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.MessagesMonitors.list = []
+			remoteData.MessagesMonitors.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.MessagesMonitors.lastRemoteLoad = ts() - remoteData.MessagesMonitors.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 60,
 		get: id => _.find(remoteData.MessagesMonitors.list, p => p.id === id),
 		getMany: ids => remoteData.MessagesMonitors.list.filter(d => ids.indexOf(d.id) > -1),
 		unread: id => _.every(remoteData.MessagesMonitors.list, v => v.message !== id),
@@ -460,10 +608,14 @@ export const remoteData = {
 	},
 	Images: {
 		list: [],
-		assignList: newList => remoteData.Images.list = newList,
+		assignList: newList => remoteData.Images.list = _.unionBy(newList, remoteData.Images.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Images.list = []
+			remoteData.Images.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Images.lastRemoteLoad = ts() - remoteData.Images.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		get: id => _.find(remoteData.Images.list, p => p.id === id),
 		getMany: ids => remoteData.Images.list.filter(d => ids.indexOf(d.id) > -1),
 		getTitle: id => remoteData.Images.get(id).title,
@@ -496,10 +648,14 @@ export const remoteData = {
 	},
 	Series: {
 		list: [],
-		assignList: newList => remoteData.Series.list = newList,
+		assignList: newList => remoteData.Series.list = _.unionBy(newList, remoteData.Series.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Series.list = []
+			remoteData.Series.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Series.lastRemoteLoad = ts() - remoteData.Series.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		get: id => _.find(remoteData.Series.list, p => p.id === id),
 		getMany: ids => remoteData.Series.list.filter(d => ids.indexOf(d.id) > -1),
 		idFields: () => remoteData.Series.list.length ? 
@@ -552,10 +708,14 @@ export const remoteData = {
 	},
 	Festivals: {
 		list: [],
-		assignList: newList => remoteData.Festivals.list = newList,
+		assignList: newList => remoteData.Festivals.list = _.unionBy(newList, remoteData.Festivals.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Festivals.list = []
+			remoteData.Festivals.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Festivals.lastRemoteLoad = ts() - remoteData.Festivals.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		idFields: () => remoteData.Festivals.list.length ? 
 			Object.keys(remoteData.Festivals.list[0]).filter(idFieldFilter) : 
 			[],
@@ -667,10 +827,14 @@ export const remoteData = {
 	},
 	Dates: {
 		list: [],
-		assignList: newList => remoteData.Dates.list = newList,
+		assignList: newList => remoteData.Dates.list = _.unionBy(newList, remoteData.Dates.list, 'id'),
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Dates.lastRemoteLoad = ts() - remoteData.Dates.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
+		clear: () => {
+			remoteData.Dates.list = []
+			remoteData.Dates.lastRemoteLoad = 0
+		},
 		idFields: () => remoteData.Dates.list.length ? 
 			Object.keys(remoteData.Dates.list[0]).filter(idFieldFilter) : 
 			[],
@@ -781,10 +945,14 @@ export const remoteData = {
 	},
 	Days: {
 		list: [],
-		assignList: newList => remoteData.Days.list = newList,
+		assignList: newList => remoteData.Days.list = _.unionBy(newList, remoteData.Days.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Days.list = []
+			remoteData.Days.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Days.lastRemoteLoad = ts() - remoteData.Days.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		idFields: () => remoteData.Days.list.length ? 
 			Object.keys(remoteData.Days.list[0]).filter(idFieldFilter) : 
 			[],
@@ -836,10 +1004,14 @@ export const remoteData = {
 	},
 	Sets: {
 		list: [],
-		assignList: newList => remoteData.Sets.list = newList,
+		assignList: newList => remoteData.Sets.list = _.unionBy(newList, remoteData.Sets.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Sets.list = []
+			remoteData.Sets.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Sets.lastRemoteLoad = ts() - remoteData.Sets.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		idFields: () => remoteData.Sets.list.length ? 
 			Object.keys(remoteData.Sets.list[0]).filter(idFieldFilter) : 
 			[],
@@ -983,10 +1155,14 @@ export const remoteData = {
 	},
 	Venues: {
 		list: [],
-		assignList: newList => remoteData.Venues.list = newList,
+		assignList: newList => remoteData.Venues.list = _.unionBy(newList, remoteData.Venues.list, 'id'),
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Venues.lastRemoteLoad = ts() - remoteData.Venues.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
+		clear: () => {
+			remoteData.Venues.list = []
+			remoteData.Venues.lastRemoteLoad = 0
+		},
 		get: id => _.find(remoteData.Venues.list, p => p.id === id),
 		getMany: ids => remoteData.Venues.list.filter(d => ids.indexOf(d.id) > -1),
 		idFields: () => remoteData.Venues.list.length ? 
@@ -1035,20 +1211,28 @@ export const remoteData = {
 	},
 	Organizers: {
 		list: [],
-		assignList: newList => remoteData.Organizers.list = newList,
+		assignList: newList => remoteData.Organizers.list = _.unionBy(newList, remoteData.Organizers.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Organizers.list = []
+			remoteData.Organizers.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Organizers.lastRemoteLoad = ts() - remoteData.Organizers.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		getMany: ids => remoteData.Organizers.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => updateList(remoteData.Organizers, 'remoteData.Organizers'),
 		remoteLoad: () => loadRemote(remoteData.Organizers, 'remoteData.Organizers'),
 	},
 	Places: {
 		list: [],
-		assignList: newList => remoteData.Places.list = newList,
+		assignList: newList => remoteData.Places.list = _.unionBy(newList, remoteData.Places.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Places.list = []
+			remoteData.Places.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Places.lastRemoteLoad = ts() - remoteData.Places.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		get: id => _.find(remoteData.Places.list, p => p.id === id),
 		getMany: ids => remoteData.Places.list.filter(d => ids.indexOf(d.id) > -1),
 		forFestival: festivalId => _.uniqBy(remoteData.Places.list
@@ -1094,11 +1278,15 @@ export const remoteData = {
 	},
 	Lineups: {
 		list: [],
-		assignList: newList => remoteData.Lineups.list = newList,
+		assignList: newList => remoteData.Lineups.list = _.unionBy(newList, remoteData.Lineups.list, 'id'),
 		append: data => appendData(remoteData.Lineups)(data),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Lineups.list = []
+			remoteData.Lineups.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Lineups.lastRemoteLoad = ts() - remoteData.Lineups.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		getMany: ids => remoteData.Lineups.list.filter(d => ids.indexOf(d.id) > -1),
 		forFestival: fest => remoteData.Lineups.list.filter(d => d.festival === fest),
 		getPriFromArtistFest: (artist, fest) => {
@@ -1205,10 +1393,14 @@ export const remoteData = {
 	},
 	ArtistPriorities: {
 		list: [],
-		assignList: newList => remoteData.ArtistPriorities.list = newList,
+		assignList: newList => remoteData.ArtistPriorities.list = _.unionBy(newList, remoteData.ArtistPriorities.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.ArtistPriorities.list = []
+			remoteData.ArtistPriorities.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.ArtistPriorities.lastRemoteLoad = ts() - remoteData.ArtistPriorities.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		get: id => _.find(remoteData.ArtistPriorities.list, p => p.id === id),
 		getMany: ids => remoteData.ArtistPriorities.list.filter(d => ids.indexOf(d.id) > -1),
 		getName: id => {
@@ -1228,53 +1420,56 @@ export const remoteData = {
 	},
 	StagePriorities: {
 		list: [],
-		assignList: newList => remoteData.StagePriorities.list = newList,
+		assignList: newList => remoteData.StagePriorities.list = _.unionBy(newList, remoteData.StagePriorities.list, 'id'),
 		lastRemoteLoad: 0,
-		reload: () => remoteData.StagePriorities.lastRemoteLoad = ts() - remoteData.StagePriorities.remoteInterval + 1,
-		remoteInterval: 86400,
-		getMany: ids => remoteData.StagePriorities.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => {
-			if(ts() > remoteData.StagePriorities.remoteInterval + remoteData.StagePriorities.lastRemoteLoad) remoteData.StagePriorities.remoteLoad()
-
+		clear: () => {
+			remoteData.StagePriorities.list = []
+			remoteData.StagePriorities.lastRemoteLoad = 0
 		},
-		remoteLoad: () => {
-			remoteData.StagePriorities.lastRemoteLoad = ts()
-			return auth.getAccessToken()
-				.then(result => m.request({
-		    	method: "GET",
-		    	url: "/api/StagePriorities",
-		  		config: tokenFunction(result)
-			}))
-				.then(assignDataToList(remoteData.StagePriorities))
-				.catch(reloadAndLog(remoteData.StagePriorities))
-		}
+		reload: () => remoteData.StagePriorities.lastRemoteLoad = ts() - remoteData.StagePriorities.remoteInterval + 1,
+		remoteInterval: 3600,
+		getMany: ids => remoteData.StagePriorities.list.filter(d => ids.indexOf(d.id) > -1),
+		loadList: () => updateList(remoteData.StagePriorities, 'remoteData.StagePriorities'),
+		remoteLoad: () => loadRemote(remoteData.StagePriorities, 'remoteData.StagePriorities'),
 	},
 	StageLayouts: {
 		list: [],
-		assignList: newList => remoteData.StageLayouts.list = newList,
+		assignList: newList => remoteData.StageLayouts.list = _.unionBy(newList, remoteData.StageLayouts.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.StageLayouts.list = []
+			remoteData.StageLayouts.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.StageLayouts.lastRemoteLoad = ts() - remoteData.StageLayouts.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		getMany: ids => remoteData.StageLayouts.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => updateList(remoteData.StageLayouts, 'remoteData.StageLayouts'),
 		remoteLoad: () => loadRemote(remoteData.StageLayouts, 'remoteData.StageLayouts'),
 	},
 	PlaceTypes: {
 		list: [],
-		assignList: newList => remoteData.PlaceTypes.list = newList,
+		assignList: newList => remoteData.PlaceTypes.list = _.unionBy(newList, remoteData.PlaceTypes.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.PlaceTypes.list = []
+			remoteData.PlaceTypes.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.PlaceTypes.lastRemoteLoad = ts() - remoteData.PlaceTypes.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		getMany: ids => remoteData.PlaceTypes.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => updateList(remoteData.PlaceTypes, 'remoteData.PlaceTypes'),
 		remoteLoad: () => loadRemote(remoteData.PlaceTypes, 'remoteData.PlaceTypes'),
 	},
 	ArtistAliases: {
 		list: [],
-		assignList: newList => remoteData.ArtistAliases.list = newList,
+		assignList: newList => remoteData.ArtistAliases.list = _.unionBy(newList, remoteData.ArtistAliases.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.ArtistAliases.list = []
+			remoteData.ArtistAliases.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.ArtistAliases.lastRemoteLoad = ts() - remoteData.ArtistAliases.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		get: id => _.find(remoteData.ArtistAliases.list, p => p.id === id),
 		getMany: ids => remoteData.ArtistAliases.list.filter(d => ids.indexOf(d.id) > -1),
 		forArtist: artistId => remoteData.ArtistAliases.list
@@ -1305,11 +1500,15 @@ export const remoteData = {
 	},
 	Artists: {
 		list: [],
-		assignList: newList => remoteData.Artists.list = newList,
+		assignList: newList => remoteData.Artists.list = _.unionBy(newList, remoteData.Artists.list, 'id'),
 		append: data => appendData(remoteData.Artists)(data),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Artists.list = []
+			remoteData.Artists.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Artists.lastRemoteLoad = ts() - remoteData.Artists.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		get: id => _.find(remoteData.Artists.list, p => p.id === id),
 		getMany: ids => remoteData.Artists.list.filter(d => ids.indexOf(d.id) > -1),
 		getName: id => {
@@ -1403,40 +1602,56 @@ export const remoteData = {
 	},
 	ParentGenres: {
 		list: [],
-		assignList: newList => remoteData.ParentGenres.list = newList,
+		assignList: newList => remoteData.ParentGenres.list = _.unionBy(newList, remoteData.ParentGenres.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.ParentGenres.list = []
+			remoteData.ParentGenres.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.ParentGenres.lastRemoteLoad = ts() - remoteData.ParentGenres.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		getMany: ids => remoteData.ParentGenres.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => updateList(remoteData.ParentGenres, 'remoteData.ParentGenres'),
 		remoteLoad: () => loadRemote(remoteData.ParentGenres, 'remoteData.ParentGenres'),
 	},
 	Genres: {
 		list: [],
-		assignList: newList => remoteData.Genres.list = newList,
+		assignList: newList => remoteData.Genres.list = _.unionBy(newList, remoteData.Genres.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Genres.list = []
+			remoteData.Genres.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Genres.lastRemoteLoad = ts() - remoteData.Genres.remoteInterval + 2,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		getMany: ids => remoteData.Genres.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => updateList(remoteData.Genres, 'remoteData.Genres'),
 		remoteLoad: () => loadRemote(remoteData.Genres, 'remoteData.Genres'),
 	},
 	ArtistGenres: {
 		list: [],
-		assignList: newList => remoteData.ArtistGenres.list = newList,
+		assignList: newList => remoteData.ArtistGenres.list = _.unionBy(newList, remoteData.ArtistGenres.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.ArtistGenres.list = []
+			remoteData.ArtistGenres.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.ArtistGenres.lastRemoteLoad = ts() - remoteData.ArtistGenres.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		getMany: ids => remoteData.ArtistGenres.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => updateList(remoteData.ArtistGenres, 'remoteData.ArtistGenres'),
 		remoteLoad: () => loadRemote(remoteData.ArtistGenres, 'remoteData.ArtistGenres'),
 	},
 	Users: {
 		list: [],
-		assignList: newList => remoteData.Users.list = newList,
+		assignList: newList => remoteData.Users.list = _.unionBy(newList, remoteData.Users.list, 'id'),
 		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Users.list = []
+			remoteData.Users.lastRemoteLoad = 0
+		},
 		reload: () => remoteData.Users.lastRemoteLoad = ts() - remoteData.Users.remoteInterval + 1,
-		remoteInterval: 86400,
+		remoteInterval: 3600,
 		get: id => _.find(remoteData.Users.list, p => p.id === id),
 		getMany: ids => remoteData.Users.list.filter(d => ids.indexOf(d.id) > -1),
 		loadList: () => updateList(remoteData.Users, 'remoteData.Users'),
@@ -1504,5 +1719,29 @@ export const subjectData = {
 		const id = message && message.id
 		return id
 	},
-	imagePreset: type => 'artist'
+	imagePreset: type => 'artist',
+	connectedData: subjectObject => {
+		//get non-event data needed to display a detail view of the subject
+
+		//first check if bulk data on subject has already been collected:
+
+
+		//festival detail:
+			//nonmessages:
+				//artists in the lineup
+
+			//messages with subjects:
+				//event
+					//all superEvents
+					//all subEvents
+					//all artists in lineup
+					//future: all places for festival
+
+
+
+	}
+}
+
+export const clearData = () => {
+	_.forOwn(remoteData, dataField => dataField.clear())
 }

@@ -14,6 +14,8 @@ import ArtistCard from '../../components/cards/ArtistCard.jsx';
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import ResearchWidget from '../../components/widgets/canned/ResearchWidget.jsx';
+import LineupWidget from '../../components/widgets/canned/LineupWidget.jsx';
+import ActivityWidget from '../../components/widgets/canned/ActivityWidget.jsx';
 
 import {remoteData} from '../../store/data';
 
@@ -29,7 +31,6 @@ const upload = festival => e => {
 }
 const FestivalDetail = (auth) => { return {
 	oninit: () => {
-		remoteData.Messages.loadList()
 		remoteData.MessagesMonitors.loadList()
 		remoteData.Images.loadList()
 		remoteData.Series.loadList()
@@ -45,6 +46,8 @@ const FestivalDetail = (auth) => { return {
       	remoteData.ArtistAliases.loadList()
 		remoteData.Artists.loadList()
 		remoteData.Users.loadList()
+
+		remoteData.Messages.loadForFestival(parseInt(m.route.param('id'), 10))
 	},
 	view: () => <div class="main-stage">
 			<LauncherBanner 
@@ -85,28 +88,8 @@ const FestivalDetail = (auth) => { return {
 					/>)
 			}
 		</FixedCardWidget>		
-		<FixedCardWidget header="Festival Lineup">
-			{
-				_.flow(
-					m.route.param, parseInt,
-					remoteData.Festivals.getLineupArtistIds,
-					remoteData.Artists.getMany,
-					)('id')
-					.sort((a, b) => {
-						const festivalId = _.flow(m.route.param, parseInt)('id')
-						const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId)
-						const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId)
-						if(aPriId === bPriId) return a.name.localeCompare(b.name)
-						const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
-						const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
-						return aPriLevel - bPriLevel
-					})
-					.map(data => <ArtistCard 
-						data={data}
-						festivalId={_.flow(m.route.param, parseInt)('id')}
-					/>)
-			}
-		</FixedCardWidget>	
+		<LineupWidget festivalId={parseInt(m.route.param('id'), 10)} />
+		<ActivityWidget festivalId={parseInt(m.route.param('id'), 10)} />
 		<ResearchWidget list={[]} />
 		</WidgetContainer>
 	</div>

@@ -9,6 +9,7 @@
 # production
 /dist
 deploy.js
+stats.json
 
 # misc
 .DS_Store
