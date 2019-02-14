@@ -10,7 +10,7 @@ import "./index.css";
 //import "./favicon.ico";
 
 import App from './components/layout/App.jsx';
-window.isUpdateAvailable = new Promise(function(resolve, reject) {
+//window.isUpdateAvailable = new Promise(function(resolve, reject) {
 if ('serviceWorker' in navigator) {
 	let refreshing;
    // The event listener that is fired when the service worker updates
@@ -30,7 +30,8 @@ if ('serviceWorker' in navigator) {
         const newWorker = registration.installing;
 
         newWorker.addEventListener('statechange', () => {
-      	//console.log('serviceWorker statechange')
+          console.log('serviceWorker statechange')
+          console.log(newWorker.state)
 
           // Has service worker state changed?
           switch (newWorker.state) {
@@ -39,7 +40,7 @@ if ('serviceWorker' in navigator) {
 	// There is a new service worker available, show the notification
               if (navigator.serviceWorker.controller) {
                 let notification = document.getElementById('upgrade-notice');
-    				notification.className = 'show';
+    				    notification.className = 'show';
               }
 
               break;
@@ -52,6 +53,6 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
-})
+//})
 
 m.render(root, <App />);

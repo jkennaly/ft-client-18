@@ -43,7 +43,7 @@ const ReviewModal = vnode => {
         const newRatingMessage = localRating && localRating !== baselineRating
         const newCommentMessage = localComment && localComment !== baselineComment
         if(newRatingMessage) remoteData.Messages.create({
-            fromuser: attrs.user,
+            //fromuser: attrs.user,
             subject: attrs.subject.sub,
             subjectType: attrs.subject.type,
             messageType: 2,
@@ -55,7 +55,7 @@ const ReviewModal = vnode => {
             {timestamp: moment().format('YYYY-MM-DD HH:mm:ss')}
         )
         if(newCommentMessage) remoteData.Messages.create({
-            fromuser: attrs.user,
+            //fromuser: attrs.user,
             subject: attrs.subject.sub,
             subjectType: attrs.subject.type,
             messageType: 1,

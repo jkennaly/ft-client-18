@@ -17,7 +17,7 @@ const auth = new Auth();
 import ActivityCard from '../../../components/cards/ActivityCard.jsx';
 import SearchCard from '../../../components/cards/SearchCard.jsx';
 import FixedCardWidget from '../FixedCard.jsx';
-import  ReviewModal from '../../modals/ReviewModal.jsx';
+import  DiscussModal from '../../modals/DiscussModal.jsx';
 import {remoteData, subjectData} from '../../../store/data';
 
 const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
@@ -30,11 +30,23 @@ const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 	return _.take(searchMatches, recordCount)
 }
 
+const getRecentActivity = (userId, festivalId) => _.take(
+	_.uniqBy(remoteData.Messages.recentDiscussionEvent(userId,
+		remoteData.Festivals.getSubjectObject(festivalId ? festivalId : parseInt(m.route.param('id'), 10))), 
+		v => '' + v.fromuser + '.' + v.messageType  + '.' + v.subjectType + '.' + v.subject)
+		.sort((a, b) => {
+			const am = moment(a.timestamp).utc()
+			const bm = moment(b.timestamp).utc()
+			return bm.diff(am)
+		}
+	), 5)
+
 const ActivityWidget = vnode => {
 	var userId = 0
 	const routeId = _.flow(m.route.param, parseInt)('id')
-	var reviewing = false
 	var subjectObject = {}
+	var messageArray = []
+	var discussing = false
 	var removed = []
 	let pattern;
 	const patternChange = e => {
@@ -43,24 +55,25 @@ const ActivityWidget = vnode => {
 	}
 	return {
 		oninit: () => {
-			auth.getFtUserId()
+			//console.log('ActivityWidget init')
+			auth.getFtUserId('ActivityWidget init')
 				.then(id => userId = id)
 				.then(() => {})
 				.then(m.redraw)
 				.catch(err => m.route.set('/auth'))
 		},
 		view: (vnode) => <FixedCardWidget header="Recent Activity">
+
+			{messageArray.length ? <DiscussModal
+							display={discussing} 
+							hide={sub => {discussing = false;}}
+							subject={subjectObject}
+							messageArray={messageArray}
+							reviewer={messageArray.length ? messageArray[0].fromuser : 0}
+							user={userId}
+						/> : ''}
 			{
-				userId ? _.take(
-					_.uniqBy(remoteData.Messages.recentDiscussionEvent(userId,
-						remoteData.Festivals.getSubjectObject(vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param('id'), 10))), 
-						v => '' + v.fromuser + '.' + v.messageType  + '.' + v.subjectType + '.' + v.subject)
-						.sort((a, b) => {
-							const am = moment(a.timestamp).utc()
-							const bm = moment(b.timestamp).utc()
-							return bm.diff(am)
-						}
-					), 5)
+				userId ? getRecentActivity(userId, vnode.attrs.festivalId)
 					.map(data => <ActivityCard 
 						messageArray={[data]} 
 						discusser={data.fromuser}
@@ -75,7 +88,6 @@ const ActivityWidget = vnode => {
 						discussSubject={(s, me, r) => {
 							subjectObject = _.clone(s)
 							messageArray = _.clone(me)
-							rating = r
 							//console.log('ArtistDetail ArtistReviewCard discussSubject me length ' + me.length)
 							discussing = true
 						}}

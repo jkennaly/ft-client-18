@@ -8,7 +8,7 @@ const SearchCard = {
   view: ({ attrs }) =>
     <div class="ft-card">
     	<label class="hidden" for="artist-search-input">Search for artist</label>
-      	<input type="text" oninput={attrs.patternChange} name="artist-search-input" />
+      	<input type="text" oninput={attrs.patternChange} name="artist-search-input" placeholder="Search" />
     </div>
 };
 

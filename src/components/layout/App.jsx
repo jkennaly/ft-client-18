@@ -6,6 +6,7 @@ import MainStage from './MainStage.jsx';
 import DisplayBar from './DisplayBar.jsx';
 import Launcher from './Launcher.jsx';
 import Research from './Research.jsx';
+import Messages from './Messages.jsx';
 import Admin from './Admin.jsx';
 import Discussion from './Discussion.jsx';
 
@@ -40,11 +41,6 @@ import SetLineup from '../../components/createFestivals/lineups/SetLineup.jsx';
 import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 
 
-
-
-
-
-
 // Services
 import Auth from '../../services/auth.js';
 const auth = new Auth();
@@ -60,7 +56,7 @@ const WelcomeView = () => [
 
 const forceLoginRoute = err => {
 	console.log(err)
-	m.route.set("/auth")
+	m.route.set("/confirm/logout")
 
 }
 
@@ -85,17 +81,15 @@ const App = {
 				onmatch: ConfirmLogout
 			},
 			"/launcher": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(Launcher)
-						.catch(forceLoginRoute)
+				onmatch: Launcher
 
 			},
 			"/research": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(Research)
-						.catch(forceLoginRoute)
+				onmatch: Research
+
+			},
+			"/messages": {
+				onmatch: Messages
 
 			},
 			"/admin": {

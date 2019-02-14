@@ -127,7 +127,7 @@ const SetStages = (vnode) => {
 				<UIButton action={e => addingStage = true} buttonName="New Stage" />
 	  			<UIButton action={copyPreviousStages} buttonName="Copy previous stages" />
 			</div>
-			<div>
+				<div class="main-stage-content-scroll">
 				<WidgetContainer>
 					<FixedCardWidget header="Current Stage Order">
 						{

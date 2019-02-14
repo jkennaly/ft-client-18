@@ -14,12 +14,11 @@ import FestivalCard from '../../components/cards/FestivalCard.jsx';
 import LauncherBanner from '../../components/ui/LauncherBanner.jsx'
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx'
 import ActivityCard from '../../components/cards/ActivityCard.jsx'
-import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import ResearchWidget from '../../components/widgets/canned/ResearchWidget.jsx'
+import ActivityWidget from '../../components/widgets/canned/ActivityWidget.jsx'
 import ArtistSearchWidget from '../../components/widgets/canned/ArtistSearchWidget.jsx'
 import EventSelector from '../detailViewsPregame/fields/event/EventSelector.jsx'
 
-import DiscussModal from '../modals/DiscussModal.jsx';
 
 import {remoteData, subjectData} from '../../store/data';
 
@@ -75,7 +74,7 @@ const Research = (vnode) => {
 
 	return {
 		oninit: () => {
-			console.log('Research init')
+			//console.log('Research init')
 		remoteData.Messages.loadList()
 		remoteData.MessagesMonitors.loadList()
 		remoteData.Images.loadList()
@@ -103,20 +102,12 @@ const Research = (vnode) => {
 				festivalChange(festivalValue)
 			})
 			.catch(err => console.log(err))
-		auth.getFtUserId()
-			.then(id => userId = id)
-			.then(() => m.redraw())
-			.catch(err => m.route.set('/auth'))
-			
-
 		},
 		view: () => 
 		<div class="main-stage">
 			<LauncherBanner 
-				action={() => {}}
-				title="FestivalTime Research" 
+				title="Research" 
 			/>
-			<div class="main-stage-content">
 				<EventSelector 
 					seriesId={seriesId}
 					festivalId={festivalId}
@@ -127,57 +118,11 @@ const Research = (vnode) => {
 					festivalId={festivalId}
 					eventId={festivalId}
 				/>
-				<div>
-					<WidgetContainer>
-						<ResearchWidget festivalId={festivalId} />
-						<ArtistSearchWidget festivalId={festivalId} userId={userId} />
-						
-						<FixedCardWidget header="Recent Activity">
-						{
-							userId ? _.take(
-								_.uniqBy(remoteData.Messages.recentDiscussionEvent(userId,
-									remoteData.Festivals.getSubjectObject(festivalId)), 
-									v => '' + v.fromuser + '.' + v.messageType  + '.' + v.subjectType + '.' + v.subject)
-									.sort((a, b) => {
-										const am = moment(a.timestamp).utc()
-										const bm = moment(b.timestamp).utc()
-										return bm.diff(am)
-									}
-								), 5)
-								.map(data => <ActivityCard 
-									messageArray={[data]} 
-									discusser={data.fromuser}
-									rating={remoteData.Artists.getRating(data.subject, data.fromuser)}
-									overlay={'discuss'}
-									shortDefault={true}
-									headline={subjectData.name(data.subject, data.subjectType)}
-									headact={e => {
-										if(data.subjectType === 2) m.route.set("/artists" + "/pregame" + '/' + data.subject)
-
-									}}
-									discussSubject={(s, me, r) => {
-										subjectObject = _.clone(s)
-										messageArray = _.clone(me)
-										rating = r
-										//console.log('ArtistDetail ArtistReviewCard discussSubject me length ' + me.length)
-										discussing = true
-									}}
-								/>)
-							: ''
-						}
-						</FixedCardWidget>
-					</WidgetContainer>
-				</div>
-			</div>
-			{<DiscussModal
-				display={discussing} 
-				hide={sub => {discussing = false;}}
-				subject={subjectObject}
-				messageArray={messageArray}
-				reviewer={messageArray.length ? messageArray[0].fromuser : 0}
-				user={userId}
-				rating={rating}
-			/>}
+				<WidgetContainer>
+					<ResearchWidget festivalId={festivalId} />
+					<ArtistSearchWidget festivalId={festivalId} overlay={'research'} />
+					<ActivityWidget festivalId={festivalId} />
+				</WidgetContainer>
 
 		</div>
 }}

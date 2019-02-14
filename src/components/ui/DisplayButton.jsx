@@ -41,15 +41,33 @@ const DisplayButton = vnode => {
 	]
 	return {
 		oninit: () => {
-			auth.getFtUserId()
+			auth.getFtUserId('DisplayButton oninit')
 				.then(id => userValid = id)
-				.catch(() => {userValid = false; m.redraw()})
+				.catch(err => {
+					//console.log('DisplayButton auth err')
+					//console.log(err)
+					userValid = false; 
+					m.redraw()
+
+				})
 		},
+		/*
 		onupdate: () => {
-			auth.getFtUserId()
+			auth.getFtUserId('DisplayButton onupdate')
 				.then(id => userValid = id)
-				.catch(() => {userValid = false; m.redraw()})
+				.then(x => {
+					console.log('DisplayButton id ' + x)
+					return x
+				})
+				.catch(err => {
+					console.log('DisplayButton auth err')
+					console.log(err)
+					userValid = false; 
+					m.redraw()
+
+				})
 		},
+		*/
 		view: ({ attrs }) => <div>
 			<CollapsibleMenu 
 				menu={menuList.concat([userValid ? validUserItem : invalidUserItem])} 

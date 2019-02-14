@@ -16,66 +16,86 @@ import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import ResearchWidget from '../../components/widgets/canned/ResearchWidget.jsx';
 import LineupWidget from '../../components/widgets/canned/LineupWidget.jsx';
 import ActivityWidget from '../../components/widgets/canned/ActivityWidget.jsx';
+import ToggleControl from '../../components/ui/ToggleControl.jsx';
 
 import {remoteData} from '../../store/data';
 
 
-const upload = festival => e => {
+const upload = (festival, initFunction) => e => {
     var file = e.target.files[0]
     
     var data = new FormData()
     data.append("myfile", file)
 
     remoteData.Lineups.upload(data, festival)
-    	.then(() => m.redraw())
+    	.then(initFunction)
 }
-const FestivalDetail = (auth) => { return {
-	oninit: () => {
-		remoteData.MessagesMonitors.loadList()
-		remoteData.Images.loadList()
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Venues.loadList()
-		remoteData.Places.loadList()
-		remoteData.Lineups.loadList()
-      	remoteData.ArtistPriorities.loadList()
-      	remoteData.StagePriorities.loadList()
-      	remoteData.ArtistAliases.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Users.loadList()
-
-		remoteData.Messages.loadForFestival(parseInt(m.route.param('id'), 10))
-	},
+const FestivalDetail = (auth) => {
+	var messageArray = []
+	var discussing = false
+	let festivalId = parseInt(m.route.param('id'), 10)
+	const init = () => {
+		//console.log('FestivalDetail init')
+		festivalId = parseInt(m.route.param('id'), 10)
+		Promise.all([
+			remoteData.MessagesMonitors.loadList(),
+			remoteData.Images.loadList(),
+			remoteData.Series.loadList(),
+			remoteData.Festivals.loadList(),
+			remoteData.Dates.loadList(true),
+			remoteData.Days.loadList(),
+			remoteData.Sets.loadList(),
+			remoteData.Venues.loadList(),
+			remoteData.Places.loadList(),
+			remoteData.Lineups.loadList(true),
+	      	remoteData.ArtistPriorities.loadList(),
+	      	remoteData.StagePriorities.loadList(),
+	      	remoteData.ArtistAliases.loadList(true),
+			remoteData.Artists.loadList(true),
+			remoteData.Users.loadList(),
+			remoteData.Intentions.loadList(),
+			remoteData.Messages.loadForFestival(festivalId)
+		])
+		.then(() => console.log('load complete'))
+		.then(() => m.redraw())
+	}
+	return {
+	oninit: init,
 	view: () => <div class="main-stage">
-			<LauncherBanner 
-				title={remoteData.Festivals.getEventName(parseInt(m.route.param('id'), 10))} 
+
+<LauncherBanner 
+				title={remoteData.Festivals.getEventName(festivalId)} 
 			/>
-		{!remoteData.Lineups.festHasLineup(parseInt(m.route.param('id'), 10)) ? 
+		{!remoteData.Lineups.festHasLineup(festivalId) ? 
 			<div><label for="lineup-uploader">
         	{`Upload a file with the artist list (one name per line)`}
 	        </label>
-	        <input id="lineup-uploader" type="file" name="lineup-file" onchange={upload(parseInt(m.route.param('id'), 10))}/>
+	        <input id="lineup-uploader" type="file" name="lineup-file" onchange={upload(festivalId, init)}/>
       	</div> : ''}
-		{_.flow(
-					m.route.param, parseInt,
-					remoteData.Festivals.eventActive
-					)('id') ? <DateCard festivalId={parseInt(m.route.param('id'), 10)}  eventId={'new'}/> : ''}
-			<SeriesCard data={_.flow(
-					m.route.param, parseInt,
-					remoteData.Festivals.getSuperId,
-					remoteData.Series.get
-					)('id')
-				} eventId={_.flow(
-					m.route.param, parseInt,
-					remoteData.Festivals.getSuperId
-					)('id')
-				}/>
+		{ festivalId ? <ToggleControl
+			offLabel={'Not going'}
+			onLabel={'I\'m going'}
+			
+			getter={() => remoteData.Intentions.forSubject({subject: festivalId, subjectType: 7})}
+			setter={newState => {
+				//console.log('FestivalDetail ToggleControl setter')
+				//console.log(newState)
+				const intentionMethod = newState  ? 'setIntent' : 'clearIntent'
+				remoteData.Intentions[intentionMethod]({subject: festivalId, subjectType: 7})
+			}}
+
+		/> : '' }
+		
+
+
+			
 				
 			<WidgetContainer>
-		<FixedCardWidget header="Festival Dates">
+	
+		<LineupWidget festivalId={festivalId} />
+		<ActivityWidget festivalId={festivalId} />
+		<ResearchWidget list={[]} />
+		<FixedCardWidget header="Related Events">
 			{
 				_.flow(
 					m.route.param, parseInt,
@@ -87,10 +107,23 @@ const FestivalDetail = (auth) => { return {
 						eventId={data.id}
 					/>)
 			}
+			{_.flow(
+				m.route.param, parseInt,
+				remoteData.Festivals.eventActive
+				)('id') ? <DateCard festivalId={festivalId}  eventId={'new'}/> : ''}
+			<SeriesCard data={_.flow(
+					m.route.param, parseInt,
+					remoteData.Festivals.getSuperId,
+					remoteData.Series.get
+					)('id')
+				} eventId={_.flow(
+					m.route.param, parseInt,
+					remoteData.Festivals.getSuperId
+					)('id')
+				}/>
 		</FixedCardWidget>		
-		<LineupWidget festivalId={parseInt(m.route.param('id'), 10)} />
-		<ActivityWidget festivalId={parseInt(m.route.param('id'), 10)} />
-		<ResearchWidget list={[]} />
+
+	
 		</WidgetContainer>
 	</div>
 }}

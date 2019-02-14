@@ -1,8 +1,5 @@
 // CloudImageField.jsx
 
-// Services
-import Auth from '../../services/auth.js';
-const auth = new Auth();
 
 import m from 'mithril'
 import jQuery from 'jquery'
@@ -19,22 +16,15 @@ const CloudImageField = vnode => {
     var imagePath = ''
     var images = []
     var addingImage = false
-    var userId = 0
     const initDom = vnode => {
-        images = remoteData.Images.forSubject(vnode.attrs.subjectType, vnode.attrs.subject)
-            .filter(i => i.url)
+        images = !images.length ? remoteData.Images.forSubject(vnode.attrs.subjectType, vnode.attrs.subject)
+            .filter(i => i.url) : images
         imagePath = images.length ? images[0].url.substring(images[0].url.indexOf('artists/')) : 'artists/nvfejb2psaelknnxv1zg.jpg'    
         //console.log('CloudImageField')
         //console.log(imagePath)
         //console.log(images)
     }
     return {
-        oninit: function (vnode) {
-            auth.getFtUserId()
-                .then(id => userId = id)
-                .then(m.redraw)
-                .catch(err => m.route.set('/auth'))
-        },
         oncreate: initDom,
         onupdate: initDom,
         view: vnode => <div class="ft-full-image">
@@ -52,7 +42,6 @@ const CloudImageField = vnode => {
                     action={data => remoteData.Images.create(data)}
                     subject={vnode.attrs.subject}
                     subjectType={vnode.attrs.subjectType}
-                    userId={userId}
                 />
       </div>
 }}

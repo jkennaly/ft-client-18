@@ -6,7 +6,7 @@ import m from 'mithril'
 
 const BannerButton = {
 	view: ({ attrs }) =>
-		<div class="banner-button">
+		<div class="nav-button" onclick={attrs.clickFunction}>
 			{attrs.icon}
 		</div>
 };

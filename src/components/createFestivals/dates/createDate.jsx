@@ -20,7 +20,7 @@ import SeriesWebsiteField from '../../detailViewsPregame/fields/series/SeriesWeb
 import {setMockData} from "../../../store/data";
 import UIButton from '../../ui/UIButton.jsx';
 
-const entryFormHandler = (formDOM, userId) => {
+const entryFormHandler = (formDOM) => {
 
 	const formData = new FormData(formDOM);
 	const newEntry = {};
@@ -42,8 +42,6 @@ const entryFormHandler = (formDOM, userId) => {
     }
 	});
 
-	newEntry.user = userId
-
 	//convert startdate and enddate into moments
 	const startMoment = moment.utc(newEntry.startdate)
 	const endMoment = moment.utc(newEntry.enddate)
@@ -52,28 +50,41 @@ const entryFormHandler = (formDOM, userId) => {
 	//store startdate as midnight UTC Date object in basedate
 	newEntry.basedate = startMoment.toDate()
 
-	console.log(newEntry);
+	//console.log(newEntry);
 
-	remoteData.Dates.createWithDays(newEntry);
+	remoteData.Dates.createWithDays(newEntry)
+		.then(x => remoteData.Dates.loadList(true)
+			.then(result => x.data))
+		.then(res => {
+		    console.log('createDates.jsx create loadList newDate')
+		    console.log(res)
+		    return res
+		})
+		.then(newDate => m.route.set('/fests/pregame/' + newDate.festival))
+		.catch(err => {
+			console.log('createDates.jsx create err')
+			console.log(err)
+		});
 
 	formDOM.reset();
 };
 
 const consoleLog = str => console.log(str)
+const previousVenueIds = _.memoize(festivalId => remoteData.Series.getVenueIds(remoteData.Festivals.getSeriesId(festivalId)))
 
-var userId = 0
-
-const CreateDate = (auth) => { return {
+const CreateDate = (auth) => { 
+	let festivalId = parseInt(m.route.param('festivalId'), 10)
+	return {
 	oninit: () => {
 		remoteData.Messages.loadList()
 		remoteData.MessagesMonitors.loadList()
 		remoteData.Images.loadList()
 		remoteData.Series.loadList()
 		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
+		remoteData.Dates.loadList(true)
+		remoteData.Days.loadList(true)
 		remoteData.Sets.loadList()
-		remoteData.Venues.loadList()
+		remoteData.Venues.loadList(true)
 		remoteData.Places.loadList()
 		remoteData.Lineups.loadList()
       	remoteData.ArtistPriorities.loadList()
@@ -81,33 +92,37 @@ const CreateDate = (auth) => { return {
       	remoteData.ArtistAliases.loadList()
 		remoteData.Artists.loadList()
 		remoteData.Users.loadList()
-		auth.getFtUserId()
-			.then(id => userId = id)
-			.then(() => m.redraw())
-				.catch(err => m.route.set('/auth'))
+		festivalId = parseInt(m.route.param('festivalId'), 10)
 	},
 	view: (vnode) => <div class="main-stage">
-			<LauncherBanner 
-				title="Add date"
-			/>
+				<LauncherBanner title="Add Date" />
+				<div class="main-stage-content-scroll">
+					
     
-    <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
+    <form name="entry-form" id="entry-form" >
       <label for="festival">
         {`Festival`}
       </label>
-	      <select id="festival" name="festival">
-      {parseInt(m.route.param('festivalId'), 10) ?
-	      	<option value={parseInt(m.route.param('festivalId'), 10)}>{remoteData.Festivals.getEventName(parseInt(m.route.param('festivalId'), 10))}</option> :
+	      <select id="festival" name="festival" onchange={e => {
+	      	festivalId = parseInt(e.target.value, 10)
+	      }}>
+      	{
 	      	remoteData.Festivals.getEventNamesWithIds()
-	      		.map(s => <option value={s[1]}>{s[0]}</option>)
-	      	}
+		  		.map(s => <option value={s[1]} selected={festivalId === s[1]}>
+		  			{s[0]}
+		  		</option>)
+  		}
       </select>
       <label for="venue">
         {`Venue`}
-        <button onclick={() => m.route.set('/venues/pregame/new')}>New venue</button>
+        <button onclick={e => {e.preventDefault();m.route.set('/venues/pregame/new');}}>New venue</button>
       </label>
 	      <select id="venue" name="venue">
       		{remoteData.Venues.getPlaceNamesWithIds()
+      			.sort((a, b) => {
+      				if(!festivalId) return 0
+      				return previousVenueIds(festivalId).indexOf(b[1]) - previousVenueIds(festivalId).indexOf(a[1])
+      			})
 	      		.map(s => <option value={s[1]}>{s[0]}</option>)
 	      	}
       </select>
@@ -123,8 +138,9 @@ const CreateDate = (auth) => { return {
         {`End Date (same as start date for single day festival)`}
       </label>
       <input id="event-end" type="date" name="enddate" />
-	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId)} buttonName="SAVE" />
+	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'))} buttonName="SAVE" />
 	  </form>
+	  </div>
 	  </div>
     
 }}

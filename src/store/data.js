@@ -6,8 +6,11 @@ const Promise = require('promise-polyfill').default
 import localforage from 'localforage'
 
 // Services
-import Auth from '../services/auth.js';
-const auth = new Auth();
+import {mapActivities, buildTree} from '../services/messageArrayFunctions.js'
+import Auth from '../services/auth.js'
+const auth = new Auth()
+
+import smartSearch from 'smart-search'
 
 const timeStampSort = (a, b) => {
 	const am = moment(a.timestamp).utc()
@@ -15,25 +18,34 @@ const timeStampSort = (a, b) => {
 	return bm.diff(am)
 }
 
+const sortNamesWithIdsByName = ([aName, aId], [bName, bId]) => aName.localeCompare(bName)
+
 const reqOptionsCreate = config => (dataFieldName, method = 'POST') => data => { return {
-    method: method,
-    url: "/api/" + dataFieldName,
+	method: method,
+	url: '/api/' + dataFieldName,
   	config: config,
-  	data: data
+  	data: data,
+  	background: true
 }}
 
-const appendData = dataField => data => dataField.assignList(dataField.list
-	.filter(x => x.id !== data.id)
-	.concat([data]))
+const appendData = dataField => data => {
+	const retVal = dataField.assignList(dataField.list
+		.filter(x => x.id !== data.id)
+		.concat([data])
+	)
+	m.redraw()
+	return retVal
+
+}
 
 //TODO: when data is requested:
 //if that data is present check cache validity with the server. return local data if valid
-	//or get an update from the server and supply that
+//or get an update from the server and supply that
 
 const loadListGen = schema => () => m.request({
-	    method: "GET",
-	    url: "/api/" + schema,
-	})
+	    method: 'GET',
+	    url: '/api/' + schema,
+})
 
 const ts = () => Math.round((new Date()).getTime() / 1000)
 
@@ -43,21 +55,23 @@ const tokenFunction = token => function(xhr) {
 }
 
 const fullRequest = (url, dataFieldName) => authResult => m.request({
-	method: "GET",
+	method: 'GET',
 	//use the dataFieldName after the last dot to access api
-	url: url ? url : "/api/" + dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1) + 
+	url: url ? url : '/api/' + dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1) + 
 		(dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1) === 'Messages' ? 
 			'?filter[order]=id%20DESC&filter[limit]=200' : ''),
-		config: tokenFunction(authResult)
+	config: tokenFunction(authResult),
+	background: true
 })
 
 const updateRequest = timestamp => (url, dataFieldName) => authResult => {
-	const filterString = 'filter[where][timestamp][gte]=' + moment(timestamp).format("YYYY-MM-DD HH:mm:ss")
+	const filterString = 'filter[where][timestamp][gte]=' + moment(timestamp).format('YYYY-MM-DD HH:mm:ss')
 	return m.request({
-	    	method: "GET",
+	    	method: 'GET',
 	    	//use the dataFieldName after the last dot to access api
-	    	url: (url ? url : "/api/" + dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1)) + '?' + filterString,
-	  		config: tokenFunction(authResult)
+	    	url: (url ? url : '/api/' + dataFieldName.slice(_.lastIndexOf(dataFieldName, '.') + 1)) + '?' + filterString,
+	  		config: tokenFunction(authResult),
+	  		background: true
 	})
 }
 
@@ -82,14 +96,21 @@ const reloadAndLog = dataField => {
 	return result => _.flow([logResult, loadField])(result)
 }
 
+//returns true if the meta is the same as before the assign, false otherwise
 const assignDataToList = dataField => result => {
 
 	//console.log('assigningList length')
 	//console.log(dataField.list.length)
 
+	const oldMeta = _.clone(dataField.meta)
+
 	dataField.assignList(result)
+
+	const newMeta = _.clone(dataField.meta)
+	const metaChange = _.isEqual(oldMeta, newMeta)
+	if(metaChange) m.redraw()
 	//console.log(dataField.list.length)
-	return result
+	return !metaChange
 }
 
 const localDataPresent = key => localforage.keys()
@@ -107,99 +128,18 @@ const stale = (interval, lastRemoteLoad) => {
 }
 
 const localLastRemoteLoadValid = (key, interval) => localforage.getItem(key + '.lastRemoteLoad')
-	.then(lastRemoteLoad => stale(interval, lastRemoteLoad))
 	//.then(logText('localLastRemoteLoadValid ' + key))
+	.then(lastRemoteLoad => stale(interval, lastRemoteLoad))
 	//.then(logResult)
 
 const getMeta = dataFieldName => localforage
 	.getItem(dataFieldName + '_meta')
 
-	//choose between full update and partial update
-	//use a partial update if dataFieldName_meta.timestamps[1] is defined and truthy in localforage
-		//if performing a partial update, load the timestamp to the update function and then return it
-	//otherwise return the full update function
-const getUpdateFunctionPromise = dataFieldName => Promise.all([
-	getMeta(dataFieldName), 
-	localforage.getItem(dataFieldName + '.lastRemoteLoad')])
-	.then(val => {
-		const meta = val[0]
-		const lastRemoteLoad = val[1]
-		const localDataDefined = lastRemoteLoad && meta && meta.timestamps && meta.timestamps.length
-		const usePartialUpdate = localDataDefined  && meta.timestamps[1]
-		const updateFunction = usePartialUpdate ? updateRequest(meta.timestamps[1]) : fullRequest
-		return updateFunction
-	})
-	.catch(err => console.log(err))
 
+const defaultMeta = () => {return {timestamps: [Infinity, 0], ids: [Infinity, 0]}} 
 
-const localLoad = (dataField, dataFieldName) => localforage.getItem(dataFieldName)
-	//.then(logText('local assign'))
-	//.then(logResult)
-	.then(assignDataToList(dataField))
-	.then(result => {
-		localforage.getItem(dataFieldName + '.lastRemoteLoad')
-			.then(lastRemoteLoad => dataField.lastRemoteLoad = lastRemoteLoad)
-		return result
-	})
-	.then(result => {
-		//loadValid will be swallowed and is only present to spawn the remoteLoad if needed
-		const loadValid = localLastRemoteLoadValid(dataFieldName, dataField.remoteInterval)
-			.then(localValid => {
-				if(!localValid) return dataField.remoteLoad()
-				//this m.redraw() is equivalent to redrawing once an m.request completes
-				m.redraw()
-				return Promise.resolve(true)
-			})
-		return result
-	})
-	.catch(reloadAndLog(dataField))
-
-//updateList returns a Promise that
-	//resolves to true if the list in memory is valid
-	//resolves to localLoad(dataField) if the local data is newer than the mem data
-		//also spawns a dataField.remoteLoad() if the local data is stale
-	//resolves to dataField.remoteLoad() otherwise
-const updateList = (dataField, dataFieldName) => {
-	//check if the memory list is valid
-	const now = ts()
-	const nextRemoteCheck = dataField.remoteInterval + dataField.lastRemoteLoad
-	if(dataFieldName === 'remoteData.Messages') {
-		console.log('remoteData.Messages updateList skip ' + (now < nextRemoteCheck))
-		console.log('remoteData.Messages updateList remoteLoad time left ' + (nextRemoteCheck - now))
-	}
-	if(now < nextRemoteCheck) return Promise.resolve(true)
-	if(false && dataFieldName === 'remoteData.Messages') {
-		console.log('remoteData.Messages updateList remoteLoad nextRemoteCheck ' + (nextRemoteCheck))
-	}
-	//check if there is local data present
-	return localLastRemoteLoadValid(dataFieldName, dataField.remoteInterval)
-		//this will resolve true if a local load is needed
-		.then(dataPresent => dataPresent ? localLoad(dataField, dataFieldName) : dataField.remoteLoad())
-		.catch(err => console.log(err))
-
-}
-
-const unionLocalList = dataFieldName => {
-	const oldDataPromise = localforage.getItem(dataFieldName)
-	return newData => oldDataPromise
-		.then(oldData => {
-			//if there's no old data, save the entire result[0]
-			if(!oldData || !oldData.length) {
-				localforage.setItem(dataFieldName, newData)
-			//if there is old data, splice the old data with the new data
-			}	else {
-				localforage.setItem(dataFieldName, _.unionBy(newData, oldData, 'id'))
-				
-				}
-			return newData
-		})
-		.catch(err => console.log(err))
-}
-
-const defaultMeta = {timestamps: [Infinity, 0], ids: [Infinity, 0]}
-
-const calcMeta = (data, baseMeta = {timestamps: [Infinity, 0], ids: [Infinity, 0]}) => (data.data ? data.data : data)
-	.reduce((metaTemp, el, index) => {
+const calcMeta = data => (data.data ? data.data : (data ? data : []))
+	.reduce((metaTemp, el, index, arr) => {
 		const m = moment(el.timestamp).valueOf()
 		const i = el.id
 
@@ -216,7 +156,7 @@ const calcMeta = (data, baseMeta = {timestamps: [Infinity, 0], ids: [Infinity, 0
 		metaTemp.length = index + 1
 
 		return metaTemp
-	}, _.clone(baseMeta))
+	}, defaultMeta())
 
 const validMeta = meta => meta && meta.timestamps && meta.timestamps.length &&
 	meta.ids && meta.ids.length
@@ -235,21 +175,121 @@ const combineMetas = (a, b) => { return {
 const combineWithLocalMetaPromise = dataFieldName => newMeta => localforage
 	.getItem(dataFieldName + '_meta')
 	.then(oldMeta => {
+		//console.log('combineWithLocalMetaPromise dataFieldName ' + dataFieldName)
+		//console.log(oldMeta)
+		//console.log(newMeta)
 		const oldValid = validMeta(oldMeta)
 		const newValid = validMeta(newMeta)
 		if(!newValid) throw dataFieldName + ' invalid meta: ' + JSON.stringify(newMeta)
 		const combinedMeta = oldValid ? combineMetas(newMeta, oldMeta) : newMeta
 		return combinedMeta
 	})
-	.then(newLocalMeta => localforage.setItem(dataFieldName + '_meta', newLocalMeta))
+	.then(newLocalMeta => {
+		localforage.setItem(dataFieldName + '_meta', newLocalMeta)
+		return newLocalMeta
+	})
+
+//choose between full update and partial update
+//use a partial update if dataFieldName_meta.timestamps[1] is defined and truthy in localforage
+//if performing a partial update, load the timestamp to the update function and then return it
+//otherwise return the full update function
+const getUpdateFunctionPromise = dataFieldName => Promise.all([
+	getMeta(dataFieldName), 
+	localforage.getItem(dataFieldName + '.lastRemoteLoad')])
+	.then(val => {
+		const meta = val[0]
+		const lastRemoteLoad = val[1]
+		const localDataDefined = lastRemoteLoad && meta && meta.timestamps && meta.timestamps.length
+		const usePartialUpdate = localDataDefined  && meta.timestamps[1]
+		//console.log('usePartialUpdate ' + usePartialUpdate)
+		const updateFunction = usePartialUpdate ? updateRequest(meta.timestamps[1]) : fullRequest
+		return updateFunction
+	})
+	.catch(err => console.log(err))
 
 
-const saveLocalList = (lastRemoteLoad, dataFieldName) => result => {
+const localLoad = (dataField, dataFieldName, forceStale) => Promise.all([
+	localforage.getItem(dataFieldName), localforage.getItem(dataFieldName + '.lastRemoteLoad')
+])
+	.then(assignDataToList(dataField))
+	.then(result => {
+		//loadValid will be swallowed and is only present to spawn the remoteLoad if needed
+		const loadValid = localLastRemoteLoadValid(dataFieldName, dataField.remoteInterval)
+			.then(localValid => {
+				if(!localValid || forceStale) return dataField.remoteLoad()
+				//this m.redraw() is equivalent to redrawing once an m.request completes
+				//m.redraw()
+				return Promise.resolve(true)
+			})
+		return result
+	})
+	.catch(reloadAndLog(dataField))
+
+//updateList returns a Promise that
+//resolves to true if the list in memory is valid
+//resolves to localLoad(dataField) if the local data is newer than the mem data
+//also spawns a dataField.remoteLoad() if the local data is stale
+//resolves to dataField.remoteLoad() otherwise
+const updateList = (dataField, dataFieldName, forceRemoteLoad) => {
+	//check if the memory list is valid
+	const now = ts()
+	const nextRemoteCheck = dataField.remoteInterval + dataField.lastRemoteLoad
+	//resolves true if mem list is safe
+	const memValidPromise = Promise.resolve(now < nextRemoteCheck)
+		//check that the lastRemoteLoad mem value matches local
+		.then(timeOk => timeOk && localforage
+			.getItem(dataFieldName + '_meta')
+			.then(localMeta => _.isEqual(dataField.meta, localMeta))
+		)
+	//check if there is valid local data present
+	const localValidPromise = localLastRemoteLoadValid(dataFieldName, dataField.remoteInterval)
+
+	return Promise.all([memValidPromise, localValidPromise])
+		.then(([memValid, localValid]) => {
+			if(memValid && localValid && !forceRemoteLoad) return true
+			if(localValid) return localLoad(dataField, dataFieldName, forceRemoteLoad)
+			//if the memory is not valid then force a full reload
+			return dataField.remoteLoad(!memValid)
+		})
+		/*
+		.then(dataPresent => {
+			console.log(dataFieldName + ' updateList')
+			console.log(dataPresent)
+			return dataPresent
+		})
+		*/
+		
+		.catch(err => console.log(err))
+
+}
+
+const unionLocalList = dataFieldName => {
+	const oldDataPromise = localforage.getItem(dataFieldName)
+	return newData => oldDataPromise
+		.then(oldData => {
+			//if there's no old data, save the entire result[0]
+			if(!oldData || !oldData.length) {
+				localforage.setItem(dataFieldName, newData)
+			//if there is old data, splice the old data with the new data
+			}	else {
+				localforage.setItem(dataFieldName, _.unionBy(newData, oldData, 'id'))
+				
+			}
+			return newData
+		})
+		.catch(err => console.log(err))
+}
+
+const saveLocalList = (lastRemoteLoad, dataFieldName, dataField) => result => {
 
 	if(!result || !result[0] || !result[0].length) return result
 	const meta = calcMeta(result[0])
+	//console.log('saveLocalList dataFieldName ' + dataFieldName)
+	//console.log(meta)
+	//console.log(result[0].length)
 
 	combineWithLocalMetaPromise(dataFieldName)(meta)
+		.then(meta => dataField.setMeta(meta))
 		.catch(err => console.log(err))
 
 	unionLocalList(dataFieldName)(result[0])
@@ -262,22 +302,29 @@ const saveLocalList = (lastRemoteLoad, dataFieldName) => result => {
 	return result
 }
 
+//returns a promise that resolves to true if the mem data is unchanged, falsy if the data was changed
 const loadRemote = (dataField, dataFieldName, url) => {
 	
 	if(false && dataFieldName === 'remoteData.Messages') {
 		console.log('remoteData.Messages loadRemote')
-}
+	}
 	const authChain = auth.getAccessToken()
+		.catch(err => console.log(err))
 	const requestFunctionChain = getUpdateFunctionPromise(dataFieldName)
+		.catch(err => console.log(err))
 	
 	return Promise.all([authChain, requestFunctionChain])
-		.then(values => values[1](url, dataFieldName)(values[0]))
+		.then(values => {
+			if(!values[0]) throw "No token supplied for request"
+			return values[1](url, dataFieldName)(values[0])
+
+		})
 		.then(removeDeletedFilter)
 		.then(result => {
 			const now = ts()
 			return [result, now]
 		})
-		.then(saveLocalList(dataField.lastRemoteLoad, dataFieldName))
+		.then(saveLocalList(dataField.lastRemoteLoad, dataFieldName, dataField))
 		//.then(logText('remote assign'))
 		.then(assignDataToList(dataField))
 		.catch(err => console.log(err))
@@ -300,7 +347,7 @@ const subjectDataField = type => {return {
 
 const messageEventConnection = typeString => {return {
 	//a message about a place is connected to an event if:
-		//the event is associated with a festival that has/will host(ed) the place
+	//the event is associated with a festival that has/will host(ed) the place
 	Places: (m, e) => true,
 	//a message about a user is connected to an event if:
 	Users: (m, e) => false
@@ -331,6 +378,8 @@ var bulkUpdateSubjectCache = {}
 export const remoteData = {
 	Messages: {
 		list: [],
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Messages.meta = _.clone(meta),
 		clear: () => {
 			remoteData.Messages.list = []
 			remoteData.Messages.lastRemoteLoad = 0
@@ -341,7 +390,7 @@ export const remoteData = {
 		},
 		backfillList: newList => {
 			remoteData.Messages.list = _.unionBy(newList, remoteData.Messages.list, 'id')
-			
+			return newList
 		},
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Messages.lastRemoteLoad = ts() - remoteData.Messages.remoteInterval + 1,
@@ -354,7 +403,10 @@ export const remoteData = {
 			//fromuser to touser re:subjectName
 			const fromField = remoteData.Users.getName(v.fromuser)
 			const toField = v.touser ? ' to ' + remoteData.Users.getName(v.touser) : ''
-			const subjectName = ' re: ' + remoteData[subjectDataField(v.subjectType)].getName(v.subject)
+			//console.log('Messages getName')
+			//console.log(v.subjectType)
+			//console.log(v.subject)
+			const subjectName = ' re: ' + remoteData[subjectDataField(v.subjectType)].getName(v.subject).replace(/^ re: /, '')
 			return _.truncate(subjectName)
 		},
 		getSubjectObject: id => {return {subjectType: 10, subject: id}},
@@ -373,9 +425,9 @@ export const remoteData = {
 			const cacheValue = _.get(eventConnectedCache, cachePath)
 			if(!_.isUndefined(cacheValue)) return cacheValue
 			const typeString = subjectDataField(m.subjectType)
-		//console.log('remoteData.Messages.eventConnectedFilter cachePath')
-		//console.log(typeString)
-		//console.log(cachePath)
+			//console.log('remoteData.Messages.eventConnectedFilter cachePath')
+			//console.log(typeString)
+			//console.log(cachePath)
 			const connected = (m && (!e || remoteData[typeString].messageEventConnection(e)(m))) && true || false 
 			//console.log('remoteData.Messages.eventConnectedFilter event')
 			//console.log(e)
@@ -389,6 +441,7 @@ export const remoteData = {
 			return connected
 
 		},
+		discussionOf: id => remoteData.Messages.list.filter(m => m.baseMessage === id),
 		aboutType: sType => remoteData.Messages.list.filter(m => m.subjectType === sType),
 		ofType: mType => remoteData.Messages.list.filter(m => m.messageType === mType),
 		byAuthor: author => remoteData.Messages.list.filter(m => m.fromuser === author),
@@ -401,7 +454,7 @@ export const remoteData = {
 			const filtered = gameTimeRatings
 				.filter(m => (m.subject === setId))
 			const retVal = _.meanBy(filtered,
-							m => parseInt(m.content, 10))
+				m => parseInt(m.content, 10))
 			//console.log('msg length: ' + remoteData.Messages.list.length)
 			//console.log('filtered length: ' + filtered.length)
 			//console.log('setAverageRating: ' + retVal)
@@ -414,9 +467,28 @@ export const remoteData = {
 		recentDiscussionAll: viewer => remoteData.Messages.list
 			.filter(m => !viewer || viewer !== m.fromuser)
 			.filter(m => m.messageType === 8 || m.messageType === 1)
-			.filter(m => remoteData.MessagesMonitors.unread(m.id)),
+			.filter(m => remoteData.MessagesMonitors.unread(m.id))
+			.sort(timeStampSort),
+			//, viewer => '' + viewer + '.' + remoteData.Messages.lastRemoteLoad + '.' + remoteData.MessagesMonitors.lastRemoteLoad),
+		recentDiscussions: viewer => _.uniqBy(remoteData.Messages.recentDiscussionAll(viewer)
+			.map(message => message.baseMessage ? remoteData.Messages.get(message.baseMessage) : message), 'id'),
 		recentDiscussionEvent: (viewer, event) => remoteData.Messages.recentDiscussionAll(viewer)
 			.filter(remoteData.Messages.eventConnectedFilter(event)),
+		centerObjects: () => {
+			const baseMessages = remoteData.Messages.list
+				.filter(m => !m.baseMessage)
+
+			const discussionMessages = remoteData.Messages.list
+				.filter(m => m.baseMessage)
+
+			//reduce the discussionMessages into an object organized by baseMessage
+			const discussionByBase = discussionMessages.reduce((discussObj, message) => {
+				const baseMessage = '' + message.baseMessage
+				discussObj[baseMessage] = discussObj[baseMessage] ? discussObj[baseMessage] : []
+				discussObj[baseMessage].push(message)
+				return discussObj
+			}, {})
+		},
 		forArtist: artistId => remoteData.Messages.list
 			.filter(m => (m.subjectType === 2) && (m.subject === artistId)),
 		forSet: setId => remoteData.Messages.aboutSets()
@@ -453,9 +525,13 @@ export const remoteData = {
 			.filter(m => m.subjectType === 2 && m.messageType === 2 && m.fromuser === author && _.includes(artistIds, m.subject))
 			.filter(m => moment(m.timestamp).add(1, 'y').isAfter())
 			.map(m => m.subject)),
-		loadList: () => updateList(remoteData.Messages, 'remoteData.Messages'),
-		remoteLoad: () => loadRemote(remoteData.Messages, 'remoteData.Messages'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Messages, 'remoteData.Messages', forceRemoteLoad),
+		remoteLoad: (forceFullLoad) => loadRemote(remoteData.Messages, 'remoteData.Messages'),
 		loadForFestival: festivalId => {
+			if(!festivalId) {
+				return Promise.reject('No festivalId')
+			}
+			//console.log(festivalId)
 			const eventSubjectObject = remoteData.Festivals.getSubjectObject(festivalId)
 			//check if the festival has already been loaded
 			const dataFieldName = 'Messages'
@@ -467,7 +543,7 @@ export const remoteData = {
 			bulkUpdateSubjectCache[end][festivalId] = true
 
 
-				//get the raw data
+			//get the raw data
 			const bulkUpdatePromise = auth.getAccessToken()
 				.then(token => m.request(reqOptionsCreate(tokenFunction(token))(end + festivalId, 'GET')()))
 				.then(result => result.data)
@@ -477,9 +553,13 @@ export const remoteData = {
 					console.log(err)
 				})
 
-				//append to mem
+			//append to mem
 			const memAppend = bulkUpdatePromise
 				.then(remoteData.Messages.backfillList)
+				.then(result => {
+					m.redraw()
+					return result
+				})
 				.catch(err => {
 					bulkUpdateSubjectCache[end][festivalId] = false
 					console.log('remoteData.Messages loadForFestival memAppend')
@@ -493,7 +573,7 @@ export const remoteData = {
 				})
 				*/
 
-				//append to local
+			//append to local
 			const localAppend = bulkUpdatePromise
 				.then(unionLocalList('remoteData.' + dataFieldName))
 				.catch(err => {
@@ -502,11 +582,12 @@ export const remoteData = {
 					console.log(err)
 				})
 
-				//update local meta data
+			//update local meta data
 			const localMetaUpdate = bulkUpdatePromise
 				//.then(logResult)
 				.then(calcMeta)
 				.then(combineWithLocalMetaPromise('remoteData.' + dataFieldName))
+				.then(meta => remoteData.Messages.setMeta(meta))
 				.catch(err => {
 					bulkUpdateSubjectCache[end][festivalId] = false
 					console.log('remoteData.Messages loadForFestival localMetaUpdate')
@@ -521,17 +602,95 @@ export const remoteData = {
 					console.log(err)
 				})
 
+		},		
+		loadForArtist: artistId => {
+			const eventSubjectObject = remoteData.Festivals.getSubjectObject(artistId)
+			//check if the artist has already been loaded
+			const dataFieldName = 'Messages'
+			const end = dataFieldName + '/forArtist/'
+			if(!bulkUpdateSubjectCache[end]) bulkUpdateSubjectCache[end] = {}
+
+			const alreadyLoaded = bulkUpdateSubjectCache[end][artistId]
+			if(alreadyLoaded) return
+			bulkUpdateSubjectCache[end][artistId] = true
+
+
+			//get the raw data
+			const bulkUpdatePromise = auth.getAccessToken()
+				.then(token => m.request(reqOptionsCreate(tokenFunction(token))(end + artistId, 'GET')()))
+				.then(result => result.data)
+				.catch(err => {
+					bulkUpdateSubjectCache[end][artistId] = false
+					console.log('remoteData.Messages loadForArtist bulkUpdatePromise')
+					console.log(err)
+				})
+
+			//append to mem
+			const memAppend = bulkUpdatePromise
+			/*
+				.then(result => {
+					console.log('memAppend')
+					console.log(result)
+					return result
+				})
+				*/
+				.then(remoteData.Messages.backfillList)
+				.then(result => {
+					if(result.length) m.redraw()
+					return result
+				})
+				.catch(err => {
+					bulkUpdateSubjectCache[end][artistId] = false
+					console.log('remoteData.Messages loadForArtist memAppend')
+					console.log(err)
+				})
+				/*
+				.then(result => {
+					console.log('loadForArtist memAppend')
+					console.log(remoteData.Messages.list.length)
+					return result
+				})
+				*/
+
+			//append to local
+			const localAppend = bulkUpdatePromise
+				.then(unionLocalList('remoteData.' + dataFieldName))
+				.catch(err => {
+					bulkUpdateSubjectCache[end][artistId] = false
+					console.log('remoteData.Messages loadForArtist localAppend')
+					console.log(err)
+				})
+
+			//update local meta data
+			const localMetaUpdate = bulkUpdatePromise
+				//.then(logResult)
+				.then(calcMeta)
+				.then(combineWithLocalMetaPromise('remoteData.' + dataFieldName))
+				.then(meta => remoteData.Messages.setMeta(meta))
+				.catch(err => {
+					bulkUpdateSubjectCache[end][artistId] = false
+					console.log('remoteData.Messages loadForArtist localMetaUpdate')
+					console.log(err)
+				})
+
+			return Promise.all([memAppend, localAppend, localMetaUpdate])
+				.then(arr => {m.redraw(); return arr})
+				.catch(err => {
+					bulkUpdateSubjectCache[end][artistId] = false
+					console.log('remoteData.Messages loadForArtist Promise.all')
+					console.log(err)
+				})
+
 		},
 		create: data => {
 			const dataFieldName = 'Messages'
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
-				.then(() => remoteData[dataFieldName].list.push(data))
-				.then(forceRemoteLoad(remoteData.Messages))
+				
 				.catch(logResult)
 		},
 		upsert: data => {
@@ -546,15 +705,23 @@ export const remoteData = {
 			const end = 'Messages/' + id
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end, 'PUT')(data)))
-				.then(forceRemoteLoad(remoteData.Messages))
-				.then(() => m.redraw())
+				.then(remoteData.Messages.loadList)
 				.catch(logResult)
 
 		}
 	},
 	MessagesMonitors: {
 		list: [],
-		assignList: newList => remoteData.MessagesMonitors.list = _.unionBy(newList, remoteData.MessagesMonitors.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.MessagesMonitors.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.MessagesMonitors.list = _.unionBy(newList, remoteData.MessagesMonitors.list, 'id')
+			remoteData.MessagesMonitors.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.MessagesMonitors.list = _.unionBy(newList, remoteData.MessagesMonitors.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.MessagesMonitors.list = []
@@ -565,7 +732,7 @@ export const remoteData = {
 		get: id => _.find(remoteData.MessagesMonitors.list, p => p.id === id),
 		getMany: ids => remoteData.MessagesMonitors.list.filter(d => ids.indexOf(d.id) > -1),
 		unread: id => _.every(remoteData.MessagesMonitors.list, v => v.message !== id),
-		loadList: () => updateList(remoteData.MessagesMonitors, 'remoteData.MessagesMonitors'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.MessagesMonitors, 'remoteData.MessagesMonitors', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.MessagesMonitors, 'remoteData.MessagesMonitors'),
 		markRead: id => {
 			const data = {message:id}
@@ -580,7 +747,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
 				.then(forceRemoteLoad(remoteData.MessagesMonitors))
@@ -599,16 +766,107 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.MessagesMonitors))
 				.catch(logResult)
 		}
 	},
+	Intentions: {
+		list: [],
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Intentions.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Intentions.list = _.unionBy(newList, remoteData.Intentions.list, 'id')
+			remoteData.Intentions.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Intentions.list = _.unionBy(newList, remoteData.Intentions.list, 'id')
+			return newList
+		},
+		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.Intentions.list = []
+			remoteData.Intentions.lastRemoteLoad = 0
+		},
+		reload: () => remoteData.Intentions.lastRemoteLoad = ts() - remoteData.Intentions.remoteInterval + 1,
+		remoteInterval: 60,
+		get: id => _.find(remoteData.Intentions.list, p => p.id === id),
+		getMany: ids => remoteData.Intentions.list.filter(d => ids.indexOf(d.id) > -1),
+		forSubject: subjectObject => _.some(remoteData.Intentions.list, i => subjectObject.subject === i.subject && subjectObject.subjectType === i.subjectType),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Intentions, 'remoteData.Intentions', forceRemoteLoad),
+		remoteLoad: () => loadRemote(remoteData.Intentions, 'remoteData.Intentions'),
+		setIntent: subjectObject => {
+			const data = subjectObject
+			//mark locally
+			remoteData.Intentions.list.push(data)
+			//send to server
+			remoteData.Intentions.create(data)
+
+		},
+		clearIntent: subjectObject => {
+			const intentIds = remoteData.Intentions.list
+				.filter(i => i.subject === subjectObject.subject && i.subjectType === subjectObject.subjectType)
+				.map(i => i.id)
+
+			//mark in memory
+			remoteData.Intentions.list = remoteData.Intentions.list
+				.filter(i => i.subject !== subjectObject.subject || i.subjectType !== subjectObject.subjectType)
+			
+			//mark locally
+			localforage.setItem('remoteData.Intentions', remoteData.Intentions.list)
+
+			//send to server
+			//console.log('remoteData.Intentions.clearIntent')
+			//console.log(subjectObject)
+			//console.log(intentIds)
+			//console.log(remoteData.Intentions.list)
+			remoteData.Intentions.batchDelete(intentIds)
+
+		},
+		create: data => {
+			const dataFieldName = 'Intentions'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+			//set last remote load to 0
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
+				.then(remoteData.Intentions.loadList)
+				.catch(logResult)
+		},
+		batchCreate: data => {
+			const end = 'Intentions/batchCreate/'
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
+				.then(remoteData.Intentions.loadList)
+				.catch(logResult)
+		},
+		batchDelete: data => {
+			const end = 'Intentions/batchDelete'
+			//((assume data was validated in form))
+			//((assume server will add user field))
+			//submit to server
+			//set last remote load to 0
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
+				.then(remoteData.Intentions.loadList)
+				.catch(logResult)
+		}
+	},
 	Images: {
 		list: [],
-		assignList: newList => remoteData.Images.list = _.unionBy(newList, remoteData.Images.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Images.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Images.list = _.unionBy(newList, remoteData.Images.list, 'id')
+			remoteData.Images.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Images.list = _.unionBy(newList, remoteData.Images.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Images.list = []
@@ -630,14 +888,14 @@ export const remoteData = {
 			.filter(m => (m.subjectType === 2) && (m.subject === artistId)),
 		forSubject: (subjectType, subject) => remoteData.Images.list
 			.filter(m => (m.subjectType === subjectType) && (m.subject === subject)),
-		loadList: () => updateList(remoteData.Images, 'remoteData.Images'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Images, 'remoteData.Images', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Images, 'remoteData.Images'),
 		create: data => {
 			const dataFieldName = 'Images'
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
 				.then(() => remoteData[dataFieldName].list.push(data))
@@ -648,7 +906,16 @@ export const remoteData = {
 	},
 	Series: {
 		list: [],
-		assignList: newList => remoteData.Series.list = _.unionBy(newList, remoteData.Series.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Series.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Series.list = _.unionBy(newList, remoteData.Series.list, 'id')
+			remoteData.Series.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Series.list = _.unionBy(newList, remoteData.Series.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Series.list = []
@@ -667,15 +934,19 @@ export const remoteData = {
 			return v.name
 		},
 		getEventNames: () => remoteData.Series.list.map(x => x.name),
-		getEventNamesWithIds: () => remoteData.Series.list.map(x => [x.name, x.id]),
+		getEventNamesWithIds: () => remoteData.Series.list
+			.map(x => [x.name, x.id])
+			.sort(sortNamesWithIdsByName),
 		getName: id => remoteData.Series.getEventName(id),
 		getSubFestivalIds: id => {
 			//console.log('Series getSubFestivalIds for ' + id + ' chosen from among ' + remoteData.Festivals.list.length)
 			return remoteData.Festivals.list.filter(s => s.series === id).map(s => s.id)
 		},
-		getSubDateIds: id => {
+		getSubDateIds: (id, filter = x => x) => {
 			const festivals = remoteData.Series.getSubFestivalIds(id)
-			return remoteData.Dates.list.filter(s => festivals.indexOf(s.festival) > -1).map(s => s.id)
+			return remoteData.Dates.list.filter(s => festivals.indexOf(s.festival) > -1)
+				.filter(filter)
+				.map(s => s.id)
 		},
 		getSubDayIds: id => {
 			const dates = remoteData.Series.getSubDateIds(id)
@@ -687,28 +958,81 @@ export const remoteData = {
 		},
 		getSubIds: id => remoteData.Series.getSubFestivalIds(id),
 		getSubjectObject: id => {return {subjectType: 6, subject: id}},
+		getVenueIds: id => remoteData.Dates.getMany(
+				remoteData.Series.getSubDateIds(id)
+		)
+			.sort((a, b) => {
+				const am = moment(a.baseDate).utc()
+				const bm = moment(b.baseDate).utc()
+				return am.diff(bm)
+			})
+			.map(date => date.venue),
+		noFutureDates: () => remoteData.Series.list
+			.filter(s => !s.hiatus)
+			.filter(s => !remoteData.Series.getSubDateIds(s.id, date => {
+				//baseDate is after 180 days ago
+				return moment(date.basedate).isAfter(moment().subtract(180, 'days'))
+			}).length),
 		isEvent: subject => subject.subjectType === 6,
 		messageEventConnection: e => m => remoteData.Series.isEvent(m) && 
 			remoteData.Series.isEvent(e) && 
 			m.subject === e.subject,
-		loadList: () => updateList(remoteData.Series, 'remoteData.Series'),
+		patternMatch: (pattern, count = 5) => {
+			const result = _.take(smartSearch(remoteData.Series.list,
+					[pattern], {name: true}
+					), count)
+					.map(x => x.entry)
+			//console.log('Series list count ' + remoteData.Series.list.length)
+			//console.log('Series Pattern match count ' + result.length)
+			//console.log('Series Pattern  ' + pattern)
+			return result
+		},
+		loadList: (forceRemoteLoad) => updateList(remoteData.Series, 'remoteData.Series', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Series, 'remoteData.Series'),
 		create: data => {
 			const dataFieldName = 'Series'
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
-				.then(forceRemoteLoad(remoteData.Series))
+			},
+		updateInstance: (id, data) => {
+			const end = 'Series/' + id
+			const currentEl = remoteData.Series.get(id)
+			const newEl = _.assign({}, currentEl, data)
+			console.log('remoteData.Series updateInstance')
+			console.log(currentEl)
+			console.log(newEl)
+			console.log(data)
+			return auth.getAccessToken()
+				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end, 'PUT')(newEl)))
+				.then(() => remoteData.Series.backfillList([newEl]))
+				.then(() => unionLocalList('remoteData.Series')([newEl]))
+				.then(remoteData.Series.loadList)
+				.then(result => {
+					console.log('remoteData.Series updateInstance promise')
+					console.log(remoteData.Series.get(id))
+					return result
+				})
 				.catch(logResult)
+
 		}
 
 	},
 	Festivals: {
 		list: [],
-		assignList: newList => remoteData.Festivals.list = _.unionBy(newList, remoteData.Festivals.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Festivals.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Festivals.list = _.unionBy(newList, remoteData.Festivals.list, 'id')
+			remoteData.Festivals.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Festivals.list = _.unionBy(newList, remoteData.Festivals.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Festivals.list = []
@@ -786,7 +1110,7 @@ export const remoteData = {
 					const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
 					const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
 					return aPriLevel - bPriLevel
-		})},
+				})},
 		eventActive: id => remoteData.Festivals.get(id) && (parseInt(remoteData.Festivals.get(id).year, 10) >= (new Date().getFullYear())),
 		getEventName: id => {
 			const v = remoteData.Festivals.get(id)
@@ -796,14 +1120,15 @@ export const remoteData = {
 		getEventNames: () => remoteData.Festivals.list.map(x => remoteData.Series.getEventName(x.series) + ' ' + x.year),
 		getEventNamesWithIds: superId => remoteData.Festivals.list
 			.filter(e => !superId || e.series === superId)
-			.map(x => [remoteData.Festivals.getEventName(x.id), x.id]),
+			.map(x => [remoteData.Festivals.getEventName(x.id), x.id])
+			.sort(sortNamesWithIdsByName),
 		getName: id => remoteData.Festivals.getEventName(id),
 		getSubjectObject: id => {return {subjectType: 7, subject: id}},
 		isEvent: subject => subject.subjectType === 7,
 		messageEventConnection: e => m => remoteData.Festivals.isEvent(m) && 
 			remoteData.Festivals.isEvent(e) && 
 			m.subject === e.subject,
-		loadList: () => updateList(remoteData.Festivals, 'remoteData.Festivals'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Festivals, 'remoteData.Festivals', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Festivals, 'remoteData.Festivals'),
 		future: _.memoize(() => {
 			//console.log('' + remoteData.Festivals.list.length + '-' + remoteData.Dates.list.length)
@@ -811,23 +1136,38 @@ export const remoteData = {
 			//console.log(futureDates.length)
 			return remoteData.Festivals.getMany(futureDates
 				.map(d => d.festival))
-			}, 
-			() => '' + remoteData.Festivals.list.length + '-' + remoteData.Dates.list.length),
+		}, 
+		() => '' + remoteData.Festivals.list.length + '-' + remoteData.Dates.list.length),
+		intended: () => {
+			//console.log('' + remoteData.Festivals.list.length + '-' + remoteData.Dates.list.length)
+			const futures = remoteData.Festivals.future()
+			//console.log('intended')
+			//console.log(remoteData.Intentions.list)
+			return futures.filter(festival => remoteData.Intentions.forSubject(remoteData.Festivals.getSubjectObject(festival.id)))
+		},
 		create: data => {
 			const dataFieldName = 'Festivals'
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
-				.then(forceRemoteLoad(remoteData.Festivals))
 				.catch(logResult)
 		}
 	},
 	Dates: {
 		list: [],
-		assignList: newList => remoteData.Dates.list = _.unionBy(newList, remoteData.Dates.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Dates.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Dates.list = _.unionBy(newList, remoteData.Dates.list, 'id')
+			remoteData.Dates.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Dates.list = _.unionBy(newList, remoteData.Dates.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Dates.lastRemoteLoad = ts() - remoteData.Dates.remoteInterval + 1,
 		remoteInterval: 3600,
@@ -875,9 +1215,10 @@ export const remoteData = {
 		getEventNames: () => remoteData.Dates.list.map(x => remoteData.Festivals.getEventName(x.festival) + ' ' + x.name),
 		getEventNamesWithIds: superId => remoteData.Dates.list
 			.filter(e => !superId || e.festival === superId)
-			.map(x => [remoteData.Festivals.getEventName(x.festival) + ' ' + x.name, x.id]),
+			.map(x => [remoteData.Festivals.getEventName(x.festival) + ' ' + x.name, x.id])
+			.sort(sortNamesWithIdsByName),
 		getName: id => remoteData.Dates.getEventName(id),
-		loadList: () => updateList(remoteData.Dates, 'remoteData.Dates'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Dates, 'remoteData.Dates', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Dates, 'remoteData.Dates'),
 		getBaseMoment: id => {
 			if(dateBaseCache[id]) return moment(dateBaseCache[id])
@@ -911,13 +1252,13 @@ export const remoteData = {
 			const current = remoteData.Dates.current()
 				.map(d => d.id)
 			return remoteData.Dates.list.filter(d => {
-					//now is greater than the start moment but less than the end moment
-					var now = moment()
-					var start = remoteData.Dates.getStartMoment(d.id)
-					var end = moment().add(30, 'days')
-					return start.isBetween(now, end, 'day')
-				})
-					.filter(d => current.indexOf(d.id) < 0)
+				//now is greater than the start moment but less than the end moment
+				var now = moment()
+				var start = remoteData.Dates.getStartMoment(d.id)
+				var end = moment().add(30, 'days')
+				return start.isBetween(now, end, 'day')
+			})
+				.filter(d => current.indexOf(d.id) < 0)
 		},
 		future: () => {
 			const current = remoteData.Dates.current()
@@ -935,17 +1276,24 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
-				.then(forceRemoteLoad(remoteData.Dates))
-				.then(forceRemoteLoad(remoteData.Days))
 				.catch(logResult)
 		}
 	},
 	Days: {
 		list: [],
-		assignList: newList => remoteData.Days.list = _.unionBy(newList, remoteData.Days.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Days.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Days.list = _.unionBy(newList, remoteData.Days.list, 'id')
+			remoteData.Days.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Days.list = _.unionBy(newList, remoteData.Days.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Days.list = []
@@ -986,9 +1334,10 @@ export const remoteData = {
 		getEventNames: () => remoteData.Days.list.map(x => remoteData.Dates.getEventName(x.date) + ' ' + x.name),
 		getEventNamesWithIds: superId => remoteData.Days.list
 			.filter(e => !superId || e.date === superId)
-			.map(x => [remoteData.Dates.getEventName(x.date) + ' ' + x.name, x.id]),
+			.map(x => [remoteData.Dates.getEventName(x.date) + ' ' + x.name, x.id])
+			.sort(sortNamesWithIdsByName),
 		getName: id => remoteData.Days.getEventName(id),
-		loadList: () => updateList(remoteData.Days, 'remoteData.Days'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Days, 'remoteData.Days', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Days, 'remoteData.Days'),
 		getBaseMoment: id => {
 			if(!id) return
@@ -1004,7 +1353,16 @@ export const remoteData = {
 	},
 	Sets: {
 		list: [],
-		assignList: newList => remoteData.Sets.list = _.unionBy(newList, remoteData.Sets.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Sets.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Sets.list = _.unionBy(newList, remoteData.Sets.list, 'id')
+			remoteData.Sets.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Sets.list = _.unionBy(newList, remoteData.Sets.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Sets.list = []
@@ -1056,13 +1414,14 @@ export const remoteData = {
 		getEventNames: () => remoteData.Sets.list.map(x => remoteData.Sets.getEventName(x.id)),
 		getEventNamesWithIds: superId => remoteData.Sets.list
 			.filter(e => !superId || e.day === superId)
-			.map(x => [remoteData.Sets.getEventName(x.id), x.id]),
+			.map(x => [remoteData.Sets.getEventName(x.id), x.id])
+			.sort(sortNamesWithIdsByName),
 		getName: id => remoteData.Sets.getEventName(id),
 		forDayAndStage: (day, stage) => remoteData.Sets.list
 			.filter(s => s.day === day && s.stage === stage),
 		forArtist: artistId => remoteData.Sets.list
 			.filter(s => s.band === artistId),
-		loadList: () => updateList(remoteData.Sets, 'remoteData.Sets'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Sets, 'remoteData.Sets', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Sets, 'remoteData.Sets'),
 		getStartMoment: id => {
 			const superMoment = remoteData.Days.getBaseMoment(remoteData.Sets.getSuperId(id))
@@ -1087,17 +1446,17 @@ export const remoteData = {
 			const optionFuncs = Object.keys(daysObject)
 				.map(day => {
 					return token => reqOptionsCreate(tokenFunction(token))(end + day)({
-								user: user,
-								artistIds: daysObject[day]
-				})})
+						user: user,
+						artistIds: daysObject[day]
+					})})
 			const reqPromiseArray = function (result) {
-					return optionFuncs.map(optionFunc => m.request(optionFunc(result)))
+				return optionFuncs.map(optionFunc => m.request(optionFunc(result)))
 
 			}
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => Promise.all(reqPromiseArray(result)))
 				.then(forceRemoteLoad(remoteData.Sets))
@@ -1108,7 +1467,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.Sets))
@@ -1119,7 +1478,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.Sets))
@@ -1130,7 +1489,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.Sets))
@@ -1155,7 +1514,16 @@ export const remoteData = {
 	},
 	Venues: {
 		list: [],
-		assignList: newList => remoteData.Venues.list = _.unionBy(newList, remoteData.Venues.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Venues.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Venues.list = _.unionBy(newList, remoteData.Venues.list, 'id')
+			remoteData.Venues.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Venues.list = _.unionBy(newList, remoteData.Venues.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Venues.lastRemoteLoad = ts() - remoteData.Venues.remoteInterval + 1,
 		remoteInterval: 3600,
@@ -1179,7 +1547,8 @@ export const remoteData = {
 			return v.timezone
 		},
 		getPlaceNames: () => remoteData.Venues.list.map(x => x.name),
-		getPlaceNamesWithIds: () => remoteData.Venues.list.map(x => [x.name, x.id]),
+		getPlaceNamesWithIds: () => remoteData.Venues.list.map(x => [x.name, x.id])
+			.sort(sortNamesWithIdsByName),
 		getName: id => remoteData.Venues.getPlaceName(id),
 		getDateIds: id => remoteData.Dates.list
 			.filter(d => d.venue === id)
@@ -1195,14 +1564,14 @@ export const remoteData = {
 				)
 			)
 		),
-		loadList: () => updateList(remoteData.Venues, 'remoteData.Venues'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Venues, 'remoteData.Venues', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Venues, 'remoteData.Venues'),
 		create: data => {
 			const dataFieldName = 'Venues'
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
 				.then(forceRemoteLoad(remoteData.Venues))
@@ -1211,7 +1580,16 @@ export const remoteData = {
 	},
 	Organizers: {
 		list: [],
-		assignList: newList => remoteData.Organizers.list = _.unionBy(newList, remoteData.Organizers.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Organizers.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Organizers.list = _.unionBy(newList, remoteData.Organizers.list, 'id')
+			remoteData.Organizers.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Organizers.list = _.unionBy(newList, remoteData.Organizers.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Organizers.list = []
@@ -1220,12 +1598,21 @@ export const remoteData = {
 		reload: () => remoteData.Organizers.lastRemoteLoad = ts() - remoteData.Organizers.remoteInterval + 1,
 		remoteInterval: 3600,
 		getMany: ids => remoteData.Organizers.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.Organizers, 'remoteData.Organizers'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Organizers, 'remoteData.Organizers', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Organizers, 'remoteData.Organizers'),
 	},
 	Places: {
 		list: [],
-		assignList: newList => remoteData.Places.list = _.unionBy(newList, remoteData.Places.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Places.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Places.list = _.unionBy(newList, remoteData.Places.list, 'id')
+			remoteData.Places.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Places.list = _.unionBy(newList, remoteData.Places.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Places.list = []
@@ -1249,14 +1636,14 @@ export const remoteData = {
 			Object.keys(remoteData.Places.list[0]).filter(idFieldFilter) : 
 			[],
 		getName: id => remoteData.Places.get(id).name,
-		loadList: () => updateList(remoteData.Places, 'remoteData.Places'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Places, 'remoteData.Places', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Places, 'remoteData.Places'),
 		stagesForFestival: data => {
 			const end = 'Places/batchCreate/'
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			//console.log('stagesForFestival')
 			//console.log(data)
 			return auth.getAccessToken()
@@ -1269,7 +1656,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.Places))
@@ -1278,7 +1665,16 @@ export const remoteData = {
 	},
 	Lineups: {
 		list: [],
-		assignList: newList => remoteData.Lineups.list = _.unionBy(newList, remoteData.Lineups.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Lineups.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Lineups.list = _.unionBy(newList, remoteData.Lineups.list, 'id')
+			remoteData.Lineups.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Lineups.list = _.unionBy(newList, remoteData.Lineups.list, 'id')
+			return newList
+		},
 		append: data => appendData(remoteData.Lineups)(data),
 		lastRemoteLoad: 0,
 		clear: () => {
@@ -1289,11 +1685,11 @@ export const remoteData = {
 		remoteInterval: 3600,
 		getMany: ids => remoteData.Lineups.list.filter(d => ids.indexOf(d.id) > -1),
 		forFestival: fest => remoteData.Lineups.list.filter(d => d.festival === fest),
-		getPriFromArtistFest: (artist, fest) => {
-			const target = _.find(remoteData.Lineups.list, p => p.festival === fest && p.band === artist)
-			if(!target) return
-			return target.priority
-		},
+		getPriFromArtistFest: _.memoize((artist, fest) => {
+					const target = _.find(remoteData.Lineups.list, p => p.festival === fest && p.band === artist)
+					if(!target) return
+					return target.priority
+				}, (a, b) => '' + a + '.' + b),
 		getIdFromArtistFest: (artist, fest) => {
 			const target = _.find(remoteData.Lineups.list, p => p.festival === fest && p.band === artist)
 			if(!target) return
@@ -1304,14 +1700,14 @@ export const remoteData = {
 		peakArtistPriLevel: _.memoize(artist => _.min(remoteData.Lineups.artistLineups(artist)
 			.map(l => remoteData.ArtistPriorities.getLevel(l.priority))
 			.filter(l => l)), 
-			artist => '' + artist + '-' + remoteData.Lineups.list.length + '-' + remoteData.ArtistPriorities.list.length),
+		artist => '' + artist + '-' + remoteData.Lineups.list.length + '-' + remoteData.ArtistPriorities.list.length),
 		festivalsForArtist: _.memoize(artist => _.uniq(remoteData.Lineups.artistLineups(artist)
 			.map(p => p.festival)), 
-			artist => '' + artist + '-' + remoteData.Lineups.list.length),
+		artist => '' + artist + '-' + remoteData.Lineups.list.length),
 		artistInLineup: _.memoize(artist => _.some(remoteData.Lineups.list,
 			p => p.band === artist)),
 		artistInFestival: _.memoize((artist, fest) => _.some(remoteData.Lineups.list,
-					p => p.band === artist && p.festival === fest), (artist, fest) => '' + artist + '-' + fest),
+			p => p.band === artist && p.festival === fest), (artist, fest) => '' + artist + '-' + fest),
 		forFestival: fest => remoteData.Lineups.list.filter(l => l.festival === fest),
 		festHasLineup: fest => _.some(remoteData.Lineups.list, l => l.festival === fest),
 		getFestivalArtistIds: fest => remoteData.Lineups.list.filter(l => l.festival === fest).map(l => l.band),
@@ -1320,15 +1716,15 @@ export const remoteData = {
 			return remoteData.Artists.list
 				.filter(artist => excludeIds.indexOf(artist.id) < 0)
 				.map(artist => artist.id)
-			},
-		loadList: () => updateList(remoteData.Lineups, 'remoteData.Lineups'),
+		},
+		loadList: (forceRemoteLoad) => updateList(remoteData.Lineups, 'remoteData.Lineups', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Lineups, 'remoteData.Lineups'),
 		create: data => {
 			const dataFieldName = 'Lineups'
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
 				.then(() => remoteData[dataFieldName].list.push(data))
@@ -1340,7 +1736,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
 				.then(forceRemoteLoad(remoteData.Lineups))
@@ -1352,7 +1748,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
 				.then(artistData => {
@@ -1373,7 +1769,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.Lineups))
@@ -1384,7 +1780,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.Lineups))
@@ -1393,7 +1789,16 @@ export const remoteData = {
 	},
 	ArtistPriorities: {
 		list: [],
-		assignList: newList => remoteData.ArtistPriorities.list = _.unionBy(newList, remoteData.ArtistPriorities.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.ArtistPriorities.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.ArtistPriorities.list = _.unionBy(newList, remoteData.ArtistPriorities.list, 'id')
+			remoteData.ArtistPriorities.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.ArtistPriorities.list = _.unionBy(newList, remoteData.ArtistPriorities.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.ArtistPriorities.list = []
@@ -1415,12 +1820,21 @@ export const remoteData = {
 			return data.level
 
 		},
-		loadList: () => updateList(remoteData.ArtistPriorities, 'remoteData.ArtistPriorities'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.ArtistPriorities, 'remoteData.ArtistPriorities', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.ArtistPriorities, 'remoteData.ArtistPriorities'),
 	},
 	StagePriorities: {
 		list: [],
-		assignList: newList => remoteData.StagePriorities.list = _.unionBy(newList, remoteData.StagePriorities.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.StagePriorities.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.StagePriorities.list = _.unionBy(newList, remoteData.StagePriorities.list, 'id')
+			remoteData.StagePriorities.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.StagePriorities.list = _.unionBy(newList, remoteData.StagePriorities.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.StagePriorities.list = []
@@ -1429,12 +1843,21 @@ export const remoteData = {
 		reload: () => remoteData.StagePriorities.lastRemoteLoad = ts() - remoteData.StagePriorities.remoteInterval + 1,
 		remoteInterval: 3600,
 		getMany: ids => remoteData.StagePriorities.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.StagePriorities, 'remoteData.StagePriorities'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.StagePriorities, 'remoteData.StagePriorities', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.StagePriorities, 'remoteData.StagePriorities'),
 	},
 	StageLayouts: {
 		list: [],
-		assignList: newList => remoteData.StageLayouts.list = _.unionBy(newList, remoteData.StageLayouts.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.StageLayouts.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.StageLayouts.list = _.unionBy(newList, remoteData.StageLayouts.list, 'id')
+			remoteData.StageLayouts.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.StageLayouts.list = _.unionBy(newList, remoteData.StageLayouts.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.StageLayouts.list = []
@@ -1443,12 +1866,21 @@ export const remoteData = {
 		reload: () => remoteData.StageLayouts.lastRemoteLoad = ts() - remoteData.StageLayouts.remoteInterval + 1,
 		remoteInterval: 3600,
 		getMany: ids => remoteData.StageLayouts.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.StageLayouts, 'remoteData.StageLayouts'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.StageLayouts, 'remoteData.StageLayouts', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.StageLayouts, 'remoteData.StageLayouts'),
 	},
 	PlaceTypes: {
 		list: [],
-		assignList: newList => remoteData.PlaceTypes.list = _.unionBy(newList, remoteData.PlaceTypes.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.PlaceTypes.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.PlaceTypes.list = _.unionBy(newList, remoteData.PlaceTypes.list, 'id')
+			remoteData.PlaceTypes.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.PlaceTypes.list = _.unionBy(newList, remoteData.PlaceTypes.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.PlaceTypes.list = []
@@ -1457,12 +1889,21 @@ export const remoteData = {
 		reload: () => remoteData.PlaceTypes.lastRemoteLoad = ts() - remoteData.PlaceTypes.remoteInterval + 1,
 		remoteInterval: 3600,
 		getMany: ids => remoteData.PlaceTypes.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.PlaceTypes, 'remoteData.PlaceTypes'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.PlaceTypes, 'remoteData.PlaceTypes', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.PlaceTypes, 'remoteData.PlaceTypes'),
 	},
 	ArtistAliases: {
 		list: [],
-		assignList: newList => remoteData.ArtistAliases.list = _.unionBy(newList, remoteData.ArtistAliases.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.ArtistAliases.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.ArtistAliases.list = _.unionBy(newList, remoteData.ArtistAliases.list, 'id')
+			remoteData.ArtistAliases.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.ArtistAliases.list = _.unionBy(newList, remoteData.ArtistAliases.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.ArtistAliases.list = []
@@ -1477,7 +1918,7 @@ export const remoteData = {
 		idFields: () => remoteData.ArtistAliases.list.length ? 
 			Object.keys(remoteData.ArtistAliases.list[0]).filter(idFieldFilter) : 
 			[],
-		loadList: () => updateList(remoteData.ArtistAliases, 'remoteData.ArtistAliases'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.ArtistAliases, 'remoteData.ArtistAliases', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.ArtistAliases, 'remoteData.ArtistAliases'),
 		batchCreate: data => {
 			const end = 'ArtistAliases/batchCreate/'
@@ -1491,7 +1932,7 @@ export const remoteData = {
 			//((assume data was validated in form))
 			//((assume server will add user field))
 			//submit to server
-				//set last remote load to 0
+			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(end)(data)))
 				.then(forceRemoteLoad(remoteData.ArtistAliases))
@@ -1500,7 +1941,16 @@ export const remoteData = {
 	},
 	Artists: {
 		list: [],
-		assignList: newList => remoteData.Artists.list = _.unionBy(newList, remoteData.Artists.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Artists.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Artists.list = _.unionBy(newList, remoteData.Artists.list, 'id')
+			remoteData.Artists.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Artists.list = _.unionBy(newList, remoteData.Artists.list, 'id')
+			return newList
+		},
 		append: data => appendData(remoteData.Artists)(data),
 		lastRemoteLoad: 0,
 		clear: () => {
@@ -1544,10 +1994,10 @@ export const remoteData = {
 				const bl = remoteData.Lineups.peakArtistPriLevel(b.id)
 				return al -bl
 			}),
-			//no comment
-			//no rating
-			//no set with a rating
-			//no set with a comment
+		//no comment
+		//no rating
+		//no set with a rating
+		//no set with a comment
 		idFields: () => remoteData.Artists.list.length ? 
 			Object.keys(remoteData.Artists.list[0]).filter(idFieldFilter) : 
 			[],
@@ -1578,7 +2028,13 @@ export const remoteData = {
 
 			return retVal
 		},
-		loadList: () => updateList(remoteData.Artists, 'remoteData.Artists'),
+		patternMatch: (pattern, count = 5) => {
+			return _.take(smartSearch(remoteData.Artists.list,
+					[pattern], {name: true}
+					), count)
+					.map(x => x.entry)
+		},
+		loadList: (forceRemoteLoad) => updateList(remoteData.Artists, 'remoteData.Artists', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Artists, 'remoteData.Artists'),
 		update: (data, id) => {
 			const end = 'Artists/update?where={"id":' + id + '}'
@@ -1602,7 +2058,16 @@ export const remoteData = {
 	},
 	ParentGenres: {
 		list: [],
-		assignList: newList => remoteData.ParentGenres.list = _.unionBy(newList, remoteData.ParentGenres.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.ParentGenres.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.ParentGenres.list = _.unionBy(newList, remoteData.ParentGenres.list, 'id')
+			remoteData.ParentGenres.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.ParentGenres.list = _.unionBy(newList, remoteData.ParentGenres.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.ParentGenres.list = []
@@ -1611,12 +2076,21 @@ export const remoteData = {
 		reload: () => remoteData.ParentGenres.lastRemoteLoad = ts() - remoteData.ParentGenres.remoteInterval + 1,
 		remoteInterval: 3600,
 		getMany: ids => remoteData.ParentGenres.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.ParentGenres, 'remoteData.ParentGenres'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.ParentGenres, 'remoteData.ParentGenres', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.ParentGenres, 'remoteData.ParentGenres'),
 	},
 	Genres: {
 		list: [],
-		assignList: newList => remoteData.Genres.list = _.unionBy(newList, remoteData.Genres.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Genres.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Genres.list = _.unionBy(newList, remoteData.Genres.list, 'id')
+			remoteData.Genres.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Genres.list = _.unionBy(newList, remoteData.Genres.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Genres.list = []
@@ -1625,12 +2099,21 @@ export const remoteData = {
 		reload: () => remoteData.Genres.lastRemoteLoad = ts() - remoteData.Genres.remoteInterval + 2,
 		remoteInterval: 3600,
 		getMany: ids => remoteData.Genres.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.Genres, 'remoteData.Genres'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Genres, 'remoteData.Genres', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.Genres, 'remoteData.Genres'),
 	},
 	ArtistGenres: {
 		list: [],
-		assignList: newList => remoteData.ArtistGenres.list = _.unionBy(newList, remoteData.ArtistGenres.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.ArtistGenres.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.ArtistGenres.list = _.unionBy(newList, remoteData.ArtistGenres.list, 'id')
+			remoteData.ArtistGenres.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.ArtistGenres.list = _.unionBy(newList, remoteData.ArtistGenres.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.ArtistGenres.list = []
@@ -1639,12 +2122,67 @@ export const remoteData = {
 		reload: () => remoteData.ArtistGenres.lastRemoteLoad = ts() - remoteData.ArtistGenres.remoteInterval + 1,
 		remoteInterval: 3600,
 		getMany: ids => remoteData.ArtistGenres.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.ArtistGenres, 'remoteData.ArtistGenres'),
+		loadList: (forceRemoteLoad) => updateList(remoteData.ArtistGenres, 'remoteData.ArtistGenres', forceRemoteLoad),
 		remoteLoad: () => loadRemote(remoteData.ArtistGenres, 'remoteData.ArtistGenres'),
+	},
+	MessageTypes: {
+		list: [],
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.MessageTypes.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.MessageTypes.list = _.unionBy(newList, remoteData.MessageTypes.list, 'id')
+			remoteData.MessageTypes.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.MessageTypes.list = _.unionBy(newList, remoteData.MessageTypes.list, 'id')
+			return newList
+		},
+		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.MessageTypes.list = []
+			remoteData.MessageTypes.lastRemoteLoad = 0
+		},
+		reload: () => remoteData.MessageTypes.lastRemoteLoad = ts() - remoteData.MessageTypes.remoteInterval + 1,
+		remoteInterval: 3600,
+		getMany: ids => remoteData.MessageTypes.list.filter(d => ids.indexOf(d.id) > -1),
+		loadList: (forceRemoteLoad) => updateList(remoteData.MessageTypes, 'remoteData.MessageTypes', forceRemoteLoad),
+		remoteLoad: () => loadRemote(remoteData.MessageTypes, 'remoteData.MessageTypes'),
+	},
+	SubjectTypes: {
+		list: [],
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.SubjectTypes.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.SubjectTypes.list = _.unionBy(newList, remoteData.SubjectTypes.list, 'id')
+			remoteData.SubjectTypes.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.SubjectTypes.list = _.unionBy(newList, remoteData.SubjectTypes.list, 'id')
+			return newList
+		},
+		lastRemoteLoad: 0,
+		clear: () => {
+			remoteData.SubjectTypes.list = []
+			remoteData.SubjectTypes.lastRemoteLoad = 0
+		},
+		reload: () => remoteData.SubjectTypes.lastRemoteLoad = ts() - remoteData.SubjectTypes.remoteInterval + 1,
+		remoteInterval: 3600,
+		getMany: ids => remoteData.SubjectTypes.list.filter(d => ids.indexOf(d.id) > -1),
+		loadList: (forceRemoteLoad) => updateList(remoteData.SubjectTypes, 'remoteData.SubjectTypes', forceRemoteLoad),
+		remoteLoad: () => loadRemote(remoteData.SubjectTypes, 'remoteData.SubjectTypes'),
 	},
 	Users: {
 		list: [],
-		assignList: newList => remoteData.Users.list = _.unionBy(newList, remoteData.Users.list, 'id'),
+		meta: defaultMeta(),
+		setMeta: meta => remoteData.Users.meta = _.clone(meta),
+		assignList: ([newList, lastRemoteLoad]) => {
+			remoteData.Users.list = _.unionBy(newList, remoteData.Users.list, 'id')
+			remoteData.Users.lastRemoteLoad = lastRemoteLoad
+		},
+		backfillList: newList => {
+			remoteData.Users.list = _.unionBy(newList, remoteData.Users.list, 'id')
+			return newList
+		},
 		lastRemoteLoad: 0,
 		clear: () => {
 			remoteData.Users.list = []
@@ -1654,8 +2192,8 @@ export const remoteData = {
 		remoteInterval: 3600,
 		get: id => _.find(remoteData.Users.list, p => p.id === id),
 		getMany: ids => remoteData.Users.list.filter(d => ids.indexOf(d.id) > -1),
-		loadList: () => updateList(remoteData.Users, 'remoteData.Users'),
-		remoteLoad: () => loadRemote(remoteData.Users, 'remoteData.Users', "/api/Profiles"),
+		loadList: (forceRemoteLoad) => updateList(remoteData.Users, 'remoteData.Users', forceRemoteLoad),
+		remoteLoad: () => loadRemote(remoteData.Users, 'remoteData.Users', '/api/Profiles'),
 		getName: id => {
 			const data = remoteData.Users.get(id)
 			if(!data) return ''
@@ -1672,26 +2210,28 @@ export const remoteData = {
 }
 
 const getRating = (sub, type, author) => {
-		const mType = 2
-		const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
-		const subRating = authorRatings.filter(m => m.subject === sub)
+	const mType = 2
+	const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
+	const subRating = authorRatings.filter(m => m.subject === sub)
 
-		const message = subRating[0]
-		return message
-	}
+	const message = subRating[0]
+	return message
+}
 
 const getComment = (sub, type, author) => {
-		const mType = 1
-		const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
-		const subRating = authorRatings.filter(m => m.subject === sub)
+	const mType = 1
+	const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
+	const subRating = authorRatings.filter(m => m.subject === sub)
 
-		const message = subRating[0]
-		return message
-	}
+	const message = subRating[0]
+	return message
+}
 
 export const subjectData = {
 	name: (sub, type) => type && sub ? remoteData[subjectDataField(type)].getName(sub) : '',
+	data: ({subject, subjectType}) => subjectType && subject ? remoteData[subjectDataField(subjectType)].get(subject) : '',
 	ratingBy: (sub, type, author) => {
+		//console.log('subjectData ratingBy sub: ' + sub + 'type: ' + type + 'author: ' + author)
 		const message = getRating(sub, type, author)
 		const rate = message && message.content ? parseInt(message.content, 10) : 0
 		return rate
@@ -1704,7 +2244,6 @@ export const subjectData = {
 	commentBy: (sub, type, author) => {
 		const message = getComment(sub, type, author)
 		const comment = message && message.content ? message.content : ''
-		//console.log('subjectData ratingBy ' + comment + ' sub: ' + sub + 'type: ' + type + 'author: ' + author)
 		//console.log('subjectData authorRatings ' + authorRatings.length)
 		//console.log('subjectData aboutArtists ' + aboutArtists.length)
 		//console.log('subjectData ratings ' + ratings.length)
@@ -1727,15 +2266,15 @@ export const subjectData = {
 
 
 		//festival detail:
-			//nonmessages:
-				//artists in the lineup
+		//nonmessages:
+		//artists in the lineup
 
-			//messages with subjects:
-				//event
-					//all superEvents
-					//all subEvents
-					//all artists in lineup
-					//future: all places for festival
+		//messages with subjects:
+		//event
+		//all superEvents
+		//all subEvents
+		//all artists in lineup
+		//future: all places for festival
 
 
 

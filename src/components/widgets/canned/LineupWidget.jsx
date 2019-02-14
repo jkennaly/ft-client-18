@@ -41,7 +41,8 @@ const LineupWidget = vnode => {
 	}
 	return {
 		oninit: () => {
-			auth.getFtUserId()
+			//console.log('LineupWidget init')
+			auth.getFtUserId('LineupWidget init')
 				.then(id => userId = id)
 				.then(() => {})
 				.then(m.redraw)
@@ -63,7 +64,8 @@ const LineupWidget = vnode => {
 					search: pattern ? {pattern: [pattern], fields: {name: true}} : undefined, 
 					recordCount: Infinity
 				})
-					.sort((a, b) => {
+					.filter(x => x)
+					.sort(_.memoize((a, b) => {
 						const festivalId = vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param('id'), 10)
 						const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId)
 						const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId)
@@ -71,7 +73,7 @@ const LineupWidget = vnode => {
 						const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
 						const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
 						return aPriLevel - bPriLevel
-					})
+					}, (a, b) => '' + a.id + '.' + b.id))
 					.map(data => <ArtistCard 
 						data={data}
 						festivalId={vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param('id'), 10)}

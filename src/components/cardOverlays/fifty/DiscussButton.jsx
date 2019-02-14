@@ -24,7 +24,7 @@ const DiscussButton = vnode => {
 	    	e.stopPropagation()
 	    }} >
 	      
-	      <i class="fas fa-comments"/>
+	      <i class="fas fa-reply"/>
 	    </div>
 }};
 

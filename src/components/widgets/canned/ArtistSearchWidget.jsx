@@ -43,7 +43,7 @@ const ArtistSearchWidget = vnode => {
 					.map(data => <ArtistCard 
 						data={data}
 						festivalId={attrs.festivalId}
-						overlay={attrs.userId ? 'research' : 'none'}
+						overlay={attrs.overlay ? attrs.overlay : 'none'}
 						reviewSubject={s => {subjectObject = _.clone(s); reviewing = true;}}
 					/>)
 			}

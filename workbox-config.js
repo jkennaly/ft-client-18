@@ -5,7 +5,9 @@ module.exports = {
     "index.html",
     "**/*.js",
     "**/*.jpg",
-    "**/*.ico"
+    "**/*.ico",
+    "**/*.css"
+
   ],
   "swSrc": "src/sw.js",
   "swDest": "dist/service-worker.js"

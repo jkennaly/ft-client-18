@@ -169,6 +169,7 @@ const AssignSetStages = (vnode) => {
 					dayChange={dayChange}
 				/>
 			</LauncherBanner>
+				<div class="main-stage-content-scroll">
 			    {!dayId ? '' : <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
 			    	<table>
 			    		<tr><th>Artist</th>{
@@ -202,6 +203,7 @@ const AssignSetStages = (vnode) => {
 			    	</table>
 					<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId, dayId)} buttonName="SAVE" />
 				</form>}
+			</div>
 			</div>
 	    
 }}

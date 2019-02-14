@@ -8,7 +8,7 @@ import _ from 'lodash'
 // change selections
 import UIButton from '../../components/ui/UIButton.jsx';
 
-import ArtistReviewCard from '../../components/cards/ArtistReviewCard.jsx';
+import ActivityCard from '../../components/cards/ActivityCard.jsx';
 
 import {remoteData, subjectData} from '../../store/data';
 
@@ -20,7 +20,7 @@ const displayComment = me => me.filter(m => m.messageType === 1 || m.messageType
 const id = ({messageArray}) => {
 
     const cm = displayComment(messageArray)
-    const c = cm ? cm.id : ''
+    const c = cm ? cm.id : 0
     return c
 }
 const DiscussModal = vnode => {
@@ -42,13 +42,15 @@ const DiscussModal = vnode => {
         //console.log('localRating ' + localRating)
         //console.log('localComment ' + localComment)
         const newCommentMessage = localComment
-        const activeId = id(attrs)
+        const activeMessage = displayComment(attrs.messageArray)
+        const activeId = activeMessage.id
         if(newCommentMessage) remoteData.Messages.create({
             fromuser: attrs.user,
             subject: activeId,
             subjectType: 10,
             messageType: 8,
-            content: localComment
+            content: localComment,
+            baseMessage: activeMessage.baseMessage ? activeMessage.baseMessage : activeId
 
         })
         remoteData.MessagesMonitors.markRead(activeId)
@@ -62,11 +64,12 @@ const DiscussModal = vnode => {
                 {attrs.headline ? <h3>{attrs.headline}</h3> : subjectData.name(attrs.subject.sub, attrs.subject.type)}
                 {/* base comment with no discussion overlay */}
                 {attrs.messageArray ? 
-                    <ArtistReviewCard 
+
+                    <ActivityCard 
                         messageArray={attrs.messageArray} 
-                        reviewer={attrs.reviewer}
+                        discusser={attrs.reviewer}
+                        overlay={'discuss'}
                         shortDefault={true}
-                        rating={attrs.rating}
                     /> : ''}
                 <label for="discuss">Discussion</label>
                 {/* base comment with no discussion overlay */}
@@ -80,12 +83,10 @@ const DiscussModal = vnode => {
                         localComment = e.target.value; 
                     }} 
                     class="modal-textarea"
-                    
                     onkeypress={e => {
                         if(e.keyCode === 13) return submit(attrs)(e)
                     }}
 
-                
                 ></textarea>
 
                 <UIButton action={e => {

@@ -18,7 +18,7 @@ import SeriesWebsiteField from '../../detailViewsPregame/fields/series/SeriesWeb
 import {setMockData} from "../../../store/data";
 import UIButton from '../../ui/UIButton.jsx';
 
-const entryFormHandler = (formDOM, userId) => {
+const entryFormHandler = (formDOM) => {
 
 	const formData = new FormData(formDOM);
 	const newEntry = {};
@@ -40,14 +40,14 @@ const entryFormHandler = (formDOM, userId) => {
     }
 	});
 
-	newEntry.user = userId
-
-	console.log(newEntry);
-
-	newEntry["favorite"] = false;
-	newEntry["CFPCompleted"] = newEntry.CFP ? false : "null";
-
-	remoteData.Series.create(newEntry);
+	remoteData.Series.create(newEntry)
+		.then(x => remoteData.Series.loadList(true)
+			.then(result => x))
+		.then(newSeries => m.route.set('/series/pregame/' + newSeries.id))
+		.catch(err => {
+			console.log('createSeries.jsx create err')
+			console.log(err)
+		})
 
 	formDOM.reset();
 };
@@ -68,6 +68,7 @@ const CreateSeries = (auth) => { return {
 			<LauncherBanner 
 				title="Create series"
 			/>
+				<div class="main-stage-content-scroll">
     <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
       <label for="series-name">
         {`Series Name`}
@@ -81,8 +82,9 @@ const CreateSeries = (auth) => { return {
         {`Website`}
       </label>
       <input id="website" type="text" name="website" />
-	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId)} buttonName="SAVE" />
+	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'))} buttonName="SAVE" />
 	  </form>
+	  </div>
 	  </div>
     
 }}

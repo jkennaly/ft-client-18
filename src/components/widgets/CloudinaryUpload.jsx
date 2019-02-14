@@ -14,7 +14,7 @@ const CloudinaryUploadWidget = vnode => {
 		      upload_preset: subjectData.imagePreset(vnode.attrs.subjectType),
 		      sources: ['url']
 		  }, (err, result) => {
-		      	console.log('Cloudinary Upload')
+		      	//console.log('Cloudinary Upload')
 		      	if(err) console.log(err)
 		      	if(vnode.attrs.resultFunction) vnode.attrs.resultFunction(result)
 		       })

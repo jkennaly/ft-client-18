@@ -53,7 +53,6 @@ const ImageModal = vnode => {
                         //console.log(result)
                         if(result[0].secure_url.indexOf('image' > 0)) {
                             attrs.action({
-                                user: attrs.userId,
                                 subject: attrs.subject,
                                 subjectType: attrs.subjectType,
                                 url: result[0].secure_url,

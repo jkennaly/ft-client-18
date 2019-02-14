@@ -6,9 +6,9 @@ import MenuField from '../fields/MenuField.jsx';
 
 const MenuItem = {
   view: ({ attrs }) =>
-    <div class="menu-item" onclick={() => {
-    	m.route.set(attrs.data.path)
-    	if(attrs.clickFunction) attrs.clickFunction()
+    <div class={attrs.data.path ? "menu-item": "menu-item-disabled"} onclick={() => {
+    	if(attrs.data.path) m.route.set(attrs.data.path)
+    	if(attrs.clickFunction && attrs.data.path) attrs.clickFunction()
     }}>
 		<div class="menu-item-fields">
 			<MenuField display={attrs.data.name}/>

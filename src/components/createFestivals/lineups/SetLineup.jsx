@@ -71,6 +71,7 @@ const entryFormHandler = (formDOM, userId, festivalId) => {
 
 
 	console.log('Lineups changes')
+	console.log(festivalId)
 	console.log(deleteLineupIds)
 	console.log(updateLineups)
 
@@ -111,12 +112,12 @@ const SetLineup = (vnode) => {
 				.then(m.redraw)
 				.catch(err => m.route.set('/auth'))
 		},
-		view: () => <div class="launcher-container">
-			<div class="stage-banner-outer-container">
+		view: () => <div class="main-stage">
 				<LauncherBanner 
 					action={() => auth.logout()}
 					title="Artist Lineup" 
 				>
+				</LauncherBanner>
 					<div>
 						<label for="series">
 					        {`Festival Name`}
@@ -133,9 +134,7 @@ const SetLineup = (vnode) => {
 							festivalChange={festivalChange}
 						/>
 				    </div>
-				</LauncherBanner>
-			</div>
-			{festivalId ? <div class="main-stage">
+			{festivalId ? <div class="main-stage-content-scroll">
 				<label for="lineup-uploader">
 			        {`Upload a file with the artist list (one name per line)`}
 			      </label>

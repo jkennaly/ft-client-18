@@ -48,6 +48,7 @@ const FixArtist = (vnode) => {
 					title="Fix Artist Names" 
 				/>
 			</div>
+				<div class="main-stage-content-scroll">
 			<div class="ft-name-field">
 				<label for="fix-type">
 			        {`Select the type of fix to make:`}
@@ -61,6 +62,7 @@ const FixArtist = (vnode) => {
 			</div>
 			<ArtistSpelling display={fixType === 1} sel={artistId} />
 			<ArtistMerge display={fixType === 2} sel={artistId} />
+		</div>
 		</div>
 }}
 export default FixArtist;

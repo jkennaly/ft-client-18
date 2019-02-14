@@ -18,7 +18,7 @@ import SeriesWebsiteField from '../../detailViewsPregame/fields/series/SeriesWeb
 import {setMockData} from "../../../store/data";
 import UIButton from '../../ui/UIButton.jsx';
 
-const entryFormHandler = (formDOM, userId) => {
+const entryFormHandler = (formDOM) => {
 
 	const formData = new FormData(formDOM);
 	const newEntry = {};
@@ -40,11 +40,17 @@ const entryFormHandler = (formDOM, userId) => {
     }
 	});
 
-	newEntry.creator = userId
 
 	//console.log(newEntry);
 
-	remoteData.Festivals.create(newEntry);
+	remoteData.Festivals.create(newEntry)
+		.then(x => remoteData.Festivals.loadList(true)
+				.then(result => x))
+		.then(newFestival => m.route.set('/fests/pregame/' + newFestival.id))
+		.catch(err => {
+			console.log('createFestivals.jsx create err')
+			console.log(err)
+		});
 
 	formDOM.reset();
 };
@@ -66,6 +72,7 @@ const CreateFestival = (auth) => { return {
 			<LauncherBanner 
 				title="Add year"
 			/>
+				<div class="main-stage-content-scroll">
     
     <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
       <label for="series">
@@ -82,8 +89,9 @@ const CreateFestival = (auth) => { return {
         {`Festival Year`}
       </label>
       <input id="event-name" type="text" name="year" />
-	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId)} buttonName="SAVE" />
+	    <UIButton action={() => entryFormHandler(document.getElementById('entry-form'))} buttonName="SAVE" />
 	  </form>
+	  </div>
 	  </div>
     
 }}

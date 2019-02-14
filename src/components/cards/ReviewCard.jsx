@@ -13,7 +13,7 @@ const ReviewCard = vnode => {
 	var userId = 0
 	return {
 		oninit: () => {
-			auth.getFtUserId()
+			auth.getFtUserId('ReviewCard')
 				.then(id => userId = id)
 				.then(() => {})
 				.then(m.redraw)
@@ -38,3 +38,4 @@ const ReviewCard = vnode => {
 }};
 
 export default ReviewCard;
+

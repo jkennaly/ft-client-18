@@ -15,6 +15,7 @@ import SpotifyCard from '../../components/cards/SpotifyCard.jsx';
 
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
+import DiscussionWidget from '../../components/widgets/canned/DiscussionWidget.jsx';
 import AdminWidget from '../../components/widgets/Admin.jsx';
 
 import CloudImageField from '../../components/fields/CloudImageField.jsx';
@@ -37,28 +38,28 @@ const ArtistDetail = (vnode) => {
 	var userId = 0
 	return {
 		oninit: () => {
-		remoteData.Messages.loadList()
-		remoteData.MessagesMonitors.loadList()
-		remoteData.Images.loadList()
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Venues.loadList()
-		remoteData.Organizers.loadList()
-		remoteData.Places.loadList()
-		remoteData.Lineups.loadList()
-      	remoteData.ArtistPriorities.loadList()
-      	remoteData.StagePriorities.loadList()
-      	remoteData.StageLayouts.loadList()
-		remoteData.PlaceTypes.loadList()
-      	remoteData.ArtistAliases.loadList()
-		remoteData.Artists.loadList()
-		remoteData.ParentGenres.loadList()
-		remoteData.Genres.loadList()
-		remoteData.ArtistGenres.loadList()
-		remoteData.Users.loadList()
+			remoteData.Messages.loadList()
+			remoteData.MessagesMonitors.loadList()
+			remoteData.Images.loadList()
+			remoteData.Series.loadList()
+			remoteData.Festivals.loadList()
+			remoteData.Dates.loadList()
+			remoteData.Days.loadList()
+			remoteData.Sets.loadList()
+			remoteData.Venues.loadList()
+			remoteData.Organizers.loadList()
+			remoteData.Places.loadList()
+			remoteData.Lineups.loadList()
+	      	remoteData.ArtistPriorities.loadList()
+	      	remoteData.StagePriorities.loadList()
+	      	remoteData.StageLayouts.loadList()
+			remoteData.PlaceTypes.loadList()
+	      	remoteData.ArtistAliases.loadList()
+			remoteData.Artists.loadList()
+			remoteData.ParentGenres.loadList()
+			remoteData.Genres.loadList()
+			remoteData.ArtistGenres.loadList()
+			remoteData.Users.loadList()
 			artistId = parseInt(m.route.param('id'), 10)
 			artist = artistId ? remoteData.Artists.get(artistId) : undefined
 			messages = remoteData.Messages.forArtist(artistId)
@@ -67,6 +68,8 @@ const ArtistDetail = (vnode) => {
 				.then(() => {})
 				.then(m.redraw)
 				.catch(err => m.route.set('/auth'))
+			remoteData.Messages.loadForArtist(parseInt(m.route.param('id'), 10))
+	
 		},
 		onupdate: () => {
 			artist = artistId ? remoteData.Artists.get(artistId) : undefined
@@ -93,16 +96,15 @@ const ArtistDetail = (vnode) => {
 				<FixedCardWidget header="Festival Lineups">
 					{
 						remoteData.Lineups.festivalsForArtist(artistId)
+							.sort((a, b) => b - a)
 							.map(f => <FestivalCard eventId={f} artistId={artistId} />)
 					}
 				</FixedCardWidget>
 				{
 					//find each message about this artist and order by user
 					_.map(remoteData.Messages.forArtistReviewCard(artistId),
-						me => <ArtistReviewCard 
+						me => <DiscussionWidget 
 							messageArray={me} 
-							reviewer={me[0].fromuser}
-							overlay={'discuss'}
 							discussSubject={(s, me) => {
 								subjectObject = _.clone(s)
 								messageArray = _.clone(me)
@@ -113,14 +115,14 @@ const ArtistDetail = (vnode) => {
 					)
 				}
 			</WidgetContainer>
-			{messageArray.length ? <DiscussModal
-							display={discussing} 
-							hide={sub => {discussing = false;}}
-							subject={subjectObject}
-							messageArray={messageArray}
-							reviewer={messageArray[0].fromuser}
-							user={userId}
-						/> : ''}
+			{messageArray.length && userId ? <DiscussModal
+				display={discussing} 
+				hide={sub => {discussing = false;}}
+				subject={subjectObject}
+				messageArray={messageArray}
+				reviewer={messageArray[0].fromuser}
+				user={userId}
+			/> : ''}
 		</div>
 }}
 export default ArtistDetail;

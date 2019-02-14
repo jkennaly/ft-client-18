@@ -158,6 +158,7 @@ const AssignDays = (vnode) => {
 						dateChange={dateChange}
 					/>
 			    </div>
+				<div class="main-stage-content-scroll">
 			    {!dateId ? '' : <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
 			    	<table>
 			    		<tr><th>Artist</th>{
@@ -195,6 +196,7 @@ const AssignDays = (vnode) => {
 			    	</table>
 					<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId, dateId)} buttonName="SAVE" />
 				</form>}
+			</div>
 			</div>
 	    
 }}
