@@ -303,7 +303,7 @@ const saveLocalList = (lastRemoteLoad, dataFieldName, dataField) => result => {
 }
 
 //returns a promise that resolves to true if the mem data is unchanged, falsy if the data was changed
-const loadRemote = (dataField, dataFieldName, url) => {
+const loadRemote = (dataField, dataFieldName, url, options) => {
 	
 	if(false && dataFieldName === 'remoteData.Messages') {
 		console.log('remoteData.Messages loadRemote')
@@ -526,11 +526,12 @@ export const remoteData = {
 			.filter(m => moment(m.timestamp).add(1, 'y').isAfter())
 			.map(m => m.subject)),
 		loadList: (forceRemoteLoad) => updateList(remoteData.Messages, 'remoteData.Messages', forceRemoteLoad),
-		remoteLoad: (forceFullLoad) => loadRemote(remoteData.Messages, 'remoteData.Messages'),
+		remoteLoad: (forceFullLoad) => loadRemote(remoteData.Messages, 'remoteData.Messages', undefined, {forceFullLoad: forceFullLoad}),
 		loadForFestival: festivalId => {
 			if(!festivalId) {
 				return Promise.reject('No festivalId')
 			}
+			//console.log('loadForFestival')
 			//console.log(festivalId)
 			const eventSubjectObject = remoteData.Festivals.getSubjectObject(festivalId)
 			//check if the festival has already been loaded
@@ -539,7 +540,7 @@ export const remoteData = {
 			if(!bulkUpdateSubjectCache[end]) bulkUpdateSubjectCache[end] = {}
 
 			const alreadyLoaded = bulkUpdateSubjectCache[end][festivalId]
-			if(alreadyLoaded) return
+			if(alreadyLoaded) return Promise.resolve(true)
 			bulkUpdateSubjectCache[end][festivalId] = true
 
 
@@ -1187,7 +1188,6 @@ export const remoteData = {
 		},
 		getSeriesId: id => {
 			return remoteData.Festivals.getSeriesId(remoteData.Dates.getFestivalId(id))
-			
 		},
 		getSubDayIds: id => {
 			return remoteData.Days.list.filter(s => s.date === id).map(s => s.id)
@@ -1204,9 +1204,7 @@ export const remoteData = {
 			const festivalId = remoteData.Dates.getFestivalId(id)
 			if(!festivalId) return
 			return remoteData.Lineups.getFestivalArtistIds(festivalId)
-
 		},
-		
 		getEventName: id => {
 			const v = remoteData.Dates.get(id)
 			if(!v || !v.name) return ''
@@ -2209,78 +2207,14 @@ export const remoteData = {
 	}
 }
 
-const getRating = (sub, type, author) => {
-	const mType = 2
-	const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
-	const subRating = authorRatings.filter(m => m.subject === sub)
 
-	const message = subRating[0]
-	return message
-}
-
-const getComment = (sub, type, author) => {
-	const mType = 1
-	const authorRatings = remoteData.Messages.ofAboutAndBy(mType, type, author)
-	const subRating = authorRatings.filter(m => m.subject === sub)
-
-	const message = subRating[0]
-	return message
-}
-
-export const subjectData = {
-	name: (sub, type) => type && sub ? remoteData[subjectDataField(type)].getName(sub) : '',
-	data: ({subject, subjectType}) => subjectType && subject ? remoteData[subjectDataField(subjectType)].get(subject) : '',
-	ratingBy: (sub, type, author) => {
-		//console.log('subjectData ratingBy sub: ' + sub + 'type: ' + type + 'author: ' + author)
-		const message = getRating(sub, type, author)
-		const rate = message && message.content ? parseInt(message.content, 10) : 0
-		return rate
-	},
-	ratingId: (sub, type, author) => {
-		const message = getRating(sub, type, author)
-		const id = message && message.id
-		return id
-	},
-	commentBy: (sub, type, author) => {
-		const message = getComment(sub, type, author)
-		const comment = message && message.content ? message.content : ''
-		//console.log('subjectData authorRatings ' + authorRatings.length)
-		//console.log('subjectData aboutArtists ' + aboutArtists.length)
-		//console.log('subjectData ratings ' + ratings.length)
-		//console.log('subjectData byAuthor ' + byAuthor.length)
-		//console.log('subjectData byAuthor add ' + (author + 1))
-		//console.log('subjectData byFromuser add ' + (remoteData.Messages.list[0].fromuser + 1))
-		//console.log('subjectData subRating ' + subRating.length)
-		return comment
-	},
-	commentId: (sub, type, author) => {
-		const message = getComment(sub, type, author)
-		const id = message && message.id
-		return id
-	},
-	imagePreset: type => 'artist',
-	connectedData: subjectObject => {
-		//get non-event data needed to display a detail view of the subject
-
-		//first check if bulk data on subject has already been collected:
-
-
-		//festival detail:
-		//nonmessages:
-		//artists in the lineup
-
-		//messages with subjects:
-		//event
-		//all superEvents
-		//all subEvents
-		//all artists in lineup
-		//future: all places for festival
-
-
-
-	}
-}
 
 export const clearData = () => {
 	_.forOwn(remoteData, dataField => dataField.clear())
+}
+
+export const initData = () => {
+	return Promise.all(_.keys(remoteData)
+		.map(dataFieldName => remoteData[dataFieldName].loadList())
+	)
 }

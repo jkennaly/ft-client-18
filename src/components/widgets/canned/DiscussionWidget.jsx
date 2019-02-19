@@ -18,7 +18,8 @@ import {subjectCard} from '../../../components/cards/subjectCard.js';
 import ActivityCard from '../../../components/cards/ActivityCard.jsx';
 import LargeCardWidget from '../LargeCardWidget.jsx';
 import  DiscussModal from '../../modals/DiscussModal.jsx';
-import {remoteData, subjectData} from '../../../store/data';
+import {remoteData} from '../../../store/data';
+import {subjectData} from '../../../store/subjectData'
 
 
 
@@ -42,11 +43,7 @@ const DiscussionWidget = vnode => {
 					
 	return {
 		oninit: () => {
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(() => {})
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		view: ({attrs}) => <LargeCardWidget 
 				header="Discuss"

@@ -111,10 +111,7 @@ const ArtistSpelling = (vnode) => {
 			remoteData.Artists.loadList()
 			remoteData.ArtistAliases.loadList()
 			artistId = parseInt(m.route.param('id'), 10)
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		onupdate: vnode => {
 

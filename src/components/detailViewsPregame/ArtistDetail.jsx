@@ -38,36 +38,10 @@ const ArtistDetail = (vnode) => {
 	var userId = 0
 	return {
 		oninit: () => {
-			remoteData.Messages.loadList()
-			remoteData.MessagesMonitors.loadList()
-			remoteData.Images.loadList()
-			remoteData.Series.loadList()
-			remoteData.Festivals.loadList()
-			remoteData.Dates.loadList()
-			remoteData.Days.loadList()
-			remoteData.Sets.loadList()
-			remoteData.Venues.loadList()
-			remoteData.Organizers.loadList()
-			remoteData.Places.loadList()
-			remoteData.Lineups.loadList()
-	      	remoteData.ArtistPriorities.loadList()
-	      	remoteData.StagePriorities.loadList()
-	      	remoteData.StageLayouts.loadList()
-			remoteData.PlaceTypes.loadList()
-	      	remoteData.ArtistAliases.loadList()
-			remoteData.Artists.loadList()
-			remoteData.ParentGenres.loadList()
-			remoteData.Genres.loadList()
-			remoteData.ArtistGenres.loadList()
-			remoteData.Users.loadList()
 			artistId = parseInt(m.route.param('id'), 10)
 			artist = artistId ? remoteData.Artists.get(artistId) : undefined
 			messages = remoteData.Messages.forArtist(artistId)
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(() => {})
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 			remoteData.Messages.loadForArtist(parseInt(m.route.param('id'), 10))
 	
 		},

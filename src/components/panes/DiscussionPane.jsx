@@ -14,7 +14,8 @@ import DiscussModal from '../modals/DiscussModal.jsx';
 import WidgetContainer from '../layout/WidgetContainer.jsx';
 
 import DiscussionWidget from '../widgets/canned/DiscussionWidget.jsx';
-import {remoteData, subjectData} from '../../store/data';
+import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData'
 
 
 let count = 3		

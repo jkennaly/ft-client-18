@@ -30,15 +30,11 @@ const FixArtist = (vnode) => {
 	}
 	return {
 		oninit: () => {
-			remoteData.Artists.loadList()
-			remoteData.ArtistAliases.loadList()
 			artistId = parseInt(m.route.param('id'), 10)
 			select = m.route.param('type')
 			fixType = select ? (select === 'spelling' ? 1 : (select === 'merge' ? 2 : 0) ) : 0
 	
-			auth.getFtUserId()
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		view: () => 
 		<div class="launcher-container">

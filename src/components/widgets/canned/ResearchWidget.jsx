@@ -41,11 +41,7 @@ const ResearchWidget = vnode => {
 	return {
 		oninit: () => {
 			//console.log('ResearchWidget init')
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(() => {})
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		view: (vnode) => <FixedCardWidget header="Festival Research">
 			<ReviewModal 

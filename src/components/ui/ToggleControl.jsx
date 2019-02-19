@@ -9,7 +9,7 @@ const ToggleControl = vnode => {
 	return {
 		view: ({ attrs }) => <ul class="ft-toggle-control">
   <li class="ft-toggle-list-item">
-    <span>{attrs.offLabel}</span>
+    <div>{attrs.offLabel}</div>
     <input 
     	class="ft-toggle ft-toggle-light" 
     	id="cb1" 
@@ -21,17 +21,8 @@ const ToggleControl = vnode => {
         checked={attrs.getter()}
     />
     <label class="ft-toggle-btn" for="cb1"></label>
-    <span>{attrs.onLabel}</span>
+    <div>{attrs.onLabel}</div>
   </li>
-			{/*
-				//determine toggle state (getter)
-				//display current state description and button text
-				//on button press, flip state (setter)
-
-
-    	
-
-			*/}
 			
   </ul>
 	};

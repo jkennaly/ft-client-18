@@ -12,7 +12,7 @@ import LauncherBanner from "../../components/ui/LauncherBanner.jsx";
 import MessageCategoryPane from "../../components/panes/MessageCategoryPane.jsx";
 import DiscussionPane from "../../components/panes/DiscussionPane.jsx";
 
-import { remoteData, subjectData } from "../../store/data";
+import { remoteData } from "../../store/data";
 
 const Messages = vnode => {
 	let userId = 0;
@@ -33,35 +33,7 @@ const Messages = vnode => {
 					*/
 				})
 				.catch(err => console.log(err));
-			auth.getFtUserId()
-				.then(userId => {
-					remoteData.Messages.loadList();
-					remoteData.MessagesMonitors.loadList();
-					remoteData.Images.loadList();
-					remoteData.Series.loadList();
-					remoteData.Festivals.loadList();
-					remoteData.Dates.loadList();
-					remoteData.Days.loadList();
-					remoteData.Sets.loadList();
-					remoteData.Venues.loadList();
-					remoteData.Places.loadList();
-					remoteData.Lineups.loadList();
-					remoteData.ArtistPriorities.loadList();
-					remoteData.StagePriorities.loadList();
-					remoteData.ArtistAliases.loadList();
-					remoteData.Artists.loadList();
-					remoteData.Users.loadList();
-					remoteData.MessageTypes.loadList();
-					remoteData.SubjectTypes.loadList();
-					return userId;
-				})
-				.then(id => {
-					if (id !== userId) {
-						userId = id;
-						m.redraw();
-					}
-				})
-				.catch(err => m.route.set("/auth"));
+			userId = auth.userId()
 		},
 
 		view: () => (

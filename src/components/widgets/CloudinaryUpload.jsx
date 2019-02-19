@@ -3,7 +3,7 @@
 
 import m from 'mithril'
 
-import {subjectData} from '../../store/data.js'
+import {subjectData} from '../../store/subjectData.js'
 
 const CloudinaryUploadWidget = vnode => {
 	var myUploadWidget = {}

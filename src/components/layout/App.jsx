@@ -9,6 +9,7 @@ import Research from './Research.jsx';
 import Messages from './Messages.jsx';
 import Admin from './Admin.jsx';
 import Discussion from './Discussion.jsx';
+import Gametime from '../../components/gametime/Gametime.jsx';
 
 // Components
 import StageBanner from '../../components/ui/StageBanner.jsx';
@@ -40,6 +41,7 @@ import SetStages from '../../components/createFestivals/festivals/SetStages.jsx'
 import SetLineup from '../../components/createFestivals/lineups/SetLineup.jsx';
 import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 
+import {initData} from '../../store/data'
 
 // Services
 import Auth from '../../services/auth.js';
@@ -61,6 +63,13 @@ const forceLoginRoute = err => {
 }
 
 const App = {
+	oninit: vnode => {
+		auth.handleAuthentication();
+		auth.getAccessToken()
+			.then(token => initData({token: token}))
+			.then(() => auth.getFtUserId())
+			.then(() => m.redraw())
+	},
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector("#main-stage");
 /*
@@ -68,7 +77,7 @@ const App = {
         hashStr = hashStr.replace(/^#?\/?/, '');
         localStorage.setItem('raw_token', hashStr);
 */
-		auth.handleAuthentication();
+		
 
 		m.route(mainStage, "/launcher", {
 			"/auth": {
@@ -92,6 +101,10 @@ const App = {
 				onmatch: Messages
 
 			},
+			"/gametime/:subjectType/:subject": {
+				onmatch: () => Gametime
+
+			},
 			"/admin": {
 				onmatch: () =>
 					auth.getAccessToken()
@@ -112,19 +125,7 @@ const App = {
 						.then(Launcher)
 						.catch(forceLoginRoute)
 			},
-			"/manage/gametime": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
-			},
 			"/social/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
-			},
-			"/social/gametime": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(() => FestivalView(auth))
@@ -136,19 +137,7 @@ const App = {
 						.then(() => FestivalView(auth))
 						.catch(forceLoginRoute)
 			},
-			"/users/gametime": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
-			},
 			"/artists/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => ArtistView(auth))
-						.catch(forceLoginRoute)
-			},
-			"/artists/gametime": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(() => ArtistView(auth))
@@ -160,19 +149,7 @@ const App = {
 						.then(() => FestivalView(auth))
 						.catch(forceLoginRoute)
 			},
-			"/fests/gametime": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
-			},
 			"/dates/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => DateView(auth))
-						.catch(forceLoginRoute)
-			},
-			"/dates/gametime": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(() => DateView(auth))
@@ -184,31 +161,13 @@ const App = {
 						.then(() => SeriesView(auth))
 						.catch(forceLoginRoute)
 			},
-			"/series/gametime": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SeriesView(auth))
-						.catch(forceLoginRoute)
-			},
 			"/sets/pregame": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(() => SetView(auth))
 						.catch(forceLoginRoute)
 			},
-			"/sets/gametime": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SetView(auth))
-						.catch(forceLoginRoute)
-			},
 			"/stages/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()						
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
-			},
-			"/stages/gametime": {
 				onmatch: () =>
 					auth.getAccessToken()						
 						.then(() => FestivalView(auth))
@@ -268,19 +227,7 @@ const App = {
 						.then(() => SeriesDetail(auth))
 						.catch(forceLoginRoute)
 			},
-			"/users/gametime/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SeriesDetail(auth))
-						.catch(forceLoginRoute)
-			},
 			"/artists/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(ArtistDetail)
-						.catch(forceLoginRoute)
-			},
-			"/artists/gametime/:id": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(ArtistDetail)
@@ -304,12 +251,6 @@ const App = {
 						.then(() => FestivalDetail(auth))
 						.catch(forceLoginRoute)
 			},
-			"/fests/gametime/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalDetail(auth))
-						.catch(forceLoginRoute)
-			},
 			"/dates/pregame/new/:festivalId": {
 				onmatch: () =>
 					auth.getAccessToken()
@@ -328,19 +269,7 @@ const App = {
 						.then(() => DateDetail(auth))
 						.catch(forceLoginRoute)
 			},
-			"/dates/gametime/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => DateDetail(auth))
-						.catch(forceLoginRoute)
-			},
 			"/days/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => DayDetail(auth))
-						.catch(forceLoginRoute)
-			},
-			"/days/gametime/:id": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(() => DayDetail(auth))
@@ -358,31 +287,13 @@ const App = {
 						.then(() => SeriesDetail(auth))
 						.catch(forceLoginRoute)
 			},
-			"/series/gametime/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SeriesDetail(auth))
-						.catch(forceLoginRoute)
-			},
 			"/sets/pregame/:id": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(() => SetDetail(auth))
 						.catch(forceLoginRoute)
 			},
-			"/sets/gametime/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SetDetail(auth))
-						.catch(forceLoginRoute)
-			},
 			"/stages/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()						
-					.then(() => SeriesDetail(auth))
-						.catch(forceLoginRoute)
-			},
-			"/stages/gametime/:id": {
 				onmatch: () =>
 					auth.getAccessToken()						
 					.then(() => SeriesDetail(auth))

@@ -27,7 +27,7 @@ var userIdPromiseCache = {}
 var idRequestInProgress = 0
 var accessTokenPromiseCache = {}
 var accessTokenPending = false
-var memId = 0
+var userId = 0
 
 export default class Auth {
   auth0 = new auth00.WebAuth({
@@ -62,7 +62,11 @@ export default class Auth {
 
   setSession = setSession
 
+  userId() {
+    return userId
+  }
 
+  //returns a promise that resolves to a userId
   getFtUserId(requester) {
     //console.log('userId requested by ' + requester)
     if(m.route.get().indexOf('auth') > -1) return Promise.reject(false)
@@ -93,6 +97,10 @@ export default class Auth {
           idRequestInProgress = false
           return id
         })
+        .then(id => {
+          userId = id
+          return id
+        })
         .catch(err => {
           idRequestInProgress = false
         })
@@ -110,6 +118,7 @@ export default class Auth {
     // Clear Access Token and ID Token from local storage
     localStorage.clear()
     localforage.clear()
+    userId = 0
     // navigate to the default route
     if(!skipRoute) m.route.set('/auth')
   }

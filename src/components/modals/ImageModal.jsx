@@ -4,7 +4,8 @@
 import m from 'mithril'
 import _ from 'lodash'
 
-import {remoteData, subjectData} from '../../store/data.js'
+import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData'
 
 // change selections
 import UIButton from '../ui/UIButton.jsx';

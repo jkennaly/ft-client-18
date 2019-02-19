@@ -12,7 +12,8 @@ import UIButton from '../../components/ui/UIButton.jsx';
 import ComposedNameField from '../../components/fields/ComposedNameField.jsx';
 import MyRatingField from '../../components/fields/MyRatingField.jsx';
 
-import {remoteData, subjectData} from '../../store/data';
+import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData'
 
 const classes = attrs => {return 'modal ' + (attrs.display ? '' : 'hidden');}
 var selectedId = 0

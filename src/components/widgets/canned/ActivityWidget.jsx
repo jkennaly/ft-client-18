@@ -18,7 +18,8 @@ import ActivityCard from '../../../components/cards/ActivityCard.jsx';
 import SearchCard from '../../../components/cards/SearchCard.jsx';
 import FixedCardWidget from '../FixedCard.jsx';
 import  DiscussModal from '../../modals/DiscussModal.jsx';
-import {remoteData, subjectData} from '../../../store/data';
+import {remoteData} from '../../../store/data';
+import {subjectData} from '../../../store/subjectData'
 
 const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 	const baseData = remoteData.Festivals.getResearchList(festivalId, userId)
@@ -42,7 +43,6 @@ const getRecentActivity = (userId, festivalId) => _.take(
 	), 5)
 
 const ActivityWidget = vnode => {
-	var userId = 0
 	const routeId = _.flow(m.route.param, parseInt)('id')
 	var subjectObject = {}
 	var messageArray = []
@@ -54,14 +54,6 @@ const ActivityWidget = vnode => {
 		//console.log('ArtistSearchWidget pattern ' + pattern)
 	}
 	return {
-		oninit: () => {
-			//console.log('ActivityWidget init')
-			auth.getFtUserId('ActivityWidget init')
-				.then(id => userId = id)
-				.then(() => {})
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
-		},
 		view: (vnode) => <FixedCardWidget header="Recent Activity">
 
 			{messageArray.length ? <DiscussModal
@@ -70,10 +62,10 @@ const ActivityWidget = vnode => {
 							subject={subjectObject}
 							messageArray={messageArray}
 							reviewer={messageArray.length ? messageArray[0].fromuser : 0}
-							user={userId}
+							user={auth.userId()}
 						/> : ''}
 			{
-				userId ? getRecentActivity(userId, vnode.attrs.festivalId)
+				auth.userId() ? getRecentActivity(auth.userId(), vnode.attrs.festivalId)
 					.map(data => <ActivityCard 
 						messageArray={[data]} 
 						discusser={data.fromuser}

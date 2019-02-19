@@ -20,7 +20,8 @@ import ArtistSearchWidget from '../../components/widgets/canned/ArtistSearchWidg
 import EventSelector from '../detailViewsPregame/fields/event/EventSelector.jsx'
 
 
-import {remoteData, subjectData} from '../../store/data';
+import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData'
 
 
 const Research = (vnode) => {
@@ -75,22 +76,6 @@ const Research = (vnode) => {
 	return {
 		oninit: () => {
 			//console.log('Research init')
-		remoteData.Messages.loadList()
-		remoteData.MessagesMonitors.loadList()
-		remoteData.Images.loadList()
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Venues.loadList()
-		remoteData.Places.loadList()
-		remoteData.Lineups.loadList()
-      	remoteData.ArtistPriorities.loadList()
-      	remoteData.StagePriorities.loadList()
-      	remoteData.ArtistAliases.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Users.loadList()
 		localforage.getItem('status.researchLayout')
 			.then(obj => {
 				//console.log('Research oncreate status:')

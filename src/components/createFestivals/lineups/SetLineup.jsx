@@ -102,15 +102,7 @@ const SetLineup = (vnode) => {
 	}
 	return {
 		oninit: () => {
-			remoteData.Series.loadList()
-			remoteData.Festivals.loadList()
-			remoteData.Artists.loadList()
-			remoteData.Lineups.loadList()
-			remoteData.ArtistPriorities.loadList()
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		view: () => <div class="main-stage">
 				<LauncherBanner 

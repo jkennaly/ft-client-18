@@ -19,9 +19,7 @@ import {remoteData} from '../../store/data';
 
 const Discussion = (vnode) => { return {
 	oninit: () => {
-		remoteData.Messages.loadList()
-		auth.getFtUserId()
-			.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 	},
 	view: () => 
 	<div class="launcher-container">

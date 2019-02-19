@@ -42,19 +42,20 @@ const LineupWidget = vnode => {
 	return {
 		oninit: () => {
 			//console.log('LineupWidget init')
-			auth.getFtUserId('LineupWidget init')
-				.then(id => userId = id)
-				.then(() => {})
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		view: (vnode) => <FixedCardWidget header="Festival Lineup">
-			<ReviewModal 
+		{
+			/*
+				<ReviewModal 
 				display={reviewing} 
 				hide={sub => {if(sub) removed.push(sub.sub);reviewing = false;}}
 				subject={subjectObject}
 				user={userId}
 		    />
+			*/
+		}
+			
 			<SearchCard patternChange={patternChange} />
 
 

@@ -110,27 +110,8 @@ const AssignTimes = (vnode) => {
 
 	return {
 		oninit: () => {
-			remoteData.Series.loadList()
-			remoteData.Festivals.loadList()
-			remoteData.Dates.loadList()
-			remoteData.Days.loadList()
-			remoteData.Sets.loadList()
-			remoteData.Artists.loadList()
-			remoteData.Lineups.loadList()
-			remoteData.Messages.loadList()
-			remoteData.Places.loadList()
-			remoteData.ArtistPriorities.loadList()
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(() => {
-					
-						})
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
-		oncreate: () => {
-
-},
 		view: ({attrs}) => <div class="main-stage">
 			<LauncherBanner 
 				title="Assign set times"

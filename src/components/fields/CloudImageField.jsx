@@ -9,7 +9,8 @@ import AttributionField from './AttributionField.jsx'
 import NavButton from '../ui/NavButton.jsx'
 import ImageModal from '../modals/ImageModal.jsx'
 
-import {remoteData, subjectData} from '../../store/data.js'
+import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData'
 
 const CloudImageField = vnode => {
     const cl = cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})

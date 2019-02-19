@@ -13,11 +13,7 @@ const ReviewCard = vnode => {
 	var userId = 0
 	return {
 		oninit: () => {
-			auth.getFtUserId('ReviewCard')
-				.then(id => userId = id)
-				.then(() => {})
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		//onupdate: () => console.log('ReviewCard Update'),
 	  view: ({ attrs }) =>

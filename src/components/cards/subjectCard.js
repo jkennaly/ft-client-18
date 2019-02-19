@@ -9,7 +9,7 @@ import FestivalCard from './FestivalCard.jsx';
 import SeriesCard from './SeriesCard.jsx';
 import SetCard from './SetCard.jsx';
 
-import {subjectData} from '../../store/data.js';
+import {subjectData} from '../../store/subjectData.js';
 
 //return a card for the subject with all needed attrs set
 export const subjectCard = subjectObject => {

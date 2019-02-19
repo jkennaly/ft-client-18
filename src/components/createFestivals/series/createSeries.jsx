@@ -58,11 +58,7 @@ var userId = 0
 
 const CreateSeries = (auth) => { return {
 	oninit: () => {
-		remoteData.Series.loadList()
-		auth.getFtUserId()
-			.then(id => userId = id)
-			.then(() => m.redraw())
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 	},
 	view: (vnode) => <div class="main-stage">
 			<LauncherBanner 

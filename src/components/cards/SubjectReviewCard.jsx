@@ -9,7 +9,8 @@ import  NameField from '../fields/NameField.jsx';
 import  AverageRatingField from '../fields/AverageRatingField.jsx';
 import  UserAvatarField from '../fields/UserAvatarField.jsx';
 import  DiscussOverlay from '../cardOverlays/DiscussOverlay.jsx'
-import {remoteData, subjectData} from '../../store/data';
+import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData'
 
 const defaultClick = attrs => () => 0
 

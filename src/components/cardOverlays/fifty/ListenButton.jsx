@@ -3,7 +3,7 @@
 import m from 'mithril'
 // Services
 
-import {subjectData} from '../../../store/data.js'
+import {subjectData} from '../../../store/subjectData.js'
 
 const getSubject = attrs => {
 	console.log('ListenButton subject ' + attrs.subject )

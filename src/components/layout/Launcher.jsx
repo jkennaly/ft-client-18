@@ -36,29 +36,6 @@ const Launcher = (vnode) => {
 	}
 	let discoveryArtists = []
 	return {
-	oninit: () => {
-		auth.getFtUserId()
-			.then(userId => Promise.all([remoteData.Messages.loadList(),
-					remoteData.MessagesMonitors.loadList(),
-					remoteData.Images.loadList(),
-					remoteData.Series.loadList(),
-					remoteData.Festivals.loadList(),
-					remoteData.Dates.loadList(),
-					remoteData.Days.loadList(),
-					remoteData.Sets.loadList(),
-					remoteData.Venues.loadList(),
-					remoteData.Places.loadList(),
-					remoteData.Lineups.loadList(),
-			      	remoteData.ArtistPriorities.loadList(),
-			      	remoteData.StagePriorities.loadList(),
-			      	remoteData.ArtistAliases.loadList(),
-					remoteData.Artists.loadList(),
-					remoteData.Users.loadList(),
-					remoteData.Intentions.loadList()])
-				.then(x => userId)
-			)
-			.catch(err => m.route.set('/auth'))
-	},
 	view: () => <div class="main-stage">
 		<LauncherBanner 
 			title="FestivalTime Launcher" 

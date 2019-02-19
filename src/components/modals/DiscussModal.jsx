@@ -10,7 +10,8 @@ import UIButton from '../../components/ui/UIButton.jsx';
 
 import ActivityCard from '../../components/cards/ActivityCard.jsx';
 
-import {remoteData, subjectData} from '../../store/data';
+import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData'
 
 const classes = attrs => {return 'modal ' + (attrs.display ? '' : 'hidden');}
 var selectedId = 0

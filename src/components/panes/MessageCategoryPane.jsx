@@ -9,7 +9,7 @@ import _ from 'lodash'
 import CenterMenuCard from '../cards/CenterMenuCard.jsx';
 import WidgetContainer from '../layout/WidgetContainer.jsx';
 
-import {subjectData} from '../../store/data';
+import {subjectData} from '../../store/subjectData';
 
 
 

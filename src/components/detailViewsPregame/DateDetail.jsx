@@ -5,6 +5,7 @@ import m from 'mithril'
 import _ from 'lodash'
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';
+import IntentToggle from '../ui/canned/IntentToggle.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import DateVenueField from './fields/date/DateVenueField.jsx'
 import DateBaseField from './fields/date/DateBaseField.jsx'
@@ -15,6 +16,7 @@ import ArtistCard from '../../components/cards/ArtistCard.jsx';
 
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
+import LineupWidget from '../../components/widgets/canned/LineupWidget.jsx';
 
 import {remoteData} from '../../store/data';
 
@@ -22,8 +24,10 @@ const DateDetail = (auth) => {
 	var sets = []
 	var lineup = []
 	var festivalId = 0
+	var dateId = 0
 
 	const initDom = vnode => {
+		dateId = parseInt(m.route.param('id'), 10)
 		sets = _.flow(
 					m.route.param, parseInt,
 					remoteData.Dates.getSubSetIds,
@@ -32,10 +36,15 @@ const DateDetail = (auth) => {
 				m.route.param, parseInt,
 				remoteData.Dates.getSuperId
 				)('id')
+				//console.log('DatesDetail initDom festivalId')
+				//console.log(festivalId)
+				//console.log(dateId)
 		lineup = remoteData.Lineups.forFestival(festivalId)
+				//console.log(lineup)
 	}
 	return {
-	oninit: () => {
+	oninit: vnode => {
+		/*
 		remoteData.Series.loadList()
 		remoteData.Festivals.loadList()
 		remoteData.Dates.loadList()
@@ -47,16 +56,17 @@ const DateDetail = (auth) => {
 		remoteData.Messages.loadList()
 		remoteData.ArtistPriorities.loadList()
 		remoteData.Venues.loadList()
+		*/
+		initDom(vnode)
 	},
-	oncreate: initDom,
-	onupdate: initDom,
 	view: () => <div class="main-stage">
 			<LauncherBanner 
-				title={remoteData.Dates.getEventName(parseInt(m.route.param('id'), 10))} 
+				title={remoteData.Dates.getEventName(dateId)} 
 		
 			/>
-		{remoteData.Dates.get(parseInt(m.route.param('id'), 10)) ? <DateVenueField id={parseInt(m.route.param('id'), 10)} /> : ''}
-		{remoteData.Dates.get(parseInt(m.route.param('id'), 10)) ? <DateBaseField id={parseInt(m.route.param('id'), 10)} /> : ''}
+			
+		{remoteData.Dates.get(dateId) ? <DateVenueField id={dateId} /> : ''}
+		{remoteData.Dates.get(dateId) ? <DateBaseField id={dateId} /> : ''}
 		<FestivalCard seriesId={_.flow(
 				m.route.param, parseInt,
 				remoteData.Dates.getSeriesId,
@@ -69,6 +79,10 @@ const DateDetail = (auth) => {
 				)('id')
 			}
 		/>
+		{ festivalId ? 
+			<IntentToggle subjectObject={{subject: festivalId, subjectType: 7}} /> 
+		: '' }
+		
 			<WidgetContainer>
 		<FixedCardWidget header="Festival Days">
 			{
@@ -82,7 +96,7 @@ const DateDetail = (auth) => {
 					/>)
 			}
 		</FixedCardWidget>
-		<FixedCardWidget header="Scheduled Sets">
+		{sets.length ? <FixedCardWidget header="Scheduled Sets">
 			{
 				sets
 					.sort((a, b) => {
@@ -106,26 +120,10 @@ const DateDetail = (auth) => {
 					artistPriorityName={remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(data.band, remoteData.Days.getFestivalId(data.day)))}
 					/>)
 			}
-		</FixedCardWidget>
-		{sets.length ? '' : <FixedCardWidget header="Festival Lineup">
-					{
-						lineup
-							.sort((a, b) => {
-								const aPriId = remoteData.Lineups.getPriFromArtistFest(a.band, festivalId)
-								const bPriId = remoteData.Lineups.getPriFromArtistFest(b.band, festivalId)
-								if(aPriId === bPriId) return 0
-								const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
-								const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
-								return aPriLevel - bPriLevel
-							})
-							.map(l => remoteData.Artists.get(l.band))
-					.map(data => <ArtistCard 
-						data={data}
-						festivalId={festivalId}
-					/>)
-					}
-				</FixedCardWidget>}
+		</FixedCardWidget> : ''}
+		{sets.length ? '' : <LineupWidget festivalId={festivalId} />}
 			</WidgetContainer>
+		
 	</div>
 }}
 export default DateDetail;

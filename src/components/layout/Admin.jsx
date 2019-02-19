@@ -19,18 +19,7 @@ import {remoteData} from '../../store/data';
 
 const Admin = (vnode) => { return {
 	oninit: () => {
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Venues.loadList()
-		remoteData.Days.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Lineups.loadList()
-		remoteData.Messages.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Images.loadList()
-		auth.getFtUserId()
-			.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 	},
 	view: () => <div class="main-stage">
 			<LauncherBanner 

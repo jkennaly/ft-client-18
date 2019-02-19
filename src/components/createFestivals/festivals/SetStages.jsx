@@ -100,13 +100,7 @@ const SetStages = (vnode) => {
 			])
 		},
 		oninit: () => {
-			remoteData.Series.loadList()
-			remoteData.Festivals.loadList()
-			remoteData.Places.loadList()
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		view: () => 
 		<div class="launcher-container">

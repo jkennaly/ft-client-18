@@ -117,19 +117,7 @@ const AssignDays = (vnode) => {
 
 	return {
 		oninit: () => {
-			remoteData.Series.loadList()
-			remoteData.Festivals.loadList()
-			remoteData.Dates.loadList()
-			remoteData.Days.loadList()
-			remoteData.Sets.loadList()
-			remoteData.Artists.loadList()
-			remoteData.Lineups.loadList()
-			remoteData.Messages.loadList()
-			remoteData.ArtistPriorities.loadList()
-			auth.getFtUserId()
-				.then(id => userId = id)
-				.then(m.redraw)
-				.catch(err => m.route.set('/auth'))
+			userId = auth.userId()
 		},
 		view: () => <div class="main-stage">
 			<LauncherBanner 
