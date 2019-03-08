@@ -21,6 +21,7 @@ import {remoteData} from '../../../store/data';
 
 import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.jsx'
 
+import ToggleControl from '../../ui/ToggleControl.jsx';
 
 import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
@@ -28,7 +29,7 @@ import UIButton from '../../ui/UIButton.jsx';
 
 var userId = 0
 
-const entryFormHandler = (formDOM, userId, dayId) => {
+const entryFormHandler = (formDOM, dayId) => {
 
 	const formData = new FormData(formDOM);
 	const newEntry = {};
@@ -60,13 +61,15 @@ const entryFormHandler = (formDOM, userId, dayId) => {
 				id: 	parseInt(split[1], 10),
 				stage: 	parseInt(split[2], 10)
 		}})
-	//deleteSets: delete any sets that are in the dataset but not checked
-	const deleteSets = dataSet
+	//unstageSets: clear stage from any sets that are in the dataset but not checked
+	const unstageSets = dataSet
+		//only delete se
+		.filter(s => s.stage)
 		.filter(s => !_.some(checked, c => c.id === s.id))
-		.reduce((pv, cv) => {
-			pv.setIds.push(cv.id)
-			return pv
-		}, {setIds: [], user: userId})
+		.map(s => {
+			s.stage = 0
+			return s
+		})
 	//count each checked set id
 	const countObject = _.countBy(checked, 'id')
 	const createNewSetsFor = Object.keys(_.filter(countObject, c => c > 1))
@@ -78,28 +81,26 @@ const entryFormHandler = (formDOM, userId, dayId) => {
 		return pv
 	}, {update: [], create: []})
 
-	const updateSets = simpleUpdates.concat(sorted.update)
+	const updateSets = [...simpleUpdates, ...sorted.update, ...unstageSets]
 
 	//createSets: create any set that is checked more than once
 	const createSets = sorted.create.map(x => {
 		const base = remoteData.Sets.get(x.id)
 		return {
 			band: base.band,
-			user: userId,
 			day: base.day,
 			stage: x.stage
 		}
 	})
 
 	//console.log(newEntry);
-	//console.log(deleteSets);
 	//console.log(createSets);
 	//console.log(updateSets);
 
 	remoteData.Sets.batchCreate(createSets);
-	remoteData.Sets.batchDelete(deleteSets);
 	remoteData.Sets.batchUpdate(updateSets);
 
+	m.route.set('/launcher')
 	//formDOM.reset();
 };
 
@@ -107,10 +108,35 @@ const AssignSetStages = (vnode) => {
 	const stageHeaders = _.memoize(festivalId => remoteData.Places.forFestival(festivalId)
 				.sort((a, b) => a.priority - b.priority)
 		)
+	const hideRows = vnode => {
+			console.log('AssignDays.onupdate')
+			const rows = Array.from(vnode.dom.querySelectorAll('tr'))
+			if(hideSelected) {
+				const rowsToHide = rows
+					.filter(r => r.querySelectorAll('input:checked').length)
+					.filter(r => !/hidden/.test(r.className))
+				
+				rowsToHide
+					.forEach(r => r.className += ' hidden')
+
+				const rowsToShow = rows
+					.filter(r => !r.querySelectorAll('input:checked').length)
+					.filter(r => /hidden/.test(r.className))
+				
+				rowsToShow.forEach(r => r.className.replace(' hidden', ''))
+
+			//console.log(rowsToShow.length)
+			} else {
+				rows
+				.filter(r => /hidden/.test(r.className))
+				.forEach(r => r.className = r.className.replace('hidden', ''))
+			}
+		}
 	var seriesId = 0
 	var festivalId = 0
 	var dateId = 0
 	var dayId = 0
+	var hideSelected = false
 	const seriesChange = e => {
 		//console.log(e.target.value)
 		seriesId = parseInt(e.target.value, 10)
@@ -141,7 +167,8 @@ const AssignSetStages = (vnode) => {
 		oninit: () => {
 			userId = auth.userId()
 		},
-		view: () => <div class="main-stage">
+		onupdate: hideRows,
+		view: vnode => <div class="main-stage">
 			<LauncherBanner 
 				title="Assign artists to stages"
 			>
@@ -156,6 +183,20 @@ const AssignSetStages = (vnode) => {
 					dayChange={dayChange}
 				/>
 			</LauncherBanner>
+			    <ToggleControl
+			offLabel={'Show All'}
+			onLabel={'Hide assigned'}
+			
+			getter={() => hideSelected}
+			setter={newState => {
+				hideSelected = newState
+				//console.log('AssignDays hideSelected ' +  hideSelected)
+				hideRows(vnode)
+			}}
+
+		/>
+			<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), dayId)} buttonName="SAVE" />
+				
 				<div class="main-stage-content-scroll">
 			    {!dayId ? '' : <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
 			    	<table>
@@ -188,8 +229,7 @@ const AssignSetStages = (vnode) => {
 									</tr>)
 				    	}
 			    	</table>
-					<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), userId, dayId)} buttonName="SAVE" />
-				</form>}
+					</form>}
 			</div>
 			</div>
 	    

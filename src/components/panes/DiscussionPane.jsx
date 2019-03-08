@@ -66,7 +66,7 @@ const DiscussionPane = vnode => {
                 }} buttonName="Show More" /> : ''}
 		{messageArray.length ? <DiscussModal
 			display={discussing} 
-			hide={sub => {discussing = false;}}
+			hide={sub => {discussing = false;m.redraw();}}
 			subject={subjectObject}
 			messageArray={messageArray}
 			reviewer={messageArray[0].fromuser}

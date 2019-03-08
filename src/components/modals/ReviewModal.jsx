@@ -88,13 +88,13 @@ const ReviewModal = vnode => {
             localRating = rating + 0
             changeFlag = changeFlag + 1
             if(changeFlag > 1000000) changeFlag = 1
-            m.redraw()
+            //m.redraw()
             //console.log('ReviewModal updated  for ' + name + '@' + rating)
             //console.log('localRating ' + localRating)
             //console.log('changeFlag ' + changeFlag)
     }
     return {
-        onupdate: initDom,
+        onbeforeupdate: initDom,
         oncreate: initDom,
     	view: ({attrs}) => <div class={classes(attrs)}>
             <div class="modal-content">

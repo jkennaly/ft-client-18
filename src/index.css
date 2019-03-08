@@ -48,12 +48,26 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .ft-image-attribution a {color: lightskyblue;font-size: 75%;}
 .ft-name-fields {display: flex;flex-direction: row;justify-content: left;}
 .ft-rating-field {display: flex;flex-direction: row;font-size: 200%;justify-content: left;}
+.ft-schedule-header {box-sizing:border-box;color:#DD00DD;display:flex;height:60px;justify-content:space-around;padding:0 6em;position:sticky;top: 0px;z-index:1;}
+.ft-schedule-header-field {
+  width:300px;
+  text-align: center;
+}
 .ft-set-diff-fields {display: flex;flex-direction: row;font-size: 85%;justify-content: space-between;margin: 0.5em 0 0;min-height: 1.27em;text-transform: uppercase;}
 .ft-set-diff-fields > .ft-name-field {width: 25%;}
 .ft-set-name-field {display: flex;flex-direction: row;justify-content: center;}
 .ft-set-name-fields {display: flex;flex-direction: row;justify-content: space-between;}
 .ft-spacer {margin: 0 0.25em 0;}
 .ft-vertical-fields {display: flex;flex-direction: column;justify-content: left;}
+.gametime-banner {align-items: center;display: flex;flex-direction: row;height: 60px;justify-content: space-between;position: absolute;right: 0;top: 0.5em;width: 100%;z-index: 10;}
+.gt-feeling-weak-hate {background-color: #FF6961}
+.gt-feeling-weak-like {background-color: #FDFD96}
+.gt-feeling-weak-love {background-color: #77DD77}
+.gt-feeling-strong-hate {background-color: #FF0800}
+.gt-feeling-strong-like {background-color: #FFF600}
+.gt-feeling-strong-love {background-color: #66FF00}
+.gt-feeling-unsure {background-color: #A9A9A9}
+.gt-schedule-now-bar {position: relative;border: 0; box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);height: 12px;position: absolute;}
 .gu-mirror {filter: alpha(opacity=80);margin: 0;opacity: 0.8;position: fixed;z-index: 9999;}
 .gu-hide {display: none;}
 .gu-unselectable {user-select: none;}
@@ -65,7 +79,8 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .main-stage-content {display: inline-flex;flex-direction: column;}
 .main-stage-content-scroll {overflow-y: scroll;padding: 0 0 80px;}
 .main-stage-content-panes {display: inline-flex;flex-direction: column;flex-shrink: 0;height: 100%;overflow-y: scroll;width: 100%;}
-.main-stage-gametime {background: radial-gradient(#003300, black);display: inline-flex;flex-direction: column;height: 100%;overflow-y: hidden;padding: 5px 5px 5px 5px;position: fixed;width: 100%;z-index: 1;}
+.main-stage-gametime {background: radial-gradient(#000033, black);display: inline-flex;flex-direction: column;height: 100%;overflow-y: hidden;padding: 5px 5px 5px 5px;position: fixed;width: 100%;z-index: 1;}
+.main-stage-gametime-content-scroll {overflow-y: scroll;padding: 80px 0;}
 .menu-content {align-items: flex-start;background-color: #f1f1f1;bottom: 0.5em;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);display: flex;flex-direction: column-reverse;flex-wrap: wrap-reverse;justify-content: flex-start;position: absolute;z-index: 1;}
 .menu-item {display: inline-block;text-decoration: none;width: 10em;}
 .menu-item-disabled {display: inline-block;font-weight: bold;width: 10em;}
@@ -77,16 +92,17 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .modal-textarea {height:150px;width:280px;}
 .nav-bar {align-items: center;background: #EE5F28;display: flex;flex: 1;justify-content: space-around;}
 .nav-button {cursor: pointer;font-size: 150%;height: 50px;width:50px;}
+.nav-button > svg {margin: 0 auto;display: block;}
 .nav-button input{display: none;}
 .quarter {background-color: black;color: red;flex-grow: 0;flex-shrink: 0;font-size: 25px;text-align: center;width: 25px;}
-.schedule-label {height: 60px; margin-bottom: 1em;margin-top: -1em;text-align: top;}
-.schedule-labels {flex-direction: column-reverse;flex-shrink: 1;}
-.schedule-ladder {flex-direction: row;flex-grow: 1;}
-.schedule-set {background: white;color: black;display: flex;flex-direction: column;flex-grow: 0;flex-shrink: 0;font-size: 100%;justify-content: space-between;margin: 0.5em;position: absolute;width: 300px;}
+.schedule-label {height: 60px;}
+.schedule-labels {display: inline-block;flex-shrink: 0;}
+.schedule-ladder {display: flex;}
+.schedule-set {background: white;color: black;display: block;font-size: 100%;justify-content: space-between;margin: 0.5em;position: absolute;width: 300px;}
 .schedule-set-end-handle {height: 5px;position: absolute;top: 0;width: 100%;}
 .schedule-set-hook {display: flex;height: 5px;min-width: 100%;overflow: visible;}
 .schedule-set-start-handle {bottom: 0;height: 5px;position: absolute;width: 100%;}
-.schedule-setbox {flex-direction: column-reverse;flex-grow: 1;position: relative;}
+.schedule-setbox {margin: 0 auto;position: relative;width:300px;}
 .spacer {min-width: 5%;width: 5%;}
 .stage-banner {align-items: center;background-image: url("img/Crowdshot.jpg");display: flex;flex-direction: row;flex-grow: 1;flex-wrap: wrap;justify-content: flex-end;margin: 0.5em;position: relative;}
 .stage-banner > * {margin: 0 5px;}
@@ -193,7 +209,7 @@ li {
 .ft-toggle-light + .ft-toggle-btn {
   background: #f0f0f0;
   border-radius: 2em;
-  padding: 2px;
+  padding: 0 2px;
   transition: all 0.4s ease;
 }
 

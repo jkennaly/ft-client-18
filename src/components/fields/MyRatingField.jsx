@@ -12,13 +12,12 @@ const MyRatingField = vnode => {
 	var showRating = _.clone(vnode.attrs.currentRating)
 	var lastFlag = _.clone(vnode.attrs.changeFlag)
 	return {
-		onupdate: vnode => {
+		onbeforeupdate: vnode => {
 			//console.log(' updating MyRatingField changeFlag ' + lastFlag + '=>' + vnode.attrs.changeFlag)
 			//console.log('pre MyRatingField showRating ' + showRating)
 			if(!vnode.attrs.changeFlag || vnode.attrs.changeFlag <= lastFlag) return
 			lastFlag = _.clone(vnode.attrs.changeFlag)
 			showRating = _.clone(vnode.attrs.currentRating)
-			m.redraw()
 			//console.log('MyRatingField showRating ' + showRating)
 			//console.log('MyRatingField vnode.attrs.currentRating ' + vnode.attrs.currentRating)
 		},

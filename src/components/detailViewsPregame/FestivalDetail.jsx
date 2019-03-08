@@ -17,6 +17,8 @@ import LineupWidget from "../../components/widgets/canned/LineupWidget.jsx";
 import ActivityWidget from "../../components/widgets/canned/ActivityWidget.jsx";
 import IntentToggle from "../../components/ui/canned/IntentToggle.jsx";
 
+import SeriesWebsiteField from './fields/series/SeriesWebsiteField.jsx'
+
 import { remoteData } from "../../store/data";
 
 const upload = (festival, initFunction) => e => {
@@ -27,35 +29,18 @@ const upload = (festival, initFunction) => e => {
 
 	remoteData.Lineups.upload(data, festival).then(initFunction);
 };
-const FestivalDetail = auth => {
+const FestivalDetail = () => {
 	var messageArray = [];
 	var discussing = false;
 	let festivalId = 0;
 	const init = () => {
 		//console.log('FestivalDetail init')
-		festivalId = parseInt(m.route.param("id"), 10);
-		/*
-		Promise.all([
-			remoteData.MessagesMonitors.loadList(),
-			remoteData.Images.loadList(),
-			remoteData.Series.loadList(),
-			remoteData.Festivals.loadList(),
-			remoteData.Dates.loadList(true),
-			remoteData.Days.loadList(),
-			remoteData.Sets.loadList(),
-			remoteData.Venues.loadList(),
-			remoteData.Places.loadList(),
-			remoteData.Lineups.loadList(true),
-	      	remoteData.ArtistPriorities.loadList(),
-	      	remoteData.StagePriorities.loadList(),
-	      	remoteData.ArtistAliases.loadList(true),
-			remoteData.Artists.loadList(true),
-			remoteData.Users.loadList(),
-			remoteData.Intentions.loadList(),
-		])
-		//.then(() => console.log('load complete'))
-		*/
-		remoteData.Messages.loadForFestival(festivalId).then(() => m.redraw());
+		festivalId = parseInt(m.route.param("id"), 10)
+		remoteData.Messages.loadForFestival(festivalId)
+			.catch(err => {
+				console.log('FestivalDetail Message load error')
+				console.log(err)
+			})
 	};
 	return {
 		oninit: init,
@@ -79,6 +64,7 @@ const FestivalDetail = auth => {
 				) : (
 					""
 				)}
+				{festivalId ? <SeriesWebsiteField festivalId={festivalId} /> : ''}
 				{festivalId ? (
 					<IntentToggle
 						subjectObject={{ subject: festivalId, subjectType: 7 }}

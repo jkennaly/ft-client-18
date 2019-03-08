@@ -38,7 +38,6 @@ const comment = ({messageArray}) => {
 
 const ActivityCard = vnode => {
   var showLong = false
-    //m.redraw()
   
 
   const defaultClick = e => {
@@ -46,7 +45,6 @@ const ActivityCard = vnode => {
     e.stopPropagation()
     if(showLong) return 
     showLong = true
-    m.redraw()
   }
   return {
     view: ({ attrs }) =>
@@ -69,7 +67,6 @@ const ActivityCard = vnode => {
                 //console.log('MessagesMonitors length ' + remoteData.MessagesMonitors.list.length)
                 remoteData.MessagesMonitors.markRead(id(attrs))
                 e.stopPropagation()
-                m.redraw()
               }}><i class="fas fa-times"/></div>
             </div> : ''}
           <div class="ft-horizontal-fields ft-flex-grow">

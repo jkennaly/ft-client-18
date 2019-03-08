@@ -44,7 +44,7 @@ const captureStages = (els, festivalId, userId) => {
 
 	Promise.all([addPromise, delPromise])
 		.then(() => console.log('captureStages promises resolved'))
-		.then(m.redraw)
+		.then(() => m.redraw())
 
 }
 

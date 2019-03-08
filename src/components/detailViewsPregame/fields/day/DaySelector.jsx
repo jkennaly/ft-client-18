@@ -20,6 +20,7 @@ const DaySelector = {
 		      			remoteData.Dates.getSubIds,
 		      			remoteData.Days.getMany
 		      		)(attrs.dateId)
+		      			.sort((a, b) => a.daysOffset - b.daysOffset)
 			      		.map(s => <option value={s.id}>{s.name}</option>)
 			      	}
 		    </select>

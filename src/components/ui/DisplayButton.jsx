@@ -47,7 +47,7 @@ const DisplayButton = vnode => {
 					//console.log('DisplayButton auth err')
 					//console.log(err)
 					userValid = false; 
-					m.redraw()
+					//m.redraw()
 
 				})
 		},
@@ -63,7 +63,6 @@ const DisplayButton = vnode => {
 					console.log('DisplayButton auth err')
 					console.log(err)
 					userValid = false; 
-					m.redraw()
 
 				})
 		},

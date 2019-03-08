@@ -4,30 +4,48 @@ import auth00 from 'auth0-js';
 import AUTH0_DATA from './auth0-variables';
 import m from 'mithril'
 import localforage from 'localforage'
+import emptyPromise from 'empty-promise'
 const Promise = require('promise-polyfill').default
+//import {tokenFunction} from './requests'
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
 
 const setSession = function(authResult) {
-    // Set the time that the Access Token will expire at
-    let expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
-    localStorage.setItem('access_token', authResult.accessToken);
-    localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('expires_at', expiresAt);
-    // navigate to the home route if current route matches
-    const goHome = /auth/
-    const currentRoute = m.route.get()
-    if(goHome.test(currentRoute)) m.route.set('/launcher');
-  }
+  // Set the time that the Access Token will expire at
+  let expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
+  localStorage.setItem('access_token', authResult.accessToken);
+  localStorage.setItem('id_token', authResult.idToken);
+  localStorage.setItem('expires_at', expiresAt);
+  // navigate to the home route if current route matches
+  const goHome = /auth/
+  const currentRoute = m.route.get()
+  if(goHome.test(currentRoute)) m.route.set('/launcher');
+}
+  
 const tokenFunction = function(xhr) {
   xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'))
 }
 
-var userIdPromiseCache = {}
+
+const userIdFromToken = idToken => m.request({
+  method: "GET",
+  url: "/api/Profiles/getUserId",
+  config: tokenFunction,
+  data: {
+    idToken: idToken
+  }
+})
+.then(result => {
+  const id = result.id
+  if(!id) throw 'invalid id received from getFtUserId() ' + id
+  return id
+})
+
+var userIdPromiseCache = emptyPromise()
 var idRequestInProgress = 0
-var accessTokenPromiseCache = {}
+let accessTokenPromiseCache = {}
 var accessTokenPending = false
-var userId = 0
+var userIdCache = 0
 
 export default class Auth {
   auth0 = new auth00.WebAuth({
@@ -54,8 +72,13 @@ export default class Auth {
         //this.getFtUserId();
         //m.route.set('/launcher');
       } else if (err) {
-        console.log(err);
-        m.route.set('/auth');
+        console.log(err)
+        m.route.set('/auth')
+      } else {
+        const tokenValid = this.isAuthenticated()
+        //console.log('tokenValid ' + tokenValid)
+        this.getFtUserId('handleAuthentication')
+          .catch(console.error)
       }
     });
   }
@@ -63,62 +86,69 @@ export default class Auth {
   setSession = setSession
 
   userId() {
-    return userId
+    //console.log('auth userId')
+    //console.log(userIdCache)
+    return userIdCache
   }
 
-  //returns a promise that resolves to a userId
+  //returns a promise that resolves to a userIdCache
   getFtUserId(requester) {
-    //console.log('userId requested by ' + requester)
-    if(m.route.get().indexOf('auth') > -1) return Promise.reject(false)
+    //console.log('userIdCache requested by ' + requester)
+    const onAuthRoute = /auth/.test(window.location)
+    if(onAuthRoute) return Promise.resolve(0)
     //find if there is a last token and if it's still good
     const tokenValid = this.isAuthenticated()
-    //if it is, return 
-    if(tokenValid && userIdPromiseCache.then) return userIdPromiseCache
+    //if it is, get the local userId
+    if(tokenValid) {
+      const localUser = parseInt(localStorage.getItem('ft_user_id'), 10)
+      if(localUser) userIdCache = localUser
+    }
+    if(tokenValid && userIdCache) return Promise.resolve(userIdCache)
+    
     //if it's not, check idRequestInProgress to stop multiple requests
     //const now = Date.now()
+    
     if(!idRequestInProgress) {
-    //console.log('!idRequestInProgress')
+      //console.log('idRequestInProgress begins')
       idRequestInProgress = true
       //if there is no token or its expired and there is no request already, start one
-      const idToken = localStorage.getItem('id_token')
-      if(!idToken) return Promise.reject(this.logout())
-      userIdPromiseCache = m.request({
-        method: "GET",
-        url: "/api/Profiles/getUserId",
-        config: tokenFunction,
-        data: {
-          idToken: localStorage.getItem('id_token')
-        }
-      })
-        .then(result => {
-          const id = result.id
-          if(!id) throw 'invalid id received from getFtUserId() ' + id
-          localStorage.setItem('ft_user_id', id)
-          idRequestInProgress = false
-          return id
-        })
-        .then(id => {
-          userId = id
-          return id
-        })
-        .catch(err => {
-          idRequestInProgress = false
-        })
+      const idTokenLocal = tokenValid && localStorage.getItem('id_token')
+
+      userIdPromiseCache.resolve(
+        (idTokenLocal ? new Promise.resolve(idTokenLocal) : this.getAccessToken())
+          //.then(idToken => [console.log('userIdPromiseCache idToken', idToken), idToken][1])
+          .then(userIdFromToken)
+          //.then(userId => [console.log('userIdPromiseCache userId', userId), userId][1])
+          .then(id => {
+            userIdCache = id
+            localStorage.setItem('ft_user_id', id)
+            idRequestInProgress = false
+            return id
+          })
+          .catch(err => {
+            idRequestInProgress = false
+            console.error('userIdPromiseCache failed', err)
+          })
+      )
       return userIdPromiseCache
 
-    } else {
-    //console.log('idRequestInProgress')
-      //if there is a idRequestInProgress, return a promise the promiseCache will resolve
-      return new Promise(resolve => setTimeout(resolve, 50, userIdPromiseCache))
     }
+    //console.log('idRequestInProgress')
+    //if there is a idRequestInProgress, return a promise the promiseCache will resolve
+    
+    //return new Promise(resolve => setTimeout(resolve, 5000, userIdPromiseCache))
+    return userIdPromiseCache
+    
     
   }
 
   logout(skipRoute) {
+    const loggingIn = /access_token/.test(window.location)
+    if(loggingIn) return
     // Clear Access Token and ID Token from local storage
     localStorage.clear()
     localforage.clear()
-    userId = 0
+    userIdCache = 0
     // navigate to the default route
     if(!skipRoute) m.route.set('/auth')
   }
@@ -131,7 +161,7 @@ export default class Auth {
     let expiresAt = currentToken && JSON.parse(localStorage.getItem('expires_at'));
     const timeOk = currentToken && new Date().getTime() < expiresAt
     //console.log('auth isAuthenticated ' + timeOk + ' expires ' + (new Date(expiresAt)).toLocaleTimeString())
-    return timeOk && currentToken
+    return timeOk && currentToken && true || false
   }
 
   getAccessToken() {
@@ -153,7 +183,7 @@ export default class Auth {
     //if the tokenValid, set that to the cache and return it
     if(tokenValid) {
       //console.log('found old valid token')
-      const promise = Promise.resolve(tokenValid)
+      const promise = Promise.resolve(localStorage.getItem('access_token'))
       accessTokenPromiseCache = promise
       return promise
     }

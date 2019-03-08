@@ -35,8 +35,9 @@
     "auth0-js": "^9.8.2",
     "blueimp-file-upload": "^9.28.0",
     "cloudinary-core": "^2.5.0",
-    "cloudinary-jquery-file-upload": "^2.5.0",
+    "cloudinary-jquery-file-upload": "^2.6.2",
     "dragula": "^3.7.2",
+    "empty-promise": "^1.2.0",
     "jquery": "^3.3.1",
     "loadjs": "^3.5.5",
     "localforage": "^1.7.3",
@@ -53,7 +54,7 @@
     "set-prod": "cp webpack.config.prod.js webpack.config.js",
     "cp-man": "cp src/manifest.webmanifest dist/",
     "worker": "workbox injectManifest workbox-config.js",
-    "build": "webpack --config webpack.config.js --display-error-details",
+    "build": "webpack --config webpack.config.js",
     "postbuild": "npm run worker && npm run cp-man && [ -f ./deploy.js ] && node deploy.js"
   }
 }

@@ -6,6 +6,7 @@ import _ from 'lodash'
 
 import LauncherBanner from '../ui/LauncherBanner.jsx';
 import IntentToggle from '../ui/canned/IntentToggle.jsx';
+import CheckinToggle from '../ui/canned/CheckinToggle.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import DateVenueField from './fields/date/DateVenueField.jsx'
 import DateBaseField from './fields/date/DateBaseField.jsx'
@@ -19,6 +20,7 @@ import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import LineupWidget from '../../components/widgets/canned/LineupWidget.jsx';
 
 import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData';
 
 const DateDetail = (auth) => { 
 	var sets = []
@@ -58,6 +60,14 @@ const DateDetail = (auth) => {
 		remoteData.Venues.loadList()
 		*/
 		initDom(vnode)
+		//console.log('FestivalDetail init')
+		
+		festivalId && remoteData.Messages.loadForFestival(festivalId)
+			.catch(err => {
+				console.log('DateDetail Message load error')
+				console.log(err)
+			})
+	
 	},
 	view: () => <div class="main-stage">
 			<LauncherBanner 
@@ -79,8 +89,11 @@ const DateDetail = (auth) => {
 				)('id')
 			}
 		/>
-		{ festivalId ? 
+		{ festivalId && !subjectData.active({subject: dateId, subjectType: subjectData.DATE}) ? 
 			<IntentToggle subjectObject={{subject: festivalId, subjectType: 7}} /> 
+		: '' }
+		{ dateId && subjectData.active({subject: dateId, subjectType: subjectData.DATE}) ? 
+			<CheckinToggle subjectObject={{subject: dateId, subjectType: subjectData.DATE}} /> 
 		: '' }
 		
 			<WidgetContainer>

@@ -57,18 +57,40 @@ const WelcomeView = () => [
 ];
 
 const forceLoginRoute = err => {
-	console.log(err)
+	console.error(err)
 	m.route.set("/confirm/logout")
 
 }
 
+const initAppData = auth => {
+	//auth.handleAuthentication()
+	return auth.getFtUserId('initAppData')
+		//.then(userId => {console.log('getFtUserId ', userId);return userId;})
+		.then(userId => initData({
+			skipRedraw: true,
+			debug: false,
+			forceRedraw: false,
+			userId: userId
+		}))
+		//.then(() => auth.getFtUserId())
+		//.then(() => console.log('data init complete'))
+		.catch(err => {
+			console.log('App init error: get access token/initData')
+			console.error(err)
+		})
+}
+let appInitComplete = false
+
 const App = {
 	oninit: vnode => {
-		auth.handleAuthentication();
-		auth.getAccessToken()
-			.then(token => initData({token: token}))
-			.then(() => auth.getFtUserId())
-			.then(() => m.redraw())
+	},
+	onbeforeupdate: vnode => {
+		if(!/auth/.test(window.location) && !appInitComplete) {
+			initAppData(auth)
+			.then(() => appInitComplete = true)
+
+		}
+
 	},
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector("#main-stage");
@@ -77,6 +99,14 @@ const App = {
         hashStr = hashStr.replace(/^#?\/?/, '');
         localStorage.setItem('raw_token', hashStr);
 */
+		if(!/auth/.test(window.location) && !appInitComplete) {
+			initAppData(auth)
+			.then(() => appInitComplete = true)
+
+		} else if (/auth/.test(window.location)) {
+			appInitComplete = false
+		}
+		
 		
 
 		m.route(mainStage, "/launcher", {
@@ -102,14 +132,11 @@ const App = {
 
 			},
 			"/gametime/:subjectType/:subject": {
-				onmatch: () => Gametime
+				onmatch: Gametime
 
 			},
 			"/admin": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(Admin)
-						.catch(forceLoginRoute)
+				onmatch: Admin
 
 			},
 			"/discussion/:messageId": {

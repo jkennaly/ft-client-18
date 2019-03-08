@@ -36,7 +36,6 @@ const comment = attrs => {
 
 const ArtistReviewCard = vnode => {
   var showLong = false
-    //m.redraw()
   
   return {
     view: ({ attrs }) =>
@@ -55,7 +54,6 @@ const ArtistReviewCard = vnode => {
             e.stopPropagation(); 
             if(showLong) return 
             showLong = true; 
-            m.redraw()
           }}>
             {!attrs.shortDefault || showLong || !comment(attrs) ? comment(attrs) : comment(attrs).substring(0, 50) + '...(+expand)'}
           </span>

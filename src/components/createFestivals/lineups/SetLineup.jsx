@@ -13,6 +13,7 @@ import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 import NavCard from '../../../components/cards/NavCard.jsx';
 import FestivalSelector from '../../detailViewsPregame/fields/festival/FestivalSelector.jsx'
 import ArtistEntryModal from '../../modals/ArtistEntryModal.jsx'
+import SeriesWebsiteField from '../../detailViewsPregame/fields/series/SeriesWebsiteField.jsx'
 
 import UIButton from '../../../components/ui/UIButton.jsx';
 import {remoteData} from '../../../store/data';
@@ -106,7 +107,6 @@ const SetLineup = (vnode) => {
 		},
 		view: () => <div class="main-stage">
 				<LauncherBanner 
-					action={() => auth.logout()}
 					title="Artist Lineup" 
 				>
 				</LauncherBanner>
@@ -126,6 +126,8 @@ const SetLineup = (vnode) => {
 							festivalChange={festivalChange}
 						/>
 				    </div>
+
+		{festivalId ? <SeriesWebsiteField id={seriesId} /> : ''}
 			{festivalId ? <div class="main-stage-content-scroll">
 				<label for="lineup-uploader">
 			        {`Upload a file with the artist list (one name per line)`}

@@ -42,8 +42,6 @@ const SeriesDetail = (auth) => {
 			getter={() => series.hiatus}
 			setter={newState => {
 				remoteData.Series.updateInstance(seriesId, {hiatus: newState})
-					//.then(m.redraw)
-				//m.redraw()
 			}}
 		/> : ''}
 		{series ? <SeriesDescriptionField id={seriesId} /> : ''}
@@ -56,7 +54,7 @@ const SeriesDetail = (auth) => {
 					remoteData.Series.getSubIds,
 					remoteData.Festivals.getMany,
 					)('id')
-					.sort((a, b) => parseInt(a.year, 10) - parseInt(b.year, 10))
+					.sort((a, b) => parseInt(b.year, 10) - parseInt(a.year, 10))
 					.map(data => <FestivalCard  
 						seriesId={data.series}
 						festivalId={data.id}

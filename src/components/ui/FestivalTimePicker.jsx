@@ -10,12 +10,10 @@ const FestivalTimePicker = vnode => {
 		hour = parseInt(e.target.value, 10)
 		meridiem = hour > 1 && hour < 14 ? 'PM' : 'AM'
 		superChange(hour * 60 + minute)
-		//m.redraw()
 	}
 	const minuteChange = superChange => e => {
 		minute = parseInt(e.target.value, 10)
 		superChange(hour * 60 + minute)
-		//m.redraw()
 	}
 	return {
 		oncreate: ({ attrs }) => {

@@ -12,7 +12,7 @@ const CloudinaryUploadWidget = vnode => {
 		    myUploadWidget = cloudinary.openUploadWidget({ 
 		      cloud_name: 'dbezrymmc', 
 		      upload_preset: subjectData.imagePreset(vnode.attrs.subjectType),
-		      sources: ['url']
+		      sources: vnode.attrs.sources
 		  }, (err, result) => {
 		      	//console.log('Cloudinary Upload')
 		      	if(err) console.log(err)

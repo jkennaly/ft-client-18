@@ -1,15 +1,17 @@
 // SeriesCard.jsx
 
 import m from 'mithril'
+import _ from 'lodash'
 
 import  ComposedNameField from '../fields/ComposedNameField.jsx';
+import {remoteData} from '../../store/data';
 
 
 const SeriesCard = {
   view: ({ attrs }) =>
     <div class="ft-card" onclick={() => m.route.set("/series" + "/pregame" + '/' + attrs.eventId)}>
       <div class="ft-fields">
-        {attrs.data ? <ComposedNameField fieldValue={`${attrs.data.name}`} /> : <ComposedNameField fieldValue={'New Series'} />}
+        {_.isInteger(attrs.eventId) && attrs.eventId ? <ComposedNameField fieldValue={remoteData.Series.getEventName(attrs.eventId)} /> : <ComposedNameField fieldValue={'New Series'} />}
       </div>
     </div>
 };

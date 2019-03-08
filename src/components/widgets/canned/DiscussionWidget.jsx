@@ -42,9 +42,12 @@ const DiscussionWidget = vnode => {
 					
 					
 	return {
-		oninit: () => {
+		oninit: ({attrs}) => {
 			userId = auth.userId()
-		},
+			//request an update to this discussion
+			const discussionBase = baseMessage(attrs.messageArray).id
+			remoteData.Messages.remoteLoad({forceFullLoad: false, filterString: 'filter[where][baseMessage]=' + discussionBase})
+ 		},
 		view: ({attrs}) => <LargeCardWidget 
 				header="Discuss"
 				headerCard = {attrs.headerCard && attrs.messageArray.length ? 

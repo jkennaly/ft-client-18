@@ -25,6 +25,8 @@ const ArtistEntryModal = {
             <input name="new-artist" type="text" onchange={e => textValue = e.target.value}/>
             <UIButton action={e => {
                 attrs.hide()
+                selectedId = 0
+                textValue = ''
 
             }} buttonName="Cancel" />
             <UIButton action={e => {
@@ -33,9 +35,11 @@ const ArtistEntryModal = {
                 //console.log(selectedId)
                 //if there is a selected id, return it
                 //if not, create the artist, then return that id
-                if(selectedId || !textValue.length) {
+                if(selectedId && !textValue.length) {
                     attrs.hide()
                     attrs.action(remoteData.Lineups.create({band: selectedId, festival: attrs.festivalId}))
+                    selectedId = 0
+                    textValue = ''
                     return
                 }
                 //make sure the name is not in thr list
@@ -43,11 +47,18 @@ const ArtistEntryModal = {
                 if(matchedArtist && matchedArtist.id) {
                     attrs.hide()
                     attrs.action(remoteData.Lineups.create({band: matchedArtist.id, festival: attrs.festivalId}))
+                    selectedId = 0
+                    textValue = ''
                     return
                 }
 
                 if(textValue) attrs.action(remoteData.Lineups.addArtist({name: textValue}, attrs.festivalId)
-                    .then(result => {attrs.hide();return result;}))
+                    .then(result => {
+                        attrs.hide()
+                        selectedId = 0
+                        textValue = ''
+                        return result
+                    }))
                     .then(result => {m.redraw(); return result})
 
                 //

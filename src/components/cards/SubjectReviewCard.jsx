@@ -37,7 +37,6 @@ const comment = attrs => {
 
 const SubjectReviewCard = vnode => {
   var showLong = false
-    //m.redraw()
   
   return {
     view: ({ attrs }) =>
@@ -56,7 +55,6 @@ const SubjectReviewCard = vnode => {
             e.stopPropagation(); 
             if(showLong) return 
             showLong = true; 
-            m.redraw()
           }}>
             {!attrs.shortDefault || showLong || !comment(attrs) ? comment(attrs) : comment(attrs).substring(0, 50) + '...(+expand)'}
           </span>

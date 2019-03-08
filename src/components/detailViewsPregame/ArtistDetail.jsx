@@ -45,7 +45,7 @@ const ArtistDetail = (vnode) => {
 			remoteData.Messages.loadForArtist(parseInt(m.route.param('id'), 10))
 	
 		},
-		onupdate: () => {
+		onbeforeupdate: () => {
 			artist = artistId ? remoteData.Artists.get(artistId) : undefined
 			messages = remoteData.Messages.forArtist(artistId)
 			//console.log('ArtistDetail update')
@@ -58,7 +58,7 @@ const ArtistDetail = (vnode) => {
 			
 			<WidgetContainer>
 				<FixedCardWidget >
-					<CloudImageField subjectType={2} subject={artistId} />
+					<CloudImageField subjectType={2} subject={artistId} sources={['url']} />
 				</FixedCardWidget>
 				{artist ? <FixedCardWidget header="Listen & Review" >
 					<SpotifyCard fieldValue={artist.name} />

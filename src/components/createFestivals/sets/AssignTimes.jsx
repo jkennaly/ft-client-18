@@ -95,17 +95,19 @@ const AssignTimes = (vnode) => {
 		stageId = 0
 		dayAndStageUnscheduled = []
 		scheduledSets = []
-		m.redraw()
 	}
 	const stageChange = e => {
-		//console.log(e)
+		console.log('AssignTimes stageChange')
 		stageId = parseInt(e.target.value, 10)
 		dayAndStageUnscheduled = remoteData.Sets.forDayAndStage(dayId, stageId)
 			.filter(x => !x.end)
 
 		scheduledSets = remoteData.Sets.forDayAndStage(dayId, stageId)
 			.filter(x => x.end)
-		m.redraw()
+		//console.log(stageId)
+		//console.log(dayId)
+		//console.log(dayAndStageUnscheduled)
+		//console.log(scheduledSets)
 	}
 
 	return {
