@@ -27,11 +27,11 @@ const SetDetail = () => {
 	var discussing = false
 	return {
 		oninit: ({attrs}) => {
-			console.log('SetDetail init', attrs.subjectObject)
+			//console.log('SetDetail init', attrs.subjectObject)
 			detail = subjectData.getDetail(attrs.subjectObject)
 			detailSubject = attrs.subjectObject.subject
 			detailSubjectType = attrs.subjectObject.subjectType
-			console.log('SetDetail onit', attrs.subjectObject, detail)
+			//console.log('SetDetail onit', attrs.subjectObject, detail)
 		
 		},
 		onbeforeupdate: ({attrs}) => {

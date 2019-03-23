@@ -13,18 +13,31 @@ import ToggleControl from '../ToggleControl.jsx';
 import Auth from '../../../services/auth.js'
 const auth = new Auth()
 
+
+const currentlyCheckedIn = subjectObject => {
+	const lastCheckin = subjectData.checkedIn({subject: auth.userId(), subjectType: subjectData.USER})
+
+	const subEventCheckin = lastCheckin.subjectType !== subjectObject.subjectType && subjectData.subEvent(subjectObject, lastCheckin)
+	const checkedIn = subEventCheckin || sameSubject(lastCheckin, subjectObject)
+	console.log('checkIn toggle currentlyCheckedIn', subjectObject, lastCheckin, subEventCheckin, checkedIn)
+	return checkedIn
+
+}
+
 const CheckinToggle = {
 		view: ({attrs}) => <ToggleControl
 			offLabel={attrs.offLabel ? attrs.offLabel : 'Not there'}
 			onLabel={attrs.onLabel ? attrs.onLabel : 'I\'m here (click for live schedule)'}
 			
-			getter={() => sameSubject(subjectData.checkedIn({subject: auth.userId(), subjectType: subjectData.USER}), attrs.subjectObject)}
+			getter={() => {
+				 return currentlyCheckedIn(attrs.subjectObject)
+
+			}}
 			setter={newState => {
 				//console.log('CheckinToggle setter start',attrs.subjectObject)
 				//when toggled:
 					//if the user was not checked in, check in the user to the subject
-					const lastCheckin = subjectData.checkedIn({subject: auth.userId(), subjectType: subjectData.USER})
-					const notCheckedIn = !sameSubject(lastCheckin, attrs.subjectObject)
+					const notCheckedIn = !currentlyCheckedIn(attrs.subjectObject)
 					const checkinAllowed = notCheckedIn && subjectData.active(attrs.subjectObject)
 					if(checkinAllowed) subjectData.checkIn(attrs.subjectObject)
 					//open the subject in gametime

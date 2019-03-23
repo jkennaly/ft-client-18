@@ -194,6 +194,15 @@ const eventFuture = primaryField => subjectObject => [
 ][subjectObject.subjectType](subjectObject.subject)
 
 var subjectLoaded = {}
+/*
+f(7) < f(6)
+f(8) < f(7)
+f(9) < f(8)
+f(3) < f(9)
+
+
+
+*/
 
 export const subjectData = {
 	MESSAGE: 10,
@@ -417,6 +426,15 @@ export const subjectData = {
 		const dataField = remoteData[subjectDataField(subjectObject.subjectType)]
 		const ids = dataField.getSubSetIds ? dataField.getSubSetIds(subjectObject.subject) : []
 		return remoteData.Sets.getMany(ids)
+	},
+	subEvent: (main, possibleSub) => {
+		//get level for subs
+		//get subjectData method name for possibleSub level
+		const method = subjectDataField(possibleSub.subjectType).toLowerCase()
+		const subs = subjectData[method](main)
+		const retVal = subs.length && _.some(subs, s => s.id === possibleSub.subject)
+		//console.log('subjectData subEvent', main, possibleSub, method, subs, retVal)
+		return retVal
 	},
 	places: (subjectObject) => {
 		if(!subjectObject) return []

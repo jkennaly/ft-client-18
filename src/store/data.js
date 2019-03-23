@@ -458,7 +458,7 @@ export const remoteData = {
 			remoteData.Messages.lastRemoteLoad = lastRemoteLoad
 		},
 		backfillList: newList => {
-			console.log('remoteData.Messages.backfillList ', newList.length)
+			//console.log('remoteData.Messages.backfillList ', newList.length)
 			const newMeta = calcMeta(newList)
 			remoteData.Messages.setMeta(combineMetas(remoteData.Messages.meta, newMeta))
 			remoteData.Messages.list = _.unionBy(newList, remoteData.Messages.list, 'id')
@@ -766,7 +766,7 @@ export const remoteData = {
 			//set last remote load to 0
 			return auth.getAccessToken()
 				.then(result => m.request(reqOptionsCreate(tokenFunction(result))(dataFieldName)(data)))
-				
+				.then(remoteData.Messages.remoteLoad)
 				.catch(logResult)
 		},
 		upsert: data => {
@@ -1338,7 +1338,7 @@ export const remoteData = {
 					const date = remoteData.Dates.get(id)
 					if(!date) throw 'remoteData.Dates.getBaseMoment nonexistent date ' + id
 					const timezone = remoteData.Venues.getTimezone(date.venue)
-					console.log('Dates.getBaseMoment timezone',timezone)
+					//console.log('Dates.getBaseMoment timezone',timezone)
 					const momentString = date.basedate + ' 10:00'
 					const momentFormat = 'Y-M-D H:mm'
 					const m = moment.tz(momentString, momentFormat, timezone)
@@ -1939,7 +1939,7 @@ export const remoteData = {
 		},
 		getTimezone: id => {
 			const v = remoteData.Venues.get(id)
-			console.log('Venues.getTimezone', id, v)
+			//console.log('Venues.getTimezone', id, v)
 			if(!v || !v.name) return ''
 			return v.timezone
 		},
