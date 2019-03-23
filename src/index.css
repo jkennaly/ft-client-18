@@ -27,6 +27,8 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .footer {height: 80px;width: 100%;}
 .form-question {align-items: center;display: flex;justify-content: space-between;padding: 0;}
 .form-question label {padding: 0;}
+.ft-als-l {align-self: left}
+.ft-als-r {align-self: right}
 .ft-average-rating-field {display: flex;flex-direction: row;justify-content: left;}
 .ft-banner-button-container {display: flex;flex-direction: row;height: 1em;justify-content: flex-end;width: 38%;}
 .ft-card {background: white;color: black;display: flex;flex-direction: column;flex-shrink: 0;font-size: 100%;justify-content: space-between;margin: 0.5em;padding: 0.5em;}
@@ -36,6 +38,7 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .ft-card-thumbnail {width: 50px;}
 .ft-card-title {color: white;background-color: black;flex-grow: 1;min-height: 25px;text-align: center;z-index: 3;}
 .ft-event-selector {align-content: flex-start;align-items: flex-start;display: inline-flex;flex-direction: column;margin: 5px;width: 100%;}
+.ft-fb-fg4 {flex-grow: 4;}
 .ft-field {font-size: 100%;display: inline-block;margin: 0 0.25em 0;}
 .ft-fields {display: flex;flex-direction: row;justify-content: space-between;min-height: 1.5em;}
 .ft-fields-with-thumbnail {display: flex;flex-direction: row;justify-content: flex-start;min-height: 1.5em;overflow: hidden;position: relative;}
@@ -95,10 +98,10 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .nav-button > svg {margin: 0 auto;display: block;}
 .nav-button input{display: none;}
 .quarter {background-color: black;color: red;flex-grow: 0;flex-shrink: 0;font-size: 25px;text-align: center;width: 25px;}
-.schedule-label {height: 60px;}
+.schedule-label {height: 60px;left: 1em;position: sticky;}
 .schedule-labels {display: inline-block;flex-shrink: 0;}
 .schedule-ladder {display: flex;}
-.schedule-set {background: white;color: black;display: block;font-size: 100%;justify-content: space-between;margin: 0.5em;position: absolute;width: 300px;}
+.schedule-set {border: 1px solid black;box-sizing: border-box;color: black;display: block;font-size: 100%;justify-content: space-between;margin: 0.5em;position: absolute;text-align: center;width: 300px;}
 .schedule-set-end-handle {height: 5px;position: absolute;top: 0;width: 100%;}
 .schedule-set-hook {display: flex;height: 5px;min-width: 100%;overflow: visible;}
 .schedule-set-start-handle {bottom: 0;height: 5px;position: absolute;width: 100%;}
@@ -143,18 +146,17 @@ li {
 
 .ft-toggle-control {
 	text-align: center;
-	display: flex;
 	align-items: center;
 }
 
 .ft-toggle-list-item {
+  align-items: center;
+  display: flex;
   margin: 0 2em;
 }
 
 .ft-toggle-list-item > div {
   display: inline-block;
-  height: 4em;
-  line-height: 4em;
 }
 
 .ft-toggle {

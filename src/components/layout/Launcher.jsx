@@ -1,7 +1,5 @@
 // Launcher.jsx
 // Services
-import Auth from '../../services/auth.js';
-const auth = new Auth();
 
 
 import m from 'mithril'
@@ -43,6 +41,12 @@ const Launcher = (vnode) => {
 		/>
 		<WidgetContainer>
 			<FixedCardWidget header="My Festivals">
+			{
+				remoteData.Dates.checkedIn()
+					.map(data => <DateCard 
+						eventId={data.id}
+					/>)
+			}
 			{
 				remoteData.Festivals.intended()
 					.map(data => <FestivalCard 

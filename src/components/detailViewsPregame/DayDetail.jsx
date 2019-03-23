@@ -10,20 +10,9 @@ import CardContainer from '../../components/layout/CardContainer.jsx';
 import SetCard from '../../components/cards/SetCard.jsx';
 
 import {remoteData} from '../../store/data';
+import {subjectData} from '../../store/subjectData';
 
 const DayDetail = (auth) => { return {
-	oninit: () => {
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Lineups.loadList()
-		remoteData.Places.loadList()
-		remoteData.Messages.loadList()
-		remoteData.ArtistPriorities.loadList()
-	},
 	view: () => <div class="main-stage">
 			<LauncherBanner 
 				title={remoteData.Days.getEventName(parseInt(m.route.param('id'), 10))} 
@@ -52,18 +41,7 @@ const DayDetail = (auth) => { return {
 						const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
 						return aPriLevel - bPriLevel
 					})
-				.map(data => <SetCard superId={data.day}
-					nameFrag={''}
-					artistName={remoteData.Artists.getName(data.band)}
-					averageRating={remoteData.Messages.setAverageRating(data.id)}
-					stageId={data.stage}
-					dayId={data.day}
-					eventId={data.id}
-					dateId={remoteData.Days.getDateId(data.day)}
-					festivalId={remoteData.Days.getFestivalId(data.day)}
-					seriesId={remoteData.Days.getSeriesId(data.day)}
-					artistPriorityName={remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(data.band, remoteData.Days.getFestivalId(data.day)))}
-					/>)
+				.map(data => <SetCard subjectObject={{subject: data.id, subjectType: subjectData.SET}}/>)
 			}
 		</CardContainer>
 		

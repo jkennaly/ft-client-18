@@ -18,15 +18,18 @@ import RatingStar from '../ui/RatingStar.jsx';
 			<span class={(attrs.averageRating >= 4.95 ? 'fas' : 'far') + ' fa-star'} />
 		</div >
 		*/
+const updateColor = ({dom, attrs}) => {if(attrs.ratingObject) dom.style.color = attrs.ratingObject.color}
 
 const AverageRatingField = {
+	oncreate: updateColor,
+	onupdate: updateColor,
 	view: ({ attrs }) =>
 	<span>
-		<RatingStar filled={attrs.averageRating >= 0.95} />
-		<RatingStar filled={attrs.averageRating >= 1.95} />
-		<RatingStar filled={attrs.averageRating >= 2.95} />
-		<RatingStar filled={attrs.averageRating >= 3.95} />
-		<RatingStar filled={attrs.averageRating >= 4.95} />
+		<RatingStar filled={(attrs.ratingObject ? attrs.ratingObject.rating : attrs.averageRating) >= 0.95} />
+		<RatingStar filled={(attrs.ratingObject ? attrs.ratingObject.rating : attrs.averageRating) >= 1.95} />
+		<RatingStar filled={(attrs.ratingObject ? attrs.ratingObject.rating : attrs.averageRating) >= 2.95} />
+		<RatingStar filled={(attrs.ratingObject ? attrs.ratingObject.rating : attrs.averageRating) >= 3.95} />
+		<RatingStar filled={(attrs.ratingObject ? attrs.ratingObject.rating : attrs.averageRating) >= 4.95} />
 	</span>
     //<!-- Results in a set of 15 stars, 10.5 of them selected -->
 };

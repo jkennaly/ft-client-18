@@ -6,6 +6,7 @@ import {remoteData} from './data.js'
 import {reviewArrays} from '../services/reviewArrays'
 import {reqOptionsCreate, tokenFunction} from '../services/requests.js'
 import {timeStampSort} from '../services/sorts.js'
+import {sameSubject} from '../services/subjectFunctions';
 import Auth from '../services/auth.js'
 const auth = new Auth()
 
@@ -21,6 +22,10 @@ const subjectDataField = type => {return {
 	'2': 'Artists',
 	'1': 'Users'
 }[type]}
+
+const artistSets = so => remoteData.Sets.forArtist(so.subject)
+	.map(s => s.id)
+	.map(id => {return {subject: id, subjectType: 3}})
 
 const secondarySubjectObjects = type => {return {
 	//Messages
@@ -41,15 +46,15 @@ const secondarySubjectObjects = type => {return {
 	'3': so => {
 		const theSet = remoteData.Sets.get(so.subject)
 		//console.log('subjectData secondarySubjectObjects for ', so, theSet)
-		if(theSet && theSet.band) return [{subject: theSet.band, subjectType: 2}]
+		if(theSet && theSet.band) return [
+			{subject: theSet.band, subjectType: 2},
+			...artistSets(so)
+		]
 		return []
-		
-	
+
 	},
 	//Artists
-	'2': so => remoteData.Sets.forArtist(so.subject)
-		.map(s => s.id)
-		.map(id => {return {subject: id, subjectType: 3}}),
+	'2': artistSets,
 	//Users
 	'1': so => []
 }[type]}
@@ -88,6 +93,33 @@ const getComment = (sub, type, author) => {
 }
 
 const ts = () => Math.round((new Date()).getTime() / 1000)
+const userIdsActive = subjectObject => {
+	const directMessages = remoteData.Messages.getFiltered(_.assign({}, subjectObject, {messageType: 3}))
+	return [
+	//invalid
+	x => [],
+	//user
+	x => [],
+	//artist
+	x => [],
+	//set
+	x => _.uniq(directMessages.map(m => m.fromuser)),
+	//place
+	x => [],
+	//venue
+	x => [],
+	//series
+	x => [],
+	//festival
+	x => [],
+	//date
+	x => _.uniq(directMessages.map(m => m.fromuser)),
+	//day
+	x => _.uniq(directMessages.map(m => m.fromuser)),
+	//message
+	x => []
+][subjectObject.subjectType]()
+} 
 const eventActive = primaryField => subjectObject => [
 	//invalid
 	x => false,
@@ -109,6 +141,54 @@ const eventActive = primaryField => subjectObject => [
 	primaryField.active,
 	//day
 	primaryField.active,
+	//message
+	x => false
+][subjectObject.subjectType](subjectObject.subject)
+const eventEnded = primaryField => subjectObject => [
+	//invalid
+	x => false,
+	//user
+	x => false,
+	//artist
+	x => false,
+	//set
+	primaryField.ended,
+	//place
+	x => false,
+	//venue
+	x => false,
+	//series
+	x => false,
+	//festival
+	x => false,
+	//date
+	primaryField.ended,
+	//day
+	primaryField.ended,
+	//message
+	x => false
+][subjectObject.subjectType](subjectObject.subject)
+const eventFuture = primaryField => subjectObject => [
+	//invalid
+	x => false,
+	//user
+	x => false,
+	//artist
+	x => false,
+	//set
+	primaryField.future,
+	//place
+	x => false,
+	//venue
+	x => false,
+	//series
+	x => false,
+	//festival
+	x => false,
+	//date
+	primaryField.future,
+	//day
+	primaryField.future,
 	//message
 	x => false
 ][subjectObject.subjectType](subjectObject.subject)
@@ -141,16 +221,49 @@ export const subjectData = {
 
 	},
 	data: ({subject, subjectType}) => subjectType && subject ? remoteData[subjectDataField(subjectType)].get(subject) : '',
-	ratingBy: (sub, type, author) => {
+	ratingBy: (sub, type, author = auth.userId()) => {
 		//console.log('subjectData ratingBy sub: ' + sub + 'type: ' + type + 'author: ' + author)
 		const message = getRating(sub, type, author)
 		const rate = message && message.content ? parseInt(message.content, 10) : 0
 		return rate
 	},
-	ratingId: (sub, type, author) => {
+	ratingId: (sub, type, author = auth.userId()) => {
 		const message = getRating(sub, type, author)
 		const id = message && message.id
 		return id
+	},
+	ratingObject: (subjectObject, author = auth.userId()) => {
+		const {subject} = subjectObject
+		const {subjectType} = subjectObject
+		//the gold rating is the user's most recent rating for the subject
+		const message = getRating(subject, subjectType, author)
+		const goldRating = message && message.content && parseInt(message.content, 10)
+		//console.log('ratingsObject gold', goldRating)
+		if(goldRating) return _.assign({}, {author: author, rating: goldRating, color: 'gold'}, subjectObject)
+		//the green rating is the average of the users relatedRatings
+		const relatedSubjects = secondarySubjectObjects(subjectType)(subjectObject)
+		//console.log('ratingsObject relatedSubjects', relatedSubjects)
+		const relatedRatings = relatedSubjects
+			.map(({subject, subjectType}) => getRating(subject, subjectType, author))
+			.filter(_.isInteger)
+		const greenRating = relatedRatings.reduce((avg, r, i, arr) => avg + r / arr.length, 0)
+		//console.log('ratingsObject green', greenRating)
+		if(greenRating) return _.assign({}, {author: author, rating: goldRating, color: 'forestgreen'}, subjectObject)
+		//the black rating is the average of all avable ratings for the primary, or if none, the secondarties
+		const primaryRatings = remoteData.Messages.getFiltered({messageType: 2, subject: subject, subjectType: subjectType})
+			.map(m => m && m.content && parseInt(m.content, 10))
+			.filter(x => x)
+		const secondaryRatings = _.uniqBy((primaryRatings.length ? [] : relatedSubjects)
+			.map(sub => remoteData.Messages.getFiltered(_.assign({}, sub, {messageType: 2})))
+			.reduce((pv, cv) => [...pv, ...cv], []),
+			r => `${r.fromuser}.${r.subject}.${r.subjectType}`)
+			.map(m => m && m.content && parseInt(m.content, 10))
+			.filter(x => x)
+		const allRatings = [...primaryRatings, ...secondaryRatings].filter(x => x)
+		const blackRating = allRatings.length ? allRatings.reduce((avg, r, i, arr) => avg + r / arr.length, 0) : 0
+//console.log('ratingsObject black', blackRating)
+		
+		return blackRating ? _.assign({}, {author: author, rating: blackRating, color: 'black'}, subjectObject) : _.assign({}, {author: author, rating: 0, color: 'black'}, subjectObject)
 	},
 	commentBy: (sub, type, author) => {
 		const message = getComment(sub, type, author)
@@ -169,7 +282,9 @@ export const subjectData = {
 		const id = message && message.id
 		return id
 	},
+	ended: subjectObject => subjectObject && subjectObject.subject && eventEnded(remoteData[subjectDataField(subjectObject.subjectType)])(subjectObject),
 	active: subjectObject => subjectObject && subjectObject.subject && eventActive(remoteData[subjectDataField(subjectObject.subjectType)])(subjectObject),
+	future: subjectObject => subjectObject && subjectObject.subject && eventFuture(remoteData[subjectDataField(subjectObject.subjectType)])(subjectObject),
 	checkIn: subjectObject => {
 		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
 		if(eventActive(primaryField)(subjectObject)) {
@@ -181,13 +296,13 @@ export const subjectData = {
 		        content: 0
 		    })
 		}},
-	checkedIn: (subjectObject, options = {}) => {
+	checkedIn: (subjectObject = {subject: auth.userId(), subjectType: subjectData.USER}, options = {}) => {
 		//console.log('subjectData checkedIn', subjectObject, options)
-		if(!subjectObject || !subjectObject.subject) return false
+		if(!subjectObject.subject) return false
 		const subjectObjectSpecsUser = subjectObject.subjectType === subjectData.USER
 		//with options.date and subjectObject specifies a user
 			//if there is an active date associated with the user return the id
-		if(subjectObjectSpecsUser && options.date) {
+		if(subjectObjectSpecsUser && (options.date || options.eventType === subjectData.DATE)) {
 			//console.log('subjectData checkedIn', subjectObject, options)
 			const lastCheckin = remoteData.Messages.lastCheckin(subjectObject.subject)
 			//console.log('subjectData lastCheckin', lastCheckin)
@@ -197,7 +312,7 @@ export const subjectData = {
 			if(assocDate && assocDate.id) return assocDate.id
 		//with options.day and subjectObject specifies a user
 			//if there is an active day associated with the user return the id
-		} else if(subjectObjectSpecsUser && options.day) {
+		} else if(subjectObjectSpecsUser && (options.day || options.eventType === subjectData.DAY)) {
 			//console.log('subjectData checkedIn', subjectObject, options)
 			const lastCheckin = remoteData.Messages.lastCheckin(subjectObject.subject)
 			//console.log('subjectData lastCheckin', lastCheckin)
@@ -205,8 +320,16 @@ export const subjectData = {
 				.reduce((pv, cv, i) => !i ? cv : pv, false)
 			//console.log('subjectData assocDay', assocDay)
 			if(assocDay && assocDay.id) return assocDay.id
-		//with options.day and subjectObject specifies a user
-			//if there is an active day associated with the user return the id
+		//with options.set and subjectObject specifies a user
+			//if there is an active set associated with the user return the id
+		} else if(subjectObjectSpecsUser && (options.set || options.eventType === subjectData.SET)) {
+			//console.log('subjectData checkedIn', subjectObject, options)
+			const lastCheckin = remoteData.Messages.lastCheckin(subjectObject.subject)
+			//console.log('subjectData lastCheckin', lastCheckin)
+			const assocSet = subjectData.sets(lastCheckin)
+				.reduce((pv, cv, i) => !i ? cv : pv, false)
+			//console.log('subjectData assocSet', assocSet)
+			if(assocSet && assocSet.id) return assocSet.id
 		}
 		//no valid options
 			//this can either return 
@@ -217,27 +340,29 @@ export const subjectData = {
 		}
 
 		const subjectCheckinsFilter = _.assign({}, subjectObject, {messageType: 3})
+		//console.log('subjectData subjectCheckinsFilter', subjectCheckinsFilter)
 		const subjectDirectCheckins = remoteData.Messages.getFiltered(subjectCheckinsFilter)
-		const subjectCurrentDirectCheckins = subjectDirectCheckins
-			.filter(checkin => remoteData.Messages.lastCheckin(checkin.fromuser).id === checkin.id)
+			.reduce((pv, checkin) => {
+				const active = remoteData.Messages.lastCheckin(checkin.fromuser).id === checkin.id
+				if(active) {
+					pv.active.push(checkin)
+				} else {
+					pv.ended.push(checkin)
+				}
+				return pv
+			}, {active: [], ended: []})
 
-		return subjectCurrentDirectCheckins
+		return subjectDirectCheckins
 
 	},
 	feelingClass: subjectObject => {
-		const myRating = getRating(subjectObject.subject, subjectObject.subjectType, auth.userId())
-		const strength = myRating ? 'strong' : 'weak'
-		const averageFeeling = myRating ? myRating :
-			remoteData.Messages.getFiltered
-		//two fields: strength and feeling
-			//both are based on rating
-				//if there is a my rating for the subject or a secondary in the last year, strength is strong
-				//otherwise, strength is weak
-				//for feeling base number: 
-					//if strong, use the strong rating
-					//use most recent my rating
-					//use average of ratings of subject and secondaries
-					//return unsure if no ratings
+		const rating = subjectData.ratingObject(subjectObject)
+		const strength = rating.color === 'black' ? 'weak' : 'strong'
+		const feeling = !rating.rating ? '' :
+			rating.rating < 3 ? 'hate' :
+			rating.rating < 4 ? 'like' :
+			'love'
+		return feeling && `gt-feeling-${strength}-${feeling}` || 'gt-feeling-unsure'
 	},
 	imagePreset: type => 'artist',
 	connectedData: subjectObject => {
@@ -257,7 +382,7 @@ export const subjectData = {
 		//all artists in lineup
 		//future: all places for festival
 	},
-	dates: (subjectObject, filterSortMapReduce) => {
+	dates: (subjectObject) => {
 		if(!subjectObject) return []
 		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
 		const lowerDates = primaryField.getSubDateIds ? primaryField.getSubDateIds(subjectObject.subject) : []
@@ -267,7 +392,17 @@ export const subjectData = {
 		//console.log('subjectData dates', subjectObject, allDates, primaryField.getDateId(subjectObject.subject))
 		return remoteData.Dates.getMany(allDates)
 	},
-	days: (subjectObject, filterSortMapReduce) => {
+	festivals: (subjectObject) => {
+		if(!subjectObject) return []
+		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
+		const lowerFestivals = primaryField.getSubFestivalIds ? primaryField.getSubFestivalIds(subjectObject.subject) : []
+		const higherFestivals = primaryField.getFestivalId ? [primaryField.getFestivalId(subjectObject.subject)] : []
+		const allFestivals = [...(lowerFestivals ? lowerFestivals : []), ...(higherFestivals ? higherFestivals : [])]
+			.filter(x => x)
+		//console.log('subjectData Festivals', subjectObject, allFestivals, primaryField.getFestivalId(subjectObject.subject))
+		return remoteData.Festivals.getMany(allFestivals)
+	},
+	days: (subjectObject) => {
 		if(!subjectObject) return []
 		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
 		const lowerDays = primaryField.getSubDayIds ? primaryField.getSubDayIds(subjectObject.subject) : []
@@ -277,12 +412,27 @@ export const subjectData = {
 		//console.log('subjectData dates', subjectObject, allDates, primaryField.getDateId(subjectObject.subject))
 		return remoteData.Days.getMany(allDays)
 	},
-	sets: (subjectObject, filterSortMapReduce) => {
+	sets: (subjectObject) => {
 		if(!subjectObject) return []
-		return remoteData.Sets.getMany(
-		remoteData[subjectDataField(subjectObject.subjectType)]
-			.getSubSetIds(subjectObject.subject)
-	)},
+		const dataField = remoteData[subjectDataField(subjectObject.subjectType)]
+		const ids = dataField.getSubSetIds ? dataField.getSubSetIds(subjectObject.subject) : []
+		return remoteData.Sets.getMany(ids)
+	},
+	places: (subjectObject) => {
+		if(!subjectObject) return []
+		return subjectData.festivals(subjectObject)
+			.map(festival => { return{subject: festival.id, subjectType: subjectData.FESTIVAL}})
+			.map(remoteData.Places.getFiltered)
+			//.filter(s => console.log('subjectData.places festival', s) || true)
+			.reduce((pv, cv) => [...pv, ...cv], [])
+	},
+	users: (subjectObject) => {
+		if(!subjectObject) return []
+		//return all users active on the subjectObject
+		const users = remoteData.Users.getMany(userIdsActive(subjectObject))
+		return users
+		
+	},
 	loadMessagesForSubject: subjectObject => {
 		//reject if invalid parameters
 		if(!subjectObject || !subjectObject.subject) return Promise.reject('invalid Subject Data for load')
@@ -367,16 +517,16 @@ export const subjectData = {
 		][subjectObject.subjectType]
 		const checkinAllowed = eventActive(primaryField)(subjectObject)
 		const lastCheckin = checkinAllowed && remoteData.Messages.lastCheckin(auth.userId())
+		//console.log('SetDetail lastCheckin', lastCheckin)
 		const checkedIn = checkinAllowed && subjectObject.subject === lastCheckin.subject && subjectObject.subjectType === lastCheckin.subjectType
 
 		const relatedMessages = remoteData.Messages.getFiltered(subjectObject)
 
-		const checkins = relatedMessages
-			.filter(m => m.messageType === 3)
 
 		const allPrimaryReviewMessages = relatedMessages
 			.filter(m => m.messageType === 1 || m.messageType === 2)
 		//console.log('subjectData getDetail', subjectObject, name)
+
 		
 		const secondaryReviewSubjects = secondarySubjectObjects(subjectObject.subjectType)(subjectObject)
 		const useSecondary = secondaryReviewSubjects && secondaryReviewSubjects.length
@@ -392,6 +542,26 @@ export const subjectData = {
 		
 		const reviews = reviewArrays([...allPrimaryReviewMessages, ...secondaryReviewMessages])
 		//console.log('subjectData.getDetail reviews', reviews)
+
+		const checkins = subjectData.checkedIn(subjectObject)
+		//console.log('subjectData.getDetail checkins', checkins)
+		//merge the checkins with the reviews
+		/*
+		const checkinsWithReviews = _.map(checkins, state => state.map(checkin => {
+			const matchedReview = reviews.find(r => r.author === checkin.fromuser && sameSubject(r, checkin))
+			const assignReview = matchedReview ? matchedReview : {
+				author: checkin.fromuser,
+				comment: '',
+				commentId: 0,
+				rating: 0,
+				ratingId: 0,
+				subjectObject: checkin,
+				timestamp: checkin.timestamp
+			}
+			return _.assign({}, checkin, {review: assignReview})
+		}))
+		*/
+
 
 		const myReviews = reviews.filter(r => r.author === auth.userId())
 		const friendReviews = reviews.filter(r => r.author !== auth.userId())

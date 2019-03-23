@@ -37,15 +37,15 @@ const CloudImageField = vnode => {
 
             {images.length && images[0].id ? m.trust(cl.imageTag(imagePath, {alt: "artist image", width: 288, height: 250, crop: "fit"}).toHtml()) : ''}
             {images.length && images[0].id ? <AttributionField imageId={images[0].id}/> : ''}
-            {!images.length || !images[0].id ? <NavButton fieldValue="Add image" action={e => addingImage = true} /> : ''}
-            {(!images.length || !images[0].id) && vnode.attrs.subjectType === 2 ? <a 
+            {!vnode.attrs.addDisabled && (!images.length || !images[0].id) ? <NavButton fieldValue="Add image" action={e => addingImage = true} /> : ''}
+            {(!images.length || !images[0].id) && !vnode.attrs.addDisabled && vnode.attrs.subjectType === 2 ? <a 
                 href={"https://www.google.com/search?q=" + encodeURIComponent(subjectData.name(vnode.attrs.subject, vnode.attrs.subjectType)) + "+site%3Acommons.wikimedia.org&hs=lbE&channel=fs&tbm=isch&source=lnt&tbs=sur:fc&sa=X"} 
                 target="_blank">
                 <NavButton fieldValue="Image Search" />
                 </a> : ''}
 {
     
-                !images.length || !images[0].id ? <ImageModal 
+                !vnode.attrs.addDisabled && (!images.length || !images[0].id) ? <ImageModal 
                     display={addingImage} 
                     hide={() => addingImage = false}
                     action={data => remoteData.Images.create(data)}

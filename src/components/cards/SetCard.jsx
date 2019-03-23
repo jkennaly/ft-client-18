@@ -12,35 +12,32 @@
 //  averageRating
 
 import m from 'mithril'
+import _ from 'lodash'
 
-import  SetNameField from '../fields/SetNameField.jsx';
+import  CheckedInUsersField from '../fields/CheckedInUsersField.jsx';
 import  NameField from '../fields/NameField.jsx';
-import  EventNameField from '../fields/EventNameField.jsx';
 import  StageNameField from '../fields/StageNameField.jsx';
-import  DayNameField from '../fields/DayNameField.jsx';
-import  DateNameField from '../fields/DateNameField.jsx';
 import  AverageRatingField from '../fields/AverageRatingField.jsx';
+import {subjectData} from '../../store/subjectData.js';
+import {remoteData} from '../../store/data.js';
 
+const currentSet = _.memoize(id => subjectData.get({subject: id, subjectType: subjectData.SET}))
+const setIdField = (field, id) => currentSet(id) ? currentSet(id)[field] : 0
 
 const SetCard = {
   view: ({ attrs }) =>
-    <div class="ft-card" onclick={() => m.route.set("/sets" + "/pregame" + '/' + attrs.eventId)}>
+    <div class="ft-card" onclick={() => m.route.set('/gametime/3/' + attrs.subjectObject.subject)}>
       <div class="ft-set-name-fields">
-        <SetNameField 
-          artistName={attrs.artistName} 
-          seriesId={attrs.seriesId} 
-          festivalId={attrs.festivalId} 
-        />
-        <AverageRatingField averageRating={attrs.averageRating} pretext={'Average Rating'}/>
+        <NameField fieldValue={subjectData.name(attrs.subjectObject)} />
+      <AverageRatingField ratingObject={subjectData.ratingObject(attrs.subjectObject)}/>
       </div>
       <div class="ft-set-diff-fields">
-       	<StageNameField stageId={attrs.stageId} />
-       	<DateNameField dateId={attrs.dateId} />
-       	<DayNameField dayId={attrs.dayId} />
-        <NameField fieldValue={attrs.artistPriorityName} />
-       	{
-      //artistPriority
-  		}
+          <CheckedInUsersField subjectObject={attrs.subjectObject} />
+          {/*
+        <NameField fieldValue={remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(setIdField('band', attrs.subjectObject.subject), remoteData.Days.getFestivalId(setIdField('day', attrs.subjectObject.subject))))} />
+      */}
+        <StageNameField stageId={setIdField('stage', attrs.subjectObject.subject)} />
+
       </div>
     </div>
 };

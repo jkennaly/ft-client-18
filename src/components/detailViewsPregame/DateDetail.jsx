@@ -120,18 +120,7 @@ const DateDetail = (auth) => {
 						const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
 						return aPriLevel - bPriLevel
 					})
-				.map(data => <SetCard superId={data.day}
-					nameFrag={''}
-					artistName={remoteData.Artists.getName(data.band)}
-					averageRating={remoteData.Messages.setAverageRating(data.id)}
-					stageId={data.stage}
-					dayId={data.day}
-					eventId={data.id}
-					dateId={remoteData.Days.getDateId(data.day)}
-					festivalId={remoteData.Days.getFestivalId(data.day)}
-					seriesId={remoteData.Days.getSeriesId(data.day)}
-					artistPriorityName={remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(data.band, remoteData.Days.getFestivalId(data.day)))}
-					/>)
+				.map(data => <SetCard subjectObject={{subject: data.id, subjectType: subjectData.SET}}/>)
 			}
 		</FixedCardWidget> : ''}
 		{sets.length ? '' : <LineupWidget festivalId={festivalId} />}

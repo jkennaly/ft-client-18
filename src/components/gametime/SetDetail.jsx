@@ -6,11 +6,12 @@ import m from 'mithril'
 import _ from 'lodash'
 import {subjectData} from '../../store/subjectData'
 
-import LauncherBanner from '../ui/LauncherBanner.jsx';
 import ArtistReviewCard from '../../components/cards/ArtistReviewCard.jsx';
 import ReviewCard from '../../components/cards/ReviewCard.jsx';
 import ReviewArrayCard from '../../components/cards/ReviewArrayCard.jsx';
+import UserCard from '../../components/cards/UserCard.jsx';
 
+import CheckinToggle from '../ui/canned/CheckinToggle.jsx'
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import ReviewArraysWidget from '../../components/widgets/canned/ReviewArraysWidget.jsx';
@@ -26,10 +27,11 @@ const SetDetail = () => {
 	var discussing = false
 	return {
 		oninit: ({attrs}) => {
+			console.log('SetDetail init', attrs.subjectObject)
 			detail = subjectData.getDetail(attrs.subjectObject)
 			detailSubject = attrs.subjectObject.subject
 			detailSubjectType = attrs.subjectObject.subjectType
-			//console.log('SetDetail onit', attrs.subjectObject, detail)
+			console.log('SetDetail onit', attrs.subjectObject, detail)
 		
 		},
 		onbeforeupdate: ({attrs}) => {
@@ -39,16 +41,6 @@ const SetDetail = () => {
 			//console.log('SetDetail onbeforeupdate', detailSubject)
 		},
 		view: ({attrs}) => <div>
-		{
-			//console.log('SetDetail view', detail)
-			//subject name/time string/rating imposed over subject image
-			//checkin toggle (if place or event) and review button (if not user)
-			//my most recent comment on subject or subject focus
-			//most recent other type of comment (subject/ subject focus, if there is a subject focus)
-			//most recent comment by each friend (on subject or focus), right up to now
-
-
-		}
 			
 		{detail.name}
 			<WidgetContainer>
@@ -58,8 +50,41 @@ const SetDetail = () => {
 						subject={attrs.subjectObject.subject} 
 						camera={true}
 						sources={['local']}
+						addDisabled={!detail.checkedIn}
 					/>
 				</FixedCardWidget>
+				{detail.checkinAllowed ?
+					<FixedCardWidget >
+						<CheckinToggle subjectObject={attrs.subjectObject} debug={false} />
+						{detail.checkedIn ? <ReviewCard subjectObject={attrs.subjectObject} name={subjectData.name(attrs.subjectObject)} /> : ''}
+					</FixedCardWidget>
+				: ''}
+				{detail && detail.checkins && detail.checkins.active && detail.checkins.active.length ? <ReviewArraysWidget 
+					header={`Checked In`}
+				>
+					{
+						_.uniqBy(detail.checkins.active, 'fromuser')
+							//.filter(r => console.log('SetDetail checkins.active map', r) || true)
+							.map(checkin => <UserCard 
+								data={{id: checkin.fromuser}}
+							/>)
+							
+							
+					}
+				</ReviewArraysWidget> : ''}
+				{detail && detail.checkins && detail.checkins.ended && detail.checkins.ended.length ? <ReviewArraysWidget 
+					header={`Checked Out`}
+				>
+					{
+						_.uniqBy(detail.checkins.ended, 'fromuser')
+							//.filter(r => console.log('SetDetail checkins.ended map', r) || true)
+							.map(checkin => <UserCard 
+								data={{id: checkin.fromuser}}
+							/>)
+							
+							
+					}
+				</ReviewArraysWidget> : ''}
 				{detail && detail.myReviews && detail.myReviews.length ? <ReviewArraysWidget 
 					header={`My Reviews`}
 				>
@@ -90,48 +115,7 @@ const SetDetail = () => {
 				</ReviewArraysWidget> : ''}
 				
 			</WidgetContainer>
+			{console.log('SetDetail view done')}
 		</div>
 }};
-/*
-				{detail && detail.myReviews && detail.myReviews.length ? <FixedCardWidget  >
-				
-					<ReviewCard type="detail" data={detail} />
-				
-				</FixedCardWidget> : ''}
-				{
-					//find each message about this artist and order by user
-					_.map(remoteData.Messages.forArtistReviewCard(artistId),
-						me => <DiscussionWidget 
-							messageArray={me} 
-							discussSubject={(s, me) => {
-								subjectObject = _.clone(s)
-								messageArray = _.clone(me)
-								//console.log('ArtistDetail ArtistReviewCard discussSubject me length ' + me.length)
-								discussing = true
-							}}
-						/>
-					)
-				}
-			{messageArray.length && userId ? <DiscussModal
-				display={discussing} 
-				hide={sub => {discussing = false;}}
-				subject={subjectObject}
-				messageArray={messageArray}
-				reviewer={messageArray[0].fromuser}
-				user={userId}
-			/> : ''}
-const detailObject = {
-	name: 'name',
-	subStrings: ['timeString'],
-	rating: 0,
-	imgSrc: 'url',
-	checkinAllowed: true,
-	reviewAllowed: true,
-	checkedIn: false,
-	//reviewArray: [author, subject, rating, comment, timestamp]
-	myReviews: [[0, {subject: 0, subjectType: 0}, 0, 'ok, not great']],
-	friendReviews: [[0, {subject: 0, subjectType: 0}, 0, 'ok, not great']]
-
-}
-*/
 export default SetDetail;

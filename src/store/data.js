@@ -466,7 +466,7 @@ export const remoteData = {
 		},
 		lastRemoteLoad: 0,
 		reload: () => remoteData.Messages.lastRemoteLoad = ts() - remoteData.Messages.remoteInterval + 1,
-		remoteInterval: 60,
+		remoteInterval: 10,
 		get: id => _.find(remoteData.Messages.list, p => p.id === id),
 		getMany: ids => remoteData.Messages.list.filter(d => ids.indexOf(d.id) > -1),
 		getFiltered: filter => _.filter(remoteData.Messages.list, filter),
@@ -1332,14 +1332,19 @@ export const remoteData = {
 		remoteLoad: (options) => loadRemote(remoteData.Dates, 'remoteData.Dates', undefined, options),
 		getBaseMoment: id => {
 					const cached = _.get(dateBaseCache, 'base.' + id)
-					if(cached) return moment(cached)
+					const cachedZone = _.get(dateBaseCache, 'base.zone.' + id)
+					//if(cached) console.log('Dates.getBaseMoment cached+zone',cached, cachedZone)
+					if(cached) return moment.tz(cached, cachedZone)
 					const date = remoteData.Dates.get(id)
 					if(!date) throw 'remoteData.Dates.getBaseMoment nonexistent date ' + id
 					const timezone = remoteData.Venues.getTimezone(date.venue)
+					console.log('Dates.getBaseMoment timezone',timezone)
 					const momentString = date.basedate + ' 10:00'
 					const momentFormat = 'Y-M-D H:mm'
 					const m = moment.tz(momentString, momentFormat, timezone)
+					if(!timezone) return moment(m)
 					_.set(dateBaseCache, 'base.' + id, m.valueOf())
+					_.set(dateBaseCache, 'base.zone.' + id, timezone)
 					return moment(m)
 				},
 		getStartMoment: id => {
@@ -1358,6 +1363,8 @@ export const remoteData = {
 					return moment(m)
 				},
 		active: id => moment().isBetween(remoteData.Dates.getStartMoment(id), remoteData.Dates.getEndMoment(id)),
+		future: id => moment().isBefore(remoteData.Dates.getStartMoment(id)),
+		ended: id => moment().isAfter(remoteData.Dates.getEndMoment(id)),
 		getSubjectObject: id => {return {subjectType: 8, subject: id}},
 		datedFestivals: () => {
 			//console.log('' + remoteData.Festivals.list.length + '-' + remoteData.Dates.list.length)
@@ -1411,6 +1418,8 @@ export const remoteData = {
 					return start.isAfter(now, 'day')
 				})
 		},
+		checkedIn: (userId = auth.userId()) => remoteData.Dates.current()
+			.filter(date => remoteData.Messages.getFiltered({subject: date.id, subjectType: 8, messageType: 3, fromuser: userId}).length),
 		createWithDays: data => {
 			const dataFieldName = 'Dates/createWithDays'
 			//((assume data was validated in form))
@@ -1489,9 +1498,12 @@ export const remoteData = {
 			if(!id) return
 			
 			const superMoment = remoteData.Dates.getBaseMoment(remoteData.Days.getSuperId(id))
+
 			return moment(superMoment.add(remoteData.Days.get(id).daysOffset, 'days'))
 		},
 		active: id => moment().isBetween(remoteData.Days.getBaseMoment(id), remoteData.Days.getBaseMoment(id).add(24, 'hours')),
+		future: id => moment().isBefore(remoteData.Days.getStartMoment(id)),
+		ended: id => moment().isAfter(remoteData.Days.getEndMoment(id)),
 		getSubjectObject: id => {return {subjectType: 9, subject: id}},
 		isEvent: subject => subject.subjectType === 9,
 		messageEventConnection: e => m => remoteData.Days.isEvent(m) && 
@@ -1761,6 +1773,8 @@ export const remoteData = {
 			return startMoment.format('h:mm') + '-' + endMoment.format('h:mm')
 		},
 		active: id => moment().isBetween(remoteData.Sets.getStartMoment(id), remoteData.Sets.getEndMoment(id)),
+		future: id => moment().isBefore(remoteData.Sets.getStartMoment(id)),
+		ended: id => moment().isAfter(remoteData.Sets.getEndMoment(id)),
 		getSubjectObject: id => {return {subjectType: 3, subject: id}},
 		getTimeString: id => remoteData.Sets.getSetTimeText(id),
 		datedLinedFestivals: (daysAhead = 14) => remoteData.Dates.upcomingDatedFestivals(daysAhead)
@@ -1925,6 +1939,7 @@ export const remoteData = {
 		},
 		getTimezone: id => {
 			const v = remoteData.Venues.get(id)
+			console.log('Venues.getTimezone', id, v)
 			if(!v || !v.name) return ''
 			return v.timezone
 		},
@@ -2012,6 +2027,12 @@ export const remoteData = {
 		remoteInterval: 3600,
 		get: id => _.find(remoteData.Places.list, p => p.id === id),
 		getMany: ids => remoteData.Places.list.filter(d => ids.indexOf(d.id) > -1),
+		getFiltered: filter => _.filter(remoteData.Places.list, filter),
+		getFestivalId: id => {
+			const place = remoteData.Places.get(id)
+			if(!place) return
+			return place.festival
+		},
 		forFestival: festivalId => _.uniqBy(remoteData.Places.list
 			.filter(d => d.festival === festivalId), x => x.name)
 			.sort((a, b) => a.priority - b.priority),

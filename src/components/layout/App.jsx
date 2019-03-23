@@ -107,7 +107,6 @@ const App = {
 			appInitComplete = false
 		}
 		
-		
 
 		m.route(mainStage, "/launcher", {
 			"/auth": {
@@ -129,6 +128,10 @@ const App = {
 			},
 			"/messages": {
 				onmatch: Messages
+
+			},
+			"/gametime/locations/:subjectType/:subject": {
+				onmatch: Gametime
 
 			},
 			"/gametime/:subjectType/:subject": {

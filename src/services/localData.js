@@ -40,7 +40,7 @@ const combineWithLocalMetaPromise = dataFieldName => newMeta => localforage
 		.catch(err => console.error(err))
 
 
-export const calcMeta = data => (data.data ? data.data : (data ? data : []))
+export const calcMeta = data => (data && data.data ? data.data : (data ? data : []))
 	.reduce((metaTemp, el, index, arr) => {
 		const m = moment(el.timestamp).valueOf()
 		const i = el.id

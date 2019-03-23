@@ -24,7 +24,7 @@ if (workbox) {
   	//workbox.clientsClaim()
 
 	const bgSyncPlugin = new workbox.backgroundSync.Plugin('myQueueName', {
-	  maxRetentionTime: 24 * 60 // Retry for max of 24 Hours
+	  maxRetentionTime: 24 * 60 * 7 // Retry for max of 1 week
 	})
 
 	  workbox.precaching.precacheAndRoute([])
@@ -36,9 +36,25 @@ if (workbox) {
 		  }),
 		  'POST'
 	)
+	  workbox.routing.registerRoute(
+		  /\/api\/*/,
+		  workbox.strategies.networkFirst({
+      		cacheName: 'api-get',
+		    plugins: [
+		        new workbox.expiration.Plugin({
+		          maxAgeSeconds: 30 * 24 * 60 * 60,
+		          maxEntries: 30,
+		        }),
+		        new workbox.cacheableResponse.Plugin({
+		          statuses: [0, 200],
+		        }),
+		    ],
+  		}),
+		  'GET'
+	)
 
 	workbox.routing.registerRoute(
-  		new RegExp('(.*)widget.cloudinary.com/(.*)'),
+  		/(.*)widget.cloudinary.com\/(.*)/,
   		workbox.strategies.cacheFirst({
       		cacheName: 'cloud-images',
 		    plugins: [

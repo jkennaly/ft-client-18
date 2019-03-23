@@ -19,14 +19,14 @@ const ReviewCard = vnode => {
 	  view: ({ attrs }) =>
 	    <div class="ft-card" >
 	      <div class="ft-fields" onclick={e => reviewing = true}>
-	        <ComposedNameField fieldValue={'Review ' + (attrs.data.name)} />
+	        <ComposedNameField fieldValue={'Review ' + (attrs.data && attrs.data.name || attrs.name)} />
 	      </div>
 	      <ReviewModal 
 			display={reviewing} 
 			hide={() => reviewing = false}
-			subject={{
-				sub: attrs.data.id,
-				type: attrs.subjectType ? attrs.subjectType : 2
+			subject={attrs.subjectObject ? attrs.subjectObject : {
+				subject: attrs.data.id,
+				subjectType: attrs.subjectType ? attrs.subjectType : 2
 			}}
 			user={userId}
 	      />

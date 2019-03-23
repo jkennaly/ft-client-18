@@ -20,6 +20,7 @@ const CheckinToggle = {
 			
 			getter={() => sameSubject(subjectData.checkedIn({subject: auth.userId(), subjectType: subjectData.USER}), attrs.subjectObject)}
 			setter={newState => {
+				//console.log('CheckinToggle setter start',attrs.subjectObject)
 				//when toggled:
 					//if the user was not checked in, check in the user to the subject
 					const lastCheckin = subjectData.checkedIn({subject: auth.userId(), subjectType: subjectData.USER})
@@ -27,6 +28,7 @@ const CheckinToggle = {
 					const checkinAllowed = notCheckedIn && subjectData.active(attrs.subjectObject)
 					if(checkinAllowed) subjectData.checkIn(attrs.subjectObject)
 					//open the subject in gametime
+					//console.log('CheckinToggle setter checkinAllowed',checkinAllowed)
 					m.route.set(`/gametime/${attrs.subjectObject.subjectType}/${attrs.subjectObject.subject}`)
 			}}
 

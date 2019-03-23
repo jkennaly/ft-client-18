@@ -23,7 +23,6 @@ const ToggleControl = vnode => {
     <label class="ft-toggle-btn" for="cb1"></label>
     <div>{attrs.onLabel}</div>
   </li>
-			
   </ul>
 	};
 
