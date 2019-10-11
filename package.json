@@ -42,7 +42,7 @@
     "jquery": "^3.3.1",
     "loadjs": "^3.5.5",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "memoizee": "^0.4.14",
     "mithril": "^1.1.6",
     "moment": "^2.23.0",
