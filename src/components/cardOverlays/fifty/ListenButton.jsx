@@ -19,7 +19,7 @@ const ListenButton = vnode => {
 	  view: ({ attrs }) =>
 	    <div class="ft-fifty-button" onclick={e => {
 	    	const name = subjectData.name(attrs.subject, attrs.subjectType)
-	    	window.open('https://open.spotify.com/search/results/' + name)
+	    	window.open('https://open.spotify.com/search/' + name)
 	    	e.stopPropagation()
 	    }} >
 	      

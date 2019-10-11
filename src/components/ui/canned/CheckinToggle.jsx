@@ -27,7 +27,7 @@ const currentlyCheckedIn = subjectObject => {
 const CheckinToggle = {
 		view: ({attrs}) => <ToggleControl
 			offLabel={attrs.offLabel ? attrs.offLabel : 'Not there'}
-			onLabel={attrs.onLabel ? attrs.onLabel : 'I\'m here (click for live schedule)'}
+			onLabel={attrs.onLabel ? attrs.onLabel : 'I\'m here'}
 			
 			getter={() => {
 				 return currentlyCheckedIn(attrs.subjectObject)

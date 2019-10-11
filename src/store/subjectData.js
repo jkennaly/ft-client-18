@@ -10,7 +10,7 @@ import {sameSubject} from '../services/subjectFunctions';
 import Auth from '../services/auth.js'
 const auth = new Auth()
 
-const subjectDataField = type => {return {
+const subjectDataField = type => {return _.get({
 	'10': 'Messages',
 	'9': 'Days',
 	'8': 'Dates',
@@ -21,7 +21,24 @@ const subjectDataField = type => {return {
 	'3': 'Sets',
 	'2': 'Artists',
 	'1': 'Users'
-}[type]}
+}, type, '')}
+
+//the subjectType of a direct subEvent
+const subTypes = [
+	undefined, //nothing
+	undefined, //users
+	undefined, //artists
+	undefined, //sets
+	undefined, //places
+	undefined, //venues
+	7, //series
+	8, //festivals
+	9, //dates
+	3, //days
+	undefined, //messages
+
+
+]
 
 const artistSets = so => remoteData.Sets.forArtist(so.subject)
 	.map(s => s.id)
@@ -435,6 +452,28 @@ export const subjectData = {
 		const retVal = subs.length && _.some(subs, s => s.id === possibleSub.subject)
 		//console.log('subjectData subEvent', main, possibleSub, method, subs, retVal)
 		return retVal
+	},
+	subEvents: (subjectObject) => {
+		if(!subjectObject) return []
+		const df = remoteData[subjectDataField(subjectObject.subjectType)]
+		const subType = subTypes[subjectObject[subjectObject.subjectType]]
+		if(!df || !df.getSubIds || !subType) return []
+		return subjectData.getManySingleType(
+			df.getSubIds(subjectObject.subject)
+			.map(id => {return {subject: id, subjectType: subType}})
+		)
+
+
+	},
+	peerEvents: (subjectObject) => {
+		if(!subjectObject) return []
+		const df = remoteData[subjectDataField(subjectObject.subjectType)]
+		if(!df || !df.getPeerIds) return []
+		return subjectData.getManySingleType(
+			df.getPeerIds(subjectObject.subject)
+			.map(id => {return {subject: id, subjectType: subjectObject.subjectType}})
+		)
+
 	},
 	places: (subjectObject) => {
 		if(!subjectObject) return []

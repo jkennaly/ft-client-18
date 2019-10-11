@@ -15,7 +15,7 @@ const Schedule = ({attrs}) => {
 	var sets, stages
 	return {
 		oninit: ({attrs}) => {
-			console.log('Gametime oninit')
+			//console.log('Gametime oninit')
 			sets = subjectData.sets(attrs.subjectObject)
 			stages = subjectData.getManySingleType(
 				_.uniq(sets.map(s => s.stage))

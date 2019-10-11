@@ -1486,6 +1486,11 @@ export const remoteData = {
 			if(!v || !v.name) return ''
 			return remoteData.Dates.getEventName(v.date) + ' ' + v.name
 		},
+		getEventNameShort: id => {
+			const v = remoteData.Days.get(id)
+			if(!v || !v.name) return ''
+			return v.name
+		},
 		getEventNames: () => remoteData.Days.list.map(x => remoteData.Dates.getEventName(x.date) + ' ' + x.name),
 		getEventNamesWithIds: superId => remoteData.Days.list
 			.filter(e => !superId || e.date === superId)
