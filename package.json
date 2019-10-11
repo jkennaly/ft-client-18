@@ -39,7 +39,7 @@
     "cloudinary-jquery-file-upload": "^2.6.2",
     "dragula": "^3.7.2",
     "empty-promise": "^1.2.0",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.0",
     "loadjs": "^3.5.5",
     "localforage": "^1.7.3",
     "lodash": "^4.17.11",
