@@ -22,4 +22,16 @@ export const so = typeString => {
 
 }
 
+export const subjectDataField = type => {return _.get({
+	'10': 'Messages',
+	'9': 'Days',
+	'8': 'Dates',
+	'7': 'Festivals',
+	'6': 'Series',
+	'5': 'Venues',
+	'4': 'Places',
+	'3': 'Sets',
+	'2': 'Artists',
+	'1': 'Users'
+}, type, '')}
 

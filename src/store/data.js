@@ -28,6 +28,8 @@ const appendData = dataField => data => {
 
 }
 
+
+
 //TODO: when data is requested:
 //if that data is present check cache validity with the server. return local data if valid
 //or get an update from the server and supply that
@@ -393,12 +395,11 @@ export const remoteData = {
 			return remoteData.Artists.getMany(artistIds)
 		},
 		getSubjectObject: id => {return {subjectType: 2, subject: id}},
-		isArtist: subject => subject.subjectType === 2,
 
 		//a message about an artist is connected to an event if:
 		//the event is associated with a festival that has the artist in a lineup
 		messageEventConnection: e => m => {
-			const mValid = remoteData.Artists.isArtist(m)
+			const mValid = m.subjectType === 2
 			const artistFestivals = remoteData.Lineups.festivalsForArtist(m.subject)
 				.map(id => remoteData.Festivals.getSubjectObject(id))
 			const retVal = mValid && _.find(

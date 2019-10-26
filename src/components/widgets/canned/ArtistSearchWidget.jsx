@@ -36,7 +36,10 @@ const ArtistSearchWidget = vnode => {
 		    />
 			<SearchCard patternChange={patternChange} />
 			{
-				_.take(smartSearch(remoteData.Artists.forFestival(attrs.festivalId),
+				_.take(smartSearch(remoteData.Artists.getMany(
+					remoteData.Lineups.getFiltered({festival: attrs.festivalId})
+						.map(l => l.band)
+					),
 					[pattern], {name: true}
 					), 5)
 					.map(x => x.entry)

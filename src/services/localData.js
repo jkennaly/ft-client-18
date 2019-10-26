@@ -4,13 +4,14 @@ import _ from 'lodash'
 import localforage from 'localforage'
 import moment from 'moment'
 
-export const defaultMeta = () => {return {timestamps: [Infinity, 0], ids: [Infinity, 0]}} 
+export const defaultMeta = () => {return {calcTime: Date.now(), timestamps: [Infinity, 0], ids: [Infinity, 0]}} 
 
 
 const validMeta = meta => meta && meta.timestamps && meta.timestamps.length &&
 	meta.ids && meta.ids.length
 
 export const combineMetas = (a, b) => { return {
+	calcTime: Date.now(), 
 	timestamps: [
 		a.timestamps[0] < b.timestamps[0] ? a.timestamps[0] : b.timestamps[0],
 		a.timestamps[1] > b.timestamps[1] ? a.timestamps[1] : b.timestamps[1]
