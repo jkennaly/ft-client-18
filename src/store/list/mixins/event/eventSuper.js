@@ -1,4 +1,5 @@
 // eventSuper.js
+import _ from 'lodash'
 
 export default (superList) => { return  {
 	getSuperId (id) { 

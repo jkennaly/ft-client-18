@@ -43,6 +43,12 @@ import event from './list/mixins/event/event'
 import eventSuper from './list/mixins/event/eventSuper'
 import eventSub from './list/mixins/event/eventSub'
 import setName from './list/mixins/event/setName'
+import messageEventConnections from './list/mixins/subjects/messageConnections/event'
+import messageArtistConnections from './list/mixins/subjects/messageConnections/artist'
+import messageFilters from './list/mixins/subjects/filters/message'
+import messagesMonitorFilters from './list/mixins/subjects/filters/messagesMonitor'
+import monitoredMessageFilters from './list/mixins/subjects/filters/monitoredMessage'
+import connectionFilter from './list/mixins/subjects/messageConnections/filter'
 import nameMatch from './list/mixins/search/nameMatch'
 import artistConnections from './list/mixins/relations/artistConnections'
 
@@ -72,6 +78,21 @@ let messagesMonitors =  new MessagesMonitorList()
 let intentions =  new IntentionList()
 let users =  new ProfileList()
 
+
+const subjects = {
+		Series: series,
+        Festivals: festivals,
+        Dates: dates,
+        Days: days,
+        Sets: sets,
+        Artists: artists,
+        Venues: venues,
+        Places: places,
+        Messages: messages,
+        Profiles: profiles
+	}
+
+
 Object.assign(artists,
 	filterable,
 	appendable,
@@ -79,7 +100,8 @@ Object.assign(artists,
 	rated(messages),
 	virginal(messages, festivals, lineups),
 	subjective,
-	nameMatch
+	nameMatch,
+	messageArtistConnections(subjects)
 )
 Object.assign(images,
 	filterable
@@ -88,7 +110,8 @@ Object.assign(series,
 	filterable,
 	subjective,
 	event,
-	eventSub(festivals)
+	eventSub(festivals),
+	messageEventConnections
 )
 Object.assign(festivals,
 	filterable,
@@ -96,7 +119,8 @@ Object.assign(festivals,
 	futureFestival(dates),
 	event,
 	eventSub(dates),
-	eventSuper(series)
+	eventSuper(series),
+	messageEventConnections
 )
 Object.assign(dates,
 	filterable,
@@ -105,13 +129,15 @@ Object.assign(dates,
 	futureDate,
 	event,
 	eventSub(days),
-	eventSuper(festivals)
+	eventSuper(festivals),
+	messageEventConnections
 )
 Object.assign(days,
 	filterable,
 	event,
 	eventSub(sets),
-	eventSuper(dates)
+	eventSuper(dates),
+	messageEventConnections
 )
 Object.assign(sets,
 	filterable,
@@ -119,7 +145,8 @@ Object.assign(sets,
 	setName(artists),
 	event,
 	eventSuper(days),
-	momentsSet(days)
+	momentsSet(days),
+	messageEventConnections
 )
 Object.assign(lineups,
 	filterable,
@@ -128,7 +155,8 @@ Object.assign(lineups,
 Object.assign(venues,
 	filterable,
 	subjective,
-	named
+	named,
+	messageEventConnections
 )
 Object.assign(organizers,
 	filterable
@@ -136,7 +164,8 @@ Object.assign(organizers,
 Object.assign(places,
 	filterable,
 	subjective,
-	named
+	named,
+	messageEventConnections
 )
 Object.assign(artistPriorities,
 	filterable,
@@ -172,21 +201,15 @@ Object.assign(subjectTypes,
 Object.assign(messages,
 	filterable,
 	subjective,
-	messageName({
-		Series: series,
-        Festivals: festivals,
-        Dates: dates,
-        Days: days,
-        Sets: sets,
-        Artists: artists,
-        Venues: venues,
-        Places: places,
-        Messages: messages,
-        Profiles: profiles
-	})
+	messageName(subjects),
+	messageEventConnections,
+	connectionFilter(subjects),
+	messageFilters,
+	monitoredMessageFilters(messagesMonitors)
 )
 Object.assign(messagesMonitors,
-	filterable
+	filterable,
+	messagesMonitorFilters
 )
 Object.assign(intentions,
 	filterable
@@ -194,7 +217,8 @@ Object.assign(intentions,
 Object.assign(users,
 	filterable,
 	subjective,
-	userName
+	userName,
+	messageEventConnections
 )
 
 export const remoteData: {

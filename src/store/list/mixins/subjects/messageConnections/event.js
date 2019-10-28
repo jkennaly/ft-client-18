@@ -1,4 +1,4 @@
-// set.js
+// event.js
 
 //a set and a message are connected if:
 

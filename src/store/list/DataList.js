@@ -88,4 +88,12 @@ DataList.prototype.remoteCheck = function(force = false) {
 
 }
 
+DataList.prototype.acquireListUpdate = function() {
+	return updateModel(arguments)
+		.then(() => getList(this.fieldName))
+		.then(this.replaceList)
+		.then(() => true)
+
+}
+
 export default DataList

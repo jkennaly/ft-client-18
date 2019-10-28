@@ -1,4 +1,5 @@
 // messageName.js
+import _ from 'lodash'
 
 import {subjectDataField} from '../../../../services/subjectFunctions'
 

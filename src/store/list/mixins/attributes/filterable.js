@@ -1,4 +1,5 @@
 // filterable.js
+import _ from 'lodash'
 
 export default {
 	getFiltered (filter) { 
