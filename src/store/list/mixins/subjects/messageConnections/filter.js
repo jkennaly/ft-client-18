@@ -37,4 +37,4 @@ export default (subjects) => { return  {
 			return connected
 
 		}}  
-}
+}}

@@ -2,12 +2,15 @@
 
 import _ from 'lodash'
 import localforage from 'localforage'
+localforage.config({
+	name: "FestiGram",
+	storeName: "FestiGram"
+})
 import {updateModel, coreChecked} from './acquire.js'
 //pull data from localforage and convert into an array
 
 function loadModel(modelName) {
 	const localItem = `Model.${modelName}`
-	const setModel = _.curry(localforage.setItem)(localItem)
 	return localforage.getItem(localItem)
 }
 
@@ -20,4 +23,6 @@ export function getList(modelName) {
 			updateModel(modelName)
 				.then(() => loadModel(modelName))
 		))
+		.then(list => _.isArray(list) && list || [])
+		//.then(data => console.dir('getList data ' + modelName) && false || data)
 }

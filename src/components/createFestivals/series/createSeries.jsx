@@ -41,8 +41,6 @@ const entryFormHandler = (formDOM) => {
 	});
 
 	remoteData.Series.create(newEntry)
-		.then(x => remoteData.Series.loadList(true)
-			.then(result => x))
 		.then(newSeries => m.route.set('/series/pregame/' + newSeries.id))
 		.catch(err => {
 			console.log('createSeries.jsx create err')

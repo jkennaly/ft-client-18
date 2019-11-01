@@ -3,6 +3,10 @@
 import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
+localforage.config({
+	name: "FestiGram",
+	storeName: "FestiGram"
+})
 
 import Schedule from './Schedule.jsx'
 import NowPlaying from './NowPlaying.jsx'

@@ -143,10 +143,8 @@ const SetLineup = (vnode) => {
 			    		}<th class="delete-column">Remove from Lineup</th></tr>
 				    	{
 				    		//map each artist in the festival lineup
-				    		_.flow(
-								remoteData.Festivals.getLineupArtistIds,
-								remoteData.Artists.getMany
-							)(festivalId)
+				    		remoteData.Artists.getMany(remoteData.Festivals.getLineupArtistIds(
+								festivalId))
 								.sort((a, b) => {
 									const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId)
 									const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId)

@@ -66,7 +66,7 @@ const setTimeText = (subjectObject, dayId) => {
 
 const PlaceCard = {
   view: ({ attrs }) =>
-    <div class="ft-card" onclick={() => m.route.set(setRoute(attrs.subjectObject, attrs.dayId))}>
+    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set(setRoute(attrs.subjectObject, attrs.dayId))}>
 
 			{/*console.log('PlaceCard subjectObject', attrs.subjectObject)*/}
       <div class="ft-fields">

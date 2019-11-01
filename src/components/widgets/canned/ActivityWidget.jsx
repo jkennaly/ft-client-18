@@ -43,7 +43,7 @@ const getRecentActivity = (userId, festivalId) => _.take(
 	), 5)
 
 const ActivityWidget = vnode => {
-	const routeId = _.flow(m.route.param, parseInt)('id')
+	const routeId = parseInt(m.route.param("id"), 10)
 	var subjectObject = {}
 	var messageArray = []
 	var discussing = false

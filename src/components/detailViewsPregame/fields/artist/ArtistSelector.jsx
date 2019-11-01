@@ -5,7 +5,6 @@ import {remoteData} from '../../../../store/data'
 
 const ArtistSelector = {
 	oninit: () => {
-		remoteData.Artists.loadList()
 	},
 	view: ({ attrs }) =>
 		<div class="ft-name-field">

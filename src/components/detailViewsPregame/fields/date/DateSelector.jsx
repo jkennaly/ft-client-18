@@ -6,8 +6,6 @@ import {remoteData} from '../../../../store/data'
 
 const DateSelector = {
 	oninit: () => {
-		remoteData.Festivals.loadList(),
-		remoteData.Dates.loadList()
 	},
 	view: ({ attrs }) =>
 		<div class="ft-name-field">
@@ -16,10 +14,9 @@ const DateSelector = {
 				    </label>
 					    <select id="ft-date-selector" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.dateChange}>
 					    	<option value={0} selected={ attrs.dateId ? '' : "selected"}>{`Select a date`}</option>
-				      		{_.flow(
-				      			remoteData.Festivals.getSubIds,
-				      			remoteData.Dates.getMany
-				      		)(attrs.festivalId)
+				      		{(remoteData.Dates.getMany(
+							remoteData.Festivals.getSubIds(attrs.festivalId))
+						)
 					      		.map(s => <option value={s.id}>{s.name}</option>)
 					      	}
 				    </select></div >

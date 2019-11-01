@@ -4,8 +4,12 @@ import auth00 from 'auth0-js';
 import AUTH0_DATA from './auth0-variables';
 import m from 'mithril'
 import localforage from 'localforage'
+localforage.config({
+  name: "FestiGram",
+  storeName: "FestiGram"
+})
 import emptyPromise from 'empty-promise'
-const Promise = require('promise-polyfill').default
+//const Promise = require('promise-polyfill').default
 //import {tokenFunction} from './requests'
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
@@ -115,7 +119,7 @@ export default class Auth {
       const idTokenLocal = tokenValid && localStorage.getItem('id_token')
 
       userIdPromiseCache.resolve(
-        (idTokenLocal ? new Promise.resolve(idTokenLocal) : this.getAccessToken())
+        (idTokenLocal ? new Promise.resolve(idTokenLocal) : this.getValidToken())
           //.then(idToken => [console.log('userIdPromiseCache idToken', idToken), idToken][1])
           .then(userIdFromToken)
           //.then(userId => [console.log('userIdPromiseCache userId', userId), userId][1])
@@ -125,10 +129,12 @@ export default class Auth {
             idRequestInProgress = false
             return id
           })
+          /*
           .catch(err => {
             idRequestInProgress = false
             console.error('userIdPromiseCache failed', err)
           })
+          */
       )
       return userIdPromiseCache
 
@@ -164,7 +170,7 @@ export default class Auth {
     return timeOk && currentToken && true || false
   }
 
-  getAccessToken() {
+  getValidToken() {
     //this returns a promise that resolves to a valid token
     //setSession is required if:
       //token cannot be authenticated AND
@@ -207,5 +213,33 @@ export default class Auth {
     accessTokenPromiseCache = promise
     accessTokenPending = true
     return promise
+  }
+
+  getGuestPass() {
+    //this returns a promise that resolves to a valid token
+    //setSession is required if:
+      //token cannot be authenticated AND
+      //no pending reuest for authentication
+    //cachedValue is good if:
+      //token is authentic OR
+      //request is pending
+    //console.log('getAccessToken')
+    //console.log(accessTokenPending)
+    //tokenValid is falsey if not authenticated, and the token value if authenticated
+    const alreadyAuthorized = this.isAuthenticated()
+    if(alreadyAuthorized) return Promise.reject('authenticated')
+    return Promise.resolve('guest') 
+
+  }
+
+  getAccessToken() {
+    //this returns a promise that resolves to a valid token
+    return this.getValidToken()
+      .catch(err => 'Not Logged In')
+      .then(token => {
+        if(token && token !== 'Not Logged In') return token
+        return this.getGuestPass()
+      })
+      .catch(console.error)
   }
 }

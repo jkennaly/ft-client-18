@@ -50,9 +50,8 @@ const entryFormHandler = (formDOM, dayId) => {
         break;
     }
 	});
-	const dataSet = _.flow(remoteData.Days.getSubSetIds,
-							remoteData.Sets.getMany
-						)(dayId)
+	const dataSet = remoteData.Days.getSubSetIds(
+							remoteData.Sets.getMany(dayId))
 	const checked = Object.keys(newEntry)
 		.filter(k => !k.indexOf('box'))
 		.map(k => {
@@ -207,10 +206,8 @@ const AssignSetStages = (vnode) => {
 			    		}</tr>
 				    	{
 				    		//map each set to an artist
-				    		_.flow(
-								remoteData.Days.getSubSetIds,
-								remoteData.Sets.getMany
-							)(dayId)
+				    		remoteData.Sets.getMany(remoteData.Days.getSubSetIds(
+								dayId))
 								.sort((a, b) => {
 									const aPriId = remoteData.Lineups.getPriFromArtistFest(a.band, festivalId)
 									const bPriId = remoteData.Lineups.getPriFromArtistFest(b.band, festivalId)

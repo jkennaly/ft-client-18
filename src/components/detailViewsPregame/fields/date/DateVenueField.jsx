@@ -6,10 +6,6 @@ import {remoteData} from '../../../../store/data'
 
 const DateVenueField = {
 	oninit: () => {
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Venues.loadList()
 	},
 	view: ({ attrs }) =>
 		<div class="ft-name-field">

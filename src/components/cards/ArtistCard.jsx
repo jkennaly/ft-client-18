@@ -13,7 +13,7 @@ const defaultClick = attrs => () => m.route.set("/artists" + "/pregame" + '/' + 
 
 const ArtistCard = {
   view: ({ attrs }) => <div 
-    class="ft-card" 
+    class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} 
     key={'artist-' + attrs.data.id} 
     onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}
   >

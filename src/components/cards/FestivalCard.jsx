@@ -11,7 +11,7 @@ import {remoteData} from '../../store/data';
 
 const FestivalCard = {
   view: ({ attrs }) =>
-    <div class="ft-card" onclick={() => {m.route.set("/fests" + "/pregame" + '/' + attrs.eventId + (attrs.eventId === 'new' && attrs.eventId ? '/' + attrs.eventId : ''));}}>
+    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => {m.route.set("/fests" + "/pregame" + '/' + attrs.eventId + (attrs.eventId === 'new' && attrs.eventId ? '/' + attrs.eventId : ''));}}>
       <div class="ft-fields">
         {attrs.eventId !== 'new' ? <MainEventField seriesId={remoteData.Festivals.getSeriesId(attrs.eventId)} festivalId={attrs.eventId} /> : <ComposedNameField fieldValue={'New Festival Year'} />}
       </div>

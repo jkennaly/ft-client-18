@@ -78,37 +78,33 @@ const FestivalDetail = () => {
 					<ActivityWidget festivalId={festivalId} />
 					<ResearchWidget list={[]} />
 					<FixedCardWidget header="Related Events">
-						{_.flow(
-							m.route.param,
-							parseInt,
-							remoteData.Festivals.getSubIds,
-							remoteData.Dates.getMany
-						)("id")
+						{(remoteData.Dates.getMany(
+							remoteData.Festivals.getSubIds(
+								parseInt(
+									m.route.param("id"))))
+						)
 							.sort((a, b) => a.basedate - b.basedate)
 							.map(data => (
 								<DateCard eventId={data.id} />
 							))}
-						{_.flow(
-							m.route.param,
-							parseInt,
-							remoteData.Festivals.eventActive
-						)("id") ? (
+						{(remoteData.Festivals.eventActive(
+								parseInt(
+									m.route.param("id")))
+						) ? (
 							<DateCard festivalId={festivalId} eventId={"new"} />
 						) : (
 							""
 						)}
 						<SeriesCard
-							data={_.flow(
-								m.route.param,
-								parseInt,
-								remoteData.Festivals.getSuperId,
-								remoteData.Series.get
-							)("id")}
-							eventId={_.flow(
-								m.route.param,
-								parseInt,
-								remoteData.Festivals.getSuperId
-							)("id")}
+							data={(remoteData.Series.get(
+							remoteData.Festivals.getSuperId(
+								parseInt(
+									m.route.param("id"))))
+						)}
+							eventId={(
+							remoteData.Festivals.getSuperId(
+								parseInt(
+									m.route.param("id"))))}
 						/>
 					</FixedCardWidget>
 				</WidgetContainer>

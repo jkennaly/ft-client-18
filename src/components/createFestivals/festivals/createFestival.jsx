@@ -44,8 +44,6 @@ const entryFormHandler = (formDOM) => {
 	//console.log(newEntry);
 
 	remoteData.Festivals.create(newEntry)
-		.then(x => remoteData.Festivals.loadList(true)
-				.then(result => x))
 		.then(newFestival => m.route.set('/fests/pregame/' + newFestival.id))
 		.catch(err => {
 			console.log('createFestivals.jsx create err')

@@ -25,9 +25,7 @@ const DayDetail = () => {
 		oninit: ({attrs}) => {
 			//console.log('Gametime oninit')
 			event = {
-				subject: _.flow(
-					m.route.param, parseInt
-					)('id'), 
+				subject: parseInt(m.route.param('id'), 10), 
 				subjectType: 9
 			}
 			sets = subjectData.sets(event)
@@ -45,10 +43,9 @@ const DayDetail = () => {
 			
 			/>
 		
-		<DateCard eventId={_.flow(
-					m.route.param, parseInt,
-					remoteData.Days.getSuperId
-					)('id')
+		<DateCard eventId={remoteData.Days.getSuperId(parseInt(m.route.param('id'), 10))
+					
+					
 				}/>
 		<EventPeerBar event={event} />
 

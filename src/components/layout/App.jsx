@@ -5,12 +5,12 @@ import m from 'mithril';
 import MainStage from './MainStage.jsx';
 import DisplayBar from './DisplayBar.jsx';
 import Launcher from './Launcher.jsx';
+
 import Research from './Research.jsx';
 import Messages from './Messages.jsx';
 import Admin from './Admin.jsx';
 import Discussion from './Discussion.jsx';
 import Gametime from '../../components/gametime/Gametime.jsx';
-
 // Components
 import StageBanner from '../../components/ui/StageBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
@@ -41,8 +41,6 @@ import SetStages from '../../components/createFestivals/festivals/SetStages.jsx'
 import SetLineup from '../../components/createFestivals/lineups/SetLineup.jsx';
 import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 
-import {initData} from '../../store/data'
-
 // Services
 import Auth from '../../services/auth.js';
 const auth = new Auth();
@@ -62,34 +60,12 @@ const forceLoginRoute = err => {
 
 }
 
-const initAppData = auth => {
-	//auth.handleAuthentication()
-	return auth.getFtUserId('initAppData')
-		//.then(userId => {console.log('getFtUserId ', userId);return userId;})
-		.then(userId => initData({
-			skipRedraw: true,
-			debug: false,
-			forceRedraw: false,
-			userId: userId
-		}))
-		//.then(() => auth.getFtUserId())
-		//.then(() => console.log('data init complete'))
-		.catch(err => {
-			console.log('App init error: get access token/initData')
-			console.error(err)
-		})
-}
-let appInitComplete = false
-
 const App = {
 	oninit: vnode => {
+	//console.log('app running oninint')
 	},
 	onbeforeupdate: vnode => {
-		if(!/auth/.test(window.location) && !appInitComplete) {
-			initAppData(auth)
-			.then(() => appInitComplete = true)
 
-		}
 
 	},
 	oncreate: (vnode) => {
@@ -99,13 +75,8 @@ const App = {
         hashStr = hashStr.replace(/^#?\/?/, '');
         localStorage.setItem('raw_token', hashStr);
 */
-		if(!/auth/.test(window.location) && !appInitComplete) {
-			initAppData(auth)
-			.then(() => appInitComplete = true)
-
-		} else if (/auth/.test(window.location)) {
-			appInitComplete = false
-		}
+//console.log('app running 1')
+//console.log('app running 2')
 		
 
 		m.route(mainStage, "/launcher", {
@@ -330,6 +301,7 @@ const App = {
 						.catch(forceLoginRoute)
 			}
 		});
+		
 		//m.mount(document.getElementById("DisplayBar"), DisplayBar)
 	},
 	view: ({ children }) =>

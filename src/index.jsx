@@ -4,6 +4,7 @@ import m from 'mithril'
 const Promise = require('promise-polyfill').default
 const root = document.getElementById("app");
 
+//console.log('app running index.jsx')
 // Styles
 import "./index.css";
 // images

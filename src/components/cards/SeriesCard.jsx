@@ -9,7 +9,7 @@ import {remoteData} from '../../store/data';
 
 const SeriesCard = {
   view: ({ attrs }) =>
-    <div class="ft-card" onclick={() => m.route.set("/series" + "/pregame" + '/' + attrs.eventId)}>
+    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set("/series" + "/pregame" + '/' + attrs.eventId)}>
       <div class="ft-fields">
         {_.isInteger(attrs.eventId) && attrs.eventId ? <ComposedNameField fieldValue={remoteData.Series.getEventName(attrs.eventId)} /> : <ComposedNameField fieldValue={'New Series'} />}
       </div>

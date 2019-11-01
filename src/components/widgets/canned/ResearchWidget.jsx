@@ -54,7 +54,7 @@ const ResearchWidget = vnode => {
 
 			{
 				artistData({
-					festivalId: vnode.attrs.festivalId ? vnode.attrs.festivalId : _.flow(m.route.param, parseInt)('id'),
+					festivalId: vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param("id"), 10),
 					userId: userId,
 					search: pattern ? {pattern: [pattern], fields: {name: true}} : undefined, 
 					recordCount: 10, 
@@ -62,7 +62,7 @@ const ResearchWidget = vnode => {
 				})
 					.map(data => <ArtistCard 
 						data={data}
-						festivalId={vnode.attrs.festivalId ? vnode.attrs.festivalId : _.flow(m.route.param, parseInt)('id')}
+						festivalId={vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param("id"), 10)}
 						overlay={'research'}
 						reviewSubject={s => {subjectObject = _.clone(s); reviewing = true;}}
 					/>)

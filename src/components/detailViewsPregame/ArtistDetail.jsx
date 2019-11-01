@@ -51,15 +51,18 @@ const ArtistDetail = (vnode) => {
 			//console.log('ArtistDetail update')
 		},
 		view: () => <div class="main-stage">
+
 			<LauncherBanner 
 				title={artist ? artist.name : ''} 
 			
 			/>
-			
 			<WidgetContainer>
+			
+		
 				<FixedCardWidget >
 					<CloudImageField subjectType={2} subject={artistId} sources={['url']} />
 				</FixedCardWidget>
+		
 				{artist ? <FixedCardWidget header="Listen & Review" >
 					<SpotifyCard fieldValue={artist.name} />
 					<ReviewCard type="artist" data={artist} />

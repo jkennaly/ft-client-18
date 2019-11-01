@@ -19,29 +19,22 @@ function DataList(opt = {}) {
 	this.lastRemoteLoad = 0
 	this.lastRemoteCheck = 0
 	this.baseEndpoint = `/api/${this.fieldName}`
-	this.queryStrings = {
-		  since: () => '?filter=' + JSON.stringify({
-		  	where: {
-		  		or: [
-		  			{
-		  				id: {gt: this.meta.ids[1]},
-		  				timestamp: {gt: moment(this.meta.timestamps[1]).format('YYYY-MM-DD HH:mm:ss')}
-		  			}
-		  		]
-		  	}
-		  })
-	}
-
-
-
 }
 
 DataList.prototype.setMeta = function(meta) {
+	if(!this) throw "Invalid DataList call setMeta"
 	return this.meta = _.clone(meta)
 }
 
-DataList.prototype.replaceList = function(list) {
-	if(!_.isArray(list)) throw "Invalid list replacement"
+DataList.prototype.getMeta = function() {
+	if(!this) throw "Invalid DataList call setMeta"
+		//console.log('getMeta', this.meta, this.list.length)
+	return _.clone(this.meta)
+}
+
+DataList.prototype.replaceList = function(data) {
+	if(!this) throw "Invalid DataList call replaceList"
+	const list = _.isArray(data) ? data : []
 	this.setMeta(calcMeta(list))
 	this.list = _.clone(list)
 	this.lastRemoteLoad = Date.now()
@@ -50,6 +43,7 @@ DataList.prototype.replaceList = function(list) {
 }
 
 DataList.prototype.backfillList = function(list, localEntry = false) {
+	if(!this) throw "Invalid DataList call backfillList"
 	if(!_.isArray(list)) throw "Invalid list backfill"
 	const newMeta = calcMeta(list)
 	this.setMeta(combineMetas(this.meta, newMeta))
@@ -60,6 +54,7 @@ DataList.prototype.backfillList = function(list, localEntry = false) {
 }
 
 DataList.prototype.clear = function() {
+	if(!this) throw "Invalid DataList call clear"
 	this.list = []
 	this.meta = defaultMeta()
 	this.lastRemoteLoad = 0
@@ -68,32 +63,44 @@ DataList.prototype.clear = function() {
 }
 
 DataList.prototype.get = function(id) {
+	if(!this) throw "Invalid DataList call get"
 	return this.list.find(o => o.id === id)
 }
 
 DataList.prototype.getMany = function(ids) {
+	if(!this) throw "Invalid DataList call getMany"
 	return this.list.filter(o => ids.includes(o.id))
 }
 
 DataList.prototype.dataCurrent = function() {
+	if(!this) throw "Invalid DataList call dataCurrent"
 	return Date.now() < this.lastRemoteCheck + this.remoteInterval * 1000
 }
 
-DataList.prototype.remoteCheck = function(force = false) {
+DataList.prototype.remoteCheck = function(force = false, simResponse) {
+	if(!this) throw "Invalid DataList call remoteCheck"
 	if(!force && this.dataCurrent()) return Promise.resolve(false)
-	return updateModel(this.fieldName, this.queryStrings.since())
+	return updateModel(this.fieldName, '?filter=' + JSON.stringify({
+		  	where: {
+		  		or: [
+		  			{
+		  				id: {gt: this.getMeta().ids[1]},
+		  				timestamp: {gt: moment(this.getMeta().timestamps[1]).format('YYYY-MM-DD HH:mm:ss')}
+		  			}
+		  		]
+		  	}
+		  }), undefined, simResponse)
 		.then(() => getList(this.fieldName))
-		.then(this.replaceList)
+		.then((list) => this.replaceList(list))
 		.then(() => true)
-
 }
 
-DataList.prototype.acquireListUpdate = function() {
-	return updateModel(arguments)
+DataList.prototype.acquireListUpdate = function(queryString, url, simResponse) {
+	if(!this) throw "Invalid DataList call acquireListUpdate"
+	return updateModel(this.fieldName, queryString, url, simResponse)
 		.then(() => getList(this.fieldName))
-		.then(this.replaceList)
+		.then((list) => this.replaceList(list))
 		.then(() => true)
-
 }
 
 export default DataList

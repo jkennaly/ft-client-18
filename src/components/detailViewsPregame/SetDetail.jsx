@@ -10,15 +10,6 @@ import {remoteData} from '../../store/data';
 
 const SetDetail = (auth) => { return {
 	oninit: () => {
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Lineups.loadList()
-		remoteData.Messages.loadList()
-		remoteData.ArtistPriorities.loadList()
 	},
 	view: () => <div class="main-stage">
 			<LauncherBanner 

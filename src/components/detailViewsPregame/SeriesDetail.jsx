@@ -25,11 +25,6 @@ const SeriesDetail = (auth) => {
 		//console.log('SeriesDetail oninit')
 		//console.log(seriesId)
 		//console.log(series)
-		remoteData.Festivals.loadList()
-		if(!series) {
-			remoteData.Series.loadList()
-				.then(() => series ? '' : series = remoteData.Series.get(seriesId))
-		} 
 	},
 	onupdate: () => series = remoteData.Series.get(seriesId),
 	view: () => <div class="main-stage">
@@ -49,11 +44,11 @@ const SeriesDetail = (auth) => {
 		<CardContainer>
 			<FestivalCard  seriesId={seriesId} eventId={'new'}/>
 			{
-				_.flow(
-					m.route.param, parseInt,
-					remoteData.Series.getSubIds,
-					remoteData.Festivals.getMany,
-					)('id')
+				(remoteData.Festivals.getMany(
+							remoteData.Series.getSubIds(
+								parseInt(
+									m.route.param("id"))))
+						)
 					.sort((a, b) => parseInt(b.year, 10) - parseInt(a.year, 10))
 					.map(data => <FestivalCard  
 						seriesId={data.series}

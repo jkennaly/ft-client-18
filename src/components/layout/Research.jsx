@@ -7,6 +7,10 @@ const auth = new Auth();
 import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
+localforage.config({
+	name: "FestiGram",
+	storeName: "FestiGram"
+})
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
 

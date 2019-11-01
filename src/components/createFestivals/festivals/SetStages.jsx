@@ -39,7 +39,7 @@ const captureStages = (els, festivalId, userId) => {
 		.filter(p => !_.some(stageData, {name: p.name, festival: festivalId}))
 
 
-	const addPromise = remoteData.Places.stagesForFestival(stageData, festivalId)
+	const addPromise = remoteData.Places.batchCreate(stageData, festivalId)
 	const delPromise = remoteData.Places.batchDelete(deleteStages)
 
 	Promise.all([addPromise, delPromise])

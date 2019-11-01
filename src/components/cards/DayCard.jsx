@@ -8,9 +8,9 @@ import {remoteData} from '../../store/data'
 
 const DayCard = {
   view: ({ attrs }) =>
-    <div class="ft-card" onclick={() => m.route.set("/days" + "/pregame" + '/' + attrs.eventId)}>
+    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set("/days" + "/pregame" + '/' + attrs.eventId)}>
       <div class="ft-fields">
-        <ComposedNameField fieldValue={ remoteData.Days[attrs.useShort ? 'getEventNameShort' : 'getEventName'](attrs.eventId)} />
+        <ComposedNameField fieldValue={ remoteData.Days[attrs.useShort ? 'getPartName' : 'getEventName'](attrs.eventId)} />
     </div>
     </div>
 };

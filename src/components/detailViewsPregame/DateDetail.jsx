@@ -30,14 +30,15 @@ const DateDetail = (auth) => {
 
 	const initDom = vnode => {
 		dateId = parseInt(m.route.param('id'), 10)
-		sets = _.flow(
-					m.route.param, parseInt,
-					remoteData.Dates.getSubSetIds,
-					remoteData.Sets.getMany)('id')
-		festivalId = _.flow(
-				m.route.param, parseInt,
-				remoteData.Dates.getSuperId
-				)('id')
+		sets = (remoteData.Sets.getMany(
+							remoteData.Dates.getSubSetIds(
+								parseInt(
+									m.route.param("id"))))
+						)
+		festivalId =(remoteData.Dates.getSuperId(
+								parseInt(
+									m.route.param("id")))
+						)
 				//console.log('DatesDetail initDom festivalId')
 				//console.log(festivalId)
 				//console.log(dateId)
@@ -46,19 +47,6 @@ const DateDetail = (auth) => {
 	}
 	return {
 	oninit: vnode => {
-		/*
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList()
-		remoteData.Days.loadList()
-		remoteData.Sets.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Lineups.loadList()
-		remoteData.Places.loadList()
-		remoteData.Messages.loadList()
-		remoteData.ArtistPriorities.loadList()
-		remoteData.Venues.loadList()
-		*/
 		initDom(vnode)
 		//console.log('FestivalDetail init')
 		
@@ -77,17 +65,16 @@ const DateDetail = (auth) => {
 			
 		{remoteData.Dates.get(dateId) ? <DateVenueField id={dateId} /> : ''}
 		{remoteData.Dates.get(dateId) ? <DateBaseField id={dateId} /> : ''}
-		<FestivalCard seriesId={_.flow(
-				m.route.param, parseInt,
-				remoteData.Dates.getSeriesId,
-				)('id')
+		<FestivalCard seriesId={(remoteData.Dates.getSeriesId(
+								parseInt(
+									m.route.param("id")))
+						)
 			}
 			festivalId={festivalId}
-			eventId={_.flow(
-				m.route.param, parseInt,
-				remoteData.Dates.getSuperId
-				)('id')
-			}
+			eventId={(remoteData.Dates.getSuperId(
+								parseInt(
+									m.route.param("id")))
+						)}
 		/>
 		{ festivalId && !subjectData.active({subject: dateId, subjectType: subjectData.DATE}) ? 
 			<IntentToggle subjectObject={{subject: festivalId, subjectType: 7}} /> 
@@ -98,11 +85,11 @@ const DateDetail = (auth) => {
 		
 			<WidgetContainer>
 		<FixedCardWidget header="Festival Days">
-			{
-				_.flow(
-					m.route.param, parseInt,
-					remoteData.Dates.getSubIds,
-					remoteData.Days.getMany)('id')
+			{(remoteData.Days.getMany(
+							remoteData.Dates.getSubIds(
+								parseInt(
+									m.route.param("id"))))
+						)
 					.sort((a, b) => a.daysOffset - b.daysOffset)
 					.map(data => <DayCard 
 						eventId={data.id}

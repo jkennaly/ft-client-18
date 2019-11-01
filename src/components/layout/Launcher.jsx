@@ -25,8 +25,10 @@ const artistData = ({dataField, fallback, festivalId, userId, search, recordCoun
 	 : dataField.virgins().filter(prefilter)
 	return _.take(searchMatches, recordCount)
 }
+	//console.log('Launcher read')
 
 const Launcher = (vnode) => {
+	//console.log('Launcher running')
 	let pattern;
 	const patternChange = e => {
 		pattern = e.target.value
@@ -34,7 +36,8 @@ const Launcher = (vnode) => {
 	}
 	let discoveryArtists = []
 	return {
-		//onupdate: () => console.log('Launcher update'),
+	//oninit: () => console.log('Launcher init'),
+	//oncreate: () => console.log('Launcher create'),
 	view: () => <div class="main-stage">
 		<LauncherBanner 
 			title="FestivalTime Launcher" 
@@ -76,6 +79,7 @@ const Launcher = (vnode) => {
 					//.filter(x => console.log('Launcher Upcoming Festivals', x) || true)
 					.map(data => <FestivalCard 
 						eventId={data.id}
+						uiClass="festivals-upcoming"
 					/>)
 			}
 			</FixedCardWidget>

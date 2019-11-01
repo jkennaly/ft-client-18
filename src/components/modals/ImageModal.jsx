@@ -33,8 +33,8 @@ const ImageModal = vnode => {
             licenses = _.uniqBy(remoteData.Images.list,
                             img => img.licenseUrl
                         )
-            license = licenses[0].license
-            licenseUrl = licenses[0].licenseUrl
+            license = licenses.length ? licenses[0].license : license
+            licenseUrl = licenses.length ? licenses[0].licenseUrl : licenseUrl
             licenseSelect = <div class="ft-name-field">
             <label for="license">
                 {`License Name`}
@@ -59,8 +59,8 @@ const ImageModal = vnode => {
             licenses = _.uniqBy(remoteData.Images.list,
                             img => img.licenseUrl
                         )
-            license = licenses[0].license
-            licenseUrl = licenses[0].licenseUrl
+            license = licenses.length ? licenses[0].license : license
+            licenseUrl = licenses.length ? licenses[0].licenseUrl : licenseUrl
 
         },
         view: ({attrs}) => <div class={classes(attrs)}>

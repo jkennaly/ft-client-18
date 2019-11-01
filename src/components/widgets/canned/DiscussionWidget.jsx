@@ -25,7 +25,7 @@ import {subjectData} from '../../../store/subjectData'
 
 const DiscussionWidget = vnode => {
 	var userId = 0
-	const routeId = _.flow(m.route.param, parseInt)('id')
+	const routeId = parseInt(m.route.param("id"), 10)
 	var reviewing = false
 	var discussing = false
 	var subjectObject = {}

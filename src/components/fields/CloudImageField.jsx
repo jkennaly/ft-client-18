@@ -22,7 +22,7 @@ const CloudImageField = vnode => {
     var addingImage = false
     var usePlaceholders = false
     const initDom = vnode => {
-        images = !images.length ? remoteData.Images.forSubject(vnode.attrs.subjectType, vnode.attrs.subject)
+        images = !images.length ? remoteData.Images.forSubject({subjectType: vnode.attrs.subjectType, subject: vnode.attrs.subject})
             .filter(i => i.url) : images
         imagePath = images.length ? images[0].url.substring(images[0].url.indexOf('artists/')) : 'artists/nvfejb2psaelknnxv1zg.jpg'    
         usePlaceholders = vnode.attrs.camera && auth.userId()

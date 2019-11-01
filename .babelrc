@@ -1,5 +1,7 @@
 {
-  "presets": [["@babel/env", { "targets": { "node": 6 } }]],
+  "presets": [
+  ["@babel/env", { "targets": { "node": 6 } }]
+  ],
   "plugins": [
     ["transform-react-jsx", {
       "pragma": "m"
@@ -7,5 +9,12 @@
     "lodash",
     "@babel/plugin-proposal-class-properties",
     "@babel/plugin-proposal-export-default-from"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        "istanbul"
+      ]
+    }
+  }
 }

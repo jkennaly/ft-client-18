@@ -7,5 +7,12 @@ export default (days) => { return  {
 	getEndMoment (id) {
 		const superMoment = days.getBaseMoment(this.getSuperId(id))
 		return superMoment.add(this.get(id).end, 'minutes')
-		}
+	},
+	getSetTimeText (id)  {
+		//console.log('this.getSetTimeText ' + id)
+		const startMoment = this.getStartMoment(id)
+		const endMoment = this.getEndMoment(id)
+		return startMoment.format('h:mm') + '-' + endMoment.format('h:mm')
+	},
+	getTimeString (id) {return this.getSetTimeText(id) }
 }}

@@ -2,6 +2,7 @@
 
 import smartSearch from 'smart-search'
 
+import _ from 'lodash'
 
 export default {
 	patternMatch (pattern, count = 5) { 

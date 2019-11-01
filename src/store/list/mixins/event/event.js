@@ -6,6 +6,8 @@ const sortNamesWithIdsByName = ([aName, aId], [bName, bId]) => aName.localeCompa
 export default {
 	getPartName (id) {
 		const evt = this.get(id)
+		//console.log('event getPartName ', this, id, evt)
+		if(!evt) return ''
 		const nameField = evt.name && !this.nameField ? 'name' : this.nameField
 		return evt[nameField]
 	},

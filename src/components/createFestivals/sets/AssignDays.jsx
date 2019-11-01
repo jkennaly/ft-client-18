@@ -50,9 +50,9 @@ const entryFormHandler = (formDOM, dateId) => {
         break;
     }
 	});
-	const dataSet = _.flow(remoteData.Dates.getSubSetIds,
-							remoteData.Sets.getMany
-						)(dateId)
+	const dataSet = remoteData.Dates.getSubSetIds(
+							remoteData.Sets.getMany(dateId))
+						
 	const checked = Object.keys(newEntry)
 		.filter(x => x)
 		.filter(k => /^box/.test(k))
@@ -144,9 +144,8 @@ const entryFormHandler = (formDOM, dateId) => {
 
 var userId = 0
 const AssignDays = (vnode) => {
-	const dayHeaders = _.memoize(dateId => _.flow(
-				remoteData.Dates.getSubIds,
-				remoteData.Days.getMany)(dateId)
+	const dayHeaders = _.memoize(dateId => remoteData.Dates.getSubIds(
+				remoteData.Days.getMany(dateId))
 				.sort((a, b) => a.daysOffset - b.daysOffset)
 		)
 	const hideRows = vnode => {
@@ -254,10 +253,8 @@ const AssignDays = (vnode) => {
 			    		}<th>Off-schedule Set</th></tr>
 				    	{
 				    		//map each artist in the festival lineup
-				    		_.flow(
-								remoteData.Dates.getLineupArtistIds,
-								remoteData.Artists.getMany
-							)(dateId)
+				    		remoteData.Dates.getLineupArtistIds(
+								remoteData.Artists.getMany(dateId))
 								.sort((a, b) => {
 									const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId)
 									const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId)
@@ -276,10 +273,8 @@ const AssignDays = (vnode) => {
 										.map(h => <td><input 
 											type="checkbox" 
 											name={'box-' + data.id + '-' + h.id} 
-											checked={_.find(_.flow(
-												remoteData.Days.getSubSetIds,
-												remoteData.Sets.getMany
-												)(h.id), s => s.band === data.id) ? true : false}/>
+											checked={_.find(remoteData.Sets.getMany(remoteData.Days.getSubSetIds(
+												h.id)), s => s.band === data.id) ? true : false}/>
 										</td>)}
 									<td><input 
 										type="checkbox" 

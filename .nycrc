@@ -1,0 +1,4 @@
+{
+    "extends": "@istanbuljs/nyc-config-babel",
+    "skip-full": "true"
+}

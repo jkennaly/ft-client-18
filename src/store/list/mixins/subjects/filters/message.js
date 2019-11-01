@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
-import {timeStampSort} from '../services/sorts.js'
+import {timeStampSort} from '../../../../../services/sorts.js'
 
 
 const simpleDate = str => moment(str, 'YYYY-MM-DD', true).isValid()

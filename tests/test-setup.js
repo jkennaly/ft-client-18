@@ -1,6 +1,9 @@
 // test-setup.js
 
+
 var o = require("ospec")
+require("fake-indexeddb/auto")
+require('fake-local-storage')()
 var jsdom = require("jsdom")
 var dom = new jsdom.JSDOM("", {
     // So we can get `requestAnimationFrame`
@@ -12,9 +15,11 @@ var dom = new jsdom.JSDOM("", {
 global.window = dom.window
 global.document = dom.window.document
 global.requestAnimationFrame = dom.window.requestAnimationFrame
+global.window.mockery = true
 
 // Require Mithril to make sure it loads properly.
 require("mithril")
+
 
 // And now, make sure JSDOM ends when the tests end.
 o.after(function() {

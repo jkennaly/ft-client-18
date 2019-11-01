@@ -16,7 +16,6 @@ var selectedId2 = 0
 var resultPos = 0
 const ArtistMerge = {
         oninit: () => {
-            remoteData.Artists.loadList()
         },
 	view: ({attrs}) => <div class={classes(attrs)}>
 

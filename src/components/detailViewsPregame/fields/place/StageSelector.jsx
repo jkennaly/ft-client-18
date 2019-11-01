@@ -5,8 +5,6 @@ import {remoteData} from '../../../../store/data'
 
 const StageSelector = {
 	oninit: () => {
-		remoteData.Festivals.loadList(),
-		remoteData.Places.loadList()
 	},
 	view: ({ attrs }) => <div class="ft-name-field">
 		<label for="stage">

@@ -30,7 +30,7 @@ const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 
 const LineupWidget = vnode => {
 	var userId = 0
-	const routeId = _.flow(m.route.param, parseInt)('id')
+	const routeId = parseInt(m.route.param("id"), 10)
 	var reviewing = false
 	var subjectObject = {}
 	var removed = []

@@ -15,11 +15,6 @@ const EventSelector = vnode => {
 
 	return {
 		oninit: () => {
-			remoteData.Series.loadList()
-			remoteData.Festivals.loadList()
-			remoteData.Dates.loadList()
-			remoteData.Days.loadList()
-			remoteData.Places.loadList()
 		},
 		view: ({attrs}) => <div class="ft-event-selector" id="ft-event-selector">
 			{!attrs.seriesChange ? '' : <SeriesSelector 

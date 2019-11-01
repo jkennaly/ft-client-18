@@ -6,7 +6,6 @@ import {remoteData} from '../../../../store/data'
 
 const DateBaseField = {
 	oninit: () => {
-		remoteData.Dates.loadList()
 	},
 	view: ({ attrs }) =>
 		<div class="ft-date-field">

@@ -108,8 +108,6 @@ const ArtistSpelling = (vnode) => {
 		    
 		},
 		oninit: () => {
-			remoteData.Artists.loadList()
-			remoteData.ArtistAliases.loadList()
 			artistId = parseInt(m.route.param('id'), 10)
 			userId = auth.userId()
 		},

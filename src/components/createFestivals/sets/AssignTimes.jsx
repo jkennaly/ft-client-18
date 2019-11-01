@@ -69,10 +69,8 @@ const AssignTimes = (vnode) => {
 		dayId = 0
 		stageId = 0
 
-		festivalArtists = _.flow(
-			remoteData.Festivals.getLineupArtistIds,
-			remoteData.Artists.getMany,
-			)(festivalId)
+		festivalArtists = remoteData.Artists.getMany(remoteData.Festivals.getLineupArtistIds(
+			festivalId))
 			.sort((a, b) => {
 				const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId)
 				const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId)

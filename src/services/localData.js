@@ -2,6 +2,10 @@
 
 import _ from 'lodash'
 import localforage from 'localforage'
+localforage.config({
+	name: "FestiGram",
+	storeName: "FestiGram"
+})
 import moment from 'moment'
 
 export const defaultMeta = () => {return {calcTime: Date.now(), timestamps: [Infinity, 0], ids: [Infinity, 0]}} 
@@ -21,6 +25,12 @@ export const combineMetas = (a, b) => { return {
 		a.ids[1] > b.ids[1] ? a.ids[1] : b.ids[1]
 	]
 }}
+export const metaQuivalent = (a, b) => { 
+	return a.timestamps[0] === b.timestamps[0] &&
+		a.timestamps[1] === b.timestamps[1] &&
+		a.ids[0] === b.ids[0] &&
+		a.ids[1] === b.ids[1]
+}
 
 const combineWithLocalMetaPromise = dataFieldName => newMeta => localforage
 	.getItem(dataFieldName + '_meta')

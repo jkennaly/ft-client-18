@@ -53,13 +53,15 @@ const entryFormHandler = (formDOM) => {
 	//console.log(newEntry);
 
 	remoteData.Dates.createWithDays(newEntry)
-		.then(x => remoteData.Dates.loadList(true)
-			.then(result => x.data))
+		//.then(x => remoteData.Dates.loadList(true)
+			//.then(result => x.data))
+			/*
 		.then(res => {
 		    console.log('createDates.jsx create loadList newDate')
 		    console.log(res)
 		    return res
 		})
+		*/
 		.then(newDate => m.route.set('/fests/pregame/' + newDate.festival))
 		.catch(err => {
 			console.log('createDates.jsx create err')
@@ -76,22 +78,6 @@ const CreateDate = (auth) => {
 	let festivalId = parseInt(m.route.param('festivalId'), 10)
 	return {
 	oninit: () => {
-		remoteData.Messages.loadList()
-		remoteData.MessagesMonitors.loadList()
-		remoteData.Images.loadList()
-		remoteData.Series.loadList()
-		remoteData.Festivals.loadList()
-		remoteData.Dates.loadList(true)
-		remoteData.Days.loadList(true)
-		remoteData.Sets.loadList()
-		remoteData.Venues.loadList(true)
-		remoteData.Places.loadList()
-		remoteData.Lineups.loadList()
-      	remoteData.ArtistPriorities.loadList()
-      	remoteData.StagePriorities.loadList()
-      	remoteData.ArtistAliases.loadList()
-		remoteData.Artists.loadList()
-		remoteData.Users.loadList()
 		festivalId = parseInt(m.route.param('festivalId'), 10)
 	},
 	view: (vnode) => <div class="main-stage">

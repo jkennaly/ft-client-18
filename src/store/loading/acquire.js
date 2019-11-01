@@ -3,7 +3,12 @@
 import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
-import {tokenFunction} from '../services/requests.js'
+localforage.config({
+	name: "FestiGram",
+	storeName: "FestiGram"
+})
+import archive from './archive'
+import {tokenFunction} from '../../services/requests.js'
 import Auth from '../../services/auth.js'
 const auth = new Auth()
 
@@ -44,15 +49,18 @@ const auth = new Auth()
 ]
 */
 
-const setCore = _.curry(localforage.setItem)('core')
+
 
 const coreCheck = () => localforage.getItem('core')
+	.then(coreData => coreData || window.mockery === true)
 	.then(coreData => coreData || m.request({
 	    method: 'GET',
 	    url: '/api/' + 'Core/all/data',
 	}))
-	.then(setCore)
-	.then(coreData => _.each(coreData, (list, modelName) => localforage.setItem(`Model.${modelName}`, list)))
+	.then(data => data.data)
+	.then(coreData => archive('core', coreData))
+	//.then(data => console.dir('coreCheck data', data) && false || data)
+	.then(coreData => _.each(coreData, (list, modelName) => archive(modelName, list)))
 	.then(() => true)
 	.catch(err => {
 		console.error('acquire core error', err)
@@ -60,19 +68,20 @@ const coreCheck = () => localforage.getItem('core')
 
 export const coreChecked = coreCheck()
 
-export function updateModel(modelName, queryString = '', url) {
+export function updateModel(modelName, queryString = '', url, simResponse) {
+
 	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
 	const localItem = `Model.${modelName}`
-	const setModel = _.curry(localforage.setItem)(localItem)
-	const resultChain = auth.getAccessToken()
-		.then(authResult => m.request({
-			method: 'GET',
-			//use the dataFieldName after the last dot to access api
-			url: reqUrl,
-			config: tokenFunction(authResult),
-			background: true
-		}))
-	const localChain = localforage.getItem(localItem)
+	const setModel = _.curry(archive)(modelName)
+	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getAccessToken()
+			.then(authResult => m.request({
+				method: 'GET',
+				//use the dataFieldName after the last dot to access api
+				url: reqUrl,
+				config: tokenFunction(authResult),
+				background: true
+			})))
+	const localChain = simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem))
 		.then(item => _.isArray(item) ? item : [])
 	return Promise.all([resultChain, localChain])
 		.then(([newData, oldData]) => _.unionBy(newData, oldData, 'id'))

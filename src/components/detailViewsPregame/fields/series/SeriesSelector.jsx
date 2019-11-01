@@ -5,7 +5,6 @@ import {remoteData} from '../../../../store/data'
 
 const SeriesSelector = {
 	oninit: () => {
-		remoteData.Series.loadList()
 	},
 	view: ({ attrs }) =>
 		<div class="ft-name-field">

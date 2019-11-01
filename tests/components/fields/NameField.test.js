@@ -5,11 +5,11 @@
 var mq = require("mithril-query")
 var o = require("ospec")
 
-import MyComponent from "../../../src/components/fields/NameField.jsx"
+import NameField from "../../../src/components/fields/NameField.jsx"
 
 o.spec("NameField", function() {
 	const fv = 'fieldValue Test'
-    var out = mq(MyComponent, {fieldValue: fv})
+    var out = mq(NameField, {fieldValue: fv})
 	//console.log(fv)
     //console.dir(out)
     o("attrs.fieldValue display", function() {
@@ -18,4 +18,4 @@ o.spec("NameField", function() {
     })
 })
 
-o.run()
+//o.run()

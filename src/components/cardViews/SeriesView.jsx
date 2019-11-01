@@ -12,8 +12,6 @@ import {remoteData} from '../../store/data';
 
 const SeriesView = (auth) => { return {
 	oninit: () => {
-		remoteData.Series.loadList(true)
-		remoteData.Festivals.loadList(true)
 
 	},
 	view: () => <div class="main-stage">

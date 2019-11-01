@@ -17,7 +17,7 @@ const ReviewCard = vnode => {
 		},
 		//onupdate: () => console.log('ReviewCard Update'),
 	  view: ({ attrs }) =>
-	    <div class="ft-card" >
+	    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} >
 	      <div class="ft-fields" onclick={e => reviewing = true}>
 	        <ComposedNameField fieldValue={'Review ' + (attrs.data && attrs.data.name || attrs.name)} />
 	      </div>

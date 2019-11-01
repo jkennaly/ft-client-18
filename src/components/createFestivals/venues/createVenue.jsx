@@ -38,8 +38,6 @@ const entryFormHandler = (formDOM) => {
 
 
 	const submit = remoteData.Venues.create(newEntry)
-    .then(x => remoteData.Venues.loadList(true)
-      .then(result => x))
     .then(newVenue => m.route.set('/launcher'))
     .catch(err => {
       console.log('createVenues.jsx create err')
@@ -55,7 +53,6 @@ const consoleLog = str => console.log(str)
 
 const CreateVenue = (auth) => { return {
 	oninit: () => {
-		remoteData.Venues.loadList()
 	},
 	view: (vnode) => <div class="main-stage">
     <LauncherBanner 

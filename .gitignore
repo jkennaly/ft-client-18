@@ -5,6 +5,9 @@
 
 # testing
 /coverage
+/.nyc_output
+/apiData/*.json
+/tests/entry
 
 # production
 /dist
