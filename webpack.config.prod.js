@@ -29,7 +29,7 @@ module.exports = {
 		new HtmlWebpackPlugin({
 			template: "./index.html",
 			filename: "index.html",
-			inject: "body",
+			inject: false,
 			favicon: 'src/favicon.ico'
 		}),
 		new MiniCssExtractPlugin({

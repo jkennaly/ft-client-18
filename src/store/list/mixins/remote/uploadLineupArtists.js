@@ -5,14 +5,14 @@ import provide from '../../../loading/provide'
 export default (artists) => {return {
 	upload (data, festivalId) { 
 		const end = `/api/Artists/festivalLineup/${festivalId}`
-			//console.log('upload artists')
-			//console.log(data)
+			//console.log('upload artists', data, ...data.keys(), ...data.values())
+			//console.log()
 			return provide(data, this.fieldName, '', end)
 				.then(() => artists.remoteCheck(true))
 				.then(() => this.remoteCheck(true))
 	},
 	addArtist (data, festivalId) {
-		const dataFieldName = 'Artists/addToLineup/' + festivalId
+		const end = '/api/Artists/addToLineup/' + festivalId
 		//((assume data was validated in form))
 		//((assume server will add user field))
 		//submit to server

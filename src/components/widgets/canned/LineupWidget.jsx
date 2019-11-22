@@ -18,8 +18,8 @@ import FixedCardWidget from '../FixedCard.jsx';
 import  ReviewModal from '../../modals/ReviewModal.jsx';
 import {remoteData} from '../../../store/data';
 
-const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
-	const baseData = remoteData.Festivals.getResearchList(festivalId, userId)
+const artistData = ({festivalId, search, recordCount, prefilter}) => {
+	const baseData = remoteData.Festivals.getResearchList(festivalId)
 		.filter(prefilter ? prefilter : x => true)
 	const searchMatches = search ? 
 		smartSearch(baseData, search.pattern, search.fields)
@@ -29,7 +29,6 @@ const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 }
 
 const LineupWidget = vnode => {
-	var userId = 0
 	const routeId = parseInt(m.route.param("id"), 10)
 	var reviewing = false
 	var subjectObject = {}
@@ -40,10 +39,6 @@ const LineupWidget = vnode => {
 		//console.log('ArtistSearchWidget pattern ' + pattern)
 	}
 	return {
-		oninit: () => {
-			//console.log('LineupWidget init')
-			userId = auth.userId()
-		},
 		view: (vnode) => <FixedCardWidget header="Festival Lineup">
 		{
 			/*
@@ -51,7 +46,6 @@ const LineupWidget = vnode => {
 				display={reviewing} 
 				hide={sub => {if(sub) removed.push(sub.sub);reviewing = false;}}
 				subject={subjectObject}
-				user={userId}
 		    />
 			*/
 		}

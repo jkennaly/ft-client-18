@@ -6,23 +6,18 @@ import _ from 'lodash'
 
 import {remoteData} from '../../store/data';
 
-const author = attrs => {
-    const u = attrs.data
-    return remoteData.Users.getName(u)
-}
-
-const src = attrs => {
-    const u = attrs.data
-    return remoteData.Users.getPic(u)
-}
 
 
 const UserAvatarField = vnode => {
 	return {
+		oninit: ({attrs}) => remoteData.Users.getLocalPromise(attrs.data)
+			.catch(err=> {
+				console.error('UserAvatarField data grab error', err)
+			}),
 		view: ({ attrs }) => <div class="ft-horizontal-fields">
-			<img src={src(attrs)} />
+			<img src={remoteData.Users.getPic(attrs.data)} />
 			<div class="ft-vertical-fields">
-	            <span>{author(attrs)}</span>
+	            <span>{remoteData.Users.getName(attrs.data)}</span>
 	            
 	        </div>
         </div>

@@ -15,7 +15,6 @@ import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.m
 
 
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
-import LauncherBanner from '../../components/ui/LauncherBanner.jsx'
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx'
 import ActivityCard from '../../components/cards/ActivityCard.jsx'
 import ResearchWidget from '../../components/widgets/canned/ResearchWidget.jsx'
@@ -26,93 +25,57 @@ import EventSelector from '../detailViewsPregame/fields/event/EventSelector.jsx'
 
 import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData'
+import {seriesChange, festivalChange} from '../../store/action/event'
+
+const series = remoteData.Series
+const festivals = remoteData.Festivals
+
+const seriesId = () => parseInt(m.route.param('seriesId'), 10)
+const festivalId = () => parseInt(m.route.param('festivalId'), 10)
+const user = attrs => _.isInteger(attrs.userId) ? attrs.userId : 0
 
 
-const Research = (vnode) => {
-	var seriesId = 0
-	var festivalId = 0
-	var dateId = 0
-	var dayId = 0
-	var userId = 0
-	var subjectObject = {}
-	var messageArray = []
-	var discussing = false
-	var rating = 0
-	const seriesChange = e => {
-		//console.log(e.target.value)
-		seriesId = parseInt(e.target.value, 10)
-		festivalId = 0
-		//resetSelector('#festival')
-		dateId = 0
-		dayId = 0
-		localforage.setItem('status.researchLayout', {
-			status: {
-				series: seriesId,
-				festival: festivalId
-			}
-		})
-		//resetSelector('#date')
-	}
-	const festivalChange = e => {
-		//console.log(e.target.value)
-		festivalId = parseInt(e.target.value, 10)
-		dateId = 0
-		dayId = 0
-		localforage.setItem('status.researchLayout', {
-			status: {
-				series: seriesId,
-				festival: festivalId
-			}
-		})
-		remoteData.Messages.loadForFestival(festivalId)
-		//resetSelector('#date')
-	}
-	const dateChange = e => {
-		//console.log(e)
-		dateId = parseInt(e.target.value, 10)
-		dayId = 0
-	}
-	const dayChange = e => {
-		//console.log(e)
-		dayId = parseInt(e.target.value, 10)
-	}
-
-	return {
-		oninit: () => {
-			//console.log('Research init')
-		localforage.getItem('status.researchLayout')
-			.then(obj => {
-				//console.log('Research oncreate status:')
-				//console.log(obj)
-				if(!obj) return
-				const seriesValue = {target: {value: obj.status.series}}
-				const festivalValue = {target: {value: obj.status.festival}}
-				seriesChange(seriesValue)
-				festivalChange(festivalValue)
-			})
-			.catch(err => console.log(err))
+const Research = {
+	name: 'Research',
+		preload: (rParams) => {
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			const seriesId = parseInt(rParams.seriesId, 10)
+			const festivalId = parseInt(rParams.festivalId, 10)
+			//console.log('Research preload', seriesId, festivalId, rParams)
+			if(seriesId && !festivalId) series.subjectDetails({subject: seriesId, subjectType: SERIES})
+				.catch(console.error)
+			if(festivalId) return festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL})
+				.catch(console.error)
+			
 		},
-		view: () => 
+		oninit: ({attrs}) => {
+			//console.log('Research init', attrs.seriesId, attrs.festivalId)
+			if (attrs.titleSet) attrs.titleSet(`Research`)
+		},
+		view: ({attrs}) => 
 		<div class="main-stage">
-			<LauncherBanner 
-				title="Research" 
-			/>
+		
 				<EventSelector 
-					seriesId={seriesId}
-					festivalId={festivalId}
-					festivalChange={festivalChange}
+					seriesId={seriesId()}
+					festivalId={festivalId()}
+					festivalChange={festivalChange(seriesId())}
 					seriesChange={seriesChange}
 				/>
-				<FestivalCard seriesId={seriesId}
-					festivalId={festivalId}
-					eventId={festivalId}
+				<FestivalCard 
+					seriesId={seriesId()}
+					festivalId={festivalId()}
+					eventId={festivalId()}
 				/>
 				<WidgetContainer>
-					<ResearchWidget festivalId={festivalId} />
-					<ArtistSearchWidget festivalId={festivalId} overlay={'research'} />
-					<ActivityWidget festivalId={festivalId} />
+					<ResearchWidget 
+						festivalId={festivalId()} 
+						userId={user(attrs)} 
+					/>
+					<ArtistSearchWidget festivalId={festivalId()} overlay={'research'} />
+					<ActivityWidget festivalId={festivalId()} userId={user(attrs)} artistIds={remoteData.Festivals.reviewedArtistIds(festivalId(), user(attrs))} />
 				</WidgetContainer>
 
 		</div>
-}}
+}
 export default Research;

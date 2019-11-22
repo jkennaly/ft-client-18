@@ -8,7 +8,6 @@ import _ from "lodash";
 import localforage from "localforage";
 import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.min";
 
-import LauncherBanner from "../../components/ui/LauncherBanner.jsx";
 import MessageCategoryPane from "../../components/panes/MessageCategoryPane.jsx";
 import DiscussionPane from "../../components/panes/DiscussionPane.jsx";
 
@@ -17,8 +16,9 @@ import { remoteData } from "../../store/data";
 const Messages = vnode => {
 	let userId = 0;
 	return {
-		oninit: () => {
+		oninit: ({attrs}) => {
 			//console.log("Messages init");
+			if (attrs.titleSet) attrs.titleSet(`Message Center`)
 			localforage
 				.getItem("status.messageLayout")
 				.then(obj => {
@@ -38,7 +38,6 @@ const Messages = vnode => {
 
 		view: () => (
 			<div class="main-stage">
-				<LauncherBanner title="Message Center" />
 				<div class="main-stage-content-panes">
 					<div class="ft-horizontal-fields">
 						<div class="ft-pane-single">

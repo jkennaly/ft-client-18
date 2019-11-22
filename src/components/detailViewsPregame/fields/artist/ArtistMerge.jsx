@@ -15,7 +15,7 @@ var selectedId1 = 0
 var selectedId2 = 0
 var resultPos = 0
 const ArtistMerge = {
-        oninit: () => {
+        oninit: ({attrs}) => {
         },
 	view: ({attrs}) => <div class={classes(attrs)}>
 
@@ -42,7 +42,6 @@ const ArtistMerge = {
             <UIButton action={e => {
 
                 remoteData.Artists.merge(selectedId1, selectedId2)
-                    .then(r => m.redraw())
                 
             }} buttonName="Accept" />
         </div>

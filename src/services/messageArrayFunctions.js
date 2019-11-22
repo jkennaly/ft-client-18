@@ -164,13 +164,13 @@ export const buildTree = (me, discussion) => {
 
 }
 
-export const mapActivities = (loadSubjectObject, getMessage, ActivityCard) => function recurse(obj, spacers = 1, divs = [], id = 0) {
+export const mapActivities = (loadSubjectObject, messages, ActivityCard) => function recurse(obj, spacers = 1, divs = [], id = 0) {
 	//console.log('messageArrayFunctions mapActivities')
 	//console.log(obj)
 	//console.log(spacers)
 	let updatedDivs = divs
 	let updatesSpacers = spacers
-	const message = getMessage(id)
+	const message = messages.get(id)
 	//object end: the current object is a message
 	if(obj.fromuser && obj.baseMessage) {
 	//console.log('messageArrayFunctions mapActivities prep end div')

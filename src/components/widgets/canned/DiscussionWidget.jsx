@@ -46,7 +46,7 @@ const DiscussionWidget = vnode => {
 			userId = auth.userId()
 			//request an update to this discussion
 			const discussionBase = baseMessage(attrs.messageArray).id
-			remoteData.Messages.remoteLoad({forceFullLoad: false, filterString: 'filter[where][baseMessage]=' + discussionBase})
+			remoteData.Messages.acquireListUpdate('filter[where][baseMessage]=' + discussionBase)
  		},
 		view: ({attrs}) => <LargeCardWidget 
 				header="Discuss"
@@ -74,7 +74,7 @@ const DiscussionWidget = vnode => {
 			}
 			{
 
-					mapActivities(attrs.discussSubject, remoteData.Messages.get, ActivityCard)(
+					mapActivities(attrs.discussSubject, remoteData.Messages, ActivityCard)(
 					buildTree(attrs.messageArray, remoteData.Messages.discussionOf(baseMessage(attrs.messageArray).id))
 					)
 				//map the tree to activity cards with left-spacers (1 space for each depth of tree)

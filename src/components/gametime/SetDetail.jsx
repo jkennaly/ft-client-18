@@ -25,6 +25,7 @@ const SetDetail = () => {
 	var messageArray = []
 	var subjectObject = {}
 	var discussing = false
+	var gametimeAccess = true
 	return {
 		oninit: ({attrs}) => {
 			//console.log('SetDetail init', attrs.subjectObject)
@@ -34,7 +35,7 @@ const SetDetail = () => {
 			//console.log('SetDetail onit', attrs.subjectObject, detail)
 		
 		},
-		onbeforeupdate: ({attrs}) => {
+		onupdate: ({attrs}) => {
 			detail = subjectData.getDetail(attrs.subjectObject)
 			detailSubject = attrs.subjectObject.subject
 			detailSubjectType = attrs.subjectObject.subjectType
@@ -55,7 +56,11 @@ const SetDetail = () => {
 				</FixedCardWidget>
 				{detail.checkinAllowed ?
 					<FixedCardWidget >
-						<CheckinToggle subjectObject={attrs.subjectObject} debug={false} />
+						<CheckinToggle 
+							subjectObject={attrs.subjectObject} 
+							debug={false}
+							permission={gametimeAccess} 
+						/>
 						{detail.checkedIn ? <ReviewCard subjectObject={attrs.subjectObject} name={subjectData.name(attrs.subjectObject)} /> : ''}
 					</FixedCardWidget>
 				: ''}

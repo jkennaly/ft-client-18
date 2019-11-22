@@ -19,14 +19,13 @@ const auth = new Auth();
 
 import {remoteData} from '../../../store/data';
 
+import {seriesChange, festivalChange, dateChange, dayChange, stageChange} from '../../../store/action/event'
 import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.jsx'
 
 import ArtistCard from '../../cards/ArtistCard.jsx'
 import ScheduleSet from '../../fields/ScheduleSet.jsx'
 import SetScheduleModal from '../../modals/SetScheduleModal.jsx'
 
-
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import ScheduleLadder from '../../layout/ScheduleLadder.jsx'
 import WidgetContainer from '../../layout/WidgetContainer.jsx'
@@ -35,112 +34,100 @@ import FixedCardWidget from '../../widgets/FixedCard.jsx'
 
 import UIButton from '../../ui/UIButton.jsx';
 
-var userId = 0
+const {
+	Series: series,
+	 Festivals: festivals,
+	 Dates: dates,
+	 Days: days,
+	 Sets: sets,
+	 Lineups: lineups,
+	 Artists: artists,
+	 Places: places
+	} = remoteData
 
+/*
+const series = remoteData. Series
+const festivals = remoteData. Festivals
+const dates = remoteData. Dates
+const days = remoteData. Days
+const sets = remoteData. Sets
+const lineups = remoteData. Lineups
+const artists = remoteData. Artists
+const places = remoteData. Places
+*/
 
-const AssignTimes = (vnode) => {
-	const stageHeaders = _.memoize(festivalId => remoteData.Places.forFestival(festivalId)
-				.sort((a, b) => a.priority - b.priority)
-		)
-	var seriesId = 0
-	var festivalId = 0
-	var dateId = 0
-	var dayId = 0
-	var stageId = 0
-	var schedulingSet = false
-	var addSet = {}
-	var festivalArtists = []
-	var dayAndStageUnscheduled = []
-	var scheduledSets = []
-	const seriesChange = e => {
-		//console.log(e.target.value)
-		seriesId = parseInt(e.target.value, 10)
-		festivalId = 0
-		//resetSelector('#festival')
-		dateId = 0
-		dayId = 0
-		stageId = 0
-		//resetSelector('#date')
-	}
-	const festivalChange = e => {
-		//console.log(e.target.value)
-		festivalId = parseInt(e.target.value, 10)
-		dateId = 0
-		dayId = 0
-		stageId = 0
+const dayId = () => parseInt(m.route.param('dayId'), 10)
+const dateId = () => parseInt(m.route.param('dateId'), 10)
+const festivalId = () => parseInt(m.route.param('festivalId'), 10)
+const seriesId = () => parseInt(m.route.param('seriesId'), 10)
+const stageId = () => parseInt(m.route.param('stageId'), 10)
+const user = attrs => _.isInteger(attrs.userId) ? attrs.userId : 0
+const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
 
-		festivalArtists = remoteData.Artists.getMany(remoteData.Festivals.getLineupArtistIds(
-			festivalId))
-			.sort((a, b) => {
-				const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId)
-				const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId)
-				if(aPriId === bPriId) return a.name.localeCompare(b.name)
-				const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
-				const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
-				return aPriLevel - bPriLevel
-		})
-		//resetSelector('#date')
-	}
-	const dateChange = e => {
-		//console.log(e)
-		dateId = parseInt(e.target.value, 10)
-		dayId = 0
-		stageId = 0
-	}
-	const dayChange = e => {
-		//console.log(e)
-		dayId = parseInt(e.target.value, 10)
-		stageId = 0
-		dayAndStageUnscheduled = []
-		scheduledSets = []
-	}
-	const stageChange = e => {
-		console.log('AssignTimes stageChange')
-		stageId = parseInt(e.target.value, 10)
-		dayAndStageUnscheduled = remoteData.Sets.forDayAndStage(dayId, stageId)
+const dayAndStageUnscheduled = (dayId, stageId) => sets.getFiltered({day: dayId, stage: stageId})
 			.filter(x => !x.end)
-
-		scheduledSets = remoteData.Sets.forDayAndStage(dayId, stageId)
+const scheduledSets = (dayId, stageId) => sets.getFiltered({day: dayId, stage: stageId})
 			.filter(x => x.end)
-		//console.log(stageId)
-		//console.log(dayId)
-		//console.log(dayAndStageUnscheduled)
-		//console.log(scheduledSets)
-	}
+const stageHeaders = festivalId => places.forFestival(festivalId)
+			.sort((a, b) => a.priority - b.priority)
 
-	return {
-		oninit: () => {
-			userId = auth.userId()
+var schedulingSet = false
+var addSet = {}
+const AssignTimes = {
+		name: 'AssignTimes',
+		preload: (rParams) => {
+			//console.log('dayDetails preload')
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			const seriesId = parseInt(rParams.seriesId, 10)
+			const festivalId = parseInt(rParams.festivalId, 10)
+			const dateId = parseInt(rParams.dateId, 10)
+			const dayId = parseInt(rParams.dayId, 10)
+			//messages.forArtist(dateId)
+			//console.log('Research preload', seriesId, festivalId, rParams)
+			return Promise.all([
+					!seriesId ? series.remoteCheck(true) : true,
+					seriesId && !festivalId ? Promise.all([
+						series.subjectDetails({subject: seriesId, subjectType: SERIES}),
+						festivals.remoteCheck(true)
+						]) : true,
+					festivalId && !dateId ? Promise.all([
+						festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL}),
+						dates.remoteCheck(true)
+						]) : true,
+					dateId && !dayId  ? dates.subjectDetails({subject: dateId, subjectType: DATE}) : true,
+					dayId ? days.subjectDetails({subject: dayId, subjectType: DAY}) : true
+			])
+		},
+		oninit: ({attrs}) => {
+			if (attrs.titleSet) attrs.titleSet(`Assign set times`)
 		},
 		view: ({attrs}) => <div class="main-stage">
-			<LauncherBanner 
-				title="Assign set times"
-			>
-				<EventSelector 
-						seriesId={seriesId}
-						festivalId={festivalId}
-						dateId={dateId}
-						dayId={dayId}
-						festivalChange={festivalChange}
-						seriesChange={seriesChange}
-						dateChange={dateChange}
-						dayChange={dayChange}
-						stageChange={stageChange}
-				/>
-			</LauncherBanner>
-		    {!dayId || !stageId ? '' : <div class={userId > 0 ? '' : 'hidden' }>
+			<EventSelector 
+				seriesId={seriesId()}
+				festivalId={festivalId()}
+				dateId={dateId()}
+				dayId={dayId()}
+				stageId={stageId()}
+				seriesChange={seriesChange}
+				festivalChange={festivalChange(seriesId())}
+				dateChange={dateChange(seriesId(), festivalId())}
+				dayChange={dayChange(seriesId(), festivalId(), dateId())}
+				stageChange={stageChange(seriesId(), festivalId(), dateId(), dayId())}
+			/>
+		    {!dayId() || !stageId() ? '' : <div>
 		    	<WidgetContainer>	
 					<FixedCardWidget header="Festival Lineup" quarter={true} containerClasses={'artist-pool'}>
 						{
-							festivalArtists
+							artists.getMany(lineups.getFiltered(l => l.festival === festivalId()).map(x => x.band))
+								.sort((a, b) => a.name.localeCompare(b.name))
 								.map(data => <ArtistCard 
 									data={data}
 									clickFunction={() => {
 										addSet = {
 											band: data.id,
-											user:userId,
-											day: dayId,
-											stage: stageId
+											day: dayId(),
+											stage: stageId()
 										}
 										schedulingSet = true
 										//feed data to schedule new set to modal
@@ -150,11 +137,12 @@ const AssignTimes = (vnode) => {
 								/>)
 						}
 					</FixedCardWidget>	
-					<FixedCardWidget header="Day and Stage Lineup" quarter={true} containerClasses={'artist-pool'}>
+					{ dayId() && stageId() ? <FixedCardWidget header="Day and Stage Lineup" quarter={true} containerClasses={'artist-pool'}>
 						{
-							dayAndStageUnscheduled
+							dayAndStageUnscheduled(dayId(), stageId())
+							//.filter(x => console.log('dsu', x) || true)
 								.map(data => <ArtistCard 
-									data={remoteData.Artists.get(data.band)}
+									data={artists.get(data.band)}
 									clickFunction={() => {
 										addSet = data
 										schedulingSet = true
@@ -164,9 +152,9 @@ const AssignTimes = (vnode) => {
 									}}
 								/>)
 						}
-					</FixedCardWidget>	
+					</FixedCardWidget>	: ''}
 					<ScheduleLadder>
-						{scheduledSets
+						{scheduledSets(dayId(), stageId())
 							.filter(data => data.end)
 							.map(data => <ScheduleSet 
 								set={data}
@@ -186,24 +174,13 @@ const AssignTimes = (vnode) => {
 						hide={() => schedulingSet = false}
 						action={(data, verb) => promise => promise
 							.then(result => {
-								//remove from old grouping (unless from festival)
-								const removeRequired = !!addSet.id
-								const removeArray = addSet.end ? scheduledSets : dayAndStageUnscheduled
-								//console.log('pre remove: ' + removeArray.length)
-								if(removeRequired) _.remove(removeArray, el => el.id === addSet.id)
-								//console.log('post remove: ' + removeArray.length)
-								//add to new grouping (unless a removal)
-								const addRequired = verb !== 'DELETE'
-								const addArray = scheduledSets
-								if(addRequired) addArray.push(data)
 								m.redraw()
 								return result
 							})
-							.catch(err => {console.log(err);console.log(verb);console.log(data);})}
+							.catch(err => {console.error(err);console.log(verb);console.log(data);})}
 						set={addSet}
-						user={userId}
 					/>
 		</div>
 	    
-}}
+}
 export default AssignTimes;

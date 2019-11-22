@@ -11,7 +11,7 @@ import smartSearch from 'smart-search'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
 // Services
-import Auth from '../../../services/auth.js';
+import Auth from '../../../services/auth';
 const auth = new Auth();
 
 import ActivityCard from '../../../components/cards/ActivityCard.jsx';
@@ -33,7 +33,7 @@ const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 
 const getRecentActivity = (userId, festivalId) => _.take(
 	_.uniqBy(remoteData.Messages.recentDiscussionEvent(userId,
-		remoteData.Festivals.getSubjectObject(festivalId ? festivalId : parseInt(m.route.param('id'), 10))), 
+		{subject: festivalId, subjectType: FESTIVAL}), 
 		v => '' + v.fromuser + '.' + v.messageType  + '.' + v.subjectType + '.' + v.subject)
 		.sort((a, b) => {
 			const am = moment(a.timestamp).utc()
@@ -41,7 +41,11 @@ const getRecentActivity = (userId, festivalId) => _.take(
 			return bm.diff(am)
 		}
 	), 5)
-
+const baseMessage = me => {
+	if(!me || !me.id || !me.subject || !me.subjectType) return undefined
+	if(me.subjectType !== remoteData.Messages.subjectType) return me
+	return baseMessage(remoteData.Messages.get(me.subject))
+}
 const ActivityWidget = vnode => {
 	const routeId = parseInt(m.route.param("id"), 10)
 	var subjectObject = {}
@@ -54,18 +58,37 @@ const ActivityWidget = vnode => {
 		//console.log('ArtistSearchWidget pattern ' + pattern)
 	}
 	return {
-		view: (vnode) => <FixedCardWidget header="Recent Activity">
+		view: (vnode) => <FixedCardWidget header="Recent Activity" display={_.isNumber(vnode.attrs.userId) && vnode.attrs.userId > 0}>
 
 			{messageArray.length ? <DiscussModal
-							display={discussing} 
-							hide={sub => {discussing = false;}}
-							subject={subjectObject}
-							messageArray={messageArray}
-							reviewer={messageArray.length ? messageArray[0].fromuser : 0}
-							user={auth.userId()}
-						/> : ''}
+				display={discussing} 
+				hide={sub => {discussing = false;}}
+				subject={subjectObject}
+				messageArray={messageArray}
+				reviewer={messageArray.length ? messageArray[0].fromuser : 0}
+			/> : ''}
 			{
-				auth.userId() ? getRecentActivity(auth.userId(), vnode.attrs.festivalId)
+				getRecentActivity(vnode.attrs.userId, vnode.attrs.festivalId)
+				/*
+					.filter(x => {
+						console.log('recent pre', vnode.attrs.userId, vnode.attrs.festivalId, x.id)
+						return x
+					})
+					*/
+					.filter(_.isArray(vnode.attrs.artistIds) ? 
+					 	me => vnode.attrs.artistIds.find(aid => {
+					 		const base = baseMessage(me)
+					 		if(!base) return false
+					 		//console.log('recent', aid, me, base)
+					 		return base.subject === aid && base.subjectType === remoteData.Artists.subjectType
+					 	}) : 
+					 x => true)
+					/*
+					.filter(x => {
+						console.log('recent post', x)
+						return x
+					})
+					*/
 					.map(data => <ActivityCard 
 						messageArray={[data]} 
 						discusser={data.fromuser}
@@ -75,7 +98,6 @@ const ActivityWidget = vnode => {
 						headline={subjectData.name(data.subject, data.subjectType)}
 						headact={e => {
 							if(data.subjectType === 2) m.route.set("/artists" + "/pregame" + '/' + data.subject)
-
 						}}
 						discussSubject={(s, me, r) => {
 							subjectObject = _.clone(s)
@@ -84,7 +106,6 @@ const ActivityWidget = vnode => {
 							discussing = true
 						}}
 					/>)
-				: ''
 			}
 			</FixedCardWidget>	
 }};

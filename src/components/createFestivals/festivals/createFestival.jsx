@@ -8,7 +8,6 @@ import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../../components/cards/FestivalCard.jsx';
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -44,7 +43,8 @@ const entryFormHandler = (formDOM) => {
 	//console.log(newEntry);
 
 	remoteData.Festivals.create(newEntry)
-		.then(newFestival => m.route.set('/fests/pregame/' + newFestival.id))
+		.then(newFestival => _.isNumber(newFestival.id) && m.route.set('/dates/pregame/new/' + newFestival.id) || console.log('newFestival', newFestival) && false || m.route.set('/admin'))
+
 		.catch(err => {
 			console.log('createFestivals.jsx create err')
 			console.log(err)
@@ -58,13 +58,11 @@ const consoleLog = str => console.log(str)
 var userId = 0
 
 const CreateFestival = (auth) => { return {
-	oninit: () => {
+	oninit: ({attrs}) => {
 			userId = auth.userId()
+			if (attrs.titleSet) attrs.titleSet(`Add year`)
 	},
 	view: (vnode) => <div class="main-stage">
-			<LauncherBanner 
-				title="Add year"
-			/>
 				<div class="main-stage-content-scroll">
     
     <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">

@@ -1,8 +1,26 @@
 // research.js
 
 import _ from 'lodash'
+import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+
 
 export default (artists, messages, lineups, artpris) => { return  {
+	reviewedArtistIds (id, author, cutoffTime = 365) {
+		if(!id || !this.get(id) || !this.getEndMoment(id)) return []
+		//console.log('reviewedArtistIds get', id, author, this.get(id))
+		const reviewCutoff = this.getEndMoment(id).subtract(365, 'days')
+		const lineupArtistIds = lineups.getFestivalArtistIds(id)
+		//console.log('reviewedArtistIds', id, author, lineupArtistIds)
+		return lineupArtistIds
+			.filter(!author ? x => true : aid => messages.find(m => m.fromuser === author && 
+				m.subjectType === artists.subjectType && 
+				m.subject === aid && 
+				[1,2].includes(m.messageType) &&
+				moment(m.timestamp).isSameOrAfter(reviewCutoff)
+			))
+			//.filter(aid => console.log('reviewedArtistIds postfilter', aid) || aid)
+
+	},
 	getResearchList (id, author) { 
 		const artistData = artists.getMany(lineups.getFestivalArtistIds(id))
 			const artistIds = artistData
@@ -24,7 +42,7 @@ export default (artists, messages, lineups, artpris) => { return  {
 					artistIds: artistIds,
 					festivalId: id
 				}),
-				recents: messages.recentRatings({
+				recents: messages.recentReviews({
 					artistIds: artistIds,
 					author: author
 				})

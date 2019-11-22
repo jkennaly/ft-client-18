@@ -3,7 +3,6 @@
 import m from "mithril";
 import _ from "lodash";
 
-import LauncherBanner from "../ui/LauncherBanner.jsx";
 import CardContainer from "../../components/layout/CardContainer.jsx";
 import SeriesCard from "../../components/cards/SeriesCard.jsx";
 import DateCard from "../../components/cards/DateCard.jsx";
@@ -21,95 +20,68 @@ import SeriesWebsiteField from './fields/series/SeriesWebsiteField.jsx'
 
 import { remoteData } from "../../store/data";
 
-const upload = (festival, initFunction) => e => {
-	var file = e.target.files[0];
+const festivals = remoteData.Festivals
 
-	var data = new FormData();
-	data.append("myfile", file);
+const id = () => parseInt(m.route.param('id'), 10)
+const user = attrs => _.isInteger(attrs.user) ? attrs.user : 0
+const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
 
-	remoteData.Lineups.upload(data, festival).then(initFunction);
-};
-const FestivalDetail = () => {
-	var messageArray = [];
-	var discussing = false;
-	let festivalId = 0;
-	const init = () => {
-		//console.log('FestivalDetail init')
-		festivalId = parseInt(m.route.param("id"), 10)
-		remoteData.Messages.loadForFestival(festivalId)
-			.catch(err => {
-				console.log('FestivalDetail Message load error')
-				console.log(err)
-			})
-	};
-	return {
-		oninit: init,
-		view: () => (
+const FestivalDetail = {
+	name: 'FestivalDetail',
+	preload: (rParams) => {
+		//if a promise returned, instantiation of component held for completion
+		//route may not be resolved; use rParams and not m.route.param
+		const festivalId = parseInt(rParams.id, 10)
+		//messages.forArtist(festivalId)
+		//console.log('Research preload', seriesId, festivalId, rParams)
+		if(festivalId) return festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL})
+
+	},
+		oninit: ({attrs}) => {
+
+			if (attrs.titleSet) attrs.titleSet(festivals.getEventName(id()))
+
+		},
+		view: ({attrs}) => (
 			<div class="main-stage">
-				<LauncherBanner
-					title={remoteData.Festivals.getEventName(festivalId)}
-				/>
-				{!remoteData.Lineups.festHasLineup(festivalId) ? (
-					<div>
-						<label for="lineup-uploader">
-							{`Upload a file with the artist list (one name per line)`}
-						</label>
-						<input
-							id="lineup-uploader"
-							type="file"
-							name="lineup-file"
-							onchange={upload(festivalId, init)}
-						/>
-					</div>
-				) : (
-					""
-				)}
-				{festivalId ? <SeriesWebsiteField festivalId={festivalId} /> : ''}
-				{festivalId ? (
+				{id() ? <SeriesWebsiteField festivalId={id()} /> : ''}
+				{id() ? (
 					<IntentToggle
-						subjectObject={{ subject: festivalId, subjectType: 7 }}
+						subjectObject={{
+							subject: id(), 
+							subjectType: FESTIVAL
+						}}
+						permission={roles(attrs).includes('user')}
 					/>
 				) : (
 					""
 				)}
 
 				<WidgetContainer>
-					<LineupWidget festivalId={festivalId} />
-					<ActivityWidget festivalId={festivalId} />
-					<ResearchWidget list={[]} />
+					<LineupWidget festivalId={id()} />
+					<ActivityWidget festivalId={id()} userId={user(attrs)} />
+					<ResearchWidget list={[]} userId={user(attrs)} />
 					<FixedCardWidget header="Related Events">
 						{(remoteData.Dates.getMany(
-							remoteData.Festivals.getSubIds(
-								parseInt(
-									m.route.param("id"))))
+							festivals.getSubIds(id()))
 						)
 							.sort((a, b) => a.basedate - b.basedate)
 							.map(data => (
 								<DateCard eventId={data.id} />
 							))}
-						{(remoteData.Festivals.eventActive(
-								parseInt(
-									m.route.param("id")))
-						) ? (
-							<DateCard festivalId={festivalId} eventId={"new"} />
-						) : (
-							""
-						)}
 						<SeriesCard
 							data={(remoteData.Series.get(
-							remoteData.Festivals.getSuperId(
-								parseInt(
-									m.route.param("id"))))
+							festivals.getSuperId(
+								id()))
 						)}
 							eventId={(
-							remoteData.Festivals.getSuperId(
-								parseInt(
-									m.route.param("id"))))}
+							festivals.getSuperId(
+								id()))}
 						/>
 					</FixedCardWidget>
 				</WidgetContainer>
 			</div>
 		)
-	};
+
 };
 export default FestivalDetail;

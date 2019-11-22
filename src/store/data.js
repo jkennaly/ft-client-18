@@ -2,8 +2,12 @@
 
 import _ from 'lodash'
 import m from 'mithril'
+// Services
+import Auth from '../services/auth.js';
+const auth = new Auth();
 
 import {getList} from './loading/enlist'
+import {coreCheck} from './loading/acquire'
 
 import ArtistList from './list/models/ArtistList'
 import ImageList from './list/models/ImageList'
@@ -42,6 +46,7 @@ import rated from './list/mixins/attributes/rated'
 import virginal from './list/mixins/attributes/virginal'
 import filterable from './list/mixins/attributes/filterable'
 import subjective from './list/mixins/subjects/subjective'
+import messageCheckin from './list/mixins/subjects/checkins/message'
 import dateCheckin from './list/mixins/subjects/checkins/dateCheckin'
 import setFilters from './list/mixins/event/admin/setFilters'
 import dateFilters from './list/mixins/event/admin/dateFilters'
@@ -53,8 +58,8 @@ import dayIds from './list/mixins/event/associated/dayIds'
 import setIds from './list/mixins/event/associated/setIds'
 import seriesActive from './list/mixins/event/active/series'
 import festivalActive from './list/mixins/event/active/festival'
-import futureFestival from './list/mixins/event/futureFestival'
 import futureDate from './list/mixins/event/futureDate'
+import futureSet from './list/mixins/event/futureSet'
 import momentsDate from './list/mixins/event/momentsDate'
 import momentsDay from './list/mixins/event/momentsDay'
 import momentsSet from './list/mixins/event/momentsSet'
@@ -65,19 +70,27 @@ import placeName from './list/mixins/subjects/place'
 import setName from './list/mixins/event/setName'
 import research from './list/mixins/event/research'
 import intended from './list/mixins/event/intended'
+import imgEvent from './list/mixins/event/img'
 import messageEventConnections from './list/mixins/subjects/messageConnections/event'
 import messageArtistConnections from './list/mixins/subjects/messageConnections/artist'
+import messageFestivalConnections from './list/mixins/subjects/messageConnections/festival'
 import messageFilters from './list/mixins/subjects/filters/message'
 import forArtist from './list/mixins/subjects/filters/forArtist'
 import forSubject from './list/mixins/subjects/filters/forSubject'
+import forDayAndStage from './list/mixins/subjects/filters/forDayAndStage'
 import monitoredMessageFilters from './list/mixins/subjects/filters/monitoredMessage'
 import connectionFilter from './list/mixins/subjects/messageConnections/filter'
 import nameMatch from './list/mixins/search/nameMatch'
 import artistConnections from './list/mixins/relations/artistConnections'
 import messageMonitor from './list/mixins/relations/messageMonitor'
 import intent from './list/mixins/relations/intent'
-import dateLineups from './list/mixins/relations/dateLineups'
 import merge from './list/mixins/remote/merge'
+import subjectDetails from './list/mixins/remote/details/subject'
+import artistDetails from './list/mixins/remote/details/artist'
+import dateDetails from './list/mixins/remote/details/date'
+import dayDetails from './list/mixins/remote/details/day'
+import setDetails from './list/mixins/remote/details/set'
+import festivalDetails from './list/mixins/remote/details/festival'
 import batchCreate from './list/mixins/remote/batchCreate'
 import batchDelete from './list/mixins/remote/batchDelete'
 import batchUpdate from './list/mixins/remote/batchUpdate'
@@ -85,11 +98,15 @@ import create from './list/mixins/remote/create'
 import deletion from './list/mixins/remote/deletion'
 import dateWithDays from './list/mixins/remote/dateWithDays'
 import festivalMessages from './list/mixins/remote/festivalMessages'
+import getPromise from './list/mixins/remote/getPromise'
+import nameSearch from './list/mixins/remote/nameSearch'
 import setsForDay from './list/mixins/remote/setsForDay'
 import update from './list/mixins/remote/update'
 import updateInstance from './list/mixins/remote/updateInstance'
 import uploadLineupArtists from './list/mixins/remote/uploadLineupArtists'
 import upsert from './list/mixins/remote/upsert'
+
+let dataLoad = Promise.resolve(false)
 
 let artists =  new ArtistList()
 let images =  new ImageList()
@@ -142,12 +159,19 @@ Object.assign(artists,
 	nameMatch,
 	messageArtistConnections(subjects),
 	merge,
-	update
+	update,
+	getPromise,
+	nameSearch,
+	artistDetails(subjects, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities)
 )
 Object.assign(images,
 	filterable,
 	img,
-	forSubject
+	forSubject,
+	getPromise,
+	subjectDetails,
+	create,
+	imgEvent(subjects, lineups)
 )
 Object.assign(series,
 	filterable,
@@ -159,21 +183,25 @@ Object.assign(series,
 	nameMatch,
 	seriesActive(dates),
 	create,
-	updateInstance
+	updateInstance,
+	getPromise,
+	subjectDetails
 )
 Object.assign(festivals,
 	filterable,
 	subjective,
-	futureFestival(dates),
 	event,
 	eventSub(dates),
 	eventSuper(series),
-	messageEventConnections,
+	messageFestivalConnections(messages, lineups),
 	research(artists, messages, lineups, artistPriorities),
 	intended(intentions),
 	create,
 	festivalActive(dates),
-	festivalIds(subjects)
+	festivalIds(subjects),
+	getPromise,
+	festivalDetails(subjects, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities, intentions)
+
 )
 Object.assign(dates,
 	filterable,
@@ -184,11 +212,12 @@ Object.assign(dates,
 	eventSub(days),
 	eventSuper(festivals),
 	messageEventConnections,
-	dateIds(subjects),
-	dateLineups(lineups),
+	dateIds(subjects, lineups),
 	dateCheckin(messages),
 	dateWithDays(days),
-	dateFilters(festivals)
+	dateFilters(festivals),
+	getPromise,
+	dateDetails(subjects, lineups)
 )
 Object.assign(days,
 	filterable,
@@ -198,7 +227,9 @@ Object.assign(days,
 	momentsDay(dates),
 	messageEventConnections,
 	futureDate,
-	dayIds(subjects)
+	dayIds(subjects),
+	getPromise,
+	dayDetails(subjects)
 )
 Object.assign(sets,
 	filterable,
@@ -215,7 +246,12 @@ Object.assign(sets,
 	batchDelete,
 	batchUpdate,
 	upsert,
-	deletion
+	deletion,
+	getPromise,
+	forDayAndStage,
+	futureSet,
+	setDetails(subjects)
+
 )
 Object.assign(lineups,
 	filterable,
@@ -224,6 +260,7 @@ Object.assign(lineups,
 	create,
 	uploadLineupArtists(artists),
 	batchDelete,
+	getPromise,
 	batchUpdate
 )
 Object.assign(venues,
@@ -232,9 +269,12 @@ Object.assign(venues,
 	named,
 	messageEventConnections,
 	placeName,
-	create
+	create,
+	getPromise,
+	subjectDetails
 )
 Object.assign(organizers,
+	getPromise,
 	filterable
 )
 Object.assign(places,
@@ -244,38 +284,49 @@ Object.assign(places,
 	messageEventConnections,
 	batchCreate,
 	batchDelete,
-	placeAdmin(series, festivals)
+	placeAdmin(series, festivals),
+	getPromise,
+	subjectDetails
 )
 Object.assign(artistPriorities,
 	filterable,
 	leveled,
+	getPromise,
 	named
 )
 Object.assign(stagePriorities,
+	getPromise,
 	filterable
 )
 Object.assign(stageLayouts,
+	getPromise,
 	filterable
 )
 Object.assign(placeTypes,
+	getPromise,
 	filterable
 )
 Object.assign(artistAliases,
 	filterable,
 	batchCreate,
 	batchDelete,
+	getPromise,
 	forArtist
 )
 Object.assign(parentGenres,
+	getPromise,
 	filterable
 )
 Object.assign(genres,
+	getPromise,
 	filterable
 )
 Object.assign(artistGenres,
+	getPromise,
 	filterable
 )
 Object.assign(messages,
+	getPromise,
 	filterable,
 	subjective,
 	messageName(subjects),
@@ -286,9 +337,12 @@ Object.assign(messages,
 	festivalMessages,
 	create,
 	upsert,
-	updateInstance
+	updateInstance,
+	subjectDetails,
+	messageCheckin(subjects)
 )
 Object.assign(messagesMonitors,
+	getPromise,
 	filterable,
 	messageMonitor,
 	create,
@@ -296,20 +350,47 @@ Object.assign(messagesMonitors,
 	batchDelete
 )
 Object.assign(intentions,
+	getPromise,
 	filterable,
 	forSubject,
 	create,
 	batchCreate,
 	batchDelete,
+	updateInstance,
 	intent
 )
 Object.assign(users,
+	getPromise,
 	filterable,
 	subjective,
 	userName,
-	messageEventConnections
+	messageEventConnections,
+	subjectDetails
 )
-
+const baseKeys = [
+'Artists',
+'Images',
+'Series',
+'Festivals',
+'Dates',
+'Days',
+'Sets',
+'Lineups',
+'Venues',
+'Organizers',
+'Places',
+'ArtistPriorities',
+'StagePriorities',
+'StageLayouts',
+'PlaceTypes',
+'ArtistAliases',
+'ParentGenres',
+'Genres',
+'ArtistGenres',
+'MessageTypes',
+'SubjectTypes',
+'Intentions',
+]
 export const remoteData = {
 	Artists: artists,
 	Images: images,
@@ -335,20 +416,50 @@ export const remoteData = {
 	Messages: messages,
 	MessagesMonitors: messagesMonitors,
 	Intentions: intentions,
-	Users: users
+	Users: users,
+	dataLoad: window.mockery ? Promise.resolve(true) : (Promise.all(
+		_.map(baseKeys, 
+			k => getList(k)
+				.then(l => remoteData[k].replaceList(l))))
+				//.then(l => console.log(`list ${k}`, l.length) || l)
+		//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
+		.catch(console.error)
+		.then(() => true)
+	),
+
 }
 
-global.festigram = remoteData
+global.festigram = _.assign({}, remoteData)
+festigram.auth = auth
 
 export const clearData = () => {
-	_.each(remoteData, dataField => dataField.clear())
+	_.each(remoteData, dataField => dataField.clear && dataField.clear())
+	//init the lists with core data
+	const keys = _.keys(remoteData).filter(k => remoteData[k].core)
+	coreCheck()
+		.then(() => Promise.all(_.map(keys, k => getList(k).then(l => remoteData[k].replaceList(l)))))
+		.then(() => m.redraw())
+	
+		//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
+	
 }
+
+auth.recore(clearData)
 
 if(!window.mockery) {
 	//init the lists with core data
-	const keys = _.keys(remoteData).filter(k => remoteData[k].core)
-	Promise.all(_.map(keys, k => getList(k).then(l => remoteData[k].replaceList(l))))
-		//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
-		.then(m.redraw)
-	
+	remoteData.dataLoad
+		//.then(() => console.log('data loaded', remoteData.Artists.list.length))
+		.then(() => {
+
+			const interval = 5000
+			const updateInterval = setTimeout(function run() {
+				//console.log('update')
+				Promise.all(_.map(remoteData, v => v.core && v.remoteCheck && v.remoteCheck()))
+					.catch(console.error)
+					.then(() => setTimeout(run, interval))
+			}, interval)
+		})
+} else {
+	dataLoad = Promise.resolve(true)
 }

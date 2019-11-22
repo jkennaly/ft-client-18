@@ -5,19 +5,16 @@ import m from 'mithril'
 //import _ from 'lodash'
 
 
-import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import SetCard from '../../components/cards/SetCard.jsx';
 
 import {remoteData} from '../../store/data';
 
 const SetView = (auth) => { return {
-	oninit: () => {
+	oninit: ({attrs}) => {
+		if (attrs.titleSet) attrs.titleSet(`Sets`)
 	},
 	view: () => <div class="main-stage">
-			<LauncherBanner 
-				title="FestivalTime Sets" 
-			/>
 		<CardContainer>
 			{
 				_.take(remoteData.Sets.list

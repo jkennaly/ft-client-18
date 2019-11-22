@@ -8,6 +8,7 @@ export default {
 			//console.log('upsert ' + this.fieldName)
 			//console.log(data)
 			return provide(data, this.fieldName, '', end, 'PUT')
-				.then(() => this.remoteCheck(true))
+				//.then(el => console.log('upsert', end, el) && el || el)
+				.then(responseEl => this.backfillList([responseEl], true))
 	}
 }

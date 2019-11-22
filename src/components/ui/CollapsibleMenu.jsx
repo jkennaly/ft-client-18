@@ -25,6 +25,7 @@ const CollapsibleMenu = {
                     {attrs.menu.map(i => <MenuItem 
                     	data={i}
                         clickFunction={attrs.itemClicked}
+                        key={i.name}
                     />)}
             </div>
         </div>

@@ -1,7 +1,11 @@
 // momentsSet.js
 export default (days) => { return  {
 	getStartMoment (id) {
-		const superMoment = days.getBaseMoment(this.getSuperId(id))
+		const set = this.get(id)
+		if(!set) throw new Error('set.getBaseMoment nonexistent set ' + id)
+		const superDay = this.getSuperId(id)
+		//console.log('set.getStartMoment', id, superDay)
+		const superMoment = days.getBaseMoment(superDay)
 		return superMoment.add(this.get(id).start, 'minutes')
 		},
 	getEndMoment (id) {
@@ -14,5 +18,16 @@ export default (days) => { return  {
 		const endMoment = this.getEndMoment(id)
 		return startMoment.format('h:mm') + '-' + endMoment.format('h:mm')
 	},
-	getTimeString (id) {return this.getSetTimeText(id) }
+	getTimeString (id) {return this.getSetTimeText(id) },
+	active (id) {
+		//console.log(this, id)
+		try {
+			const s = this.getStartMoment(id)
+			const e = this.getEndMoment(id)
+			return  moment().isBetween(s, e)
+		}
+		catch {
+			return false
+		}
+	}
 }}

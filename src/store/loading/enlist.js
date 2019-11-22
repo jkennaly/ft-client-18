@@ -9,9 +9,17 @@ localforage.config({
 import {updateModel, coreChecked} from './acquire.js'
 //pull data from localforage and convert into an array
 
-function loadModel(modelName) {
+
+
+export function loadModel(modelName) {
 	const localItem = `Model.${modelName}`
 	return localforage.getItem(localItem)
+}
+
+export function coreLoaded(modelName) {
+
+	coreChecked
+		.then()
 }
 
 //if there is no data, run acquire and then try again

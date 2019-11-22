@@ -51,7 +51,7 @@ const auth = new Auth()
 
 
 
-const coreCheck = () => localforage.getItem('core')
+export const coreCheck = () => localforage.getItem('Model.core')
 	.then(coreData => coreData || window.mockery === true)
 	.then(coreData => coreData || m.request({
 	    method: 'GET',
@@ -60,7 +60,7 @@ const coreCheck = () => localforage.getItem('core')
 	.then(data => data.data)
 	.then(coreData => archive('core', coreData))
 	//.then(data => console.dir('coreCheck data', data) && false || data)
-	.then(coreData => _.each(coreData, (list, modelName) => archive(modelName, list)))
+	.then(coreData => Promise.all(_.map(coreData, (list, modelName) => archive(modelName, list))))
 	.then(() => true)
 	.catch(err => {
 		console.error('acquire core error', err)
@@ -68,24 +68,60 @@ const coreCheck = () => localforage.getItem('core')
 
 export const coreChecked = coreCheck()
 
-export function updateModel(modelName, queryString = '', url, simResponse) {
+const headerBase = {
+    'Content-Type': 'application/json'
+   }
 
-	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
+export function updateModel(modelName, queryString = '', url, simResponse) {
+	let updated = false
+
+	const reqUrl = url ? url + (queryString ? '?' : '') + (queryString) : `/api/${modelName}?${(queryString)}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)
-	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getAccessToken()
-			.then(authResult => m.request({
-				method: 'GET',
-				//use the dataFieldName after the last dot to access api
-				url: reqUrl,
-				config: tokenFunction(authResult),
-				background: true
+	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 
+		(auth.getAccessToken()
+			.catch(err => {
+				if(err.error === 'login_required' || err === 'login required') return
+				throw err
+			})
+			//.then(x => console.log('authResult') && x || x)
+			/*
+			.then(authResult => { 
+				console.log('updateModel reqUrl', reqUrl)
+				const req = m.request({
+	    			method: 'GET',
+	    			url: reqUrl,
+					config: tokenFunction(authResult),
+					background: true
+				})
+				console.log('req', req)
+				req.then(x => console.log('updateModel response') && x || x)
+				req.catch(x => console.log('updateModel err', x))
+				return req
+			})
+			*/
+			.then(authResult => fetch(reqUrl, { 
+			   	method: 'get', 
+			   	headers: new Headers(
+			   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
+	   			)
 			})))
+		.then(response => response.json())
+		.then(response => _.isArray(response.data) || response.data && response.data.id ? response.data : response)
+		.then(response => response.id ? [response] : response)
+		/*
+		.then(x => {
+			console.log('resultChain', x)
+			return x
+		})
+		*/
+		.then(data => {updated = Boolean(data.length); return data})
+		.catch(err => console.error(err))
 	const localChain = simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem))
 		.then(item => _.isArray(item) ? item : [])
 	return Promise.all([resultChain, localChain])
-		.then(([newData, oldData]) => _.unionBy(newData, oldData, 'id'))
-		.then(setModel)
-		.then(() => true)
+		.then(([newData, oldData]) => {if(updated) return _.unionBy(newData, oldData, 'id');})
+		.then(data => {if(data) return setModel(data);})
+		.then(() => updated)
 }
 

@@ -26,7 +26,7 @@ const setIdField = (field, id) => currentSet(id) ? currentSet(id)[field] : 0
 
 const SetCard = {
   view: ({ attrs }) =>
-    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set('/gametime/3/' + attrs.subjectObject.subject)}>
+    <div class={"ft-card ft-card-set " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set('/gametime/3/' + attrs.subjectObject.subject)}>
       <div class="ft-set-name-fields">
         <NameField fieldValue={subjectData.name(attrs.subjectObject)} />
       <AverageRatingField ratingObject={subjectData.ratingObject(attrs.subjectObject)}/>

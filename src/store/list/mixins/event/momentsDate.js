@@ -10,7 +10,7 @@ export default (venues) => { return  {
 		//if(cached) console.log('Dates.getBaseMoment cached+zone',cached, cachedZone)
 		if(cached) return moment.tz(cached, cachedZone)
 		const date = this.get(id)
-		if(!date) throw 'this.getBaseMoment nonexistent date ' + id
+		if(!date) throw new Error('this.getBaseMoment nonexistent date ' + id)
 		//console.log('venues list ' + venues.list.length)
 		const timezone = venues.getTimezone(date.venue)
 		//console.log('Dates.getBaseMoment timezone',timezone)

@@ -3,8 +3,10 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+// Services
+import Auth from '../../services/auth.js';
+const auth = new Auth();
 
-import LauncherBanner from '../ui/LauncherBanner.jsx';
 import DateCard from '../../components/cards/DateCard.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import SetCard from '../../components/cards/SetCard.jsx';
@@ -12,68 +14,60 @@ import SetCard from '../../components/cards/SetCard.jsx';
 import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData'
 
-import EventPeerBar from './fields/event/EventPeerBar.jsx'
 
-import ScheduleSet from '../fields/ScheduleSet.jsx'
-import ScheduleLabel from '../fields/ScheduleLabel.jsx'
-import ScheduleNowBar from '../fields/ScheduleNowBar.jsx'
-import ScheduleLadder from '../layout/ScheduleLadder.jsx'
+import DaySchedule from '../layout/DaySchedule.jsx'
 
-const DayDetail = () => { 
-	var sets, stages, event
-	return {
-		oninit: ({attrs}) => {
-			//console.log('Gametime oninit')
-			event = {
-				subject: parseInt(m.route.param('id'), 10), 
-				subjectType: 9
-			}
-			sets = subjectData.sets(event)
-			stages = subjectData.getManySingleType(
-				_.uniq(sets.map(s => s.stage))
-					.map(s => {return {subject: s, subjectType: 4}}))
-				.sort((a, b) => a.priority - b.priority)
-		},
-		oncreate: ({attrs, dom}) => {
-			dom.querySelector('.ft-schedule-header').style.width = `calc(${stages.length * 300}px + 12em)`
-		},
+const sets = remoteData.Sets
+const dates = remoteData.Dates
+const days = remoteData.Days
+const festivals = remoteData.Festivals
+const places = remoteData.Places
+
+const event = () => {return {
+	subject: parseInt(attrs.id, 10), 
+	subjectType: DAY
+}}
+const id = () => parseInt(m.route.param('id'), 10)
+const setsD = (yid = id()) => sets.getFiltered(s => s.day === yid)
+const stages = () => places.getMany(
+	_.uniq(setsD().map(s => s.stage))	)
+	.sort((a, b) => a.priority - b.priority)
+const festivalId = (yid = id()) => days.getFestivalId(yid)
+
+const DayDetail = { 
+	name: 'DayDetail',
+	preload: (rParams) => {
+		//console.log('dayDetails preload')
+		//if a promise returned, instantiation of component held for completion
+		//route may not be resolved; use rParams and not m.route.param
+		const dayId = parseInt(rParams.id, 10)
+		//messages.forArtist(dayId)
+		//console.log('Research preload', seriesId, festivalId, rParams)
+		if(dayId) return days.subjectDetails({subject: dayId, subjectType: DAY})
+	},
+	oninit: ({attrs}) => {
+		//console.log('dayDetails init')
+		if (attrs.titleSet) attrs.titleSet(days.getEventName(id()))
+
+	},
 	view: () => <div class="main-stage">
-			<LauncherBanner 
-				title={remoteData.Days.getEventName(parseInt(m.route.param('id'), 10))} 
+
 			
-			/>
+			{
+				//console.log(`DayDetail sets ${days.getDateId(id())}`, id(), setsD().map(s => s.stage))
+			}
+			{days.getDateId(id()) ? 
+		<DateCard eventId={days.getDateId(id())} />
+		 : ''}
 		
-		<DateCard eventId={remoteData.Days.getSuperId(parseInt(m.route.param('id'), 10))
-					
-					
-				}/>
-		<EventPeerBar event={event} />
-
-		<div class="ft-schedule">
-			<div class="ft-schedule-header">
-				{stages.map(stage => <h2 class="ft-schedule-header-field">{stage.name}</h2>)}
-			</div>
-
-			<ScheduleLadder stageIds={stages.map(x => x.id)}>
-				{/*sets[0] && sets[0].day ? <ScheduleNowBar dayId={sets[0].day} />: ''*/}
-				{sets
-					//.filter(x => console.log('Schedule Ladder ', x) || true)
-					.filter(data => data.end)
-					//.filter(data => data.stage === 159)
-					.map(data => <ScheduleSet 
-						set={data}
-						top={true}
-						stage={data.stage}
-						clickFunction={() => {
-							//console.log('Schedule Ladder Set click')
-							//console.dir(data)
-							m.route.set(`/artists/pregame/${data.band}`)
-						}}
-					/>)
-				}
-			</ScheduleLadder>
-		</div>
+		{days.getDateId(id()) ? 
+			<DaySchedule
+				dateId={days.getDateId(id())}
+				dayId={id()}
+				sets={setsD()}
+				stages={stages()}
+		/> : ''}
 		
 	</div>
-}}
+}
 export default DayDetail;

@@ -7,6 +7,8 @@ export default (dates) => { return  {
 	getBaseMoment (id) {
 		if(!id) return
 			
+		const day = this.get(id)
+		if(!day) throw new Error('day.getBaseMoment nonexistent day ' + id)
 		const superMoment = dates.getBaseMoment(this.getSuperId(id))
 
 		return moment(superMoment.add(this.get(id).daysOffset, 'days'))

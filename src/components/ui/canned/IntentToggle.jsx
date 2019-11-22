@@ -15,13 +15,14 @@ const IntentToggle = {
 			offLabel={attrs.offLabel ? attrs.offLabel : 'Not going'}
 			onLabel={attrs.onLabel ? attrs.onLabel : 'I\'m going'}
 			
-			getter={() => remoteData.Intentions.forSubject(attrs.subjectObject)}
+			getter={() => remoteData.Intentions.forSubject(attrs.subjectObject).length}
 			setter={newState => {
 				//console.log('FestivalDetail ToggleControl setter')
 				//console.log(newState)
 				const intentionMethod = newState  ? 'setIntent' : 'clearIntent'
 				remoteData.Intentions[intentionMethod](attrs.subjectObject)
 			}}
+			permission={attrs.permission}
 
 		/>
 }

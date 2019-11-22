@@ -13,22 +13,31 @@
 
 import m from 'mithril'
 import _ from 'lodash'
-// Services
-import Auth from '../../../services/auth.js';
-const auth = new Auth();
 
 import {remoteData} from '../../../store/data';
 
+import {seriesChange, festivalChange, dateChange, dayChange} from '../../../store/action/event'
 import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.jsx'
 
 import ToggleControl from '../../ui/ToggleControl.jsx';
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import UIButton from '../../ui/UIButton.jsx';
 
-var userId = 0
+const series = remoteData.Series
+const festivals = remoteData.Festivals
+const dates = remoteData.Dates
+const days = remoteData.Days
+const sets = remoteData.Sets
 
+const dayId = () => parseInt(m.route.param('dayId'), 10)
+const dateId = () => parseInt(m.route.param('dateId'), 10)
+const festivalId = () => parseInt(m.route.param('festivalId'), 10)
+const seriesId = () => parseInt(m.route.param('seriesId'), 10)
+const user = attrs => _.isInteger(attrs.userId) ? attrs.userId : 0
+const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
+
+var hideSelected = false
 const entryFormHandler = (formDOM, dayId) => {
 
 	const formData = new FormData(formDOM);
@@ -50,8 +59,8 @@ const entryFormHandler = (formDOM, dayId) => {
         break;
     }
 	});
-	const dataSet = remoteData.Days.getSubSetIds(
-							remoteData.Sets.getMany(dayId))
+	const dataSet = sets.getMany(days.getSubSetIds(
+							dayId))
 	const checked = Object.keys(newEntry)
 		.filter(k => !k.indexOf('box'))
 		.map(k => {
@@ -84,7 +93,7 @@ const entryFormHandler = (formDOM, dayId) => {
 
 	//createSets: create any set that is checked more than once
 	const createSets = sorted.create.map(x => {
-		const base = remoteData.Sets.get(x.id)
+		const base = sets.get(x.id)
 		return {
 			band: base.band,
 			day: base.day,
@@ -96,92 +105,96 @@ const entryFormHandler = (formDOM, dayId) => {
 	//console.log(createSets);
 	//console.log(updateSets);
 
-	remoteData.Sets.batchCreate(createSets);
-	remoteData.Sets.batchUpdate(updateSets);
+	sets.batchCreate(createSets);
+	sets.batchUpdate(updateSets);
 
 	m.route.set('/launcher')
 	//formDOM.reset();
 };
+const stageHeaders = festivalId => remoteData.Places.forFestival(festivalId)
+	.sort((a, b) => a.priority - b.priority)
 
-const AssignSetStages = (vnode) => {
-	const stageHeaders = _.memoize(festivalId => remoteData.Places.forFestival(festivalId)
-				.sort((a, b) => a.priority - b.priority)
-		)
-	const hideRows = vnode => {
-			console.log('AssignDays.onupdate')
-			const rows = Array.from(vnode.dom.querySelectorAll('tr'))
-			if(hideSelected) {
-				const rowsToHide = rows
-					.filter(r => r.querySelectorAll('input:checked').length)
-					.filter(r => !/hidden/.test(r.className))
-				
-				rowsToHide
-					.forEach(r => r.className += ' hidden')
+const hideRows = vnode => {
+	console.log('AssignDays.onupdate')
+	const rows = Array.from(vnode.dom.querySelectorAll('tr'))
+	if(hideSelected) {
+		const rowsToHide = rows
+			.filter(r => r.querySelectorAll('input:checked').length)
+			.filter(r => !/hidden/.test(r.className))
+		
+		rowsToHide
+			.forEach(r => r.className += ' hidden')
 
-				const rowsToShow = rows
-					.filter(r => !r.querySelectorAll('input:checked').length)
-					.filter(r => /hidden/.test(r.className))
-				
-				rowsToShow.forEach(r => r.className.replace(' hidden', ''))
+		const rowsToShow = rows
+			.filter(r => !r.querySelectorAll('input:checked').length)
+			.filter(r => /hidden/.test(r.className))
+		
+		rowsToShow.forEach(r => r.className.replace(' hidden', ''))
 
-			//console.log(rowsToShow.length)
-			} else {
-				rows
-				.filter(r => /hidden/.test(r.className))
-				.forEach(r => r.className = r.className.replace('hidden', ''))
-			}
-		}
-	var seriesId = 0
-	var festivalId = 0
-	var dateId = 0
-	var dayId = 0
-	var hideSelected = false
-	const seriesChange = e => {
-		//console.log(e.target.value)
-		seriesId = parseInt(e.target.value, 10)
-		festivalId = 0
-		//resetSelector('#festival')
-		dateId = 0
-		dayId = 0
-		//resetSelector('#date')
+	//console.log(rowsToShow.length)
+	} else {
+		rows
+		.filter(r => /hidden/.test(r.className))
+		.forEach(r => r.className = r.className.replace('hidden', ''))
 	}
-	const festivalChange = e => {
-		//console.log(e.target.value)
-		festivalId = parseInt(e.target.value, 10)
-		dateId = 0
-		dayId = 0
-		//resetSelector('#date')
-	}
-	const dateChange = e => {
-		//console.log(e)
-		dateId = parseInt(e.target.value, 10)
-		dayId = 0
-	}
-	const dayChange = e => {
-		//console.log(e)
-		dayId = parseInt(e.target.value, 10)
-	}
-
-	return {
-		oninit: () => {
-			userId = auth.userId()
+}
+// Fix table head
+function tableFixHead (e) {
+    const el = e.target,
+          sT = el.scrollTop;
+    el.querySelectorAll("thead th").forEach(th => 
+      th.style.transform = `translateY(${sT}px)`
+    );
+}
+const AssignSetStages = {
+		name: 'AssignStages',
+		preload: (rParams) => {
+			//console.log('dayDetails preload')
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			const seriesId = parseInt(rParams.seriesId, 10)
+			const festivalId = parseInt(rParams.festivalId, 10)
+			const dateId = parseInt(rParams.dateId, 10)
+			const dayId = parseInt(rParams.dayId, 10)
+			//messages.forArtist(dateId)
+			//console.log('Research preload', seriesId, festivalId, rParams)
+			return Promise.all([
+					!seriesId ? series.remoteCheck(true) : true,
+					seriesId && !festivalId ? Promise.all([
+						series.subjectDetails({subject: seriesId, subjectType: SERIES}),
+						festivals.remoteCheck(true)
+						]) : true,
+					festivalId && !dateId ? Promise.all([
+						festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL}),
+						dates.remoteCheck(true)
+						]) : true,
+					dateId && !dayId  ? dates.subjectDetails({subject: dateId, subjectType: DATE}) : true,
+					dayId ? days.subjectDetails({subject: dayId, subjectType: DAY}) : true
+			])
 		},
-		onupdate: hideRows,
+		oninit: ({attrs}) => {
+			if (attrs.titleSet) attrs.titleSet(`Assign artists to stages`)
+		},
+		onupdate: vnode => {
+			hideRows(vnode)
+		},
+		oncreate: vnode => {
+			
+			vnode.dom.querySelectorAll(".tableFixHead").forEach(el => 
+			    el.addEventListener("scroll", tableFixHead)
+			);
+		},
 		view: vnode => <div class="main-stage">
-			<LauncherBanner 
-				title="Assign artists to stages"
-			>
 				<EventSelector 
-					seriesId={seriesId}
-					festivalId={festivalId}
-					dateId={dateId}
-					dayId={dayId}
-					festivalChange={festivalChange}
+					seriesId={seriesId()}
+					festivalId={festivalId()}
+					dateId={dateId()}
+					dayId={dayId()}
 					seriesChange={seriesChange}
-					dateChange={dateChange}
-					dayChange={dayChange}
+					festivalChange={festivalChange(seriesId())}
+					dateChange={dateChange(seriesId(), festivalId())}
+					dayChange={dayChange(seriesId(), festivalId(), dateId())}
 				/>
-			</LauncherBanner>
 			    <ToggleControl
 			offLabel={'Show All'}
 			onLabel={'Hide assigned'}
@@ -192,32 +205,37 @@ const AssignSetStages = (vnode) => {
 				//console.log('AssignDays hideSelected ' +  hideSelected)
 				hideRows(vnode)
 			}}
+			permission={roles(vnode.attrs).includes('admin')}
 
 		/>
-			<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), dayId)} buttonName="SAVE" />
+			<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), dayId())} buttonName="SAVE" />
 				
 				<div class="main-stage-content-scroll">
-			    {!dayId ? '' : <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
+			    {!dayId() ? '' : <form name="entry-form" id="entry-form" class={roles(vnode.attrs).includes('admin') ? '' : 'hidden' }>
 			    	<table>
-			    		<tr><th>Artist</th>{
+			    		<thead><th>Artist</th>{
 			    			//list of day names, ordered by daysOffset
-			    			stageHeaders(festivalId)
+			    			stageHeaders(festivalId())
 			    				.map(h =>  <th>{h.name}</th>)
-			    		}</tr>
+			    		}</thead>
 				    	{
 				    		//map each set to an artist
-				    		remoteData.Sets.getMany(remoteData.Days.getSubSetIds(
-								dayId))
+				    		sets.getMany(days.getSubSetIds(
+								dayId()))
 								.sort((a, b) => {
-									const aPriId = remoteData.Lineups.getPriFromArtistFest(a.band, festivalId)
-									const bPriId = remoteData.Lineups.getPriFromArtistFest(b.band, festivalId)
-									if(aPriId === bPriId) return remoteData.Sets.getArtistName(a.id).localeCompare(remoteData.Sets.getArtistName(b.id))
+									const aPriId = remoteData.Lineups.getPriFromArtistFest(a.band, festivalId())
+									const bPriId = remoteData.Lineups.getPriFromArtistFest(b.band, festivalId())
+									if(aPriId === bPriId) {
+										const an = sets.getArtistName(a.id)
+										const bn = sets.getArtistName(b.id)
+										return (an ? an : '').localeCompare(bn ? bn : '')
+									} 
 									const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
 									const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
 									return aPriLevel - bPriLevel
 								})
-								.map(data => <tr><td>{remoteData.Sets.getArtistName(data.id)}</td>
-									{stageHeaders(festivalId)
+								.map(data => <tr><td>{sets.getArtistName(data.id)}</td>
+									{stageHeaders(festivalId())
 										.map(h => <td><input 
 												type="checkbox" 
 												name={'box-' + data.id + '-' + h.id} 
@@ -230,5 +248,5 @@ const AssignSetStages = (vnode) => {
 			</div>
 			</div>
 	    
-}}
+}
 export default AssignSetStages;

@@ -15,10 +15,10 @@ export default {
 					}})
 			return Promise.all(dayData
 					.map(data => provide(
-						{artistIds: data[artistIds]}, 
+						{artistIds: data.artistIds}, 
 						this.fieldName, 
 						'', 
-						data[end])
+						data.end)
 					)
 				)
 				.then(() => this.remoteCheck(true))

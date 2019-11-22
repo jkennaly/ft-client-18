@@ -6,7 +6,6 @@ const auth = new Auth();
 
 import m from 'mithril'
 
-import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import SeriesCard from '../../components/cards/SeriesCard.jsx';
@@ -18,15 +17,12 @@ import NavCard from '../../components/cards/NavCard.jsx';
 import {remoteData} from '../../store/data';
 
 const Discussion = (vnode) => { return {
-	oninit: () => {
-			userId = auth.userId()
+	oninit: ({attrs}) => {
+			if (attrs.titleSet) attrs.titleSet(`Discussion`)
 	},
 	view: () => 
 	<div class="launcher-container">
 		<div class="stage-banner-container">
-			<LauncherBanner 
-				title="Discussion " 
-			/>
 		</div>
 		{
 			//subject image/name

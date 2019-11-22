@@ -4,14 +4,37 @@ import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.m
 
 var dateBaseCache = {}
 export default {
-	active (id) {return  moment().isBetween(this.getStartMoment(id), this.getEndMoment(id))},
-	ended (id) {return  moment().isAfter(this.getEndMoment(id))},
+	active (id) {
+		//console.log(this, id)
+		try {
+			const s = this.getStartMoment(id)
+			const e = this.getEndMoment(id)
+			return  moment().isBetween(s, e)
+		}
+		catch {
+			return false
+		}
+	},
+	ended (id) {
+		try {
+				var now = moment()
+			const e = this.getEndMoment(id)
+			return  now.isAfter(e, 'minute')
+		}
+		catch {
+			return false
+		}
+		},
 	current () {return this.list.filter(d => {
 		//now is greater than the start moment but less than the end moment
-		var now = moment()
-		var start = this.getStartMoment(d.id)
-		var end = this.getEndMoment(d.id)
-		return now.isBetween(start, end, 'minute')
+		try {
+			const s = this.getStartMoment(id)
+			const e = this.getEndMoment(id)
+			return  moment().isBetween(s, e, 'minute')
+		}
+		catch {
+			return false
+		}
 	})},
 	future () {
 		const current = this.current()
@@ -19,6 +42,14 @@ export default {
 		return this.list
 			.filter(d => current.indexOf(d.id) < 0)
 			.filter(d => {
+		try {
+				var now = moment()
+			const s = this.getStartMoment(id)
+			return  s.isAfter(now, 'minute')
+		}
+		catch {
+			return false
+		}
 				//now is greater than now
 				var now = moment()
 				var start = this.getStartMoment(d.id)

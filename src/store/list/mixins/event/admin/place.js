@@ -1,4 +1,5 @@
 // place.js
+import _ from 'lodash'
 
 export default (series, festivals) => { return  {
 	getFestivalId (id)  {

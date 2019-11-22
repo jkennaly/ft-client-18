@@ -8,7 +8,6 @@ import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../../components/cards/FestivalCard.jsx';
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -52,18 +51,16 @@ const entryFormHandler = (formDOM) => {
 
 const consoleLog = str => console.log(str)
 
-var userId = 0
 
-const CreateSeries = (auth) => { return {
-	oninit: () => {
-			userId = auth.userId()
+const CreateSeries = () => { 
+
+	return {
+	oninit: ({attrs}) => {
+			if (attrs.titleSet) attrs.titleSet(`Create Series`)
 	},
-	view: (vnode) => <div class="main-stage">
-			<LauncherBanner 
-				title="Create series"
-			/>
+	view: ({attrs}) => <div class="main-stage">
 				<div class="main-stage-content-scroll">
-    <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
+    <form name="entry-form" id="entry-form">
       <label for="series-name">
         {`Series Name`}
       </label>

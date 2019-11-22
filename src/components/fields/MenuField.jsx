@@ -1,7 +1,7 @@
 // MenuField.jsx
 
 import m from 'mithril'
-const classes = attrs => 'menu-field ' + (attrs.selected ? 'menu-item-selected' : '')
+const classes = attrs => 'ft-menu-field ' + (attrs.selected ? 'ft-menu-item-selected' : '')
 const MenuField = {
 	view: ({ attrs }) =>
 		<span class={classes(attrs)}>

@@ -5,7 +5,7 @@ import m from 'mithril'
 import {remoteData} from '../../../../store/data'
 
 const DateBaseField = {
-	oninit: () => {
+	oninit: ({attrs}) => {
 	},
 	view: ({ attrs }) =>
 		<div class="ft-date-field">

@@ -11,4 +11,5 @@ export default {
 		getName(id) {return this.getTitle(id)},
 		forArtist (artistId) {return this.list
 			.filter(m => (m.subjectType === 2) && (m.subject === artistId))},
+
 }

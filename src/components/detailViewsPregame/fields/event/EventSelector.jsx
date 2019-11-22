@@ -14,31 +14,35 @@ import {remoteData} from '../../../../store/data'
 const EventSelector = vnode => { 
 
 	return {
-		oninit: () => {
-		},
 		view: ({attrs}) => <div class="ft-event-selector" id="ft-event-selector">
 			{!attrs.seriesChange ? '' : <SeriesSelector 
 				seriesId={attrs.seriesId}
 				seriesChange={attrs.seriesChange}
+				scheduled={attrs.scheduled}
 			/>}
 			{!attrs.festivalChange ? '' : <FestivalSelector 
 				seriesId={attrs.seriesId}
 				festivalId={attrs.festivalId}
 				festivalChange={attrs.festivalChange}
+				scheduled={attrs.scheduled}
 			/>}
 			{!attrs.dateChange ? '' : <DateSelector 
 				festivalId={attrs.festivalId}
 				dateId={attrs.dateId}
 				dateChange={attrs.dateChange}
+				scheduled={attrs.scheduled}
 			/>}
 			{!attrs.dayChange ? '' : <DaySelector 
 				dateId={attrs.dateId}
 				dayId={attrs.dayId}
 				dayChange={attrs.dayChange}
+				scheduled={attrs.scheduled}
 			/>}
 			{!attrs.stageChange ? '' : <StageSelector 
 				festivalId={attrs.festivalId}
 				stageChange={attrs.stageChange}
+				stageId={attrs.stageId}
+				scheduled={attrs.scheduled}
 			/>}
 	    </div>
 }};

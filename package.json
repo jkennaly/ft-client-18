@@ -41,10 +41,10 @@
     "url-loader": "^2.2.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.9.0",
-    "workbox-webpack-plugin": "^4.3.1"
+    "webpack-dev-server": "^3.9.0"
   },
   "dependencies": {
+    "@auth0/auth0-spa-js": "^1.5.0",
     "auth0-js": "^9.11.3",
     "blueimp-file-upload": "^10.2.0",
     "cloudinary-core": "^2.7.4",
@@ -52,6 +52,7 @@
     "dragula": "^3.7.2",
     "empty-promise": "^1.2.0",
     "jquery": "^3.4.1",
+    "jwt-decode": "^2.2.0",
     "loadjs": "^4.0.1",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
@@ -66,15 +67,13 @@
     "e2e": "npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js'",
     "entry": "npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js' './tests/**/**.entry.js'",
     "test": "NODE_ENV=test nyc --reporter=text-summary --reporter=html npx babel-node node_modules/ospec/bin/ospec './tests/**/**.test.js' --require ./tests/test-setup.js",
-    "watch": "onchange --await-write-finish 2000 'src/**/*' 'tests/**/*.js' -- npm run build",
+    "watch": "onchange -i 'src/**/*' 'tests/**/*.js' -- npm run build",
     "start": "webpack-dev-server --open",
     "set-dev": "cp webpack.config.dev.js webpack.config.js",
     "set-prod": "cp webpack.config.prod.js webpack.config.js",
-    "cp-man": "cp src/manifest.webmanifest dist/",
-    "worker": "workbox injectManifest workbox-config.js",
     "prebuild": "npm run test",
     "build": "webpack --config webpack.config.js",
-    "postbuild": "npm run worker && npm run cp-man && [ -f ./deploy.js ] && node deploy.js"
+    "postbuild": "[ -f ./deploy.js ] && node deploy.js"
   },
   "nyc": {
     "require": [

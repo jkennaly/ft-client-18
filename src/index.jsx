@@ -12,6 +12,7 @@ import "./index.css";
 
 import App from './components/layout/App.jsx';
 //window.isUpdateAvailable = new Promise(function(resolve, reject) {
+  /*
 if ('serviceWorker' in navigator) {
 	let refreshing;
    // The event listener that is fired when the service worker updates
@@ -54,6 +55,7 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
+*/
 //})
 
-m.render(root, <App />);
+m.mount(root, App);

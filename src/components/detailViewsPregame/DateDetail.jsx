@@ -3,8 +3,11 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+// Services
+import Auth from '../../services/auth.js';
+const auth = new Auth();
 
-import LauncherBanner from '../ui/LauncherBanner.jsx';
+import DaySchedule from '../layout/DaySchedule.jsx';
 import IntentToggle from '../ui/canned/IntentToggle.jsx';
 import CheckinToggle from '../ui/canned/CheckinToggle.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
@@ -22,97 +25,97 @@ import LineupWidget from '../../components/widgets/canned/LineupWidget.jsx';
 import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData';
 
-const DateDetail = (auth) => { 
-	var sets = []
-	var lineup = []
-	var festivalId = 0
-	var dateId = 0
+const dates = remoteData.Dates
+const messages = remoteData.Messages
+const intentions = remoteData.Intentions
+const places = remoteData.Places
+const lineups = remoteData.Lineups
 
-	const initDom = vnode => {
-		dateId = parseInt(m.route.param('id'), 10)
-		sets = (remoteData.Sets.getMany(
-							remoteData.Dates.getSubSetIds(
-								parseInt(
-									m.route.param("id"))))
-						)
-		festivalId =(remoteData.Dates.getSuperId(
-								parseInt(
-									m.route.param("id")))
-						)
-				//console.log('DatesDetail initDom festivalId')
-				//console.log(festivalId)
-				//console.log(dateId)
-		lineup = remoteData.Lineups.forFestival(festivalId)
-				//console.log(lineup)
-	}
-	return {
-	oninit: vnode => {
-		initDom(vnode)
-		//console.log('FestivalDetail init')
-		
-		festivalId && remoteData.Messages.loadForFestival(festivalId)
-			.catch(err => {
-				console.log('DateDetail Message load error')
-				console.log(err)
-			})
-	
-	},
-	view: () => <div class="main-stage">
-			<LauncherBanner 
-				title={remoteData.Dates.getEventName(dateId)} 
-		
-			/>
-			
-		{remoteData.Dates.get(dateId) ? <DateVenueField id={dateId} /> : ''}
-		{remoteData.Dates.get(dateId) ? <DateBaseField id={dateId} /> : ''}
-		<FestivalCard seriesId={(remoteData.Dates.getSeriesId(
-								parseInt(
-									m.route.param("id")))
+const id = () => parseInt(m.route.param('id'), 10)
+const date = () => dates.get(id())
+const dso = _.memoize(dateId => {return {subject: dateId, subjectType: DATE}})
+const festivalId = dateId => dates.getSuperId(dateId)
+const sets = () => {
+	const dayIds = dates.getSubDayIds(id())
+	return remoteData.Sets.getFiltered(s => dayIds.includes(s.day))
+}
+const user = _.memoize(attrs => _.isInteger(attrs.userId) ? attrs.userId : 0, attrs => attrs.userId)
+const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
+const lineup = lineups.forFestival
+
+
+
+const DateDetail = {
+	name: 'DateDetail',
+		preload: (rParams) => {
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			const dateId = parseInt(rParams.id, 10)
+			//messages.forArtist(dateId)
+			//console.log('Research preload', seriesId, festivalId, rParams)
+			if(dateId) return dates.subjectDetails({subject: dateId, subjectType: DATE})
+		},
+		oninit: ({attrs}) => {
+			if (attrs.titleSet) attrs.titleSet(dates.getEventName(id()))
+
+		},
+	view: ({attrs}) => <div class="main-stage">
+		{date() ? <DateVenueField id={id()} /> : ''}
+		{date() ? <DateBaseField id={id()} /> : ''}
+		<FestivalCard seriesId={(dates.getSeriesId(id())
 						)
 			}
-			festivalId={festivalId}
-			eventId={(remoteData.Dates.getSuperId(
-								parseInt(
-									m.route.param("id")))
-						)}
+			festivalId={festivalId(id())}
+			eventId={(dates.getSuperId(id()))}
 		/>
-		{ festivalId && !subjectData.active({subject: dateId, subjectType: subjectData.DATE}) ? 
-			<IntentToggle subjectObject={{subject: festivalId, subjectType: 7}} /> 
+		{
+		//show the intent toggle if:
+			//there is a valid date id
+			//the date has not ended
+			//there is no checkin for the date 
+		}
+		{ date() && !dates.ended(id()) && !messages.implicit(dso(id())) ? 
+			<IntentToggle 
+				subjectObject={dso(id())}
+				permission={roles(attrs).includes('user')}
+			/> 
 		: '' }
-		{ dateId && subjectData.active({subject: dateId, subjectType: subjectData.DATE}) ? 
-			<CheckinToggle subjectObject={{subject: dateId, subjectType: subjectData.DATE}} /> 
+		{
+		//show the checkin toggle if:
+			//there is a valid date id
+			//there is a valid user
+			//the date has not ended
+			//one of:
+				//there is an implicit checkin for the date
+				//there is an intent for the date
+		}
+		{ date() && 
+			roles(attrs).includes('user') && 
+			!dates.ended(id()) && 
+			dates.active(id()) && (
+				messages.implicit(dso(id())) ||
+				intentions.find(dso(id()))
+			) ? 
+			<CheckinToggle 
+				subjectObject={dso(id())}
+				permission={roles(attrs).includes('user')}
+				userId={user(attrs)}
+			/> 
 		: '' }
 		
-			<WidgetContainer>
-		<FixedCardWidget header="Festival Days">
-			{(remoteData.Days.getMany(
-							remoteData.Dates.getSubIds(
-								parseInt(
-									m.route.param("id"))))
-						)
-					.sort((a, b) => a.daysOffset - b.daysOffset)
-					.map(data => <DayCard 
-						eventId={data.id}
-					/>)
-			}
-		</FixedCardWidget>
-		{sets.length ? <FixedCardWidget header="Scheduled Sets">
+			{sets().length ? '' : <WidgetContainer>
+		<LineupWidget festivalId={festivalId(id())} />
+			</WidgetContainer>}
 			{
-				sets
-					.sort((a, b) => {
-						const aPriId = remoteData.Lineups.getPriFromArtistFest(a.band, festivalId)
-						const bPriId = remoteData.Lineups.getPriFromArtistFest(b.band, festivalId)
-						if(aPriId === bPriId) return remoteData.Sets.getEventName(a.id).localeCompare(remoteData.Sets.getEventName(b.id))
-						const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
-						const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
-						return aPriLevel - bPriLevel
-					})
-				.map(data => <SetCard subjectObject={{subject: data.id, subjectType: subjectData.SET}}/>)
+				//console.log(`DateDetail sets ${sets().length}`, id())
 			}
-		</FixedCardWidget> : ''}
-		{sets.length ? '' : <LineupWidget festivalId={festivalId} />}
-			</WidgetContainer>
+		{sets().length ? 
+			<DaySchedule
+				dateId={id()}
+				sets={sets()}
+				stages={places.getFiltered(s => s.festival === festivalId(id()))}
+		/> : ''}
 		
 	</div>
-}}
+}
 export default DateDetail;

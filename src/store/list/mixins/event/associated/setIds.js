@@ -2,16 +2,19 @@
 
 export default ({series, festivals, dates, days, artists}) => { return  {
 	getSeriesId (id) { 
-		return festivals.getSeriesId(dates.getFestivalId(days.getDateId(remoteData.Sets.getDayId(id))))
+		if(!this.getDayId(id)) return
+		return festivals.getSeriesId(dates.getFestivalId(days.getDateId(this.getDayId(id))))
 	},
 	getFestivalId (id) {
-		return dates.getFestivalId(days.getDateId(remoteData.Sets.getDayId(id)))
+		if(!this.getDayId(id)) return
+		return dates.getFestivalId(days.getDateId(this.getDayId(id)))
 		},
 	getDateId (id) {
-		return days.getDateId(remoteData.Sets.getDayId(id))
+		if(!this.getDayId(id)) return
+		return days.getDateId(this.getDayId(id))
 	},
 	getDayId (id) {
-		const set = remoteData.Sets.get(id)
+		const set = this.get(id)
 			if(!set) return
 			return set.day
 	},
@@ -19,16 +22,16 @@ export default ({series, festivals, dates, days, artists}) => { return  {
 		return days.getSubIds(this.getSuperId(id))
 			.filter(x => x !== id)
 	},
-	getArtistId: id => {
-		//console.log('remoteData.Sets.getArtistId ' + id)
-		//console.log('remoteData.Sets.list ' + remoteData.Sets.list.length)
-		const set = remoteData.Sets.get(id)
+	getArtistId (id) {
+		//console.log('this.getArtistId ' + id)
+		//console.log('this.list ' + this.list.length)
+		const set = this.get(id)
 		if(!set) return
 		return set.band
 	},
-	getArtistName: id => {
-		//console.log('remoteData.Sets.getArtistName ' + id)
-		return artists.getName(remoteData.Sets.getArtistId(id))
+	getArtistName (id) {
+		//console.log('this.getArtistName ' + id)
+		return artists.getName(this.getArtistId(id))
 		
 	},
 }}

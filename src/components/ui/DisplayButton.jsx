@@ -1,79 +1,68 @@
 // DisplayButton.jsx
 
 import m from 'mithril'
+import _ from 'lodash'
 
 import CollapsibleMenu from './CollapsibleMenu.jsx';
+import FortyButton from '../fields/buttons/FortyButton.jsx'
 
 // Services
 import Auth from '../../services/auth.js';
 const auth = new Auth();
-
-
-const DisplayButton = vnode => {
-	var menuHidden = true
-	var userValid = true
-	const validUserItem = {
+const validUserItem = {
 			name: 'Logout',
-			path: '/confirm/logout'
+			path: '/confirm/logout',
+			icon: <FortyButton><i class="fas fa-sign-out-alt"></i></FortyButton>
 		}
 	const invalidUserItem = {
 			name: 'Login',
-			path: '/auth'
+			path: '/auth',
+			params: () => {return{prev: m.route.get()}},
+			icon: <FortyButton><i class="fas fa-sign-in-alt"></i></FortyButton>
+		
 		}
+const menuList = (userRoles) => {
+		return [
+			(userRoles.includes('admin') ? {
+				name: 'Admin',
+				path: '/admin',
+				icon: <FortyButton><i class="fas fa-tools"></i></FortyButton>
+			} : ''),
+			{
+				name: 'Launcher',
+				path: '/launcher',
+				icon: <FortyButton><img src="/favicon.ico" /></FortyButton>
+			},
+			{
+				name: 'Festivals',
+				path: '/series/pregame',
+				icon: <FortyButton><i class="fas fa-icons"></i></FortyButton>
+			},
+			(userRoles.includes('user') ? {
+				name: 'Research',
+				path: '/research',
+				icon: <FortyButton><i class="fas fa-clipboard-check"></i></FortyButton>
+			} : ''),
+			(userRoles.includes('user') ? {
+				name: 'Theme',
+				path: '/themer/schedule',
+				icon: <FortyButton><i class="fas fa-palette"></i></FortyButton>
+			} : ''),
+			
+		].filter(x => x)
+		
+	} 
+const DisplayButton = vnode => {
+	var menuHidden = true
 
-	const menuList = [
-		{
-			name: 'Launcher',
-			path: '/launcher'
-		},
-		{
-			name: 'Research',
-			path: '/research'
-		},
-		{
-			name: 'Festivals',
-			path: '/series/pregame'
-		},
-		{
-			name: 'Admin',
-			path: '/admin'
-		}
-	]
 	return {
-		oninit: () => {
-			auth.getFtUserId('DisplayButton oninit')
-				.then(id => userValid = id)
-				.catch(err => {
-					//console.log('DisplayButton auth err')
-					//console.log(err)
-					userValid = false; 
-					//m.redraw()
-
-				})
-		},
-		/*
-		onupdate: () => {
-			auth.getFtUserId('DisplayButton onupdate')
-				.then(id => userValid = id)
-				.then(x => {
-					console.log('DisplayButton id ' + x)
-					return x
-				})
-				.catch(err => {
-					console.log('DisplayButton auth err')
-					console.log(err)
-					userValid = false; 
-
-				})
-		},
-		*/
 		view: ({ attrs }) => <div>
 			<CollapsibleMenu 
-				menu={menuList.concat([userValid ? validUserItem : invalidUserItem])} 
+				menu={menuList(attrs.userRoles).concat([attrs.userRoles.includes('user') ? validUserItem : invalidUserItem])} 
 				collapsed={menuHidden}
 				itemClicked={() => menuHidden = true}
 			/>
-			<div class="nav-button" onclick={() => menuHidden = !menuHidden}>
+			<div class="ft-nav-button" onclick={() => menuHidden = !menuHidden}>
 				{attrs.icon}
 			</div>
 		</div>

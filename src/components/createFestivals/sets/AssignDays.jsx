@@ -19,14 +19,29 @@ const auth = new Auth();
 
 import {remoteData} from '../../../store/data';
 
-import DateSelector from '../../detailViewsPregame/fields/date/DateSelector.jsx'
-import FestivalSelector from '../../detailViewsPregame/fields/festival/FestivalSelector.jsx'
-
+import {seriesChange, festivalChange, dateChange} from '../../../store/action/event'
+import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.jsx'
 import ToggleControl from '../../ui/ToggleControl.jsx';
+import AddSingleArtist from '../lineups/AddSingleArtist.jsx'
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import UIButton from '../../ui/UIButton.jsx';
+
+
+const series = remoteData.Series
+const festivals = remoteData.Festivals
+const dates = remoteData.Dates
+const days = remoteData.Days
+const sets = remoteData.Sets
+const lineups = remoteData.Lineups
+
+
+const dateId = () => parseInt(m.route.param('dateId'), 10)
+const festivalId = () => parseInt(m.route.param('festivalId'), 10)
+const seriesId = () => parseInt(m.route.param('seriesId'), 10)
+const user = attrs => _.isInteger(attrs.userId) ? attrs.userId : 0
+const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
+const lineup = (fid = festivalId()) => lineups.forFestival(fid)
 
 
 const entryFormHandler = (formDOM, dateId) => {
@@ -50,8 +65,8 @@ const entryFormHandler = (formDOM, dateId) => {
         break;
     }
 	});
-	const dataSet = remoteData.Dates.getSubSetIds(
-							remoteData.Sets.getMany(dateId))
+	const dataSet = sets.getMany(dates.getSubSetIds(
+							dateId))
 						
 	const checked = Object.keys(newEntry)
 		.filter(x => x)
@@ -73,7 +88,7 @@ const entryFormHandler = (formDOM, dateId) => {
 		}, {setIds: []})
 	//createSets: create any set that is checked but is not in the dataset
 	const createSets = checked
-		.filter(s => !_.find(dataSet, c => c.band === s.band && c.day === s.day))
+		.filter(s => !sets.find(c => c.band === s.band && c.day === s.day))
 		.reduce((pv, cv) => {
 			if(!pv[cv.day]) pv[cv.day] = []
 			pv[cv.day].push(cv.band)
@@ -87,12 +102,12 @@ const entryFormHandler = (formDOM, dateId) => {
 	//console.log(deleteSets);
 	//console.log(createSets);
 
-	remoteData.Sets.createForDays(createSets);
-	remoteData.Sets.batchDelete(deleteSets);
+	sets.createForDays(createSets);
+	sets.batchDelete(deleteSets);
 
-	const festivalId = remoteData.Dates.getFestivalId(dateId)
+	const festivalId = dates.getFestivalId(dateId)
 
-	const currentlyUnscheduledLineups = remoteData.Lineups.getUnscheduledForFestival(festivalId)
+	const currentlyUnscheduledLineups = lineups.getUnscheduledForFestival(festivalId)
 
 
 	const unscheduled = Object.keys(newEntry)
@@ -115,16 +130,18 @@ const entryFormHandler = (formDOM, dateId) => {
 
 	const addUnscheduled = unscheduled
 		.filter(updated => !_.some(currentlyUnscheduledLineups, l => l.band === updated.band))
-		.map(updated => _.assign(remoteData.Lineups.getFromArtistFest(updated.band, festivalId), updated))
+		.map(updated => _.assign(lineups.getFromArtistFest(updated.band, festivalId), updated))
+		.filter(newL => newEl && newEl.id || console.error('new lineup update missing id', newEl, festivalId) && false)
 
 
 	//console.log('Delete lineup ids')
 	// deleteLineups
 	const deleteLineupIds = Object.keys(newEntry)
 		.filter(k => /delete/.test(k))
-		//.map(v => {console.log(v);return v;})
 		.map(k => parseInt(k.split('-')[1], 10))
-		.map(v => remoteData.Lineups.getIdFromArtistFest(v, festivalId))
+		.map(v => {console.log('delete lineup', v, festivalId, _.get(lineups.find({band: v, festival: festivalId}), 'id'));return v;})
+		.map(v => _.get(lineups.find({band: v, festival: festivalId}), 'id'))
+		.filter(x => x)
 
 	// updateLineups
 	const updateLineups = [...removeUnscheduled, ...addUnscheduled]
@@ -136,157 +153,138 @@ const entryFormHandler = (formDOM, dateId) => {
 	//console.log(deleteLineupIds)
 	//console.log(updateLineups)
 
-	remoteData.Lineups.batchDelete({ids: deleteLineupIds})
-	remoteData.Lineups.batchUpdate(updateLineups)
+	lineups.batchDelete({ids: deleteLineupIds})
+	lineups.batchUpdate(updateLineups)
 	m.route.set('/launcher')
 	//formDOM.reset();
 };
+	
+const hideRows = vnode => {
+	//console.log('AssignDays.onupdate')
+	const rows = Array.from(vnode.dom.querySelectorAll('tr'))
+	if(hideSelected) {
+		const rowsToHide = rows
+			.filter(r => r.querySelectorAll('input:checked').length)
+			.filter(r => !/hidden/.test(r.className))
+		
+		rowsToHide
+			.forEach(r => r.className += ' hidden')
 
-var userId = 0
-const AssignDays = (vnode) => {
-	const dayHeaders = _.memoize(dateId => remoteData.Dates.getSubIds(
-				remoteData.Days.getMany(dateId))
-				.sort((a, b) => a.daysOffset - b.daysOffset)
-		)
-	const hideRows = vnode => {
-			console.log('AssignDays.onupdate')
-			const rows = Array.from(vnode.dom.querySelectorAll('tr'))
-			if(hideSelected) {
-				const rowsToHide = rows
-					.filter(r => r.querySelectorAll('input:checked').length)
-					.filter(r => !/hidden/.test(r.className))
-				
-				rowsToHide
-					.forEach(r => r.className += ' hidden')
+		const rowsToShow = rows
+			.filter(r => !r.querySelectorAll('input:checked').length)
+			.filter(r => /hidden/.test(r.className))
+		
+		rowsToShow.forEach(r => r.className.replace(' hidden', ''))
 
-				const rowsToShow = rows
-					.filter(r => !r.querySelectorAll('input:checked').length)
-					.filter(r => /hidden/.test(r.className))
-				
-				rowsToShow.forEach(r => r.className.replace(' hidden', ''))
-
-			//console.log(rowsToShow.length)
-			} else {
-				rows
-				.filter(r => /hidden/.test(r.className))
-				.forEach(r => r.className = r.className.replace('hidden', ''))
-			}
-		}
-	var seriesId = 0
-	var festivalId = 0
-	var dateId = 0
-	var unscheduledLineups = []
-	var hideSelected = false
-	const seriesChange = e => {
-		//console.log(e.target.value)
-		seriesId = parseInt(e.target.value, 10)
-		festivalId = 0
-		//resetSelector('#festival')
-		dateId = 0
-		//resetSelector('#date')
+	//console.log(rowsToShow.length)
+	} else {
+		rows
+		.filter(r => /hidden/.test(r.className))
+		.forEach(r => r.className = r.className.replace('hidden', ''))
 	}
-	const festivalChange = e => {
-		//console.log(e.target.value)
-		festivalId = parseInt(e.target.value, 10)
-		dateId = 0
-		unscheduledLineups = remoteData.Lineups.getUnscheduledForFestival(festivalId)
-		//resetSelector('#date')
-	}
-	const dateChange = e => {
-		//console.log(e)
-		dateId = parseInt(e.target.value, 10)
-	}
+}
 
-	return {
-		oninit: () => {
-			userId = auth.userId()
+const dayHeaders = dateId => days.getMany(
+	dates.getSubIds(dateId))
+	.sort((a, b) => a.daysOffset - b.daysOffset)
+
+
+var hideSelected = false
+const AssignDays = {
+		name: 'AssignDays',
+		preload: (rParams) => {
+			//console.log('dayDetails preload')
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			const seriesId = parseInt(rParams.seriesId, 10)
+			const festivalId = parseInt(rParams.festivalId, 10)
+			const dateId = parseInt(rParams.dateId, 10)
+			//messages.forArtist(dateId)
+			//console.log('Research preload', seriesId, festivalId, rParams)
+			return Promise.all([
+					!seriesId ? series.remoteCheck(true) : true,
+					seriesId && !festivalId ? Promise.all([
+						series.subjectDetails({subject: seriesId, subjectType: SERIES}),
+						festivals.remoteCheck(true)
+						]) : true,
+					festivalId && !dateId ? Promise.all([
+						festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL}),
+						dates.remoteCheck(true)
+						]) : true,
+					dateId ? dates.subjectDetails({subject: dateId, subjectType: DATE}) : true
+			])
 		},
-		onupdate: hideRows,
-		view: vnode => <div class="main-stage">
-			<LauncherBanner 
-				title="Assign artists to days"
-			>
-			</LauncherBanner>
-    
-				<div>
-					<label for="series">
-				        {`Festival Name`}
-				    </label>
-					    <select id="series" name="series" onchange={seriesChange}>
-					    	<option value={0} selected="selected">{`Select a festival`}</option>
-				      		{remoteData.Series.getEventNamesWithIds()
-					      		.map(s => <option value={s[1]}>{s[0]}</option>)
-					      	}
-				    	</select>
-					<FestivalSelector 
-						seriesId={seriesId}
-						festivalId={festivalId}
-						festivalChange={festivalChange}
-					/>
-					<DateSelector 
-						festivalId={festivalId}
-						dateId={dateId}
-						dateChange={dateChange}
-					/>
-			    </div>
-			    <ToggleControl
-			offLabel={'Show All'}
-			onLabel={'Hide assigned'}
-			
-			getter={() => hideSelected}
-			setter={newState => {
-				hideSelected = newState
-				console.log('AssignDays hideSelected ' +  hideSelected)
-				hideRows(vnode)
-			}}
+		oninit: ({attrs}) => {
+			if (attrs.titleSet) attrs.titleSet(`Assign artists to days`)
+		},
+		onupdate: vnode => {
+			hideRows(vnode)
 
-		/>
-		<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), dateId)} buttonName="SAVE" />
+		},
+		view: vnode => <div class="main-stage">
+			<EventSelector 
+				seriesId={seriesId()}
+				festivalId={festivalId()}
+				dateId={dateId()}
+				seriesChange={seriesChange}
+				festivalChange={festivalChange(seriesId())}
+				dateChange={dateChange(seriesId(), festivalId())}
+			/>
+			{dateId() ? <div>
+				<AddSingleArtist festivalId={festivalId()} />
+		    <ToggleControl
+				offLabel={'Show All'}
+				onLabel={'Hide assigned'}
+				
+				getter={() => hideSelected}
+				setter={newState => {
+					hideSelected = newState
+					//console.log('AssignDays hideSelected ' +  hideSelected)
+					hideRows(vnode)
+				}}
+				permission={roles(vnode.attrs).includes('admin')}
+
+			/>
+		<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), dateId())} buttonName="SAVE" />
 				
 				<div class="main-stage-content-scroll">
-			    {!dateId ? '' : <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
+			    {!dateId() ? '' : <form name="entry-form" id="entry-form" class={roles(vnode.attrs).includes('admin') ? '' : 'hidden' }>
 			    	<table>
 			    		<tr><th>Remove from lineup</th><th>Artist</th>{
 			    			//list of day names, ordered by daysOffset
-			    			dayHeaders(dateId)
+			    			dayHeaders(dateId())
 			    				.map(h =>  <th>{h.name}</th>)
 			    		}<th>Off-schedule Set</th></tr>
 				    	{
 				    		//map each artist in the festival lineup
-				    		remoteData.Dates.getLineupArtistIds(
-								remoteData.Artists.getMany(dateId))
-								.sort((a, b) => {
-									const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId)
-									const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId)
-									if(aPriId === bPriId) return a.name.localeCompare(b.name)
-									const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
-									const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
-									return aPriLevel - bPriLevel
-								})
+				    		remoteData.Artists.getMany(
+								dates.getLineupArtistIds(dateId()))
+								.sort((a, b) => a.name.localeCompare(b.name))
 								.map(data => <tr>
 									<td><input 
 										type="checkbox" 
 										name={'delete-' + data.id} 
 										/></td>
 									<td>{data.name}</td>
-									{dayHeaders(dateId)
+									{dayHeaders(dateId())
 										.map(h => <td><input 
 											type="checkbox" 
 											name={'box-' + data.id + '-' + h.id} 
-											checked={_.find(remoteData.Sets.getMany(remoteData.Days.getSubSetIds(
+											checked={_.find(sets.getMany(days.getSubSetIds(
 												h.id)), s => s.band === data.id) ? true : false}/>
 										</td>)}
 									<td><input 
 										type="checkbox" 
 										name={'box-' + data.id + '-unscheduled'} 
-										checked={_.some(unscheduledLineups, l => l.band === data.id)}
+										checked={_.some(lineups.getUnscheduledForFestival(festivalId()), l => l.band === data.id)}
 									/></td>
 								</tr>)
 				    	}
 			    	</table>
 					</form>}
 			</div>
+			</div> : ''}
 			</div>
 	    
-}}
+}
 export default AssignDays;

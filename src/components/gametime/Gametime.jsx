@@ -19,27 +19,37 @@ import Auth from '../../services/auth'
 const auth = new Auth()
 
 
+
+
 const Gametime = routingParameters => { 
 	const subject = parseInt(routingParameters.subject, 10)
 	const subjectType = parseInt(routingParameters.subjectType, 10)
 	const subjectObject = {subject: subject, subjectType: subjectType}
-	let userId, dateId, dayId, venueId, placeIds, userSubjectObject, dayBaseMoment
+	let dateId, dayId, venueId, placeIds, userSubjectObject, dayBaseMoment
 
+	var userId = 0
+	var userRoles = []
+	var event
 	//console.log('Gametime')
 	//console.dir(subjectObject)
-
-	return {
-		oninit: vnode => {
-			//console.log('Gametime oninit')
-			//if there is a logged in user, get the following:
-				//userId
-			userId = auth.userId()
-			userSubjectObject = {
-				subject: userId,
-				subjectType: subjectData.USER
-			}
-				//gametimeDate
-			const checkedinDate = subjectData.checkedIn(userSubjectObject, {date:true})
+remoteData.dataLoad
+				.then(() => {
+					if(subjectType === SET) return remoteData.Sets.subjectDetails(subjectObject)
+					if(subjectType === DAY) return remoteData.Days.subjectDetails(subjectObject)
+					if(subjectType === DATE) return remoteData.Dates.subjectDetails(subjectObject)
+					throw new Error('Unexpected subjectType: ' + subjectType)
+				})
+				.then(() => console.log('date 104', remoteData.Sets.getDateId(3447)))
+				.then(() => subjectType === subjectData.DATE ? subjectObject : {subject: subjectData.dates(subjectObject)[0] , subjectType: subjectData.DATE})
+				.then(dso => {if(!dso || !dso.subject) throw new Error('No vslid dso for in' + JSON.stringify(subjectObject) + JSON.stringify(subjectData.dates(subjectObject)))})
+				.then(() => Promise.all([
+					auth.getFtUserId()
+						.then(r => {if(!_.isEqual(userId, r)) return userId = r;})
+						.then(r => Boolean(r))
+						.catch(() => userId = 0)
+				]))
+				.then(() => {
+					const checkedinDate = subjectData.checkedIn(userSubjectObject, {date:true})
 			//console.log('Gametime oninit checkedinDate', checkedinDate)
 			
 			const checkedinDateActive = subjectData.active(checkedinDate)
@@ -70,24 +80,9 @@ const Gametime = routingParameters => {
 				activeDays && activeDays.length ? activeDays[0].id :
 				possibleDays && possibleDays.length ? possibleDays[possibleDays.length - 1].id :
 				0
-			//console.log('Gametime oninit dayId', dayId)
-				//gametimeMinutes
-
-				//gametimeVenue
-				//gametimePlaces
-			const festivalId = subjectData.festivals({
-				subject: dateId,
-				subjectType: subjectData.DATE
-
-			})
-				.reduce((pv, cv) => pv || cv.id , 0)
-				
-		festivalId && remoteData.Messages.loadForFestival(festivalId)
-			.catch(err => {
-				console.log('DateDetail Message load error')
-				console.log(err)
-			})
-		},
+				})
+				.catch(console.error)
+	return {
 		view: (vnode) =>
 			<div class="main-stage-gametime">
 			<GametimeBanner 

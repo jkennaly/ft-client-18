@@ -107,7 +107,7 @@ const ArtistSpelling = (vnode) => {
 			.on('drop', drakeDrop);
 		    
 		},
-		oninit: () => {
+		oninit: ({attrs}) => {
 			artistId = parseInt(m.route.param('id'), 10)
 			userId = auth.userId()
 		},

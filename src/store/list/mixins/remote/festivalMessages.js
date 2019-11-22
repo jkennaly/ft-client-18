@@ -48,6 +48,7 @@ export default {
 
 
 			return this.acquireListUpdate('', end + artistId)
+				.then(() => false)
 				.catch(err => {
 					bulkUpdateSubjectCache[end][artistId] = false
 					console.log('this loadForArtist Promise.all')

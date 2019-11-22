@@ -1,10 +1,13 @@
 // App.jsx
 
-import m from 'mithril';
+import m from 'mithril'
+import _ from 'lodash'
+import { remoteData } from "../../store/data";
 
 import MainStage from './MainStage.jsx';
 import DisplayBar from './DisplayBar.jsx';
 import Launcher from './Launcher.jsx';
+import ScheduleThemer from './ScheduleThemer.jsx';
 
 import Research from './Research.jsx';
 import Messages from './Messages.jsx';
@@ -12,7 +15,7 @@ import Admin from './Admin.jsx';
 import Discussion from './Discussion.jsx';
 import Gametime from '../../components/gametime/Gametime.jsx';
 // Components
-import StageBanner from '../../components/ui/StageBanner.jsx';
+import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import ConfirmLogout from '../../components/layout/ConfirmLogout.jsx';
 import SeriesView from '../../components/cardViews/SeriesView.jsx';
@@ -45,13 +48,14 @@ import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 import Auth from '../../services/auth.js';
 const auth = new Auth();
 
-const WelcomeView = () => [
-	<h1 class="app-title">Festival Time</h1>,
+const WelcomeView = ({attrs}) => [
+	<h1 class="app-title">FestiGram</h1>,
 	<h2 class="app-greeting">Welcome</h2>,
-	<span class="app-description">Choose your own stage</span>,
+	<span class="app-description">Like Instacart, but for music festivals*</span>,
 	<div class="login-button">
-		<UIButton action={() => auth.login()} buttonName="LOGIN" />
-	</div>
+		<UIButton action={() => auth.login(attrs.prev)} buttonName="LOGIN" />
+	</div>,
+	<span>*: Not anything like Instacart. Please don't sue me.</span>
 ];
 
 const forceLoginRoute = err => {
@@ -60,14 +64,56 @@ const forceLoginRoute = err => {
 
 }
 
+const rawUserData = status => status ? Promise.all([
+	auth.getFtUserId(),
+	auth.getRoles()
+	]) : [0, []]
+
+var titleCache = {}
+const title = (attrs) => {
+	const key = m.route.get()
+	const cached = _.get(titleCache, key)
+	if(cached) return cached
+	if(attrs.titleGet()) return attrs.titleGet()
+	return `FestiGram`
+}
+const bannerTitle = (title, route = m.route.get()) => {
+	//console.log('bannerTitle', title, titleCache)
+	if(_.isString(title)) _.set(titleCache, route, title)
+	return _.get(titleCache, route, `FestiGram`)
+
+
+}
+const authorize = (rawUserPromise, resolveComponent, rejectComponent) => (rParams) => rawUserPromise
+	.then(userDataRaw => {
+		//console.log(`route resolved`)
+		return {
+		oninit: () => {
+			//console.log(`component init`, userDataRaw, resolveComponent)
+			if(resolveComponent.preload) return Promise.all([resolveComponent.preload(rParams)])
+				.catch(err => {
+					console.error('init fail', rParams)
+					return m(Launcher)
+				})
+		},
+		view: () => {
+		//console.log(`component resolving`, userDataRaw, resolveComponent)
+			return m(resolveComponent, {titleSet: bannerTitle, userId: userDataRaw[0], userRoles: userDataRaw[1]})
+		}
+	}})
+	.catch(err => {
+		console.error(err)
+		bannerTitle('')
+		return rejectComponent ? rejectComponent : Launcher
+	})
+var lastUser = [0, []]
+
+var rawUserPromise = auth.isAuthenticated()		
+	.then(rawUserData)
+	.catch(err => [0, []])
+	.then(user => lastUser = user)
 const App = {
-	oninit: vnode => {
-	//console.log('app running oninint')
-	},
-	onbeforeupdate: vnode => {
-
-
-	},
+	name: 'App',
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector("#main-stage");
 /*
@@ -81,20 +127,54 @@ const App = {
 
 		m.route(mainStage, "/launcher", {
 			"/auth": {
-				onmatch: () => {
-					auth.logout(true)
-				},
+				render: WelcomeView
+			},
+			"/auth/:prev": {
 				render: WelcomeView
 			},
 			"/confirm/logout": {
 				onmatch: ConfirmLogout
 			},
 			"/launcher": {
-				onmatch: Launcher
+			 	onmatch: authorize(rawUserPromise, Launcher, Launcher)
+			},
+			"/callback": {
+				onmatch: () => {
+					const query = window.location.search
+        			const handling = /code/.test(query) && /state/.test(query)
+
+        			if(!handling) return m.route.set('/launcher')
+        			return auth.handleAuthentication()
+        		/*
+        		.then(x => {
+        			console.log('auth callback', x)
+        			return x
+        		})
+*/						
+						.then(acb => {
+							console.log(`callback new raw promise`)
+							rawUserPromise = auth.isAuthenticated()		
+								.then(rawUserData)
+								.catch(err => [0, []])
+								.then(user => lastUser = user)
+							return acb
+						})
+        				.then(acb => m.route.set(acb && acb.appState && acb.appState.route ? acb.appState.route : '/launcher', ))
+        				//.then(() => m.redraw())
+
+				}
 
 			},
 			"/research": {
-				onmatch: Research
+				onmatch: authorize(rawUserPromise, Research, Launcher)
+
+			},
+			"/research/:seriesId": {
+				onmatch: authorize(rawUserPromise, Research, Launcher)
+
+			},
+			"/research/:seriesId/:festivalId": {
+				onmatch: authorize(rawUserPromise, Research, Launcher)
 
 			},
 			"/messages": {
@@ -110,7 +190,7 @@ const App = {
 
 			},
 			"/admin": {
-				onmatch: Admin
+				onmatch: authorize(rawUserPromise, Admin, Launcher)
 
 			},
 			"/discussion/:messageId": {
@@ -121,10 +201,17 @@ const App = {
 
 			},
 			"/manage/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(Launcher)
-						.catch(forceLoginRoute)
+				onmatch: () => auth.getAccessToken()		
+					.then(() => Promise.all([
+						auth.getFtUserId(),
+						auth.getRoles()
+					]))
+					.then(userDataRaw => <Launcher userId={userDataRaw[0]} userRoles={userDataRaw[1]} />)
+					//.then(userDataRaw => m(Launcher, {userId: userDataRaw[0], userRoles: userDataRaw[1]}))
+					.catch(err => {
+						if(err.error === 'login_required') return <Launcher userId={0} userRoles={[]} />
+						console.error(err)
+					})
 			},
 			"/social/pregame": {
 				onmatch: () =>
@@ -139,40 +226,37 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/artists/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => ArtistView(auth))
-						.catch(forceLoginRoute)
+				onmatch: ArtistView
 			},
 			"/fests/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
+				onmatch: FestivalView
 			},
 			"/dates/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => DateView(auth))
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, DateView, DateView) 
 			},
 			"/series/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SeriesView(auth))
-						.catch(forceLoginRoute)
+				onmatch: (routing) => {
+
+					remoteData.Series.remoteCheck()
+
+					return authorize(rawUserPromise, SeriesView, SeriesView) (routing)
+				}
 			},
 			"/sets/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SetView(auth))
-						.catch(forceLoginRoute)
+				onmatch: SetView
 			},
 			"/stages/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()						
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
+				onmatch: () => auth.isAuthenticated()		
+					.then(rawUserData)
+					.then(userDataRaw => {return {
+						view: () => {
+							return m(FestivalView, {userId: userDataRaw[0], userRoles: userDataRaw[1]})
+						}
+					}})
+					.catch(err => {
+						console.error(err)
+						return m(FestivalView)
+					})
 			},
 			"/venues/pregame/new": {
 				onmatch: () =>
@@ -181,22 +265,13 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/sets/pregame/assignDays": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(AssignDays)
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, AssignDays, Launcher)
 			},
 			"/sets/pregame/assignTimes": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(AssignTimes)
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, AssignTimes, Launcher)
 			},
 			"/sets/pregame/assignStages": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(AssignSetStages)
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, AssignSetStages, Launcher)
 			},
 			"/fests/pregame/assignStages": {
 				onmatch: () =>
@@ -205,10 +280,7 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/fests/pregame/assignLineup": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(SetLineup)
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, SetLineup, Launcher)
 			},
 			"/artists/pregame/fix": {
 				onmatch: () =>
@@ -223,16 +295,16 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/users/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SeriesDetail(auth))
-						.catch(forceLoginRoute)
+				onmatch: SeriesDetail
 			},
 			"/artists/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(ArtistDetail)
-						.catch(forceLoginRoute)
+			 	onmatch: (routing) => {
+
+					remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
+
+					return authorize(rawUserPromise, ArtistDetail, ArtistDetail) (routing)
+				}
+				 
 			},
 			"/fests/pregame/new/:seriesId": {
 				onmatch: () =>
@@ -247,10 +319,12 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/fests/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalDetail(auth))
-						.catch(forceLoginRoute)
+				onmatch:(routing) => {
+
+					remoteData.Festivals.subjectDetails({subject: routing.id, subjectType: FESTIVAL})
+
+					return authorize(rawUserPromise, FestivalDetail, FestivalDetail) (routing)
+				}
 			},
 			"/dates/pregame/new/:festivalId": {
 				onmatch: () =>
@@ -265,16 +339,10 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/dates/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => DateDetail(auth))
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, DateDetail, DateDetail)
 			},
 			"/days/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => DayDetail(auth))
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, DayDetail, DayDetail)
 			},
 			"/series/pregame/new": {
 				onmatch: () =>
@@ -283,33 +351,45 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/series/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SeriesDetail(auth))
-						.catch(forceLoginRoute)
+				onmatch: authorize(rawUserPromise, SeriesDetail, SeriesDetail)
 			},
 			"/sets/pregame/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => SetDetail(auth))
-						.catch(forceLoginRoute)
+				onmatch: SetDetail
 			},
 			"/stages/pregame/:id": {
 				onmatch: () =>
 					auth.getAccessToken()						
 					.then(() => SeriesDetail(auth))
 						.catch(forceLoginRoute)
+			},
+			"/themer/schedule": {
+				onmatch: () =>
+					auth.getAccessToken()		
+					.then(() => Promise.all([
+						auth.getFtUserId(),
+						auth.getRoles()
+					]))
+					.catch(err => {
+						console.error(err)
+						return [0, []]
+					})
+					.then(userDataRaw => m(ScheduleThemer, {userId: userDataRaw[0], userRoles: userDataRaw[1]}))
+					.catch(console.error)
 			}
 		});
 		
-		//m.mount(document.getElementById("DisplayBar"), DisplayBar)
+		//m.mount(document.getElementById("DisplayBar"), {view: function () {return m(LauncherBanner, _.assign({}, lastUser, {}))}})
 	},
 	view: ({ children }) =>
 		<div class="App">
+			<LauncherBanner 
+				userId={lastUser[0]}
+				userRoles={lastUser[1]}
+				titleGet={bannerTitle}
+			/>
 			<div id="main-stage">
 				{children}
 			</div>
-			<div id="DisplayBar" />
 			<div id="upgrade-notice" class="hidden">upgrade</div>
 		</div>
 };

@@ -4,7 +4,6 @@
 import m from 'mithril'
 import _ from 'lodash'
 
-import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
 import ArtistReviewCard from '../../components/cards/ArtistReviewCard.jsx';
@@ -24,62 +23,54 @@ import DiscussModal from '../modals/DiscussModal.jsx';
 
 import {remoteData} from '../../store/data';
 
-// Services
-import Auth from '../../services/auth.js';
-const auth = new Auth();
+const artists = remoteData.Artists
+const messages = remoteData.Messages
+
+const id = () => parseInt(m.route.param('id'), 10)
+const artist = _.memoize((id) => artists.get(id))
 
 const ArtistDetail = (vnode) => { 
-	var artistId = 0
-	var artist = undefined
-	var messages = []
 	var discussing = false
 	var subjectObject = {}
 	var messageArray = []
-	var userId = 0
 	return {
-		oninit: () => {
-			artistId = parseInt(m.route.param('id'), 10)
-			artist = artistId ? remoteData.Artists.get(artistId) : undefined
-			messages = remoteData.Messages.forArtist(artistId)
-			userId = auth.userId()
-			remoteData.Messages.loadForArtist(parseInt(m.route.param('id'), 10))
-	
+		preload: (rParams) => {
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			const artistId = parseInt(rParams.id, 10)
+			//messages.forArtist(artistId)
+			//console.log('Research preload', seriesId, festivalId, rParams)
+			if(artistId) return artists.subjectDetails({subject: artistId, subjectType: ARTIST})
 		},
-		onbeforeupdate: () => {
-			artist = artistId ? remoteData.Artists.get(artistId) : undefined
-			messages = remoteData.Messages.forArtist(artistId)
-			//console.log('ArtistDetail update')
-		},
-		view: () => <div class="main-stage">
+		oninit: ({attrs}) => {
+			if (attrs.titleSet) attrs.titleSet(artist(id()) ? artist(id()).name : '')
 
-			<LauncherBanner 
-				title={artist ? artist.name : ''} 
-			
-			/>
+		},
+		view: ({attrs}) => <div class="main-stage">
+
 			<WidgetContainer>
 			
-		
 				<FixedCardWidget >
-					<CloudImageField subjectType={2} subject={artistId} sources={['url']} />
+					<CloudImageField subjectType={2} subject={id()} sources={['url']} />
 				</FixedCardWidget>
 		
-				{artist ? <FixedCardWidget header="Listen & Review" >
-					<SpotifyCard fieldValue={artist.name} />
-					<ReviewCard type="artist" data={artist} />
+				{artist(id()) ? <FixedCardWidget header="Listen & Review" >
+					<SpotifyCard fieldValue={artist(id()).name} />
+					<ReviewCard type="artist" data={artist(id())} />
 				</FixedCardWidget> : ''}
-				<AdminWidget header="Artist Admin">
-					<NavCard fieldValue="Fix Artist Names" action={() => m.route.set("/artists/pregame/fix/" + artistId)}/>
-				</AdminWidget>
+				{_.isArray(attrs.userRoles) && attrs.userRoles.includes('admin') ? <AdminWidget header="Artist Admin">
+					<NavCard fieldValue="Fix Artist Names" action={() => m.route.set("/artists/pregame/fix/" + id())}/>
+				</AdminWidget> : ''}
 				<FixedCardWidget header="Festival Lineups">
 					{
-						remoteData.Lineups.festivalsForArtist(artistId)
+						remoteData.Lineups.festivalsForArtist(id())
 							.sort((a, b) => b - a)
-							.map(f => <FestivalCard eventId={f} artistId={artistId} />)
+							.map(f => <FestivalCard eventId={f} artistId={id()} />)
 					}
 				</FixedCardWidget>
 				{
-					//find each message about this artist and order by user
-					_.map(remoteData.Messages.forArtistReviewCard(artistId),
+					//find each message about this artist(id()) and order by user
+					_.map(messages.forArtistReviewCard(id()),
 						me => <DiscussionWidget 
 							messageArray={me} 
 							discussSubject={(s, me) => {
@@ -92,13 +83,13 @@ const ArtistDetail = (vnode) => {
 					)
 				}
 			</WidgetContainer>
-			{messageArray.length && userId ? <DiscussModal
+			{messageArray.length && _.isInteger(attrs.userId) && attrs.userId ? <DiscussModal
 				display={discussing} 
 				hide={sub => {discussing = false;}}
 				subject={subjectObject}
 				messageArray={messageArray}
 				reviewer={messageArray[0].fromuser}
-				user={userId}
+				user={_.isInteger(attrs.userId) ? attrs.userId : 0}
 			/> : ''}
 		</div>
 }}

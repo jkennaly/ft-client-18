@@ -15,7 +15,6 @@ import MyRatingField from '../../components/fields/MyRatingField.jsx';
 import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData'
 
-const classes = attrs => {return 'modal ' + (attrs.display ? '' : 'hidden');}
 var selectedId = 0
 const ReviewModal = vnode => {
     var changeFlag = 1
@@ -37,43 +36,45 @@ const ReviewModal = vnode => {
         //console.log(selectedId)
         //if there is a selected id, return it
         //if not, create the artist, then return that id
+        e.stopPropagation()
         attrs.hide(attrs.subject)
         //console.log('Save')
         //console.log('localRating ' + localRating)
         //console.log('localComment ' + localComment)
         const newRatingMessage = localRating && localRating !== baselineRating
         const newCommentMessage = localComment && localComment !== baselineComment
-        if(newRatingMessage) remoteData.Messages.create({
-            //fromuser: attrs.user,
-            subject: attrs.subject.subject,
-            subjectType: attrs.subject.subjectType,
-            messageType: 2,
-            content: '' + localRating
-
-        })
-        if(!newRatingMessage && baselineRating) remoteData.Messages.updateInstance(
-            ratingId,
-            {timestamp: moment().format('YYYY-MM-DD HH:mm:ss')}
-        )
-        if(newCommentMessage) remoteData.Messages.create({
+        return Promise.all([
+            newRatingMessage ? remoteData.Messages.create({
+                //fromuser: attrs.user,
+                subject: attrs.subject.subject,
+                subjectType: attrs.subject.subjectType,
+                messageType: 2,
+                content: '' + localRating
+            }) : true,
+            !newRatingMessage && baselineRating ? remoteData.Messages.updateInstance(
+            {timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+            ratingId
+        }
+        ) : true,
+            newCommentMessage ? remoteData.Messages.create({
             //fromuser: attrs.user,
             subject: attrs.subject.subject,
             subjectType: attrs.subject.subjectType,
             messageType: 1,
             content: localComment
 
-        })
-        if(!newCommentMessage && baselineComment) remoteData.Messages.updateInstance(
-            commentId,
-            {timestamp: moment().format('YYYY-MM-DD HH:mm:ss')}
-        )
-        //console.log('newRatingMessage ' + newRatingMessage)
-        //console.log('newCommentMessage ' + newCommentMessage)
-        e.stopPropagation()
-        m.redraw()
+        }) : true,
+            !newCommentMessage && baselineComment ? remoteData.Messages.updateInstance(
+            {timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+            commentId
+        }
+        ) : true
+        ])
+            .then(() => m.redraw()) 
     }
-    const initDom = vnode => {
-            //console.log('consider updating ReviewModal  for ' + name)
+    const init = vnode => {
+        if(!vnode.attrs.subject) throw new Error('No subject for ReviewModal')
+            //console.log('consider updating ReviewModal  for ', vnode.attrs.subject)
             //console.log('consider updating ReviewModal  for user ' + vnode.attrs.user)
             const newSub = '' + vnode.attrs.subject.subject + '-' + vnode.attrs.subject.subjectType + '-' + vnode.attrs.user
             if(sub === newSub) return
@@ -93,10 +94,11 @@ const ReviewModal = vnode => {
             //console.log('localRating ' + localRating)
             //console.log('changeFlag ' + changeFlag)
     }
+const classes = vnode => {init(vnode);return 'modal ' + (vnode.attrs.display ? '' : 'hidden');}
     return {
-        onbeforeupdate: initDom,
-        oncreate: initDom,
-    	view: ({attrs}) => <div class={classes(attrs)}>
+        onupdate: init,
+        oninit: init,
+    	view: (vnode) => <div class={classes(vnode)}>
             <div class="modal-content">
                 <ComposedNameField fieldValue={name} />
                 <MyRatingField 
@@ -122,14 +124,14 @@ const ReviewModal = vnode => {
                     class="modal-textarea"
                     
                     onkeypress={e => {
-                        if(e.keyCode === 13) return submit(attrs)(e)
+                        if(e.keyCode === 13) return submit(vnode.attrs)(e)
                     }}
 
                 
                 >{comment}</textarea>
 
                 <UIButton action={e => {
-                    attrs.hide()
+                    vnode.attrs.hide()
                     e.stopPropagation()
                     //console.log('pre rating ' + rating)
                     //console.log('pre baselineRating ' + baselineRating)
@@ -141,7 +143,7 @@ const ReviewModal = vnode => {
                     m.redraw()
 
                 }} buttonName="Cancel" />
-                <UIButton action={submit(attrs)} 
+                <UIButton action={submit(vnode.attrs)} 
                 buttonName="Save" />
             </div>
         </div>

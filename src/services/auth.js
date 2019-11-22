@@ -1,8 +1,9 @@
 // auth.js
 
-import auth00 from 'auth0-js';
+import auth00 from '@auth0/auth0-spa-js';
 import AUTH0_DATA from './auth0-variables';
 import m from 'mithril'
+import _ from 'lodash'
 import localforage from 'localforage'
 localforage.config({
   name: "FestiGram",
@@ -14,30 +15,18 @@ import emptyPromise from 'empty-promise'
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
 
-const setSession = function(authResult) {
-  // Set the time that the Access Token will expire at
-  let expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
-  localStorage.setItem('access_token', authResult.accessToken);
-  localStorage.setItem('id_token', authResult.idToken);
-  localStorage.setItem('expires_at', expiresAt);
-  // navigate to the home route if current route matches
-  const goHome = /auth/
-  const currentRoute = m.route.get()
-  if(goHome.test(currentRoute)) m.route.set('/launcher');
-}
+
   
-const tokenFunction = function(xhr) {
-  xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'))
+const tokenFunction = token => function(xhr) {
+  xhr.setRequestHeader('Authorization', 'Bearer ' + token)
 }
 
 
-const userIdFromToken = idToken => m.request({
-  method: "GET",
-  url: "/api/Profiles/getUserId",
-  config: tokenFunction,
-  data: {
-    idToken: idToken
-  }
+const userIdFromToken = userData => token => m.request({
+  method: "POST",
+  url: "/api/Profiles/getUserId/",
+  config: tokenFunction(token),
+  body: userData
 })
 .then(result => {
   const id = result.id
@@ -45,49 +34,107 @@ const userIdFromToken = idToken => m.request({
   return id
 })
 
-var userIdPromiseCache = emptyPromise()
-var idRequestInProgress = 0
+var userIdPromiseCache = {}
+var nextIdRequestTime = 0
 let accessTokenPromiseCache = {}
+let userData = {}
 var accessTokenPending = false
 var userIdCache = 0
-
-export default class Auth {
-  auth0 = new auth00.WebAuth({
+var userRoleCache = []
+var dataReset = () => true
+var auth0 = {}
+var authHandler = {}
+const authLoad = window.mockery ? Promise.reject('mocked') : (auth00({
     domain: AUTH0_DATA.DOMAIN,
-    clientID: AUTH0_DATA.CLIENTID,
-    redirectUri: AUTH0_DATA.CALLBACKURL,
+    client_id: AUTH0_DATA.CLIENTID,
+    redirect_uri: AUTH0_DATA.CALLBACKURL,
     audience: AUTH0_DATA.AUDIENCE,
-    responseType: 'token id_token',
     scope: scopeAr
-  });
+  })
+  .then(o => auth0 = o)
+  .then(() => 'authLoaded')
+  .catch(err => err !== 'mocked' && console.error('auth0 instantiantion failed', err))
+)
+var lastToken
+export default class Auth {
+  
 
-  login() {
-    this.auth0.authorize();
+  login(prev) {
+    authLoad
+    /*
+      .then(hrcb => {
+          console.log('authLoad', hrcb)
+          return hrcb
+      })
+      */
+      .then(() => auth0.loginWithRedirect({
+        appState: {
+          route: prev
+        }
+      }))
+      .catch(err => console.error('login error', err))
   }
+
 
   handleAuthentication() {
-    this.auth0.parseHash((err, authResult) => {
-      //console.log(window.location)
-      //console.log(window.location.hash)
-      //console.log('handleAuthentication')
-      //console.log(authResult)
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        this.setSession(authResult);
-        //this.getFtUserId();
-        //m.route.set('/launcher');
-      } else if (err) {
-        console.log(err)
-        m.route.set('/auth')
-      } else {
-        const tokenValid = this.isAuthenticated()
-        //console.log('tokenValid ' + tokenValid)
-        this.getFtUserId('handleAuthentication')
-          .catch(console.error)
-      }
-    });
+    //console.log('handleAuthentication')
+    return authLoad
+      .then(hrcb => {
+          //console.log('authLoad for handleAuthentication', hrcb)
+          return hrcb
+      })
+      .then(() => {
+        const query = window.location.search
+        const handling = /code/.test(query) && /state/.test(query)
+
+        if(!handling) throw 'not handling'
+      })
+      //.catch(err => {if(err === 'not handling') return; console.error(err)})
+      .then(() => auth0.handleRedirectCallback())
+      .then(x => {
+        //console.log('handleRedirectCallback', x)
+        return x
+      })
+      .then(redirect => {
+        return auth0.getUser()
+          .then(user => {
+            //console.log('auth0.getUser', user);
+            return userData = user
+          })
+          .then(user => this.getFtUserId(user))
+          .then(id => {
+            //console.log('setting id')
+            localStorage.setItem('ft_user_id', id)
+          })
+          .then(() => this.getRoles().then(roles => userRoleCache = roles))
+          //.then(() => m.redraw())
+          .then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
+          .then(() => redirect)
+          .catch(err => {
+            //if(err === 'Invalid state' || err.Error === "There are no query params available for parsing.") return
+            console.error('handleRedirectCallback', err)
+          })
+         
+      })
+      .catch(err => {
+        if(err === 'mocked') return
+        if(err === 'not handling') return
+        console.error('handleAuthentication', err)
+      })
+      //.then(({appState}) => m.route.set(appState && appState.route ? appState.route : '/launcher'))
+      //.then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
+      /*
+      .then(hrcb => {
+          console.log('redirected', hrcb)
+          return hrcb
+      })
+      */
+      //.then(() => this.getFtUserId('handleAuthentication'))
+      /*
+      .then(() => {})
+      */
   }
 
-  setSession = setSession
 
   userId() {
     //console.log('auth userId')
@@ -95,151 +142,82 @@ export default class Auth {
     return userIdCache
   }
 
+
+  userRoles() {
+    //console.log('auth userId')
+    //console.log(userIdCache)
+    return userRoleCache
+  }
+
   //returns a promise that resolves to a userIdCache
-  getFtUserId(requester) {
-    //console.log('userIdCache requested by ' + requester)
+  getFtUserId(userData) {
     const onAuthRoute = /auth/.test(window.location)
     if(onAuthRoute) return Promise.resolve(0)
-    //find if there is a last token and if it's still good
-    const tokenValid = this.isAuthenticated()
-    //if it is, get the local userId
-    if(tokenValid) {
-      const localUser = parseInt(localStorage.getItem('ft_user_id'), 10)
-      if(localUser) userIdCache = localUser
-    }
-    if(tokenValid && userIdCache) return Promise.resolve(userIdCache)
-    
-    //if it's not, check idRequestInProgress to stop multiple requests
-    //const now = Date.now()
-    
-    if(!idRequestInProgress) {
-      //console.log('idRequestInProgress begins')
-      idRequestInProgress = true
-      //if there is no token or its expired and there is no request already, start one
-      const idTokenLocal = tokenValid && localStorage.getItem('id_token')
+    const localUser = parseInt(localStorage.getItem('ft_user_id'), 10)
+    if(localUser) return Promise.resolve(localUser)
+    if(userIdPromiseCache.then) return userIdPromiseCache
 
-      userIdPromiseCache.resolve(
-        (idTokenLocal ? new Promise.resolve(idTokenLocal) : this.getValidToken())
-          //.then(idToken => [console.log('userIdPromiseCache idToken', idToken), idToken][1])
-          .then(userIdFromToken)
-          //.then(userId => [console.log('userIdPromiseCache userId', userId), userId][1])
-          .then(id => {
-            userIdCache = id
-            localStorage.setItem('ft_user_id', id)
-            idRequestInProgress = false
-            return id
-          })
-          /*
-          .catch(err => {
-            idRequestInProgress = false
-            console.error('userIdPromiseCache failed', err)
-          })
-          */
-      )
-      return userIdPromiseCache
+    userIdPromiseCache = authLoad
+      .then(() => this.getValidToken())
+      //.then(idToken => [console.log('userIdPromiseCache idToken', idToken), idToken][1])
+      .then(userIdFromToken(userData))
+      //.then(userId => [console.log('userIdPromiseCache userId', userId), userId][1])
 
-    }
-    //console.log('idRequestInProgress')
-    //if there is a idRequestInProgress, return a promise the promiseCache will resolve
     
-    //return new Promise(resolve => setTimeout(resolve, 5000, userIdPromiseCache))
+      .catch(err => {
+          userIdCache = 0
+        localStorage.setItem('ft_user_id', 0)
+        console.error('userIdPromiseCache failed', err)
+      })
     return userIdPromiseCache
-    
-    
+
+  }
+  recore (coreCheck) {
+    dataReset = coreCheck
   }
 
   logout(skipRoute) {
-    const loggingIn = /access_token/.test(window.location)
-    if(loggingIn) return
     // Clear Access Token and ID Token from local storage
     localStorage.clear()
     localforage.clear()
+      .then(() => dataReset())
+      .then(() => console.log('data Reset'))
+      .catch(err => console.error('logout data reset failed', err))
     userIdCache = 0
+    userRoleCache = []
+    auth0.logout({client_id: AUTH0_DATA.CLIENTID, returnTo:AUTH0_DATA.CALLBACKURL})
     // navigate to the default route
-    if(!skipRoute) m.route.set('/auth')
+    //if(!skipRoute) m.route.set('/')
   }
 
   isAuthenticated() {
-    // Check whether the current time is past the
-    // Access Token's expiry time
-    //returns the token if it is valid
-    const currentToken = localStorage.getItem('access_token')
-    let expiresAt = currentToken && JSON.parse(localStorage.getItem('expires_at'));
-    const timeOk = currentToken && new Date().getTime() < expiresAt
-    //console.log('auth isAuthenticated ' + timeOk + ' expires ' + (new Date(expiresAt)).toLocaleTimeString())
-    return timeOk && currentToken && true || false
+    if(!localStorage.getItem('ft_user_id')) return Promise.reject('login required')
+    
+    return authLoad
+      .then(() => auth0.isAuthenticated())
   }
 
   getValidToken() {
-    //this returns a promise that resolves to a valid token
-    //setSession is required if:
-      //token cannot be authenticated AND
-      //no pending reuest for authentication
-    //cachedValue is good if:
-      //token is authentic OR
-      //request is pending
-    //console.log('getAccessToken')
-    //console.log(accessTokenPending)
-    //tokenValid is falsey if not authenticated, and the token value if authenticated
-    const tokenValid = this.isAuthenticated()
-    const promiseCacheValid = accessTokenPromiseCache && accessTokenPromiseCache.then
-    const useCache = promiseCacheValid && (accessTokenPending || tokenValid)
-    if(useCache) return accessTokenPromiseCache
-
-    //if the tokenValid, set that to the cache and return it
-    if(tokenValid) {
-      //console.log('found old valid token')
-      const promise = Promise.resolve(localStorage.getItem('access_token'))
-      accessTokenPromiseCache = promise
-      return promise
-    }
-    
-    //console.log('new getAccessToken request')
-    var _this = this
-    var promise = new Promise((resolve, reject) => _this.auth0.checkSession({},
-        function(err, result) {
-          accessTokenPending = false
-          //console.log('checkSession err & result')
-          //console.log(err)
-          //console.log(result)
-          if (err) {
-            reject(err);
-          } else {
-            setSession(result)
-            resolve(result.accessToken)
-          }
-        }
-    ))
-    accessTokenPromiseCache = promise
-    accessTokenPending = true
-    return promise
-  }
-
-  getGuestPass() {
-    //this returns a promise that resolves to a valid token
-    //setSession is required if:
-      //token cannot be authenticated AND
-      //no pending reuest for authentication
-    //cachedValue is good if:
-      //token is authentic OR
-      //request is pending
-    //console.log('getAccessToken')
-    //console.log(accessTokenPending)
-    //tokenValid is falsey if not authenticated, and the token value if authenticated
-    const alreadyAuthorized = this.isAuthenticated()
-    if(alreadyAuthorized) return Promise.reject('authenticated')
-    return Promise.resolve('guest') 
-
+    //if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
+    return authLoad
+      .then(() => auth0.getTokenSilently())
+  
   }
 
   getAccessToken() {
     //this returns a promise that resolves to a valid token
-    return this.getValidToken()
-      .catch(err => 'Not Logged In')
-      .then(token => {
-        if(token && token !== 'Not Logged In') return token
-        return this.getGuestPass()
-      })
-      .catch(console.error)
+    return authLoad
+      .then(() => this.isAuthenticated())
+      .then(status => status && lastToken ? lastToken : this.getValidToken())
+  }
+  getIdTokenClaims()  {
+    return authLoad
+      .then(() => auth0.getIdTokenClaims())
+  }
+  getRoles() {
+    return this.getIdTokenClaims()
+      .then(claims => claims ? claims["https://festigram/roles"] : [])
+      //.then(roles => console.log('roles', roles) || roles)
+
   }
 }

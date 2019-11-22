@@ -24,9 +24,9 @@ const SetScheduleModal = {
             <StageNameField stageId={attrs.set.stage} />
             <ArtistNameField artistId={attrs.set.band} />
             <label for="start-time">Enter set start time</label>
-            <FestivalTimePicker name="start-time" onchange={e => startTime = e} default={attrs.set.start ? attrs.set.start : 0} />
+            <FestivalTimePicker name="start-time" onchange={e => startTime = e} default={attrs.set.start ? attrs.set.start : startTime} />
             <label for="end-time">Enter set end time</label>
-            <FestivalTimePicker name="end-time" onchange={e => endTime = e} default={attrs.set.end ? attrs.set.end : 0} />
+            <FestivalTimePicker name="end-time" onchange={e => endTime = e} default={attrs.set.end ? attrs.set.end : endTime} />
             {
                 //show the day name
                 //show the stage name
@@ -51,7 +51,7 @@ const SetScheduleModal = {
                     end: endTime,
                     user: attrs.user
                 }
-                const verb = data.id ? 'update' : 'create'
+                const verb = data.id ? 'updateInstance' : 'create'
                 if(attrs.set && endTime && endTime > startTime) attrs.action(data, verb)(remoteData.Sets.upsert(data))
                 if(endTime && endTime > startTime) attrs.hide()
 

@@ -2,9 +2,11 @@
 
 export default ({series, festivals, dates, sets}) => { return  {
 	getSeriesId (id) { 
+		if(!this.getDateId(id)) return
 		return festivals.getSeriesId(dates.getFestivalId(this.getDateId(id)))
 	},
 	getFestivalId: (id) => {
+		if(!this.getDateId(id)) return
 		return dates.getFestivalId(this.getDateId(id))
 	},
 	getDateId (id) {

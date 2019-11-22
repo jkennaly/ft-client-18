@@ -4,22 +4,22 @@
 import m from 'mithril'
 import _ from 'lodash'
 
-import LauncherBanner from '../ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import SeriesCard from '../../components/cards/SeriesCard.jsx';
 
 import {remoteData} from '../../store/data';
 
-const SeriesView = (auth) => { return {
-	oninit: () => {
+const user = _.memoize(attrs => _.isInteger(attrs.userId) ? attrs.userId : 0, attrs => attrs.userId)
+const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
 
+const SeriesView = {
+	oninit: ({attrs}) => {
+		remoteData.Series.remoteCheck()
+
+		if (attrs.titleSet) attrs.titleSet(`Festivals`)
 	},
-	view: () => <div class="main-stage">
-			<LauncherBanner 
-				title="Festivals" 
-			/>
+	view: ({attrs}) => <div class="main-stage">
 		<CardContainer>
-			<SeriesCard eventId={'new'}/>
 			{
 
 				remoteData.Series.list
@@ -27,5 +27,5 @@ const SeriesView = (auth) => { return {
 			}
 		</CardContainer>
 	</div>
-}}
+}
 export default SeriesView;

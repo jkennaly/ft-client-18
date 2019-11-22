@@ -10,7 +10,6 @@ import DetailBanner from '../../ui/DetailBanner.jsx';
 import CardContainer from '../../../components/layout/CardContainer.jsx';
 import DateCard from '../../../components/cards/DateCard.jsx';
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -62,7 +61,8 @@ const entryFormHandler = (formDOM) => {
 		    return res
 		})
 		*/
-		.then(newDate => m.route.set('/fests/pregame/' + newDate.festival))
+		.then(newDate => newDate.festival && m.route.set('/fests/pregame/' + newDate.festival) || console.log('newDate', newDate) && false || m.route.set('/admin'))
+
 		.catch(err => {
 			console.log('createDates.jsx create err')
 			console.log(err)
@@ -77,11 +77,11 @@ const previousVenueIds = _.memoize(festivalId => remoteData.Series.getVenueIds(r
 const CreateDate = (auth) => { 
 	let festivalId = parseInt(m.route.param('festivalId'), 10)
 	return {
-	oninit: () => {
+	oninit: ({attrs}) => {
 		festivalId = parseInt(m.route.param('festivalId'), 10)
+		if (attrs.titleSet) attrs.titleSet(`Add Date`)
 	},
 	view: (vnode) => <div class="main-stage">
-				<LauncherBanner title="Add Date" />
 				<div class="main-stage-content-scroll">
 					
     

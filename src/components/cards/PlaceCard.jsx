@@ -15,7 +15,7 @@ const makeDaySo = so('DAY')
 
 
 const getPlaceModeSets = (subjectObject, dayId) => {
-	const placeSetsForDay = subjectData.sets(makeDaySo(dayId))
+	const placeSetsForDay = subjectData.sets({subject: dayId, subjectType: DAY})
 		.filter(s => s.place === subjectObject.subject)
 		.sort((a, b) => a.start - b.start)
 
@@ -66,7 +66,7 @@ const setTimeText = (subjectObject, dayId) => {
 
 const PlaceCard = {
   view: ({ attrs }) =>
-    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set(setRoute(attrs.subjectObject, attrs.dayId))}>
+    <div class={"ft-card ft-card-place " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set(setRoute(attrs.subjectObject, attrs.dayId))}>
 
 			{/*console.log('PlaceCard subjectObject', attrs.subjectObject)*/}
       <div class="ft-fields">

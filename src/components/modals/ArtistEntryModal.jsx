@@ -19,6 +19,7 @@ const ArtistEntryModal = {
                 label="Select an existing artist:"
                 defaultText="Select an artist"
                 artistChange={e => selectedId = e.target.value}
+                sel={selectedId}
             />
             
             <label for="new-artist">Or add a new artist</label>
@@ -59,7 +60,6 @@ const ArtistEntryModal = {
                         textValue = ''
                         return result
                     }))
-                    .then(result => {m.redraw(); return result})
 
                 //
             }} buttonName="Accept" />

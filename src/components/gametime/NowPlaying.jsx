@@ -2,6 +2,7 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+import {remoteData} from '../../store/data'
 import {subjectData} from '../../store/subjectData'
 import SetCard from '../../components/cards/SetCard.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
@@ -29,12 +30,13 @@ const NowPlaying = () => {
 		
 			<FixedCardWidget display={sets(attrs.subjectObject)
 					.filter(s => s.day === attrs.dayId)
-					.filter(s => subjectData.future({subject: s.id, subjectType: subjectData.SET}))[0]
+					.filter(s => remoteData.Sets.future(s.id))
+					.sort((a, b) => a.start - b.start)[0]
 					} header={`Next Up`}>
 			{
 				_.uniqBy(sets(attrs.subjectObject)
 					.filter(s => s.day === attrs.dayId)
-					.filter(s => subjectData.future({subject: s.id, subjectType: subjectData.SET}))
+					.filter(s => remoteData.Sets.future(s.id))
 					.sort((a, b) => a.start - b.start), 
 					'stage'
 					)

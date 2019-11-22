@@ -5,8 +5,8 @@ const auth = new Auth();
 
 
 import m from 'mithril'
+import _ from 'lodash'
 
-import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import SeriesCard from '../../components/cards/SeriesCard.jsx';
@@ -17,47 +17,76 @@ import NavCard from '../../components/cards/NavCard.jsx';
 
 import {remoteData} from '../../store/data';
 
-const Admin = (vnode) => { 
+const series = remoteData.Series
+const festivals = remoteData.Festivals
 
-	let artistPrisNeeded;
-	let noFutureDates;
-	let missingStageFestivals;
-	let artistMissingDayFestivals;
-	let artistMissingStageFestivals;
-	let unscheduledLineupFestivals;
-	const DATE_ANNOUNCED = 180
-	const LINEUP_ANNOUUNCED = 90
-	const SCHEDULE_ANNNOUNCED = 14
 
-	return {
-	oninit: () => {
-		//console.log('Admin init')
-		artistPrisNeeded = remoteData.Lineups.allPrioritiesDefaultFestivals(
-			remoteData.Dates.upcomingDatedFestivals(LINEUP_ANNOUUNCED)
-				.map(f => f.id)
-		)
-		noFutureDates = remoteData.Series.noFutureDates(DATE_ANNOUNCED)
-		unscheduledLineupFestivals = remoteData.Sets.unscheduledLineupFestivals(SCHEDULE_ANNNOUNCED)
+const DATE_ANNOUNCED = 180
+const LINEUP_ANNOUUNCED = 90
+const SCHEDULE_ANNNOUNCED = 14
 
-		artistMissingDayFestivals = remoteData.Sets.artistMissingDayFestivals(SCHEDULE_ANNNOUNCED)
-		artistMissingStageFestivals = remoteData.Sets.artistMissingStageFestivals(SCHEDULE_ANNNOUNCED)
-		missingStageFestivals = remoteData.Places.missingStageFestivals(SCHEDULE_ANNNOUNCED)
-		/*
+const upcomingFestivals = () => remoteData.Dates.upcomingDatedFestivals(LINEUP_ANNOUUNCED)
+const upcomingLinedFestivals = () => {
+	const festivalIds = upcomingFestivals().map(x => x.id)
+	return festivals.getMany(_.uniq(remoteData.Lineups
+		.getFiltered(l => festivalIds.includes(l.festival))
+		.map(x => x.festival)
+	))
 
-		//console.log(remoteData.Dates.upcomingDatedFestivals(90))
-		//console.log(artistPrisNeeded)
-		*/
-		//console.log(noFutureDates)
-	},
+}
+
+const noLineup = () => {
+	const festivalIds = upcomingFestivals().map(x => x.id)
+	const linedFestivalIds = upcomingLinedFestivals().map(x => x.id)
+	return festivals.getMany(_.difference(festivalIds, linedFestivalIds))
+
+}
+
+const artistPrisNeeded = () => remoteData.Lineups.allPrioritiesDefaultFestivals(
+	remoteData.Dates.upcomingDatedFestivals(LINEUP_ANNOUUNCED)
+		.map(f => f.id)
+	)
+const noFutureDates = () => series.noFutureDates(DATE_ANNOUNCED)
+const unscheduledLineupFestivals = () => remoteData.Sets.unscheduledLineupFestivals(SCHEDULE_ANNNOUNCED)
+
+const artistMissingDayFestivals = () => remoteData.Sets.artistMissingDayFestivals(SCHEDULE_ANNNOUNCED)
+const artistMissingStageFestivals = () => remoteData.Sets.artistMissingStageFestivals(SCHEDULE_ANNNOUNCED)
+const missingStageFestivals = () => remoteData.Places.missingStageFestivals(SCHEDULE_ANNNOUNCED)
+
+
+
+		
+const Admin = {
+	name: 'Admin',
+		preload: (rParams) => {
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			return Promise.all([
+			series.remoteCheck(true),
+			festivals.remoteCheck(true),
+			remoteData.Lineups.remoteCheck(true),
+			remoteData.Dates.acquireListUpdate(),
+			remoteData.Days.acquireListUpdate(),
+			remoteData.Sets.acquireListUpdate(),
+			remoteData.Artists.acquireListUpdate(),
+			remoteData.ArtistAliases.acquireListUpdate(),
+			remoteData.Venues.remoteCheck(true),
+			remoteData.Places.acquireListUpdate()
+		])
+				.catch(console.error)
+			
+		},
+		oninit: ({attrs}) => {
+
+
+		if (attrs.titleSet) attrs.titleSet(`FestiGram Admin`)
+		},
 	view: () => <div class="main-stage">
 	
-			<LauncherBanner 
-				title="FestivalTime Admin" 
-			/>
 		<div class="main-stage-content">
 			<WidgetContainer>
 
-				<FixedCardWidget header="Create Festivals">
+				<FixedCardWidget header="Create Festivals" tall={true}>
 					<SeriesCard eventId="new"/>
 					<FestivalCard eventId="new"/>
 					<DateCard eventId="new"/>
@@ -70,66 +99,78 @@ const Admin = (vnode) => {
 					<NavCard fieldValue="Enter Set Times" action={() => m.route.set("/sets/pregame/assignTimes")}/>
 				</FixedCardWidget>
 			{
-				noFutureDates.length ? <FixedCardWidget header="Empty Series">
+				noFutureDates().length ? <FixedCardWidget header="No Dates">
 			{
-				noFutureDates
-					.map(series => <SeriesCard eventId={series.id} />)
+				noFutureDates()
+					.map(series => <SeriesCard 
+						eventId={series.id} 
+					/>)
 			}
 			</FixedCardWidget> : '' }
 		
 
-			{
-				artistPrisNeeded.length ? <FixedCardWidget header="Artist Priorities Unassigned">
+			{noLineup().length ? <FixedCardWidget header="No Lineup">
 				{
-					artistPrisNeeded
+					noLineup()
 						.map(data => <FestivalCard
 							eventId={data.id}
-							//route={''}
+							route={`/fests/pregame/assignLineup?seriesId=${data.series}&festivalId=${data.id}`}
+						/>)
+				}
+			</FixedCardWidget> : '' }
+
+			{
+				artistPrisNeeded().length ? <FixedCardWidget header="Artist Priorities Unassigned">
+				{
+					artistPrisNeeded()
+						.map(data => <FestivalCard
+							eventId={data.id}
+							route={`/fests/pregame/assignLineup?seriesId=${data.series}&festivalId=${data.id}`}
 						/>)
 				}
 			</FixedCardWidget> : '' }
 
 
 			{
-				missingStageFestivals.length ? <FixedCardWidget header="No stages">
+				missingStageFestivals().length ? <FixedCardWidget header="No stages">
 			{
-				missingStageFestivals
+				missingStageFestivals()
 					.map(data => <FestivalCard
 						eventId={data.id}
-						//route={}
+						route={`/fests/pregame/assignStages?seriesId=${data.series}&festivalId=${data.id}`}
+						/>)
+			}
+			</FixedCardWidget> : '' }
+
+			{
+				artistMissingDayFestivals().length ? <FixedCardWidget header="Artists Need Days">
+			{
+				artistMissingDayFestivals()
+					.map(data => <FestivalCard
+						eventId={data.id}
+						route={`sets/pregame/assignDays?seriesId=${data.series}&festivalId=${data.id}`}
 					/>)
 			}
 			</FixedCardWidget> : '' }
 
 			{
-				artistMissingDayFestivals.length ? <FixedCardWidget header="Artists Need Days">
+				artistMissingStageFestivals().length ? <FixedCardWidget header="Artists Need Stages">
 			{
-				artistMissingDayFestivals
+				artistMissingStageFestivals()
 					.map(data => <FestivalCard
 						eventId={data.id}
-						//route={}
-					/>)
+						route={`/sets/pregame/assignStages?seriesId=${data.series}&festivalId=${data.id}`}
+						/>)
 			}
 			</FixedCardWidget> : '' }
 
 			{
-				artistMissingStageFestivals.length ? <FixedCardWidget header="Artists Need Stages">
+				unscheduledLineupFestivals().length ? <FixedCardWidget header="Unscheduled Lineup">
 			{
-				artistMissingStageFestivals
+				unscheduledLineupFestivals()
 					.map(data => <FestivalCard
 						eventId={data.id}
-						//route={}
-					/>)
-			}
-			</FixedCardWidget> : '' }
-
-			{
-				unscheduledLineupFestivals.length ? <FixedCardWidget header="Unscheduled Lineup">
-			{
-				unscheduledLineupFestivals
-					.map(data => <FestivalCard
-						eventId={data.id}
-						//route={}
+						route={`/fests/pregame/assignLineup?seriesId=${data.series}&festivalId=${data.id}`}
 					/>)
 			}
 			</FixedCardWidget> : '' }
@@ -137,5 +178,5 @@ const Admin = (vnode) => {
 			</WidgetContainer>
 		</div>
 	</div>
-}}
+}
 export default Admin;

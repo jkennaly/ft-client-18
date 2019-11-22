@@ -6,7 +6,6 @@ import _ from 'lodash'
 
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import {remoteData} from '../../../store/data';
 
@@ -52,12 +51,10 @@ const consoleLog = str => console.log(str)
 
 
 const CreateVenue = (auth) => { return {
-	oninit: () => {
+	oninit: ({attrs}) => {
+    if (attrs.titleSet) attrs.titleSet(`Create new Venue`)
 	},
 	view: (vnode) => <div class="main-stage">
-    <LauncherBanner 
-      title="Create new Venue"
-    />
     <div class="main-stage-content-scroll">
       <form name="entry-form" id="entry-form" >
         <label for="venue-name">

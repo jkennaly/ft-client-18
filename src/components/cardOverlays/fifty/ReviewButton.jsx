@@ -6,11 +6,10 @@ import m from 'mithril'
 import  ComposedNameField from '../../fields/ComposedNameField.jsx';
 
 const getSubject = attrs => {
-	console.log('ReviewButton subject ' + attrs.subject )
+	//console.log('ReviewButton subject ' + attrs.subject )
 	return {
-				sub: attrs.subject,
-				type: attrs.subjectType ? attrs.subjectType : 2
-
+		subject: attrs.subject,
+		subjectType: attrs.subjectType ? attrs.subjectType : 2
 	}
 }
 

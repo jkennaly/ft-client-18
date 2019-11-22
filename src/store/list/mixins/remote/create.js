@@ -1,5 +1,7 @@
 // create.js
 
+import _ from 'lodash'
+
 import provide from '../../../loading/provide'
 
 export default {
@@ -8,8 +10,7 @@ export default {
 			//console.log('create ' + this.fieldName)
 			//console.log(data)
 			return provide(data, this.fieldName, '', end)
-				.then(() => this.list.push(data))
-				.then(() => this.remoteCheck(true))
-				.then(() => this.getFiltered(data))
+				.then(created => {this.backfillList(_.isArray(created) ? created : [created]); return created})
+
 	}  
 }

@@ -1,12 +1,13 @@
 // setFilters.js
+import _ from 'lodash'
 
 export default (dates, festivals, lineups) => { return  {
-	datedLinedFestivals: (daysAhead = 14) => dates.upcomingDatedFestivals(daysAhead)
+	datedLinedFestivals (daysAhead = 14) { return dates.upcomingDatedFestivals(daysAhead)
 			//that have a lineup
-			.filter(festival => lineups.festHasLineup(festival.id)),
+			.filter(festival => lineups.festHasLineup(festival.id))},
 
 			//find festivals that have a date
-		unscheduledLineupFestivals: (daysAhead = 14) => this
+		unscheduledLineupFestivals (daysAhead = 14) { return this
 			.datedLinedFestivals(daysAhead)
 			//and at least one artist in lineup that does not have a set with a start time
 			.filter(festival => {
@@ -17,9 +18,9 @@ export default (dates, festivals, lineups) => { return  {
 				return _.some(
 					lineups.getFestivalArtistIds(festival.id),
 					artistId => !_.some(scheduledSets, s => s.band === artistId)
-			)})
+			)})}
 		,
-		artistMissingDayFestivals: (daysAhead = 14) => this
+		artistMissingDayFestivals (daysAhead = 14) { return this
 			.datedLinedFestivals(daysAhead)
 			//and at least one artist in lineup that does not have a set with a start time
 			.filter(festival => {
@@ -38,9 +39,9 @@ export default (dates, festivals, lineups) => { return  {
 					artistIds,
 					artistId => !_.some(daySets, s => s.band === artistId)
 				)
-			})
+			})}
 		,
-		artistMissingStageFestivals: (daysAhead = 14) => this
+		artistMissingStageFestivals (daysAhead = 14) { return this
 			.datedLinedFestivals(daysAhead)
 			//and at least one artist in lineup that does not have a set with a start time
 			.filter(festival => {
@@ -52,5 +53,5 @@ export default (dates, festivals, lineups) => { return  {
 					lineups.getFestivalArtistIds(festival.id, l => !l.unscheduled),
 					artistId => !_.some(stageSets, s => s.band === artistId)
 				)
-			})
+			})}
 }}

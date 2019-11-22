@@ -6,7 +6,6 @@ import m from 'mithril'
 import _ from 'lodash'
 import smartSearch from 'smart-search'
 
-import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import SearchCard from '../../components/cards/SearchCard.jsx';
@@ -17,31 +16,37 @@ import ArtistCard from '../../components/cards/ArtistCard.jsx';
 import NavCard from '../../components/cards/NavCard.jsx';
 
 import {remoteData} from '../../store/data';
+import {artistSorter} from '../../services/sorts';
 
 const artistData = ({dataField, fallback, festivalId, userId, search, recordCount, prefilter = x => x}) => {
 	const searchMatches = search ? 
 		smartSearch(dataField.list.filter(prefilter), search.pattern, search.fields)
 			.map(x => x.entry)
-	 : dataField.virgins().filter(prefilter)
+	 : dataField.list.sort(fallback)
+	 Promise.all(_.take(searchMatches, 2 * recordCount).map(a => remoteData.Messages.loadForArtist.call(remoteData.Messages, a.id)))
+	 	.then(ar => {
+	 		if(!_.take(ar, 5).reduce((pv, cv) => pv && cv, true)) m.redraw()
+	 		return ar
+	 	})
+	 	.catch(console.error)
 	return _.take(searchMatches, recordCount)
 }
 	//console.log('Launcher read')
 
-const Launcher = (vnode) => {
-	//console.log('Launcher running')
-	let pattern;
-	const patternChange = e => {
-		pattern = e.target.value
-		//console.log('ArtistSearchWidget pattern ' + pattern)
-	}
-	let discoveryArtists = []
-	return {
-	//oninit: () => console.log('Launcher init'),
-	//oncreate: () => console.log('Launcher create'),
-	view: () => <div class="main-stage">
-		<LauncherBanner 
-			title="FestivalTime Launcher" 
-		/>
+let pattern;
+const patternChange = e => {
+	pattern = e.target.value
+	//console.log('ArtistSearchWidget pattern ' + pattern)
+}
+//console.log('Launcher running')
+let discoveryArtists = []
+const Launcher = {
+	name: 'Launcher',
+	oninit: ({attrs}) => {
+		attrs.titleSet(`FestiGram Launcher`, m.route.get())
+		//console.log('Launcher init')
+	},
+	view: ({attrs}) => <div class="main-stage">
 		<WidgetContainer>
 			<FixedCardWidget header="My Festivals">
 			{
@@ -76,6 +81,7 @@ const Launcher = (vnode) => {
 			<FixedCardWidget header="Upcoming Festivals">
 			{
 				remoteData.Festivals.future()
+					.filter(f => remoteData.Lineups.find(l => l.festival === f.id))
 					//.filter(x => console.log('Launcher Upcoming Festivals', x) || true)
 					.map(data => <FestivalCard 
 						eventId={data.id}
@@ -83,7 +89,7 @@ const Launcher = (vnode) => {
 					/>)
 			}
 			</FixedCardWidget>
-			<FixedCardWidget header="Artist Discovery">
+			<FixedCardWidget header="Artists">
 			<SearchCard patternChange={patternChange} />
 			{
 				//three from next event
@@ -93,7 +99,8 @@ const Launcher = (vnode) => {
 				artistData({
 					dataField: remoteData.Artists, 
 					search: pattern ? {pattern: [pattern], fields: {name: true}} : undefined, 
-					recordCount: 5
+					recordCount: 5,
+					fallback: artistSorter(remoteData)(['future', 'siteActivity', 'peakPriority'], ['siteActivity'])
 				})
 					.map(data => <ArtistCard 
 						data={data}
@@ -102,5 +109,5 @@ const Launcher = (vnode) => {
 			</FixedCardWidget>
 		</WidgetContainer>
 	</div>
-}}
+}
 export default Launcher;

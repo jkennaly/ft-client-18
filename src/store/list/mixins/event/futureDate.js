@@ -4,7 +4,17 @@ import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.m
 
 var dateBaseCache = {}
 export default {
-	active (id) {return  moment().isBetween(this.getStartMoment(id), this.getEndMoment(id))},
+	active (id) {
+		//console.log(this, id)
+		try {
+			const s = this.getStartMoment(id)
+			const e = this.getEndMoment(id)
+			return  moment().isBetween(s, e)
+		}
+		catch {
+			return false
+		}
+	},
 	ended (id) {return  moment().isAfter(this.getEndMoment(id))},
 	current () {return this.list.filter(d => {
 		//now is greater than the start moment but less than the end moment

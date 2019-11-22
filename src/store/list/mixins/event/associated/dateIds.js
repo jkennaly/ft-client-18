@@ -1,10 +1,11 @@
 // dateIds.js
 
-export default ({series, festivals, days, sets}) => { return  {
+export default ({series, festivals, days, sets}, lineups) => { return  {
 	getSeriesId (id) { 
+		if(!this.getFestivalId(id)) return
 		return festivals.getSeriesId(this.getFestivalId(id))
 	},
-	getFestivalId: (id) => {
+	getFestivalId (id) {
 		const date = this.get(id)
 			if(!date) return
 			return date.festival
@@ -21,8 +22,9 @@ export default ({series, festivals, days, sets}) => { return  {
 			.filter(x => x !== id)
 	},
 	getLineupArtistIds (id) {
+		if(!this.getFestivalId(id)) return []
 		const festivalId = this.getFestivalId(id)
 			if(!festivalId) return
-			return remoteData.Lineups.getFestivalArtistIds(festivalId)
+			return lineups.getFestivalArtistIds(festivalId)
 	}
 }}

@@ -1,15 +1,10 @@
-// 	FixArtist.jsx
-// Services
-import Auth from '../../../services/auth.js';
-const auth = new Auth();
+// 	src/components/createFestivals/lineups/FixArtist.jsx
 
 
 
 import m from 'mithril'
 import _ from 'lodash'
-const Promise = require('promise-polyfill').default
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 
 import ArtistSpelling from '../../detailViewsPregame/fields/artist/ArtistSpelling.jsx'
 import ArtistMerge from '../../detailViewsPregame/fields/artist/ArtistMerge.jsx'
@@ -29,20 +24,16 @@ const FixArtist = (vnode) => {
 		m.route.set('/artists/pregame/fix' + artistString + fixString)
 	}
 	return {
-		oninit: () => {
+		oninit: ({attrs}) => {
 			artistId = parseInt(m.route.param('id'), 10)
 			select = m.route.param('type')
 			fixType = select ? (select === 'spelling' ? 1 : (select === 'merge' ? 2 : 0) ) : 0
 	
-			userId = auth.userId()
+			if (attrs.titleSet) attrs.titleSet(`Fix Artist Names`)
 		},
 		view: () => 
 		<div class="launcher-container">
 			<div class="stage-banner-container">
-				<LauncherBanner 
-					action={() => auth.logout()}
-					title="Fix Artist Names" 
-				/>
 			</div>
 				<div class="main-stage-content-scroll">
 			<div class="ft-name-field">

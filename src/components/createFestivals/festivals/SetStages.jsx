@@ -8,9 +8,7 @@ const auth = new Auth();
 import m from 'mithril'
 import _ from 'lodash'
 const dragula = require("dragula");
-const Promise = require('promise-polyfill').default
 
-import LauncherBanner from '../../../components/ui/LauncherBanner.jsx';
 import WidgetContainer from '../../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../../components/widgets/FixedCard.jsx';
 import NavCard from '../../../components/cards/NavCard.jsx';
@@ -44,7 +42,7 @@ const captureStages = (els, festivalId, userId) => {
 
 	Promise.all([addPromise, delPromise])
 		.then(() => console.log('captureStages promises resolved'))
-		.then(() => m.redraw())
+
 
 }
 
@@ -99,31 +97,28 @@ const SetStages = (vnode) => {
 				vnode.dom.children[2].children[0].children[2].children[1],
 			])
 		},
-		oninit: () => {
+		oninit: ({attrs}) => {
 			userId = auth.userId()
+			if (attrs.titleSet) attrs.titleSet(`Set up Stages`)
 		},
 		view: () => 
 		<div class="launcher-container">
 			<div class="stage-banner-container">
-				<LauncherBanner 
-					action={() => auth.logout()}
-					title="Set up Stages" 
-				>
 					<EventSelector 
 						seriesId={seriesId}
 						festivalId={festivalId}
 						seriesChange={seriesChange}
 						festivalChange={festivalChange}
 					/>
-				</LauncherBanner>
 			</div>
 			<div>
 				<UIButton action={e => addingStage = true} buttonName="New Stage" />
 	  			<UIButton action={copyPreviousStages} buttonName="Copy previous stages" />
-			</div>
+				<UIButton action={e => captureStages(currentStages.children, festivalId, userId)} buttonName="SAVE" />
+		  </div>
 				<div class="main-stage-content-scroll">
 				<WidgetContainer>
-					<FixedCardWidget header="Current Stage Order">
+					<FixedCardWidget header="Current Stage Order" tall={true}>
 						{
 							(!newStageNames.length ? [] : newStageNames)
 								.map(p => <NavCard fieldValue={p} key={p}/>)
@@ -133,14 +128,14 @@ const SetStages = (vnode) => {
 								<NavCard fieldValue={p.name} key={p.id}/>
 						)}
 					</FixedCardWidget>
-					<FixedCardWidget header="Previous Stages">
+					<FixedCardWidget header="Previous Stages" tall={true}>
 						{!festivalId ? [] : _.uniqBy(remoteData.Places.list
 													.filter(p => remoteData.Festivals.getPeerIds(festivalId).indexOf(p.festival) > -1), x => x.name)
 							.map(p => 
 								<NavCard fieldValue={p.name} key={p.id}/>
 						)}
 					</FixedCardWidget>
-					<FixedCardWidget header="All Stages">
+					<FixedCardWidget header="All Stages" tall={true}>
 						{_.uniqBy(remoteData.Places.list, x => x.name).map(p => 
 							<NavCard fieldValue={p.name} key={p.id}/>
 						)}
@@ -157,8 +152,6 @@ const SetStages = (vnode) => {
 				}}
 				hide={() => addingStage = false}
 			/>
-			<UIButton action={e => captureStages(currentStages.children, festivalId, userId)} buttonName="SAVE" />
-	  
 		</div>
 }}
 export default SetStages;

@@ -2,13 +2,20 @@
 
 
 import m from 'mithril'
-const classes = attrs => {return (attrs.quarter ? 'quarter ' : '') + (attrs.display ? '' : 'hidden');}
+
+import FiftyButton from '../cardOverlays/fifty/FiftyButton.jsx'
+
+const classes = attrs => {
+	return (attrs.quarter ? 'quarter ' : '') + 
+	(attrs.display ? '' : 'hidden ') + 
+	(attrs.tall ? 'ft-widget-tall ' : '')
+}
 
 const FixedCardWidget = {
   view: (vnode) => {
     return (
-<section class={classes(vnode.attrs)}>
-  <header>{vnode.attrs.header}</header>
+<section class={`ft-widget-fixed-card ${classes(vnode.attrs)}`}>
+  <header class="ft-widget-header"><div class="ft-widget-header-text">{vnode.attrs.header}</div>{vnode.attrs.button ? <FiftyButton>{vnode.attrs.button}</FiftyButton> : ''}</header>
   <div class={"card-container " + (vnode.attrs.containerClasses ? vnode.attrs.containerClasses : '')}>  
     { vnode.children }
   </div>

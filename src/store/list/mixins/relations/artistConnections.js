@@ -1,6 +1,8 @@
 // artistConnections.js
 import _ from 'lodash'
 
+var peakArtistPriLevelCache = {}
+
 export default (artistPriorities, artists, festivals) => { return  {
 	peakArtistPriLevel (artist) {
 		 return _.min(this.getFiltered(l => l.band === artist)
@@ -25,9 +27,16 @@ export default (artistPriorities, artists, festivals) => { return  {
 		artistLineups (artist) {return this.list
 			.filter(p => p.band === artist)
 		},
-		peakArtistPriLevel (artist) {return _.min(this.artistLineups(artist)
-			.map(l => artistPriorities.getLevel(l.priority))
-			.filter(l => l))
+		peakArtistPriLevel (artist) {
+			if(_.isEqual(this.meta, peakArtistPriLevelCache.meta) && peakArtistPriLevelCache[artist]) return peakArtistPriLevelCache[artist]
+			if(!_.isEqual(this.meta, peakArtistPriLevelCache.meta)) {
+				peakArtistPriLevelCache = {}
+				peakArtistPriLevelCache.meta = _.cloneDeep(this.meta)
+			}
+			peakArtistPriLevelCache[artist] = _.min(this.artistLineups(artist)
+				.map(l => artistPriorities.getLevel(l.priority))
+				.filter(l => l))
+			return peakArtistPriLevelCache[artist]
 		}, 
 		festivalsForArtist (artist) {return _.uniq(this.artistLineups(artist)
 			.map(p => p.festival))}, 
@@ -57,11 +66,13 @@ export default (artistPriorities, artists, festivals) => { return  {
 		//(or from all festivals if no ids supplied)
 		allPrioritiesDefaultFestivals (festIds) {return (festIds.length ? festivals.getMany(festIds) : festivals.list)
 			.filter(f => this.festHasLineup(f.id))
+			/*
 			.map(f => {
-				//console.log('allPrioritiesDefaultFestivals')
-				//console.log(f)
+				console.log('allPrioritiesDefaultFestivals')
+				console.log(f)
 				return f
 			})
+			*/
 			.filter(f => !this.forFestival(f.id)
 				//find if at least two different priorities are used
 				.reduce((found, lineup, i, arr) => {

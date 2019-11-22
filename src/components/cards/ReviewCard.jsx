@@ -12,12 +12,12 @@ const ReviewCard = vnode => {
 	var reviewing = false
 	var userId = 0
 	return {
-		oninit: () => {
+		oninit: ({attrs}) => {
 			userId = auth.userId()
 		},
 		//onupdate: () => console.log('ReviewCard Update'),
 	  view: ({ attrs }) =>
-	    <div class={"ft-card " + (attrs.uiClass ? attrs.uiClass : '')} >
+	    <div class={"ft-card ft-card-review " + (attrs.uiClass ? attrs.uiClass : '')} >
 	      <div class="ft-fields" onclick={e => reviewing = true}>
 	        <ComposedNameField fieldValue={'Review ' + (attrs.data && attrs.data.name || attrs.name)} />
 	      </div>
