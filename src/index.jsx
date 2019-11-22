@@ -11,9 +11,20 @@ import "./index.css";
 //import "./favicon.ico";
 
 import App from './components/layout/App.jsx';
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(
+
+    function(registrations) {
+
+        for(let registration of registrations) {  
+            registration.unregister();
+
+        }
+
+})
+}
 //window.isUpdateAvailable = new Promise(function(resolve, reject) {
   /*
-if ('serviceWorker' in navigator) {
 	let refreshing;
    // The event listener that is fired when the service worker updates
    // Here we reload the page
