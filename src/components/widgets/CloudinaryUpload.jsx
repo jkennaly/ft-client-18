@@ -1,4 +1,4 @@
-// CloudinaryUpload.jsx
+// src/components/widgets/CloudinaryUpload.jsx
 
 
 import m from 'mithril'

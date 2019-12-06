@@ -1,4 +1,4 @@
-// Launcher.jsx
+// src/components/layout/Launcher.jsx
 // Services
 
 
@@ -38,12 +38,13 @@ const patternChange = e => {
 	pattern = e.target.value
 	//console.log('ArtistSearchWidget pattern ' + pattern)
 }
+
 //console.log('Launcher running')
 let discoveryArtists = []
 const Launcher = {
 	name: 'Launcher',
 	oninit: ({attrs}) => {
-		attrs.titleSet(`FestiGram Launcher`, m.route.get())
+		if(attrs.titleSet) attrs.titleSet(`FestiGram Launcher`, m.route.get())
 		//console.log('Launcher init')
 	},
 	view: ({attrs}) => <div class="main-stage">

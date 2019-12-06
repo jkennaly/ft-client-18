@@ -16,7 +16,7 @@ const ToggleControl = vnode => {
     	type="checkbox"
     	onclick={e => {
     		e.stopPropagation()
-            if(!attrs.permission) return
+            if(!attrs.permission) return attrs.unauth ? attrs.unauth(m.route.get()) : undefined
     		attrs.setter(attrs.getter() ? 0 : 1)
     	}}
         checked={attrs.getter()}

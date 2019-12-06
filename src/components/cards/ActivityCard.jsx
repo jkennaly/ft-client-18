@@ -1,4 +1,4 @@
-// ActivityCard.jsx
+// src/components/cards/ActivityCard.jsx
 
 
 import m from 'mithril'
@@ -35,7 +35,17 @@ const comment = ({messageArray}) => {
     return c
 }
 
-
+const classes = ({messageArray, userId, discusser}) => {
+  const reviewMessage = messageArray.find(m => m.messageType !== 2)
+  const reviewId = _.get(reviewMessage, 'id')
+  const ownReview = userId && discusser === userId
+  const reviewUnread = reviewId && !ownReview && remoteData.MessagesMonitors.unread(reviewId)
+  //console.log('ActivityCard classes', userId, ownReview, reviewUnread, reviewMessage)
+  return `ft-card-large ${
+    ownReview ? 'ft-own-content' :
+    !reviewUnread ? 'ft-already-read' :
+  '' }`
+} 
 const ActivityCard = vnode => {
   var showLong = false
   
@@ -48,7 +58,13 @@ const ActivityCard = vnode => {
   }
   return {
     view: ({ attrs }) =>
-      <div class="ft-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick}>
+      <div 
+        class={classes(attrs)} 
+        onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick}
+      >
+      {
+        //console.log('ActivityCard discusser user', attrs.discusser, attrs.userId)
+      }
         {attrs.overlay === 'discuss' && attrs.discussSubject && attrs.messageArray ? <DiscussOverlay 
           discussSubject={attrs.discussSubject}
           messageArray={attrs.messageArray}
@@ -57,18 +73,20 @@ const ActivityCard = vnode => {
           fallbackClick={defaultClick}
         /> : ''}
         <div class="ft-vertical-fields ft-flex-grow">
-          {attrs.headline ? <div class="ft-horizontal-fields ft-card-above-overlay">
-            <span 
+          <div class="ft-horizontal-fields ft-card-above-overlay">
+            {attrs.headline ? <span 
               class="ft-card-title"
               onclick={attrs.headact ? attrs.headact : () => 0}
-              >{attrs.headline}</span>
-              <div class="quarter" onclick={e => {
+              >{attrs.headline}</span> : ''}
+              {attrs.discusser === attrs.userId || !remoteData.MessagesMonitors.unread(id(attrs)) ? '' : <div class="quarter" onclick={e => {
                 //console.log('quarter click') 
                 //console.log('MessagesMonitors length ' + remoteData.MessagesMonitors.list.length)
-                remoteData.MessagesMonitors.markRead(id(attrs))
+                if(attrs.discusser !== attrs.userId) remoteData.MessagesMonitors.markRead(id(attrs))
                 e.stopPropagation()
-              }}><i class="fas fa-times"/></div>
-            </div> : ''}
+              }}>
+              <i class="fas fa-times"/>
+            </div>}
+          </div>
           <div class="ft-horizontal-fields ft-flex-grow">
             <div class="ft-vertical-fields">
               <UserAvatarField data={attrs.discusser} />

@@ -27,7 +27,12 @@ module.exports = {
 	        //_: "lodash",
 	        cloudy: "cloudinary-core"
     	}),
-    	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+    	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+		new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css"
+    }),
+      new OptimizeCSSAssetsPlugin({})
 
 	],
 	output: {
@@ -58,7 +63,7 @@ module.exports = {
 			}
 		}, {
 			test: /\.css$/,
-			use: ['style-loader',
+			use: [MiniCssExtractPlugin.loader,
           'css-loader']
 		},
         {

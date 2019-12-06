@@ -1,4 +1,4 @@
-// GametimeBanner.jsx
+// src/components/gametime/GametimeBanner.jsx
 
 import m from 'mithril';
 

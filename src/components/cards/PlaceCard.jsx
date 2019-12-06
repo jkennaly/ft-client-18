@@ -1,6 +1,4 @@
-// PlaceCard.jsx
-// attrs:
-//	subjectObject
+// src/components/cards/PlaceCard.jsx
 
 import m from 'mithril'
 //import memoize from 'memoizee'

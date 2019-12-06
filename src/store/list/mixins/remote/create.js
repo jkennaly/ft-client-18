@@ -1,4 +1,4 @@
-// create.js
+// src/store/list/mixins/remote/create.js
 
 import _ from 'lodash'
 
@@ -10,6 +10,7 @@ export default {
 			//console.log('create ' + this.fieldName)
 			//console.log(data)
 			return provide(data, this.fieldName, '', end)
+				//.then(c => {console.log('create response', c); return c})
 				.then(created => {this.backfillList(_.isArray(created) ? created : [created]); return created})
 
 	}  

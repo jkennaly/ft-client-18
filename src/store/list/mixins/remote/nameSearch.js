@@ -1,4 +1,4 @@
-// store/list/mixins/remote/nameSearch.js
+// src/store/list/mixins/remote/nameSearch.js
 
 import _ from 'lodash'
 

@@ -31,6 +31,7 @@ import ScheduleLadder from '../../layout/ScheduleLadder.jsx'
 import WidgetContainer from '../../layout/WidgetContainer.jsx'
 
 import FixedCardWidget from '../../widgets/FixedCard.jsx'
+import LineupWidget from '../../widgets/canned/LineupWidget.jsx'
 
 import UIButton from '../../ui/UIButton.jsx';
 
@@ -117,26 +118,32 @@ const AssignTimes = {
 			/>
 		    {!dayId() || !stageId() ? '' : <div>
 		    	<WidgetContainer>	
+		    	<LineupWidget 
+		    		festivalId={festivalId()} 
+		    		tall={true}
+		    		clickFunctionForData={data => (e) => {
+					addSet = {
+						band: data.id,
+						day: dayId(),
+						stage: stageId()
+					}
+					schedulingSet = true
+					//feed data to schedule new set to modal
+					//feed data to eliminate this ArtistCard to new modal
+					//make modal visible
+				}} />
+					{/*
 					<FixedCardWidget header="Festival Lineup" quarter={true} containerClasses={'artist-pool'}>
 						{
 							artists.getMany(lineups.getFiltered(l => l.festival === festivalId()).map(x => x.band))
 								.sort((a, b) => a.name.localeCompare(b.name))
 								.map(data => <ArtistCard 
 									data={data}
-									clickFunction={() => {
-										addSet = {
-											band: data.id,
-											day: dayId(),
-											stage: stageId()
-										}
-										schedulingSet = true
-										//feed data to schedule new set to modal
-										//feed data to eliminate this ArtistCard to new modal
-										//make modal visible
-									}}
+									clickFunction={}
 								/>)
 						}
 					</FixedCardWidget>	
+					*/}
 					{ dayId() && stageId() ? <FixedCardWidget header="Day and Stage Lineup" quarter={true} containerClasses={'artist-pool'}>
 						{
 							dayAndStageUnscheduled(dayId(), stageId())
@@ -156,6 +163,7 @@ const AssignTimes = {
 					<ScheduleLadder>
 						{scheduledSets(dayId(), stageId())
 							.filter(data => data.end)
+							//.filter(x => console.log('scheduledSets', x) || true)
 							.map(data => <ScheduleSet 
 								set={data}
 								clickFunction={() => {
@@ -174,6 +182,7 @@ const AssignTimes = {
 						hide={() => schedulingSet = false}
 						action={(data, verb) => promise => promise
 							.then(result => {
+
 								m.redraw()
 								return result
 							})

@@ -1,4 +1,4 @@
-// NavCard.jsx
+// src/components/cards/NavCard.jsx
 
 import m from 'mithril'
 

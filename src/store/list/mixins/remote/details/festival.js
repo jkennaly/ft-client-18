@@ -1,4 +1,4 @@
-// festival.js
+// src/store/list/mixins/remote/details/festival.js
 
 
 

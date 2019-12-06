@@ -1,4 +1,4 @@
-// named.js
+// src/store/list/mixins/attributes/named.js
 import _ from 'lodash'
 
 export default {

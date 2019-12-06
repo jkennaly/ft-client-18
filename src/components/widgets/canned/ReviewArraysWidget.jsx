@@ -1,4 +1,4 @@
-// ReviewArraysWidget.jsx
+// src/components/widgets/canned/ReviewArraysWidget.jsx
 
 import m from 'mithril'
 

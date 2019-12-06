@@ -20,13 +20,21 @@ import {seriesChange, festivalChange} from '../../../store/action/event'
 const festivals = remoteData.Festivals
 const series = remoteData.Series
 
+var addingArtist = false
+
+var lineupIds = []
+var lastLineupIds = []
+var displayArtists = []
+var lastDisplayArtists = []
+
 const upload = festival => e => {
+	//console.log('SetLineup', festival, e)
     var file = e.target.files[0]
-    
+    lineupIds = []
     var data = new FormData()
     data.append("myfile", file)
 
-    remoteData.Lineups.upload(data, festival)
+    return remoteData.Lineups.upload(data, festival)
     	.then(() => festivals.subjectDetails({subject: festival, subjectType: FESTIVAL}))
 }
 
@@ -34,7 +42,7 @@ const entryFormHandler = (formDOM, festivalId) => {
 
 	const formData = new FormData(formDOM);
 	const newEntry = {};
-
+	lineupIds = []
 	Array.from(formData.entries()).map((entryValue) => {
 		const key = entryValue[0];
 		const value = entryValue[1];
@@ -86,7 +94,6 @@ const entryFormHandler = (formDOM, festivalId) => {
 const seriesId = () => parseInt(m.route.param('seriesId'), 10)
 const festivalId = () => parseInt(m.route.param('festivalId'), 10)
 
-var addingArtist = false
 const SetLineup = {
 	name: 'SetLineup',
 		preload: (rParams) => {
@@ -96,7 +103,7 @@ const SetLineup = {
 			const festivalId = parseInt(rParams.festivalId, 10)
 			//console.log('preload SetLineup', seriesId, festivalId, rParams)
 			if(festivalId) return Promise.all([
-
+				remoteData.ArtistPriorities.remoteCheck(),
 				festivalId ? festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL}) : '',
 				seriesId ? series.subjectDetails({subject: seriesId, subjectType: SERIES}) : ''
 				]) 
@@ -107,7 +114,21 @@ const SetLineup = {
 
 
 			if (attrs.titleSet) attrs.titleSet(`Artist Lineup`)
+			//map each artist in the festival lineup
+			lineupIds = remoteData.Lineups.getFestivalArtistIds(festivalId()).sort((a, b) => a - b)
+			displayArtists = remoteData.Artists.getMany(lineupIds)
 		},
+	
+	onbeforeupdate: () => {
+		lastLineupIds = lineupIds
+		lineupIds = remoteData.Lineups.getFestivalArtistIds(festivalId()).sort((a, b) => a - b)
+		lastDisplayArtists = displayArtists
+		displayArtists = remoteData.Artists.getMany(lineupIds)
+		const sameLineup = _.isEqual(lastDisplayArtists, displayArtists)
+		//console.log('update set lineup', sameLineup, lastLineupIds, lineupIds)
+		return !sameLineup
+	},
+	
 		view: () => <div class="main-stage">
 		{
 			//console.log('view SetLineup', seriesId(), festivalId())
@@ -134,30 +155,28 @@ const SetLineup = {
 			    				.map(h =>  <th>{h.name}</th>)
 			    		}<th class="delete-column">Remove from Lineup</th></tr>
 				    	{
-				    		//map each artist in the festival lineup
-				    		remoteData.Artists.getMany(remoteData.Lineups.getFestivalArtistIds(
-								festivalId()))
-								.sort((a, b) => {
-									const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId())
-									const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId())
-									if(aPriId === bPriId) return a.name.localeCompare(b.name)
-									const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
-									const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
-									return aPriLevel - bPriLevel
-								})
-								.map(data => <tr><td>{data.name}</td>
-									{remoteData.ArtistPriorities.list
-										.sort((a, b) => a.level - b.level)
-										.map(h => <td><input 
-											type="radio" 
-											name={"radio-" + data.id}
-											value={'radio-' + data.id + '-' + h.id} 
-											checked={h.id === remoteData.Lineups.getPriFromArtistFest(data.id, festivalId())}/>
-								</td>)}<td><input 
-											type="radio" 
-											name={"radio-" + data.id}
-											value={'delete-' + data.id} />
-								</td></tr>)
+				    		displayArtists
+				.sort((a, b) => {
+					const aPriId = remoteData.Lineups.getPriFromArtistFest(a.id, festivalId())
+					const bPriId = remoteData.Lineups.getPriFromArtistFest(b.id, festivalId())
+					if(aPriId === bPriId) return a.name.localeCompare(b.name)
+					const aPriLevel = remoteData.ArtistPriorities.getLevel(aPriId)
+					const bPriLevel = remoteData.ArtistPriorities.getLevel(bPriId)
+					return aPriLevel - bPriLevel
+				})
+				.map(data => <tr><td>{data.name}</td>
+					{remoteData.ArtistPriorities.list
+						.sort((a, b) => a.level - b.level)
+						.map(h => <td><input 
+							type="radio" 
+							name={"radio-" + data.id}
+							value={'radio-' + data.id + '-' + h.id} 
+							checked={h.id === remoteData.Lineups.getPriFromArtistFest(data.id, festivalId()) ? 'checked' : ''}/>
+				</td>)}<td><input 
+							type="radio" 
+							name={"radio-" + data.id}
+							value={'delete-' + data.id} />
+				</td></tr>)
 				    	}
 			    	</table></form>
 					<ArtistEntryModal 

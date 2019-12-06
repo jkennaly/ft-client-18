@@ -4,6 +4,8 @@ import DataList from '../DataList'
 
 function ImageList(opt = {fieldName: 'Images'}) {
   DataList.call(this, opt)
+  this.subjectType = 12
+  this.idField = 'image'
 }
 
 

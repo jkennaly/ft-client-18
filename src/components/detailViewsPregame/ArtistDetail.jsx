@@ -19,44 +19,56 @@ import AdminWidget from '../../components/widgets/Admin.jsx';
 
 import CloudImageField from '../../components/fields/CloudImageField.jsx';
 
-import DiscussModal from '../modals/DiscussModal.jsx';
 
 import {remoteData} from '../../store/data';
 
 const artists = remoteData.Artists
 const messages = remoteData.Messages
+const messagesMonitors = remoteData.MessagesMonitors
 
 const id = () => parseInt(m.route.param('id'), 10)
-const artist = _.memoize((id) => artists.get(id))
+const artist = (id) => artists.get(id)
 
-const ArtistDetail = (vnode) => { 
-	var discussing = false
-	var subjectObject = {}
-	var messageArray = []
-	return {
+const ArtistDetail = {
 		preload: (rParams) => {
 			//if a promise returned, instantiation of component held for completion
 			//route may not be resolved; use rParams and not m.route.param
 			const artistId = parseInt(rParams.id, 10)
+			messagesMonitors.remoteCheck(true)
 			//messages.forArtist(artistId)
 			//console.log('Research preload', seriesId, festivalId, rParams)
 			if(artistId) return artists.subjectDetails({subject: artistId, subjectType: ARTIST})
 		},
 		oninit: ({attrs}) => {
+			//console.log('ArtistDetail init')
 			if (attrs.titleSet) attrs.titleSet(artist(id()) ? artist(id()).name : '')
 
 		},
+	oncreate: ({dom}) => {
+		const height = dom.clientHeight
+		//console.log('ArtistDetail DOM height', height)
+		const scroller = dom.querySelector('.ft-widget-container')
+		scroller.style['height'] = `${height - 270}px`
+		scroller.style['flex-grow'] = 0
+
+	},
 		view: ({attrs}) => <div class="main-stage">
 
 			<WidgetContainer>
 			
 				<FixedCardWidget >
-					<CloudImageField subjectType={2} subject={id()} sources={['url']} />
+					<CloudImageField 
+						userId={attrs.userId} 
+						subjectType={2} 
+						subject={id()} 
+						sources={['url']} 
+						popModal={attrs.popModal}
+					/>
 				</FixedCardWidget>
 		
 				{artist(id()) ? <FixedCardWidget header="Listen & Review" >
 					<SpotifyCard fieldValue={artist(id()).name} />
-					<ReviewCard type="artist" data={artist(id())} />
+					<ReviewCard type="artist" data={artist(id())} popModal={attrs.popModal} />
 				</FixedCardWidget> : ''}
 				{_.isArray(attrs.userRoles) && attrs.userRoles.includes('admin') ? <AdminWidget header="Artist Admin">
 					<NavCard fieldValue="Fix Artist Names" action={() => m.route.set("/artists/pregame/fix/" + id())}/>
@@ -70,27 +82,20 @@ const ArtistDetail = (vnode) => {
 				</FixedCardWidget>
 				{
 					//find each message about this artist(id()) and order by user
-					_.map(messages.forArtistReviewCard(id()),
+					_.map(messages.getFiltered({subjectType: ARTIST, subject: id(), messageType: COMMENT}),
 						me => <DiscussionWidget 
-							messageArray={me} 
-							discussSubject={(s, me) => {
-								subjectObject = _.clone(s)
-								messageArray = _.clone(me)
-								//console.log('ArtistDetail ArtistReviewCard discussSubject me length ' + me.length)
-								discussing = true
-							}}
+							messageArray={[me]} 
+							userId={attrs.userId}
+							popModal={attrs.popModal} 
+							discussSubject={(so, me) => attrs.popModal('discuss', {
+								messageArray: me,
+								subjectObject: so,
+								reviewer: me[0].fromuser
+							})}
 						/>
 					)
 				}
 			</WidgetContainer>
-			{messageArray.length && _.isInteger(attrs.userId) && attrs.userId ? <DiscussModal
-				display={discussing} 
-				hide={sub => {discussing = false;}}
-				subject={subjectObject}
-				messageArray={messageArray}
-				reviewer={messageArray[0].fromuser}
-				user={_.isInteger(attrs.userId) ? attrs.userId : 0}
-			/> : ''}
 		</div>
-}}
+}
 export default ArtistDetail;

@@ -1,4 +1,4 @@
-// ResearchWidget.jsx
+// src/components/widgets/canned/ResearchWidget.jsx
 
 //given a list of bands to research, this widget 
 //filters out unneded ones, sorts the rest and displays artist cards
@@ -12,7 +12,6 @@ import smartSearch from 'smart-search'
 import ArtistCard from '../../../components/cards/ArtistCard.jsx';
 import SearchCard from '../../../components/cards/SearchCard.jsx';
 import FixedCardWidget from '../FixedCard.jsx';
-import  ReviewModal from '../../modals/ReviewModal.jsx';
 import BannerButton from '../../ui/BannerButton.jsx';
 import {remoteData} from '../../../store/data';
 
@@ -27,8 +26,6 @@ const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 }
 
 const ResearchWidget = vnode => {
-	var reviewing = false
-	var subjectObject = {}
 	var removed = []
 	let pattern;
 	const patternChange = e => {
@@ -46,12 +43,6 @@ const ResearchWidget = vnode => {
 			/>}
 
 		>
-			<ReviewModal 
-				display={reviewing} 
-				hide={sub => {if(sub) removed.push(sub.sub);reviewing = false;}}
-				subject={subjectObject}
-				user={vnode.attrs.userId}
-		    />
 			<SearchCard patternChange={patternChange} />
 
 			{
@@ -66,7 +57,9 @@ const ResearchWidget = vnode => {
 						data={data}
 						festivalId={vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param("id"), 10)}
 						overlay={'research'}
-						reviewSubject={s => {subjectObject = _.clone(s); reviewing = true;}}
+						reviewSubject={(so) => vnode.attrs.popModal('review', {
+							subjectObject: so
+						})}
 					/>)
 			}
 		</FixedCardWidget>	

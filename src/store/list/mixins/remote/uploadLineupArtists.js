@@ -1,15 +1,17 @@
-// uploadLineupArtists.js
+// src/store/list/mixins/remote/uploadLineupArtists.js
 
 import provide from '../../../loading/provide'
 
 export default (artists) => {return {
 	upload (data, festivalId) { 
 		const end = `/api/Artists/festivalLineup/${festivalId}`
-			//console.log('upload artists', data, ...data.keys(), ...data.values())
-			//console.log()
-			return provide(data, this.fieldName, '', end)
-				.then(() => artists.remoteCheck(true))
-				.then(() => this.remoteCheck(true))
+		console.log('upload artists', data, ...data.keys(), ...data.values())
+		
+		return provide(data, this.fieldName, '', end, undefined, undefined, {form: true})
+			//.then(c => {console.log('upload response', c); return c})
+			.catch(console.error)
+			.then(() => this.acquireListSupplement('filter=' + JSON.stringify({where: {festival: festivalId}})))
+			.then(() => Promise.all(this.getFiltered({festival: festivalId}).map(x => x.band).map(id => artists.getLocalPromise(id))))
 	},
 	addArtist (data, festivalId) {
 		const end = '/api/Artists/addToLineup/' + festivalId
@@ -27,7 +29,7 @@ export default (artists) => {return {
 				return artistData
 			})
 			//.then(logResult)
-				.then(() => artists.remoteCheck(true))
-				.then(() => this.remoteCheck(true))
+			.then(() => artists.remoteCheck(true))
+			.then(() => this.remoteCheck(true))
 	}
 }}

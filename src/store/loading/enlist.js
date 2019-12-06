@@ -1,4 +1,4 @@
-// enlist.js
+// src/store/loading/enlist.js
 
 import _ from 'lodash'
 import localforage from 'localforage'

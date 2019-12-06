@@ -1,4 +1,4 @@
-// event.js
+// src/store/list/mixins/event/event.js
 
 const sortNamesWithIdsByName = ([aName, aId], [bName, bId]) => aName.localeCompare(bName)
 

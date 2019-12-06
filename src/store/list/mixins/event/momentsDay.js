@@ -1,4 +1,4 @@
-// momentsDay.js
+// src/store/list/mixins/event/momentsDay.js
 import _ from 'lodash'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
@@ -10,8 +10,8 @@ export default (dates) => { return  {
 		const day = this.get(id)
 		if(!day) throw new Error('day.getBaseMoment nonexistent day ' + id)
 		const superMoment = dates.getBaseMoment(this.getSuperId(id))
-
-		return moment(superMoment.add(this.get(id).daysOffset, 'days'))
+		//console.log(`days.getBaseMoment`, superMoment)
+		return superMoment.add(day.daysOffset, 'days')
 	},
 	getStartMoment (id) {
 		
@@ -19,5 +19,16 @@ export default (dates) => { return  {
 	},
 	getEndMoment (id) {
 		return this.getBaseMoment(id).add(1, 'days')
+	},
+	active (id) {
+		//console.log(this, id)
+		try {
+			const s = this.getStartMoment(id)
+			const e = this.getEndMoment(id)
+			return  moment().isBetween(s, e)
+		}
+		catch {
+			return false
+		}
 	}
 }}

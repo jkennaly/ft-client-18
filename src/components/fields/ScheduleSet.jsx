@@ -16,13 +16,12 @@ const ScheduleSet = (vnode) => {
 let baseMoment, startMoment, endMoment
 
   const initDom = vnode => {
-    //console.log('ScheduleSet')
-    //console.log(vnode.attrs.set.start)
+    //console.log('ScheduleSet', vnode.attrs.set)
     //console.log(vnode.dom.style.bottom)
     const reference = !vnode.attrs.bottom ? 'top' : 'bottom'
     vnode.dom.style[reference] = '' + (vnode.attrs.set.start - (vnode.attrs.startOffset ? vnode.attrs.startOffset: 0)) +'px'
     vnode.dom.style.height = '' + (vnode.attrs.set.end - vnode.attrs.set.start) +'px'
-    const feelingClass = subjectData.feelingClass({subject: vnode.attrs.set.id, subjectType: subjectData.SET})
+    const feelingClass = subjectData.feelingClass({subject: vnode.attrs.set.id, subjectType: SET})
     if(feelingClass) vnode.dom.classList.add(feelingClass)
     //console.log(vnode.dom.style.bottom)
   }

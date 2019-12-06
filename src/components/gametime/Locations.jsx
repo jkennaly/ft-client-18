@@ -1,4 +1,4 @@
-// Locations.jsx
+// src/components/gametime/Locations.jsx
 
 import m from 'mithril'
 import _ from 'lodash'

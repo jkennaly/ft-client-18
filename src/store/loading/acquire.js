@@ -1,4 +1,4 @@
-// acquire.js
+// src/store/loading/acquire.js
 
 import m from 'mithril'
 import _ from 'lodash'

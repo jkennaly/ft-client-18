@@ -1,4 +1,4 @@
-// Admin.jsx
+// src/components/layout/Admin.jsx
 // Services
 import Auth from '../../services/auth.js';
 const auth = new Auth();
@@ -81,11 +81,17 @@ const Admin = {
 
 		if (attrs.titleSet) attrs.titleSet(`FestiGram Admin`)
 		},
+	oncreate: ({dom}) => {
+		const height = dom.clientHeight
+		//console.log('ArtistDetail DOM height', height)
+		const scroller = dom.querySelector('.ft-widget-container')
+		scroller.style['height'] = `${height - 270}px`
+		scroller.style['flex-grow'] = 0
+
+	},
 	view: () => <div class="main-stage">
-	
 		<div class="main-stage-content">
 			<WidgetContainer>
-
 				<FixedCardWidget header="Create Festivals" tall={true}>
 					<SeriesCard eventId="new"/>
 					<FestivalCard eventId="new"/>

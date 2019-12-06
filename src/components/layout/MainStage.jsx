@@ -1,4 +1,4 @@
-// MainStage.jsx
+// src/components/layout/MainStage.jsx
 
 import m from 'mithril'
 

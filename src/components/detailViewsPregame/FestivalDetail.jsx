@@ -59,8 +59,8 @@ const FestivalDetail = {
 
 				<WidgetContainer>
 					<LineupWidget festivalId={id()} />
-					<ActivityWidget festivalId={id()} userId={user(attrs)} />
-					<ResearchWidget list={[]} userId={user(attrs)} />
+					<ActivityWidget festivalId={id()} userId={attrs.userId} popModal={attrs.popModal} />
+					<ResearchWidget list={[]} userId={attrs.userId} popModal={attrs.popModal} />
 					<FixedCardWidget header="Related Events">
 						{(remoteData.Dates.getMany(
 							festivals.getSubIds(id()))

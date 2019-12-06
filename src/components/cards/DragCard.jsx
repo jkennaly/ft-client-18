@@ -1,4 +1,4 @@
-// DragCard.jsx
+// src/components/cards/DragCard.jsx
 
 import m from 'mithril'
 

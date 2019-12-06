@@ -7,23 +7,26 @@ import _ from 'lodash'
 // change selections
 import UIButton from '../ui/UIButton.jsx';
 
-const classes = attrs => 'modal ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
 var textValue = ''
 const TextEntryModal = {
 	view: ({attrs}) => <div class={classes(attrs)}>
-        <div class="modal-content">
+        <div class="ft-modal-content">
             <div>{attrs.prompt}</div>
+            <div>{attrs.textInsert}</div>
             <input type="text" onchange={e => textValue = e.target.value}/>
             <UIButton action={e => {
                 attrs.hide()
+                if(attrs.cancelAction) attrs.cancelAction(textValue)
 
-            }} buttonName="Cancel" />
+
+            }} buttonName={attrs.cancelText ? attrs.cancelText : "Cancel"} />
             <UIButton action={e => {
                 attrs.hide()
                 attrs.action(textValue)
-            }} buttonName="Accept" />
+            }} buttonName={attrs.actionText ? attrs.actionText : "Accept"} />
         </div>
     </div>
-};
+}
 
-export default TextEntryModal;
+export default TextEntryModal

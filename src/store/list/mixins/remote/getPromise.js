@@ -1,4 +1,4 @@
-// getPromise.js
+// src/store/list/mixins/remote/getPromise.js
 
 
 
@@ -16,7 +16,8 @@ export default {
 		const end = `/api/${this.fieldName}/${id}`
 		//for each subject Type, collect detail information
 
-		return this.acquireListUpdate('', end)
+		return this.acquireListSupplement(`filter=${JSON.stringify({where: {id: id}})}`)
+		/*
 			.then(upd => {
 				if(!this.secDataPromise) return upd
 				return this.secDataPromise()
@@ -26,10 +27,11 @@ export default {
 				console.error(err)
 				return false
 			})
+			*/
 			.then(upd => {
-				if(!upd && this.fieldName !== 'Profiles') throw new Error(`no instance found ${this.fieldName} id:${id} ${typeof id}`)
 				const get = this.get(id)
-				if(!get && this.fieldName !== 'Profiles') throw new Error(`no instance loaded ${this.fieldName} id:${id} ${typeof id} first:`, this.list[0])
+				if(!get && !upd && this.fieldName !== 'Profiles') throw new Error(`no instance found ${this.fieldName} id:${id} ${typeof id}`)
+				//if(!get && this.fieldName !== 'Profiles') throw new Error(`no instance loaded ${this.fieldName} id:${id} ${typeof id} first:`, this.list[0])
 				return get ? get : {}
 			})
 			.catch(err => {

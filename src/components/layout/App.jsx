@@ -1,7 +1,15 @@
-// App.jsx
+// src/components/layout/App.jsx
 
 import m from 'mithril'
 import _ from 'lodash'
+
+import { dom, config, library } from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+config.autoReplaceSvg = true
+config.observeMutations = true
+library.add(fas)
+
+
 import { remoteData } from "../../store/data";
 
 import MainStage from './MainStage.jsx';
@@ -13,17 +21,13 @@ import Research from './Research.jsx';
 import Messages from './Messages.jsx';
 import Admin from './Admin.jsx';
 import Discussion from './Discussion.jsx';
+import ModalBox from '../modals/ModalBox.jsx';
 import Gametime from '../../components/gametime/Gametime.jsx';
 // Components
 import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import ConfirmLogout from '../../components/layout/ConfirmLogout.jsx';
 import SeriesView from '../../components/cardViews/SeriesView.jsx';
-import SetView from '../../components/cardViews/SetView.jsx';
-import DateView from '../../components/cardViews/DateView.jsx';
-import DayView from '../../components/cardViews/DayView.jsx';
-import FestivalView from '../../components/cardViews/FestivalView.jsx';
-import ArtistView from '../../components/cardViews/ArtistView.jsx';
 import UIButton from '../../components/ui/UIButton.jsx';
 
 import SeriesDetail from '../../components/detailViewsPregame/SeriesDetail.jsx';
@@ -48,6 +52,7 @@ import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 import Auth from '../../services/auth.js';
 const auth = new Auth();
 
+
 const WelcomeView = ({attrs}) => [
 	<h1 class="app-title">FestiGram</h1>,
 	<h2 class="app-greeting">Welcome</h2>,
@@ -67,7 +72,7 @@ const forceLoginRoute = err => {
 const rawUserData = status => status ? Promise.all([
 	auth.getFtUserId(),
 	auth.getRoles()
-	]) : [0, []]
+	]).then(([u, r]) => [_.isNumber(u) ? u : 0, _.isArray(r) ? r : []]) : [0, []]
 
 var titleCache = {}
 const title = (attrs) => {
@@ -93,12 +98,27 @@ const authorize = (rawUserPromise, resolveComponent, rejectComponent) => (rParam
 			if(resolveComponent.preload) return Promise.all([resolveComponent.preload(rParams)])
 				.catch(err => {
 					console.error('init fail', rParams)
-					return m(Launcher)
+			
 				})
 		},
-		view: () => {
+		view: ({attrs}) => {
 		//console.log(`component resolving`, userDataRaw, resolveComponent)
-			return m(resolveComponent, {titleSet: bannerTitle, userId: userDataRaw[0], userRoles: userDataRaw[1]})
+			const attrIds = _.reduce(attrs, (passing, v, k) => {
+				const kOk = /^id$/.test(k) || /Id$/.test(k) || /^subject/.test(k)
+				const useV = kOk && (_.isInteger(v) || /^\d+$/.test(v))
+				passing[k] = _.isInteger(v) ? v : _.toInteger(v)
+				return passing
+			} , {
+				titleSet: bannerTitle, 
+				userId: userDataRaw[0], 
+				userRoles: userDataRaw[1],
+				popModal: (...popRequestArgs) => {
+					if(!userDataRaw[1].includes('user')) return auth.login(m.route.get())
+					return ModalBox.popRequest(...popRequestArgs)
+				},
+				filter: attrs.filter
+			})
+			return [m(ModalBox), m(resolveComponent, attrIds)]
 		}
 	}})
 	.catch(err => {
@@ -110,12 +130,19 @@ var lastUser = [0, []]
 
 var rawUserPromise = auth.isAuthenticated()		
 	.then(rawUserData)
+	.then(acb => {
+		remoteData.Flags.remoteCheck()
+		remoteData.Intentions.remoteCheck()
+		return acb
+	})
 	.catch(err => [0, []])
 	.then(user => lastUser = user)
 const App = {
 	name: 'App',
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector("#main-stage");
+		//font awesome watching for icons to rpelace
+		dom.watch({autoReplaceSvgRoot: vnode.dom, observeMutationsRoot:vnode.dom})
 /*
         var hashStr = window.location.hash;
         hashStr = hashStr.replace(/^#?\/?/, '');
@@ -124,7 +151,6 @@ const App = {
 //console.log('app running 1')
 //console.log('app running 2')
 		
-
 		m.route(mainStage, "/launcher", {
 			"/auth": {
 				render: WelcomeView
@@ -144,26 +170,52 @@ const App = {
         			const handling = /code/.test(query) && /state/.test(query)
 
         			if(!handling) return m.route.set('/launcher')
+        			localStorage.clear()
         			return auth.handleAuthentication()
         		/*
         		.then(x => {
         			console.log('auth callback', x)
         			return x
         		})
-*/						
+				*/						
 						.then(acb => {
-							console.log(`callback new raw promise`)
+							//console.log(`callback new raw promise`)
 							rawUserPromise = auth.isAuthenticated()		
 								.then(rawUserData)
-								.catch(err => [0, []])
+								//.then(udr => [console.log(`callback new raw promise`, udr), udr][1])
+								.catch(err => [0, []] )
 								.then(user => lastUser = user)
+							remoteData.Flags.remoteCheck()
+							remoteData.Intentions.remoteCheck()
 							return acb
 						})
         				.then(acb => m.route.set(acb && acb.appState && acb.appState.route ? acb.appState.route : '/launcher', ))
         				//.then(() => m.redraw())
-
 				}
-
+			},
+			"/:mode/subject/:subjectType/:subject": {
+				onmatch: (rParams) => {
+					//console.log('pregame subject', rParams)
+					const nextParams = _.omit(rParams, ['mode', 'subjectType', 'subject'])
+					if(rParams.subjectType === `${ARTIST}`) return m.route
+						.set(`/artists/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${SERIES}`) return m.route
+						.set(`/series/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${FESTIVAL}`) return m.route.
+						set(`/fests/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${DATE}`) return m.route
+						.set(`/dates/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${DAY}` && rParams.mode === `pregame`) return m.route
+						.set(`/days/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${DAY}` && rParams.mode === `gametime`) return m.route
+						.set(`/gametime/${subjectType}/${subject}`, nextParams)
+					if(rParams.subjectType === `${SET}` && rParams.mode === `pregame`) return m.route
+						.set(`/artists/pregame/${_.get(
+							remoteData.Sets.get(_.toInteger(rParams.subject)), 'band'
+						)}`, nextParams)
+					if(rParams.subjectType === `${SET}` && rParams.mode === `gametime`) return m.route
+						.set(`/gametime/${subjectType}/${subject}`, nextParams)
+				}
 			},
 			"/research": {
 				onmatch: authorize(rawUserPromise, Research, Launcher)
@@ -178,27 +230,27 @@ const App = {
 
 			},
 			"/messages": {
-				onmatch: Messages
-
+				onmatch: authorize(rawUserPromise, Messages, Launcher)
+			},
+			"/messages/:filter": {
+				onmatch: authorize(rawUserPromise, Messages, Launcher)
 			},
 			"/gametime/locations/:subjectType/:subject": {
-				onmatch: Gametime
+				onmatch: authorize(rawUserPromise, Gametime, Launcher)
 
 			},
 			"/gametime/:subjectType/:subject": {
-				onmatch: Gametime
+				onmatch: authorize(rawUserPromise, Gametime, Launcher)
 
 			},
 			"/admin": {
 				onmatch: authorize(rawUserPromise, Admin, Launcher)
-
 			},
 			"/discussion/:messageId": {
 				onmatch: () =>
 					auth.getAccessToken()
 						.then(Discussion)
 						.catch(forceLoginRoute)
-
 			},
 			"/manage/pregame": {
 				onmatch: () => auth.getAccessToken()		
@@ -213,27 +265,6 @@ const App = {
 						console.error(err)
 					})
 			},
-			"/social/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
-			},
-			"/users/pregame": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => FestivalView(auth))
-						.catch(forceLoginRoute)
-			},
-			"/artists/pregame": {
-				onmatch: ArtistView
-			},
-			"/fests/pregame": {
-				onmatch: FestivalView
-			},
-			"/dates/pregame": {
-				onmatch: authorize(rawUserPromise, DateView, DateView) 
-			},
 			"/series/pregame": {
 				onmatch: (routing) => {
 
@@ -241,9 +272,6 @@ const App = {
 
 					return authorize(rawUserPromise, SeriesView, SeriesView) (routing)
 				}
-			},
-			"/sets/pregame": {
-				onmatch: SetView
 			},
 			"/stages/pregame": {
 				onmatch: () => auth.isAuthenticated()		
@@ -300,23 +328,28 @@ const App = {
 			"/artists/pregame/:id": {
 			 	onmatch: (routing) => {
 
-					remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
+					//remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
 
 					return authorize(rawUserPromise, ArtistDetail, ArtistDetail) (routing)
 				}
 				 
 			},
 			"/fests/pregame/new/:seriesId": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateFestival(auth))
-						.catch(forceLoginRoute)
+				onmatch:(routing) => {
+
+					remoteData.Festivals.remoteCheck(true)
+					remoteData.Series.remoteCheck(true)
+
+					return authorize(rawUserPromise, CreateFestival, Launcher) (routing)
+				}
 			},
 			"/fests/pregame/new": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateFestival(auth))
-						.catch(forceLoginRoute)
+				onmatch:(routing) => {
+
+					
+
+					return authorize(rawUserPromise, CreateFestival, Launcher) (routing)
+				}
 			},
 			"/fests/pregame/:id": {
 				onmatch:(routing) => {
@@ -363,18 +396,7 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/themer/schedule": {
-				onmatch: () =>
-					auth.getAccessToken()		
-					.then(() => Promise.all([
-						auth.getFtUserId(),
-						auth.getRoles()
-					]))
-					.catch(err => {
-						console.error(err)
-						return [0, []]
-					})
-					.then(userDataRaw => m(ScheduleThemer, {userId: userDataRaw[0], userRoles: userDataRaw[1]}))
-					.catch(console.error)
+				onmatch: authorize(rawUserPromise, ScheduleThemer, ScheduleThemer)
 			}
 		});
 		
@@ -382,11 +404,11 @@ const App = {
 	},
 	view: ({ children }) =>
 		<div class="App">
-			<LauncherBanner 
+			{/gametime/.test(m.route.get()) ? '' : <LauncherBanner 
 				userId={lastUser[0]}
 				userRoles={lastUser[1]}
 				titleGet={bannerTitle}
-			/>
+			/>}
 			<div id="main-stage">
 				{children}
 			</div>

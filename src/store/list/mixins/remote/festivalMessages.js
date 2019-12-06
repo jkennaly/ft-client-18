@@ -1,4 +1,4 @@
-// festivalMessages.js
+// src/store/list/mixins/remote/festivalMessages.js
 
 
 import _ from 'lodash'
@@ -54,6 +54,5 @@ export default {
 					console.log('this loadForArtist Promise.all')
 					console.error(err)
 				})
-
 		}
 }

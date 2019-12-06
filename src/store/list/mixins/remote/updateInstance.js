@@ -1,4 +1,4 @@
-// updateInstance.js
+// src/store/list/mixins/remote/updateInstance.js
 
 import _ from 'lodash'
 

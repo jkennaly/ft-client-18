@@ -1,4 +1,4 @@
-// date.js
+// src/store/list/mixins/remote/details/date.js
 
 
 
@@ -27,11 +27,12 @@ export default ({artists, days, sets, messages, series, festivals, venues, place
 		if(updateTimeElapsed < 5 * 60 * 1000) return Promise.resolve(updated)
 		_.set(lastUpdate, key, Date.now())
 
-		return this.getPromise(so.subject)
+		return this.getLocalPromise(so.subject)
 			.then(subjectData => {
 				series.remoteCheck(true)
 				festivals.remoteCheck(true)
 				venues.remoteCheck(true)
+				intentions.remoteCheck(true)
 
 				//lineups
 				const lineEnd = `/api/Lineups`

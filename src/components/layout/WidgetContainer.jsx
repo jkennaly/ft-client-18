@@ -1,11 +1,11 @@
-// WidgetContainer.jsx
+// src/components/layout/WidgetContainer.jsx
 
 import m from 'mithril'
 
 const WidgetContainer = {
   view: ({ children }) => {
     return (
-      <div class="widget-container">
+      <div class="ft-widget-container">
         {children}
       </div>
     )

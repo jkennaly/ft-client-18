@@ -1,4 +1,4 @@
-// SearchCard.jsx
+// src/components/cards/SearchCard.jsx
 
 import m from 'mithril'
 

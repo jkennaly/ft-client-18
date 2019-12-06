@@ -5,8 +5,11 @@ import _ from 'lodash'
 import m from 'mithril'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
+
 import {unionLocalList, calcMeta, defaultMeta, combineMetas, metaQuivalent} from '../../services/localData.js'
 import {updateModel, coreChecked} from '../loading/acquire'
+import provide from '../loading/provide'
+import archive from '../loading/archive'
 import {getList} from '../loading/enlist'
 //A DataList object contains the minimum to interact with the festivaltime api
 
@@ -33,13 +36,40 @@ DataList.prototype.getMeta = function() {
 	return _.clone(this.meta)
 }
 
+DataList.prototype.get = function(id) {
+	if(!this) throw new Error("Invalid DataList call get")
+	return this.list.find(o => o.id === parseInt(id, 10))
+}
+
+DataList.prototype.getMany = function(ids) {
+	if(!this) throw new Error("Invalid DataList call getMany")
+	if(!_.isArray(ids)) throw new Error(`Invalid ids ${ids} supplied to getMany for ${this.fieldName}`)
+	return this.list.filter(o => ids.includes(o.id))
+}
+
 DataList.prototype.replaceList = function(data) {
 	if(!this) throw new Error("Invalid DataList call replaceList")
 	const list = _.isArray(data) ? data : []
-	this.setMeta(calcMeta(list))
-	this.list = _.clone(list).filter(m => !m.deleted)
+	const newMeta = calcMeta(list)
+	const dataChange = list.some(li => {
+		const cv = this.get(li.id)
+		const alreadyDeleted = li.deleted && !cv
+		const same = alreadyDeleted || _.eq(cv, li)
+		//console.log('replaceList li', li, cv, alreadyDeleted, same)
+		return !same
+	}) || this.list.some(li => {
+		const cv = list.find(l => l.id === li.id)
+		const same =  _.eq(cv, li)
+		//console.log('replaceList li', li, cv, alreadyDeleted, same)
+		return !same
+	})
 	this.lastRemoteLoad = Date.now()
 	this.lastRemoteCheck = Date.now()
+	if(!dataChange) return list
+
+
+	this.setMeta(newMeta)
+	this.list = _.clone(list).filter(m => !m.deleted)
 	m.redraw()
 	return list
 }
@@ -47,10 +77,18 @@ DataList.prototype.replaceList = function(data) {
 DataList.prototype.backfillList = function(list, localEntry = false) {
 	if(!this) throw new Error("Invalid DataList call backfillList")
 	if(!_.isArray(list)) throw new Error("Invalid list backfill")
-	this.list = _.unionBy(list, this.list, 'id').filter(m => !m.deleted)
-	this.setMeta(calcMeta(this.list))
+	const changed = li => {
+		const cv = this.get(li.id)
+		const alreadyDeleted = li.deleted && !cv
+		const same = alreadyDeleted || _.eq(cv, li)
+		return !same
+	}
+	const dataChange = list.some(changed)
 	this.lastRemoteLoad = localEntry ? this.lastRemoteLoad : Date.now()
 	this.lastRemoteCheck = localEntry ? this.lastRemoteCheck : Date.now()
+	if(!dataChange) return list
+	this.list = _.unionBy(list.filter(changed), this.list, 'id').filter(m => !m.deleted)
+	this.setMeta(calcMeta(this.list))
 	m.redraw()
 	return list
 }
@@ -64,16 +102,6 @@ DataList.prototype.clear = function() {
 	return true
 }
 
-DataList.prototype.get = function(id) {
-	if(!this) throw new Error("Invalid DataList call get")
-	return this.list.find(o => o.id === parseInt(id, 10))
-}
-
-DataList.prototype.getMany = function(ids) {
-	if(!this) throw new Error("Invalid DataList call getMany")
-	if(!_.isArray(ids)) throw new Error(`Invalid ids ${ids} supplied to getMany for ${this.fieldName}`)
-	return this.list.filter(o => ids.includes(o.id))
-}
 
 DataList.prototype.dataCurrent = function() {
 	if(!this) throw new Error("Invalid DataList call dataCurrent")
@@ -110,6 +138,51 @@ DataList.prototype.acquireListUpdate = function(queryString, url, simResponse) {
 	return updateModel(this.fieldName, queryString, url, simResponse)
 		.then((upd) => {if(updated = upd) return getList(this.fieldName);})
 		.then((list) => {if(_.isArray(list)) this.replaceList(list);})
+		.then(() => updated)
+}
+
+DataList.prototype.acquireListSupplement = function(queryString, url, simResponse) {
+	if(!this) throw new Error("Invalid DataList call acquireListSupplement")
+		var updated = false
+		//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
+	return updateModel(this.fieldName, queryString, url, simResponse)
+		.then((upd) => {if(updated = upd) return getList(this.fieldName);})
+		.then((list) => {if(_.isArray(list)) this.backfillList(list);})
+		.then(() => updated)
+}
+
+DataList.prototype.maintainList = function(filterObject) {
+	if(!this) throw new Error("Invalid DataList call maintainList")
+		/*
+	const listIdsPresent = this.loopFiltered(filterObject).map(x => x.id)
+	const andObject = {id: {nin: listIdsPresent}}
+	const filterHasWhere = _.isObject(filterObject.where)
+	const filterHasWhereAnd = filterHasWhere && _.isArray(filterObject.where.and)
+	let finalFilter
+	if(filterHasWhereAnd) {
+		let next = _.cloneDeep(filterObject)
+		next.where.and.push(andObject)
+		finalFilter = next
+	} else if(filterHasWhere) {
+		let next = _.cloneDeep(filterObject)
+		const oldWhere = next.where
+		next.where = {and: []}
+		next.where.and.push(oldWhere)
+		next.where.and.push(andObject)
+		finalFilter = next
+
+	} else {
+		let next = _.cloneDeep(filterObject)
+		next.where = andObject
+		finalFilter = next
+
+	}
+	*/
+	var updated = false
+	//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
+	return provide(undefined, this.fieldName, `?filter=${JSON.stringify(filterObject)}`, '', `GET` )
+		.then((list) => {if(_.isArray(list)) this.backfillList(list);})
+		.then(() => archive(this.fieldName, this.list))
 		.then(() => updated)
 }
 

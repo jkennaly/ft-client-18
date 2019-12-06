@@ -1,4 +1,4 @@
-// momentsSet.js
+// src/store/list/mixins/event/momentsSet.js
 export default (days) => { return  {
 	getStartMoment (id) {
 		const set = this.get(id)
@@ -16,18 +16,7 @@ export default (days) => { return  {
 		//console.log('this.getSetTimeText ' + id)
 		const startMoment = this.getStartMoment(id)
 		const endMoment = this.getEndMoment(id)
-		return startMoment.format('h:mm') + '-' + endMoment.format('h:mm')
+		return startMoment.format('h:mm') + ' ' + endMoment.format('h:mm')
 	},
-	getTimeString (id) {return this.getSetTimeText(id) },
-	active (id) {
-		//console.log(this, id)
-		try {
-			const s = this.getStartMoment(id)
-			const e = this.getEndMoment(id)
-			return  moment().isBetween(s, e)
-		}
-		catch {
-			return false
-		}
-	}
+	getTimeString (id) {return this.getSetTimeText(id) }
 }}

@@ -37,6 +37,7 @@ o.spec("store/data", function() {
 	'MessagesMonitors',
 	'Intentions',
 	'Users',
+	'Flags',
 	'dataLoad'
         	].sort((a, b) => a.localeCompare(b)))
     	//o(1).equals(1) (`failed math`)

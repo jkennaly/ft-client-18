@@ -59,7 +59,7 @@ const captureArtistNames = (displayNameEls, otherNamesEls, removeNamesEls, artis
 
 }
 
-const classes = attrs => 'launcher-container ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'ft-launcher-container ' + (attrs.display ? '' : 'hidden')
 const ArtistSpelling = (vnode) => { 
 	var artistId = 0
 	var artist = {}

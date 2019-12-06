@@ -1,4 +1,4 @@
-// ArtistSearchWidget.jsx
+// src/components/widgets/canned/ArtistSearchWidget.jsx
 
 //given a list of bands to research, this widget 
 //filters out unneded ones, sorts the rest and displays artist cards
@@ -47,7 +47,8 @@ const ArtistSearchWidget = vnode => {
 						data={data}
 						festivalId={attrs.festivalId}
 						overlay={attrs.overlay ? attrs.overlay : 'none'}
-						reviewSubject={s => {subjectObject = _.clone(s); reviewing = true;}}
+						reviewSubject={attrs.clickFunctionForData ? undefined : s => {subjectObject = _.clone(s); reviewing = true;}}
+						clickFunction={attrs.clickFunctionForData(data)}
 					/>)
 			}
 		</FixedCardWidget>	

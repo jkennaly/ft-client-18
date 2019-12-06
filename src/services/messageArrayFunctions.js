@@ -9,15 +9,7 @@ const displayRating = me => {
     return r
 }
 
-export const baseMessage = me => {
-
-    const cm = me.filter(m => m.messageType === 1)
-    const c = cm.length ? cm[0] : displayRating(me)
-    //console.log('messageArrayFunctions baseMessage')
-    //console.log(c)
-    return c
-}
-
+export const baseMessage = me => me.find(m => m.subjectType !== MESSAGE)
 const getReplies = (m, messageArray) => messageArray
 	.filter(possibleReply => possibleReply.subject === m.id)
 
@@ -144,58 +136,55 @@ const makeReplyAssocObjects = (replyArray, assocObject) => {
 
 
 export const buildTree = (me, discussion) => {
+	//console.log('messageArrayFunctions buildTree me discussion', me, discussion)
 	const base = baseMessage(me)
+	if(!base) return {}
 
 	//arrange discussionMessages into a tree object
 	const unreplied = getUnreplied(discussion)
 	const replied = getRepliedTo(unreplied, discussion)
-		.concat(unreplied.length ? base : [])
-	const startObject = {}
-	startObject['' + base.id] = base
+		.concat(unreplied.length ? [base] : [])
+	const startObject = base.subjectType !== FLAG ? { [`${base.id}`]: base} : (
+		me.filter(m => m.subjectType === FLAG).reduce((so, m) => _.set(so, `${m.id}`, m), {})
+	)
 	const assocObject = makeReplyAssocObjects(discussion, startObject)
-	//console.log('messageArrayFunctions buildTree')
-	//console.log(base)
-	//console.log(discussion)
-	//console.log(unreplied)
-	//console.log(replied)
-	//console.log(assocObject)
+	//const assocObject = discussion.reduce((pv, cv))
+	//console.log('messageArrayFunctions buildTree', base, discussion, unreplied, replied, assocObject)
+
 		//first level: the baseMessage
 	return assocObject
 
 }
 
-export const mapActivities = (loadSubjectObject, messages, ActivityCard) => function recurse(obj, spacers = 1, divs = [], id = 0) {
-	//console.log('messageArrayFunctions mapActivities')
-	//console.log(obj)
-	//console.log(spacers)
+export const mapActivities = (loadSubjectObject, messages, ActivityCard, userId) => function recurse(obj, spacers = 1, divs = [], id = 0) {
 	let updatedDivs = divs
 	let updatesSpacers = spacers
 	const message = messages.get(id)
+	//console.log('messageArrayFunctions mapActivities', obj, spacers, message)
 	//object end: the current object is a message
-	if(obj.fromuser && obj.baseMessage) {
+	if(obj.fromuser && obj.subjectType === MESSAGE) {
 	//console.log('messageArrayFunctions mapActivities prep end div')
 		let spacerArr = []
 		for(var i=1;i<=spacers;i++) {
 			spacerArr.push(m('.spacer'))
 		}
 		const newDiv = m(".ft-horizontal-fields",
-					spacerArr,
-					m(ActivityCard, {
-						messageArray: [obj] ,
-						discusser: obj.fromuser,
-						overlay: 'discuss',
-						discussSubject: loadSubjectObject
-					}
-					
-				)
-				)
+			spacerArr,
+			m(ActivityCard, {
+				messageArray: [obj] ,
+				discusser: obj.fromuser,
+				overlay: 'discuss',
+				discussSubject: loadSubjectObject,
+				userId: userId
+			})
+		)
 	//console.log('messageArrayFunctions mapActivities push end div')
 		updatedDivs = divs.concat([newDiv])
 		updatesSpacers++
 	}
 	//not object end: increase spacer count, and mapActivities for all values
 	//the baseMessage is handled separately, so include only replies
-	else if(message && message.baseMessage)  {
+	else if(message && [MESSAGE, FLAG].includes(message.subjectType))  {
 	//console.log('messageArrayFunctions mapActivities prep mid div')
 		let spacerArr = []
 		for(var i=1;i<=spacers;i++) {
@@ -211,7 +200,8 @@ export const mapActivities = (loadSubjectObject, messages, ActivityCard) => func
 						messageArray: [message],
 						discusser: message.fromuser,
 						overlay: 'discuss',
-						discussSubject: loadSubjectObject
+						discussSubject: loadSubjectObject,
+						userId: userId
 					}
 					
 				)
@@ -223,12 +213,12 @@ export const mapActivities = (loadSubjectObject, messages, ActivityCard) => func
 	}
 	
 	const objKeys = _.keys(obj).map(k => parseInt(k, 10))
-	/*
-	console.log('messageArrayFunctions mapActivities')
-	if(!obj.fromuser) console.log(objKeys)
-		else console.log(obj)
-	console.log(updatedDivs)
-	*/
+	
+	//console.log('messageArrayFunctions mapActivities')
+	//if(!obj.fromuser) console.log(objKeys)
+	//	else console.log(obj)
+	//console.log(updatedDivs)
+	
 	//console.log(spacers)
 	if(!objKeys.length || obj.fromuser) return updatedDivs
 	return objKeys.map(k => recurse(obj[k], updatesSpacers, updatedDivs, k))

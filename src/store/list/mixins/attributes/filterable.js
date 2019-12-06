@@ -7,5 +7,8 @@ export default {
 	},
 	find (filter) { 
 		return _.find(this.list, filter)
-	}  
+	},
+	some (filter) { 
+		return _.some(this.list, filter)
+	}
 }

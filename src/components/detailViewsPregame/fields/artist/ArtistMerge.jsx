@@ -9,7 +9,7 @@ import UIButton from '../../../../components/ui/UIButton.jsx';
 import ArtistSelector from '../../../../components/detailViewsPregame/fields/artist/ArtistSelector.jsx'
 import {remoteData} from '../../../../store/data';
 
-const classes = attrs => 'launcher-container ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'ft-launcher-container ' + (attrs.display ? '' : 'hidden')
 var textValue = ''
 var selectedId1 = 0
 var selectedId2 = 0

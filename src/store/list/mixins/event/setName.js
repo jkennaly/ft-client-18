@@ -1,4 +1,4 @@
-// setName.js
+// src/store/list/mixins/event/setName.js
 
 export default (artists) => { return  {
 	getArtistId (id) {
@@ -15,6 +15,7 @@ export default (artists) => { return  {
 	},
 	getEventName (id) { 
 		const superNames = this.getEventNameArray(id)
-		return `${this.getArtistName(id)}: ${superNames[0]} ${superNames[1]}`
+		//console.log('setName getEventName', id, superNames)
+		return `${this.getArtistName(id)}`
 	}  
 }}

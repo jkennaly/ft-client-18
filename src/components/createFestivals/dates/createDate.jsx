@@ -80,6 +80,9 @@ const CreateDate = (auth) => {
 	oninit: ({attrs}) => {
 		festivalId = parseInt(m.route.param('festivalId'), 10)
 		if (attrs.titleSet) attrs.titleSet(`Add Date`)
+		remoteData.Series.remoteCheck(true)
+		remoteData.Festivals.remoteCheck(true)
+		remoteData.Venues.remoteCheck(true)
 	},
 	view: (vnode) => <div class="main-stage">
 				<div class="main-stage-content-scroll">

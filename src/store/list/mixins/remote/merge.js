@@ -1,4 +1,4 @@
-// merge.js
+// src/store/list/mixins/remote/merge.js
 
 import provide from '../../../loading/provide'
 

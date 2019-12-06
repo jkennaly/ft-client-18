@@ -1,4 +1,4 @@
-// DisplayBar.jsx
+// src/components/layout/DisplayBar.jsx
 
 import m from 'mithril'
 

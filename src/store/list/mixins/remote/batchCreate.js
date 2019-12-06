@@ -1,4 +1,4 @@
-// batchCreate.js
+// src/store/list/mixins/remote/batchCreate.js
 
 import provide from '../../../loading/provide'
 

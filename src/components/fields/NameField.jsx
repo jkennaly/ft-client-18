@@ -1,4 +1,4 @@
-// NameField.jsx
+// src/componenets/fields/NameField.jsx
 
 import m from 'mithril'
 

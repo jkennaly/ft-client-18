@@ -1,19 +1,9 @@
-// ScheduleThemer.jsx
-// Services
-import Auth from '../../services/auth.js';
-const auth = new Auth();
+// src/components/layout/ScheduleThemer.jsx
 
 const dragula = require("dragula");
 
 import m from 'mithril'
 import _ from 'lodash'
-import localforage from 'localforage'
-localforage.config({
-	name: "FestiGram",
-	storeName: "FestiGram"
-})
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
-
 
 import DaySchedule from './DaySchedule.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
@@ -27,79 +17,87 @@ import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData'
 import {seriesChange, festivalChange, dateChange, dayChange} from '../../store/action/event'
 
+const {Sets: sets, Places: places, Days: days, Dates: dates, Festivals: festivals} = remoteData
 
+var drake = {}
 
-const ScheduleThemer = () => {
-	let seriesId
-	let festivalId
-	let dateId
-	let dayId
-	var drake = {}
-
-	return {
-		oninit: ({attrs}) => {
-			if (attrs.titleSet) attrs.titleSet(`Schedule Themer`)
-			seriesId = attrs.seriesId ? parseInt(attrs.seriesId, 10) : 0
-			festivalId = attrs.festivalId ? parseInt(attrs.festivalId, 10) : 0
-			dateId = attrs.dateId ? parseInt(attrs.dateId, 10) : 0
-			dayId = attrs.dayId ? parseInt(attrs.dayId, 10) : 0
-
-
-
-
-
-
-
-
-
-
-
-
-			if(festivalId) remoteData.Festivals.subjectDetails({subjectType: remoteData.Festivals.subjectType, subject: festivalId})
-
-				.catch(err => {
-					console.error('FestivalDetail Message load error')
-					console.error(err)
-				})
+const ScheduleThemer = {
+	name: 'ScheduleThemer',
+	preload: (rParams) => {
+			//console.log('dayDetails preload')
+			//if a promise returned, instantiation of component held for completion
+			//route may not be resolved; use rParams and not m.route.param
+			const seriesId = parseInt(rParams.seriesId, 10)
+			const festivalId = parseInt(rParams.festivalId, 10)
+			const dateId = parseInt(rParams.dateId, 10)
+			//messages.forArtist(dateId)
+			//console.log('Research preload', seriesId, festivalId, rParams)
+			return Promise.all([
+					!seriesId ? series.remoteCheck(true) : true,
+					seriesId && !festivalId ? Promise.all([
+						series.subjectDetails({subject: seriesId, subjectType: SERIES}),
+						festivals.remoteCheck(true)
+						]) : true,
+					festivalId && !dateId ? Promise.all([
+						festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL}),
+						dates.remoteCheck(true)
+						]) : true,
+					dateId ? dates.subjectDetails({subject: dateId, subjectType: DATE}) : true
+			])
 		},
-		oncreate: vnode => {
-			drake = dragula([])
-		},
-		view: ({attrs}) => 
-		<div class="main-stage">
-		
+	oninit: ({attrs}) => {
+		if (attrs.titleSet) attrs.titleSet(`Schedule Themer`)
+	},
+	view: ({attrs}) => {
 
+		const mapping = {
+			seriesId: attrs.seriesId ? parseInt(attrs.seriesId, 10) : 0,
+			festivalId: attrs.festivalId ? parseInt(attrs.festivalId, 10) : 0,
+			dateId: attrs.dateId ? parseInt(attrs.dateId, 10) : 0,
+			dayId: attrs.dayId ? parseInt(attrs.dayId, 10) : 0,
+			sets: sets.getMany(days.getSubSetIds(attrs.dayId ? parseInt(attrs.dayId, 10) : 0)),
+			stages: places.getFiltered(s => s.festival === attrs.festivalId ? parseInt(attrs.festivalId, 10) : 0)
+		}
+			//console.log(`ScheduleThemer mapping`, mapping)
+		return m({
+			oncreate: vnode => {
+				drake = dragula([].slice.call(vnode.dom.querySelectorAll(`.ft-widget-dragula`)))
+			},
+			view: ({attrs}) => <div class="main-stage">
+			{
+				//console.log(`ScheduleThemer attrs`, attrs)
+			}
 				<EventSelector 
-					seriesId={seriesId}
-					festivalId={festivalId}
-					dateId={dateId}
-					dayId={dayId}
+					seriesId={attrs.seriesId}
+					festivalId={attrs.festivalId}
+					dateId={attrs.dateId}
+					dayId={attrs.dayId}
 					seriesChange={seriesChange}
-					festivalChange={festivalChange(seriesId)}
-					dateChange={dateChange(seriesId, festivalId)}
-					dayChange={dayChange(seriesId, festivalId, dateId)}
-					scheduled={true}
+					festivalChange={festivalChange(attrs.seriesId)}
+					dateChange={dateChange(attrs.seriesId, attrs.festivalId)}
+					dayChange={dayChange(attrs.seriesId, attrs.festivalId, attrs.dateId)}
 				/>
 
 				<div class="main-stage-content-scroll">
 				<WidgetContainer>
-					<FixedCardWidget header="Score Types">
+					<FixedCardWidget header="Score Types" containerClasses={'ft-widget-dragula'}>
 					</FixedCardWidget>
-					<FixedCardWidget header="Applied Scores">
+					<FixedCardWidget header="Applied Scores" containerClasses={'ft-widget-dragula'}>
 					</FixedCardWidget>
-					<FixedCardWidget header="Palettes">
+					<FixedCardWidget header="Palettes" containerClasses={'ft-widget-dragula'}>
 					</FixedCardWidget>
 				</WidgetContainer>
+				</div>
+				<DaySchedule
+						dateId={attrs.dateId}
+						dayId={attrs.dayId}
+						sets={attrs.sets}
+						stages={attrs.stages}
+						hideDayBar={true}
+				/>
+
 			</div>
-		<DaySchedule
-				dateId={dateId}
-				dayId={console.log('ScheduleThemer dayId', dayId) || dayId}
-				sets={remoteData.Sets.getMany(remoteData.Days.getSubSetIds(dayId)).filter(x => true || console.log('sets', x) || true)}
-				stages={remoteData.Places.getFiltered(s => s.festival === festivalId)}
-				hideDayBar={true}
-		/>
-
-		</div>
-
-}}
+		}, mapping)
+	}
+}
 export default ScheduleThemer;

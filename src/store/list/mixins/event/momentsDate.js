@@ -1,25 +1,23 @@
-// momentsDate.js
+// src/store/list/mixins/event/momentsDate.js
 import _ from 'lodash'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
 var dateBaseCache = {}
-export default (venues) => { return  {
+export default (days, venues) => { return  {
 	getBaseMoment (id) {
 		const cached = _.get(dateBaseCache, 'base.' + id)
-		const cachedZone = _.get(dateBaseCache, 'base.zone.' + id)
-		//if(cached) console.log('Dates.getBaseMoment cached+zone',cached, cachedZone)
-		if(cached) return moment.tz(cached, cachedZone)
+		//if(cached) console.log('Dates.getBaseMoment cached+zone',cached)
+		if(cached) return moment(cached)
 		const date = this.get(id)
 		if(!date) throw new Error('this.getBaseMoment nonexistent date ' + id)
 		//console.log('venues list ' + venues.list.length)
 		const timezone = venues.getTimezone(date.venue)
 		//console.log('Dates.getBaseMoment timezone',timezone)
-		const momentString = date.basedate + ' 10:00'
+		const momentString = date.basedate.match(/(\d{2,4}-\d{1,2}-\d{1,2})T/)[1] + ' 10:00'
 		const momentFormat = 'Y-M-D H:mm'
-		const m = moment.tz(momentString, momentFormat, timezone)
-		if(!timezone) return moment(m)
+		if(!timezone) return moment(momentString)
+		const m = moment.tz(momentString, timezone)
 		_.set(dateBaseCache, 'base.' + id, m.valueOf())
-		_.set(dateBaseCache, 'base.zone.' + id, timezone)
 		return moment(m)
 	},
 	getStartMoment (id) {
@@ -36,5 +34,8 @@ export default (venues) => { return  {
 		const m = moment(this.getStartMoment(id)).add(days.length + 2, 'days')
 		_.set(dateBaseCache, 'end.' + id, m.valueOf())
 		return moment(m)
+	},
+	activeDay (id) {
+		return this.getSubDayIds(id).find(id => days.active(id))
 	}
 }}

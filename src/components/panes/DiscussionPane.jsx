@@ -10,91 +10,61 @@ import _ from 'lodash'
 
 import UIButton from '../../components/ui/UIButton.jsx';
 
-import DiscussModal from '../modals/DiscussModal.jsx';
 import WidgetContainer from '../layout/WidgetContainer.jsx';
 
 import DiscussionWidget from '../widgets/canned/DiscussionWidget.jsx';
 import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData'
 
-
 let count = 3		
+var discussing = false
+var subjectObject = {}
+var removed = []
+let messageArray = []	
+let recentDiscussions = []	
 
-const DiscussionPane = vnode => {
-	var discussing = false
-	var subjectObject = {}
-	var removed = []
-	let messageArray = []	
-	let recentDiscussions = []	
-					
-	return {
-		oninit: ({attrs}) => recentDiscussions = remoteData.Messages.recentDiscussions(attrs.userId),
-		view: ({attrs}) => <WidgetContainer>
-			{
-				//find each message about this artist and order by user
-				_.map(_.take(recentDiscussions, count)
-					.filter(x => x)
-				//	.map(x => {console.log(x);return x;}
-					,
-					me => <DiscussionWidget 
-						messageArray={[me]} 
-						userId={attrs.userId}
-						supressModal={true}
-						discussSubject={(s, me) => {
-							subjectObject = _.clone(s)
-							messageArray = _.clone(me)
-							//console.log('ArtistDetail ArtistReviewCard discussSubject me length ' + me.length)
-							discussing = true
-						}}
-						headerCard={true}
-					/>
-				)
-			}
-			{recentDiscussions.length > count ? 
-                <UIButton action={e => {
-                    //attrs.hide()
-                    e.stopPropagation()
-                    //console.log('pre rating ' + rating)
-                    //console.log('pre baselineRating ' + baselineRating)
-                    //comment = ''
-                    //console.log('post rating ' + rating)
-                    //console.log('post baselineRating ' + baselineRating)
-                    //console.log('cancel')
-                    count += 3
-                    m.redraw()
 
-                }} buttonName="Show More" /> : ''}
-		{messageArray.length ? <DiscussModal
-			display={discussing} 
-			hide={sub => {discussing = false;m.redraw();}}
-			subject={subjectObject}
-			messageArray={messageArray}
-			reviewer={messageArray[0].fromuser}
-			user={attrs.userId}
-		/> : ''}
-		</WidgetContainer>
-}};
+
+//the discussion pane receives the following (or uses default if none provided)
+	//message filter
+	//sort function
+
+//first the filter is applied and all passing messages are sorted
+//then the discussion for the first <count> messages is constructed
+//the subjectCard for the baseMessage's subject is shown above the discussion 
+const DiscussionPane = {
+	view: ({attrs}) => <WidgetContainer>
+		{
+			//find each message about this artist and order by user
+			_.map(_.take(attrs.messageArrays, count)
+				//at least on message in each me must be unread
+				//.map(x => {console.log('DiscussionPane jsx', x);return x;})
+				,
+				me => <DiscussionWidget 
+					key={me[0].id}
+					messageArray={me} 
+					supressModal={true}
+					headerCard={true}
+					userId={attrs.userId}
+					userRoles={attrs.userRoles}
+					discussSubject={(so, me) => attrs.popModal('discuss', {
+						messageArray: me,
+						subjectObject: so,
+						reviewer: me[0].fromuser
+					})}
+					popModal={attrs.popModal}
+				/>
+			)
+		}
+		{ attrs.messageArrays.length > count ? <UIButton action={e => {
+            //attrs.hide()
+            e.stopPropagation()
+            //console.log('pre rating ' + rating)
+            count += 3
+            m.redraw()
+        }} buttonName="Show More" /> : '' }
+	</WidgetContainer>
+}
 
 export default DiscussionPane;
 
-/*
-<DiscussionWidget 
-							messageArray={me} 
-							discussSubject={(s, me) => {
-								subjectObject = _.clone(s)
-								messageArray = _.clone(me)
-								//console.log('ArtistDetail ArtistReviewCard discussSubject me length ' + me.length)
-								discussing = true
-							}}
-						/>
-					)
-				}
-			</WidgetContainer>
-			{messageArray.length ? <DiscussModal
-				display={discussing} 
-				hide={sub => {discussing = false;}}
-				subject={subjectObject}
-				messageArray={messageArray}
-				reviewer={messageArray[0].fromuser}
-				user={userId}
-*/

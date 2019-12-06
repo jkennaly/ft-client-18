@@ -24,7 +24,7 @@ export default {
 		//console.log(subjectObject)
 		//console.log(intentIds)
 		//console.log(this.list)
-		this.batchDelete(intentIds)
+		intentIds.map(id => this.delete({id: id}))
 	},
 	setIntent (subjectObject) { 
 		const data = subjectObject

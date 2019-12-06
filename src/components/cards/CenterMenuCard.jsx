@@ -1,16 +1,16 @@
-// NavCard.jsx
+// src/components/cards/CenterMenuCard.jsx
 
 import m from 'mithril'
 
-import  ComposedNameField from '../fields/ComposedNameField.jsx';
+import  ComposedNameField from '../fields/ComposedNameField.jsx'
 
-const NavCard = {
+const CenterMenuCard = {
   view: ({ attrs }) =>
-    <div class="ft-card-large" onclick={attrs.action} data-id={attrs.key} key={attrs.key}>
+    <div class="ft-card-large" onclick={attrs.action}>
       <div class="ft-fields">
         <ComposedNameField fieldValue={attrs.fieldValue} />
       </div>
     </div>
-};
+}
 
-export default NavCard;
+export default CenterMenuCard

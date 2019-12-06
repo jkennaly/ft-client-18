@@ -1,4 +1,4 @@
-// UserCard.jsx
+// src/components/cards/UserCard.jsx
 
 
 import m from 'mithril'

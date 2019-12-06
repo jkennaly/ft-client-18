@@ -1,4 +1,4 @@
-// data2.js
+// src/store/data.js
 
 import _ from 'lodash'
 import m from 'mithril'
@@ -34,6 +34,7 @@ import MessageList from './list/models/MessageList'
 import MessagesMonitorList from './list/models/MessagesMonitorList'
 import IntentionList from './list/models/IntentionList'
 import ProfileList from './list/models/ProfileList'
+import FlagList from './list/models/FlagList'
 
 
 import appendable from './list/mixins/local/appendable'
@@ -42,6 +43,7 @@ import named from './list/mixins/attributes/named'
 import messageName from './list/mixins/attributes/messageName'
 import userName from './list/mixins/attributes/userName'
 import leveled from './list/mixins/attributes/leveled'
+import pending from './list/mixins/attributes/pending'
 import rated from './list/mixins/attributes/rated'
 import virginal from './list/mixins/attributes/virginal'
 import filterable from './list/mixins/attributes/filterable'
@@ -89,8 +91,11 @@ import subjectDetails from './list/mixins/remote/details/subject'
 import artistDetails from './list/mixins/remote/details/artist'
 import dateDetails from './list/mixins/remote/details/date'
 import dayDetails from './list/mixins/remote/details/day'
+import flagDetails from './list/mixins/remote/details/flag'
 import setDetails from './list/mixins/remote/details/set'
 import festivalDetails from './list/mixins/remote/details/festival'
+import messageDetails from './list/mixins/remote/details/message'
+import advanceFlag from './list/mixins/remote/advanceFlag'
 import batchCreate from './list/mixins/remote/batchCreate'
 import batchDelete from './list/mixins/remote/batchDelete'
 import batchUpdate from './list/mixins/remote/batchUpdate'
@@ -133,6 +138,7 @@ let messages =  new MessageList()
 let messagesMonitors =  new MessagesMonitorList()
 let intentions =  new IntentionList()
 let users =  new ProfileList()
+let flags =  new FlagList()
 
 
 const subjects = {
@@ -145,7 +151,9 @@ const subjects = {
     venues: venues,
     places: places,
     messages: messages,
-    profiles: users
+    profiles: users,
+    images: images,
+    flags: flags
 }
 
 
@@ -171,6 +179,7 @@ Object.assign(images,
 	getPromise,
 	subjectDetails,
 	create,
+	messageName(subjects),
 	imgEvent(subjects, lineups)
 )
 Object.assign(series,
@@ -206,7 +215,7 @@ Object.assign(festivals,
 Object.assign(dates,
 	filterable,
 	subjective,
-	momentsDate(venues),
+	momentsDate(days, venues),
 	futureDate,
 	event,
 	eventSub(days),
@@ -217,7 +226,7 @@ Object.assign(dates,
 	dateWithDays(days),
 	dateFilters(festivals),
 	getPromise,
-	dateDetails(subjects, lineups)
+	dateDetails(subjects, lineups, intentions)
 )
 Object.assign(days,
 	filterable,
@@ -234,8 +243,8 @@ Object.assign(days,
 Object.assign(sets,
 	filterable,
 	subjective,
-	setName(artists),
 	event,
+	setName(artists),
 	eventSuper(days),
 	momentsSet(days),
 	messageEventConnections,
@@ -338,7 +347,7 @@ Object.assign(messages,
 	create,
 	upsert,
 	updateInstance,
-	subjectDetails,
+	messageDetails(subjects),
 	messageCheckin(subjects)
 )
 Object.assign(messagesMonitors,
@@ -357,6 +366,7 @@ Object.assign(intentions,
 	batchCreate,
 	batchDelete,
 	updateInstance,
+	deletion,
 	intent
 )
 Object.assign(users,
@@ -366,6 +376,16 @@ Object.assign(users,
 	userName,
 	messageEventConnections,
 	subjectDetails
+)
+Object.assign(flags,
+	getPromise,
+	filterable,
+	subjective,
+	create,
+	flagDetails(messages),
+	pending(messages),
+	advanceFlag,
+	messageName(subjects)
 )
 const baseKeys = [
 'Artists',
@@ -417,6 +437,7 @@ export const remoteData = {
 	MessagesMonitors: messagesMonitors,
 	Intentions: intentions,
 	Users: users,
+	Flags: flags,
 	dataLoad: window.mockery ? Promise.resolve(true) : (Promise.all(
 		_.map(baseKeys, 
 			k => getList(k)

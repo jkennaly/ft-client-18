@@ -1,4 +1,4 @@
-// SeriesCard.jsx
+// src/components/cards/SeriesCard.jsx
 
 import m from 'mithril'
 import _ from 'lodash'

@@ -1,4 +1,4 @@
-// ArtistReviewCard.jsx
+// src/components/cards/ArtistReviewCard.jsx
 
 
 import m from 'mithril'

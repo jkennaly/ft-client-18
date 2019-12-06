@@ -9,12 +9,12 @@ import UIButton from '../../components/ui/UIButton.jsx';
 import ArtistSelector from '../detailViewsPregame/fields/artist/ArtistSelector.jsx'
 import {remoteData} from '../../store/data';
 
-const classes = attrs => 'modal ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
 var textValue = ''
 var selectedId = 0
 const ArtistEntryModal = {
 	view: ({attrs}) => <div class={classes(attrs)}>
-        <div class="modal-content">
+        <div class="ft-modal-content">
             <ArtistSelector 
                 label="Select an existing artist:"
                 defaultText="Select an artist"
@@ -23,7 +23,7 @@ const ArtistEntryModal = {
             />
             
             <label for="new-artist">Or add a new artist</label>
-            <input name="new-artist" type="text" onchange={e => textValue = e.target.value}/>
+            <input id="new-artist" name="new-artist" type="text" onchange={e => textValue = e.target.value}/>
             <UIButton action={e => {
                 attrs.hide()
                 selectedId = 0

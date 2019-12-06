@@ -1,4 +1,4 @@
-// ActivityWidget.jsx
+// src/components/widgets/canned/ActivityWidget.jsx
 
 //given a list of bands to research, this widget 
 //filters out unneded ones, sorts the rest and displays artist cards
@@ -48,10 +48,6 @@ const baseMessage = me => {
 }
 const ActivityWidget = vnode => {
 	const routeId = parseInt(m.route.param("id"), 10)
-	var subjectObject = {}
-	var messageArray = []
-	var discussing = false
-	var removed = []
 	let pattern;
 	const patternChange = e => {
 		pattern = e.target.value
@@ -60,13 +56,6 @@ const ActivityWidget = vnode => {
 	return {
 		view: (vnode) => <FixedCardWidget header="Recent Activity" display={_.isNumber(vnode.attrs.userId) && vnode.attrs.userId > 0}>
 
-			{messageArray.length ? <DiscussModal
-				display={discussing} 
-				hide={sub => {discussing = false;}}
-				subject={subjectObject}
-				messageArray={messageArray}
-				reviewer={messageArray.length ? messageArray[0].fromuser : 0}
-			/> : ''}
 			{
 				getRecentActivity(vnode.attrs.userId, vnode.attrs.festivalId)
 				/*
@@ -92,6 +81,7 @@ const ActivityWidget = vnode => {
 					.map(data => <ActivityCard 
 						messageArray={[data]} 
 						discusser={data.fromuser}
+						userId={vnode.attrs.userId}
 						rating={remoteData.Artists.getRating(data.subject, data.fromuser)}
 						overlay={'discuss'}
 						shortDefault={true}
@@ -99,12 +89,11 @@ const ActivityWidget = vnode => {
 						headact={e => {
 							if(data.subjectType === 2) m.route.set("/artists" + "/pregame" + '/' + data.subject)
 						}}
-						discussSubject={(s, me, r) => {
-							subjectObject = _.clone(s)
-							messageArray = _.clone(me)
-							//console.log('ArtistDetail ArtistReviewCard discussSubject me length ' + me.length)
-							discussing = true
-						}}
+						discussSubject={(so, me) => vnode.attrs.popModal('discuss', {
+							messageArray: me,
+							subjectObject: so,
+							reviewer: me[0].fromuser
+						})}
 					/>)
 			}
 			</FixedCardWidget>	

@@ -1,4 +1,4 @@
-// provide.js
+// src/store/loading/provide.js
 
 import m from 'mithril'
 import _ from 'lodash'
@@ -12,20 +12,32 @@ import {tokenFunction} from '../../services/requests.js'
 const headerBase = {
 	'Content-Type': 'application/json'
 }
+const formBase = {
+	//'Content-Type': 'multipart/form-data'
+}
 import Auth from '../../services/auth.js'
 const auth = new Auth()
 
-export default function (data, modelName, queryString = '', url, method = 'POST', simResponse) {
+export default function (data, modelName, queryString = '', url, method = 'POST', simResponse, options = {}) {
 	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
+	const usingFormData = simResponse || data instanceof FormData
 	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getAccessToken()
 		.then(authResult => fetch(reqUrl, { 
 		   	method: method, 
 		   	headers: new Headers(
-		   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
+		   		authResult ? _.assign({}, (options.form ? formBase : headerBase), {Authorization: `Bearer ${authResult}`}) : (options.form ? formBase : headerBase)
    			),
-			body: JSON.stringify(data)
+			body: (options.form ? data : JSON.stringify(data)) 
 		}))
-		.then(response => response.json())
+		.then(response => {
+			try {
+				return response.json()
+			} catch (err) {
+				console.error(err)
+				return []
+			}
+
+		})
 	)
 /*
 		.then(authResult => m.request({

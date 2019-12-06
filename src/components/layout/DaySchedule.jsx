@@ -1,4 +1,4 @@
-// DaySchedule.jsx
+// src/components/layout/DaySchedule.jsx
 
 import m from 'mithril'
 import _ from 'lodash'
@@ -37,7 +37,7 @@ const DaySchedule = (vnode) => {
 
 		<div class="ft-schedule">
 		{
-			console.log(`DaySchedule set length`, attrs.sets.length, attrs.dateId, attrs.stages)
+			//console.log(`DaySchedule set length`, attrs.sets.length, attrs.dateId, attrs.stages)
 		}	<div class="ft-schedule-header">
 				{attrs.stages.map(stage => <h2 class="ft-schedule-header-field">{stage.name}</h2>)}
 			</div>

@@ -1,57 +1,53 @@
-// Messages.jsx
-// Services
-import Auth from "../../services/auth.js";
-const auth = new Auth();
+// src/components/layout/Messages.jsx
 
 import m from "mithril";
 import _ from "lodash";
-import localforage from "localforage";
-import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.min";
 
-import MessageCategoryPane from "../../components/panes/MessageCategoryPane.jsx";
-import DiscussionPane from "../../components/panes/DiscussionPane.jsx";
+import MessageCategoryPane from "../../components/panes/MessageCategoryPane.jsx"
+import DiscussionPane from "../../components/panes/DiscussionPane.jsx"
+import {unread, flags, userRecent, remote} from '../../store/action/messageArrays'
 
-import { remoteData } from "../../store/data";
+import { remoteData } from "../../store/data"
+import {subjectData} from '../../store/subjectData'
+const messageArrays = {
+	unread: unread,
+	flags: flags,
+	userRecent: userRecent
+}
+const baseFilter = (userId) => m => m.fromuser !== userId && ![RATING, CHECKIN].includes(m.messageType)
 
-const Messages = vnode => {
-	let userId = 0;
-	return {
-		oninit: ({attrs}) => {
-			//console.log("Messages init");
-			if (attrs.titleSet) attrs.titleSet(`Message Center`)
-			localforage
-				.getItem("status.messageLayout")
-				.then(obj => {
-					//console.log('Messages oncreate status:')
-					//console.log(obj)
-					if (!obj) return;
-					/*
-					const seriesValue = {target: {value: obj.status.series}}
-					const festivalValue = {target: {value: obj.status.festival}}
-					seriesChange(seriesValue)
-					festivalChange(festivalValue)
-					*/
-				})
-				.catch(err => console.log(err));
-			userId = auth.userId()
+const Messages = {
+	oninit: ({attrs}) => {
+		if (attrs.titleSet) attrs.titleSet(`Message Center`)
+		if(remote[m.route.param('filter')]) remote[m.route.param('filter')](attrs)
 		},
-
-		view: () => (
-			<div class="main-stage">
-				<div class="main-stage-content-panes">
-					<div class="ft-horizontal-fields">
-						<div class="ft-pane-single">
-							<MessageCategoryPane />
-						</div>
-						<div class="ft-pane-double">
-							<DiscussionPane userId={userId} />
-						</div>
+	oncreate: ({dom}) => {
+		const height = dom.clientHeight
+		//console.log('Messages DOM', height)
+		dom.querySelector('.ft-pane-single').style['height'] = `${height}px`
+		dom.querySelector('.ft-pane-double').style['height'] = `${height}px`
+	},
+	view: ({attrs}) => 
+		<div class="main-stage">
+				<div class="ft-horizontal-fields">
+					<div class="ft-pane-single">
+						<MessageCategoryPane 
+							userId={attrs.userId} 
+							userRoles={attrs.userRoles} 
+						/>
 					</div>
-
-					<div class="footer" />
+					<div class="ft-pane-double">
+						<DiscussionPane 
+							userId={attrs.userId}
+							userRoles={attrs.userRoles} 
+							messageArrays={(messageArrays[m.route.param('filter')] ? messageArrays[m.route.param('filter')] : messageArrays.unread)(attrs.userId, attrs.userRoles)} 
+							popModal={attrs.popModal} 
+						/>
+					</div>
 				</div>
-			</div>
-		)
-	};
+
+		</div>
+	
+
 };
 export default Messages;

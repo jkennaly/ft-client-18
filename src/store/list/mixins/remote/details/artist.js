@@ -1,4 +1,4 @@
-// store/list/mixins/remote/details/artist.js
+// src/store/list/mixins/remote/details/artist.js
 
 
 
@@ -22,7 +22,7 @@ export default ({artists, dates, sets, messages}, lineups, images, artistAliases
 
 		const setIdsPresent = sets.getFiltered(s => s.band === so.subject)
 			.map(s => s.id)
-		return this.getPromise(so.subject)
+		return this.getLocalPromise(so.subject)
 			.then(subjectData => {
 				//lineups
 				const lineEnd = `/api/Lineups`
@@ -46,13 +46,12 @@ export default ({artists, dates, sets, messages}, lineups, images, artistAliases
 					{subjectType: so.subjectType}
 				]}})
 				return Promise.all([
-					messages.acquireListUpdate(messQuery, messEnd)
+					lineups.acquireListSupplement(lineQuery, lineEnd)
 						.then(upd => updated = updated || upd),
-					lineups.acquireListUpdate(lineQuery, lineEnd)
+					images.acquireListSupplement(imgQuery, imgEnd)
 						.then(upd => updated = updated || upd),
-					images.acquireListUpdate(imgQuery, imgEnd)
-						.then(upd => updated = updated || upd),
-					sets.acquireListUpdate(setQuery, setEnd)
+					sets.acquireListSupplement(setQuery, setEnd)
+						.then(upd => updated = updated || upd)
 						.then(() => {
 							//set messages
 
@@ -63,9 +62,11 @@ export default ({artists, dates, sets, messages}, lineups, images, artistAliases
 								{subject: {inq: setIdsPresent}},
 								{subjectType: sets.subjectType}
 							]}})
-							return messages.acquireListUpdate(messQuery, messEnd)
+							return messages.acquireListSupplement(messQuery, messEnd)
 						})
 						.then(upd => updated = updated || upd),
+					messages.acquireListSupplement(messQuery, messEnd)
+						.then(upd => updated = updated || upd)
 				])
 
 			})

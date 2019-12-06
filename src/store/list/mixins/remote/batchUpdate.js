@@ -1,4 +1,4 @@
-// batchUpdate.js
+// src/store/list/mixins/remote/batchUpdate.js
 
 import provide from '../../../loading/provide'
 

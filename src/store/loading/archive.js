@@ -1,4 +1,4 @@
-// archive.js
+// src/store/loading/archive.js
 import localforage from 'localforage'
 localforage.config({
 	name: "FestiGram",

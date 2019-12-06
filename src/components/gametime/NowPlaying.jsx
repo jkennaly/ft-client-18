@@ -1,4 +1,4 @@
-// NowPlaying.jsx
+// src/components/gametime/NowPlaying.jsx
 
 import m from 'mithril'
 import _ from 'lodash'
@@ -8,7 +8,19 @@ import SetCard from '../../components/cards/SetCard.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 
 //sets associated with the subject object
-const sets = so => subjectData.sets(so)
+
+const sets = remoteData. Sets
+const dates = remoteData. Dates
+const days = remoteData. Days
+const festivals = remoteData. Festivals
+const places = remoteData. Places
+
+const event = () => {return {
+	subject: parseInt(attrs.id, 10), 
+	subjectType: DAY
+}}
+
+const setsD = (yid) => sets.getFiltered(s => s.day === yid)
 	
 
 	
@@ -17,47 +29,53 @@ const NowPlaying = () => {
 	return {
 		view: ({attrs}) => <div>
 		
-			<FixedCardWidget header={`Now Playing`} display={sets(attrs.subjectObject)
-					.filter(s => subjectData.active({subject: s.id, subjectType: subjectData.SET}))[0]
+			<FixedCardWidget 
+				header={`Now Playing`} 
+				display={setsD(attrs.dayId)
+					.filter(s => sets.active(s.id))[0]
 					}>
 			{
-				sets(attrs.subjectObject)
-					.filter(s => subjectData.active({subject: s.id, subjectType: subjectData.SET}))
-					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: subjectData.SET}} />)
+				setsD(attrs.dayId)
+					.filter(s => sets.active(s.id))
+					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: SET}} />)
 
 			}
 			</FixedCardWidget>
 		
-			<FixedCardWidget display={sets(attrs.subjectObject)
+			<FixedCardWidget 
+				header={`Next Up`}
+				display={setsD(attrs.dayId)
 					.filter(s => s.day === attrs.dayId)
-					.filter(s => remoteData.Sets.future(s.id))
+					.filter(s => sets.future(s.id))
 					.sort((a, b) => a.start - b.start)[0]
-					} header={`Next Up`}>
+					} >
 			{
-				_.uniqBy(sets(attrs.subjectObject)
+				_.uniqBy(setsD(attrs.dayId)
 					.filter(s => s.day === attrs.dayId)
-					.filter(s => remoteData.Sets.future(s.id))
+					.filter(s => sets.future(s.id))
 					.sort((a, b) => a.start - b.start), 
 					'stage'
 					)
-					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: subjectData.SET}} />)
+					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: SET}} />)
 
 			}
 			</FixedCardWidget>
 		
-			<FixedCardWidget display={sets(attrs.subjectObject)
+			<FixedCardWidget 
+				header={`Last Played`}
+				display={setsD(attrs.dayId)
 					.filter(s => s.day === attrs.dayId)
-					.filter(s => subjectData.ended({subject: s.id, subjectType: subjectData.SET}))[0]
-					} header={`Last Played`}>
+					.filter(s => sets.ended(s.id))[0]
+					} >
 			{
-				_.uniqBy(sets(attrs.subjectObject)
+				_.uniqBy(setsD(attrs.dayId)
 					.filter(s => s.day === attrs.dayId)
-					.filter(s => subjectData.ended({subject: s.id, subjectType: subjectData.SET}))
+					.filter(s => sets.ended(s.id))
 					.sort((a, b) => b.end - a.end), 
 					'stage'
 					)
 				//.filter(x => console.log('Last Played', x) || true)
-					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: subjectData.SET}} />)
+					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: SET}} />)
 
 			}
 			</FixedCardWidget>

@@ -156,10 +156,12 @@ export default class Auth {
     const localUser = parseInt(localStorage.getItem('ft_user_id'), 10)
     if(localUser) return Promise.resolve(localUser)
     if(userIdPromiseCache.then) return userIdPromiseCache
-
+    if(!localUser && !userData) return Promise.reject(0)
+    //console.log('getFtUserId', userData)
+    //console.trace()
     userIdPromiseCache = authLoad
       .then(() => this.getValidToken())
-      //.then(idToken => [console.log('userIdPromiseCache idToken', idToken), idToken][1])
+      //.then(accessToken => [console.log('userIdPromiseCache userData', userData, console.trace()), accessToken][1])
       .then(userIdFromToken(userData))
       //.then(userId => [console.log('userIdPromiseCache userId', userId), userId][1])
 
@@ -167,7 +169,7 @@ export default class Auth {
       .catch(err => {
           userIdCache = 0
         localStorage.setItem('ft_user_id', 0)
-        console.error('userIdPromiseCache failed', err)
+        //console.error('userIdPromiseCache failed', err)
       })
     return userIdPromiseCache
 

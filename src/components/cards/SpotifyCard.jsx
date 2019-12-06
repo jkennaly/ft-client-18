@@ -1,4 +1,4 @@
-// SpotifyCard.jsx
+// src/components/cards/SpotifyCard.jsx
 
 import m from 'mithril'
 

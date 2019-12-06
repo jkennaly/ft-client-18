@@ -1,4 +1,4 @@
-// batchDelete.js
+// src/store/list/mixins/remote/batchDelete.js
 
 import provide from '../../../loading/provide'
 

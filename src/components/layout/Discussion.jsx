@@ -1,4 +1,4 @@
-// Discussion.jsx
+// src/components/layout/Discussion.jsx
 // Services
 import Auth from '../../services/auth.js';
 const auth = new Auth();
@@ -21,7 +21,7 @@ const Discussion = (vnode) => { return {
 			if (attrs.titleSet) attrs.titleSet(`Discussion`)
 	},
 	view: () => 
-	<div class="launcher-container">
+	<div class="ft-launcher-container">
 		<div class="stage-banner-container">
 		</div>
 		{

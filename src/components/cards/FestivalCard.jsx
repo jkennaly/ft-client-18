@@ -1,4 +1,4 @@
-// FestivalCard.jsx
+// src/components/cards/FestivalCard.jsx
 
 import m from 'mithril'
 

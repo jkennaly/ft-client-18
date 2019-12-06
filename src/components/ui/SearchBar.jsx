@@ -8,12 +8,13 @@ import SearchField from '../fields/SearchField.jsx';
 
 import {remoteData} from '../../store/data.js'
 
-const rawSeries = pattern => pattern ? remoteData.Series.patternMatch(pattern, 2) : Promise.resolve([])
+const rawSeries = pattern => pattern ? remoteData.Series.patternMatch(pattern, 2) : []
 const rawArtists = pattern => pattern ? remoteData.Artists.remoteSearch(pattern, 3) : Promise.resolve([])
 
 const SearchBar = vnode => {
 	var menuHidden = true
 	var menuItems = []
+	var lastRoute = ''
 	const searchObject = {
 		setResults: function(pattern) {
 			rawArtists(pattern)
@@ -40,37 +41,15 @@ const SearchBar = vnode => {
 			return menuItems
 		}
 	}
-	/*
-	var userValid = true
-	const validUserItem = {
-			name: 'Logout',
-			path: '/confirm/logout'
-		}
-	const invalidUserItem = {
-			name: 'Login',
-			path: '/auth'
-		}
-
-	const menuList = [
-		{
-			name: 'Launcher',
-			path: '/launcher'
-		},
-		{
-			name: 'Research',
-			path: '/research'
-		},
-		{
-			name: 'Festivals',
-			path: '/series/pregame'
-		},
-		{
-			name: 'Admin',
-			path: '/admin'
-		}
-	]
-	*/
 	return {
+		oninit: vnode => lastRoute = m.route.get(),
+		onbeforeupdate: vnode => {
+			if(lastRoute !== m.route.get()) {
+				menuHidden = true
+				lastRoute = m.route.get()
+			}
+			return true
+		},
 		view: (vnode) => <div>
 				<SearchField patternChange={searchObject.setResults} />
 			<CollapsibleMenu 

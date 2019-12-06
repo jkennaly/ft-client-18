@@ -55,25 +55,25 @@ const entryFormHandler = (formDOM) => {
 
 const consoleLog = str => console.log(str)
 
-var userId = 0
-
-const CreateFestival = (auth) => { return {
+const CreateFestival = {
 	oninit: ({attrs}) => {
-			userId = auth.userId()
 			if (attrs.titleSet) attrs.titleSet(`Add year`)
+			return parseInt(m.route.param('seriesId'), 10) && remoteData.Festivals.subjectDetails({subjectType: FESTIVAL, subject: parseInt(m.route.param('seriesId'), 10)}).catch(console.error)
 	},
-	view: (vnode) => <div class="main-stage">
+	view: ({attrs}) => <div class="main-stage">
 				<div class="main-stage-content-scroll">
     
-    <form name="entry-form" id="entry-form" class="{userId > 0 ? '' : 'hidden' }">
+    <form name="entry-form" id="entry-form" class={attrs.userId > 0 ? '' : 'hidden' }>
       <label for="series">
         {`Festival Series`}
       </label>
 	      <select id="series" name="series">
-      {parseInt(m.route.param('seriesId'), 10) ?
-	      	<option value={parseInt(m.route.param('seriesId'), 10)}>{remoteData.Series.getEventName(parseInt(m.route.param('seriesId'), 10))}</option> :
-	      	remoteData.Series.getEventNamesWithIds()
-	      		.map(s => <option value={s[1]}>{s[0]}</option>)
+      		{parseInt(m.route.param('seriesId'), 10) ?
+		      	<option value={parseInt(m.route.param('seriesId'), 10)}>
+		      		{remoteData.Series.getEventName(parseInt(m.route.param('seriesId'), 10))}
+		      	</option> :
+		      	remoteData.Series.getEventNamesWithIds()
+		      		.map(s => <option value={s[1]}>{s[0]}</option>)
 	      	}
       </select>
       <label for="event-name">
@@ -85,5 +85,5 @@ const CreateFestival = (auth) => { return {
 	  </div>
 	  </div>
     
-}}
+}
 export default CreateFestival;

@@ -1,4 +1,4 @@
-// GametimeSearchBar.jsx
+// src/components/gametime/GametimeSearchBar.jsx
 
 import m from 'mithril'
 import _ from 'lodash'
@@ -14,7 +14,7 @@ import {subjectData} from '../../store/subjectData'
 const rawSets = (subjectObject, count = 5) => {
 	const sets = subjectData.sets(subjectObject)
 	const setSearchStrings = sets
-		.map(s => {return {subject: s.id, subjectType: subjectData.SET}})
+		.map(s => {return {subject: s.id, subjectType: SET}})
 		//map to search string by removing everything but artist name
 		.map(so => _.assign({}, so, {name: subjectData.name(so).replace(/(.*):(.*)/, '$1')}))
 	return pattern => _.take(smartSearch(setSearchStrings,

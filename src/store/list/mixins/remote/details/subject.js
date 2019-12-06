@@ -1,4 +1,4 @@
-// subject.js
+// src/store/list/mixins/remote/details/subject.js
 
 
 

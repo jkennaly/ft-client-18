@@ -1,4 +1,4 @@
-// research.js
+// src/store/list/mixins/event/research.js
 
 import _ from 'lodash'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'

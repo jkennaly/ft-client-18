@@ -4,6 +4,8 @@
 //filters out unneded ones, sorts the rest and displays artist cards
 
 
+import Auth from '../../../services/auth.js'
+const auth = new Auth()
 
 import m from 'mithril'
 
@@ -23,6 +25,7 @@ const IntentToggle = {
 				remoteData.Intentions[intentionMethod](attrs.subjectObject)
 			}}
 			permission={attrs.permission}
+			unauth={auth.login}
 
 		/>
 }

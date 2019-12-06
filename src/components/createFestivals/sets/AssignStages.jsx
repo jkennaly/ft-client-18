@@ -115,7 +115,7 @@ const stageHeaders = festivalId => remoteData.Places.forFestival(festivalId)
 	.sort((a, b) => a.priority - b.priority)
 
 const hideRows = vnode => {
-	console.log('AssignDays.onupdate')
+	//console.log('AssignDays.onupdate')
 	const rows = Array.from(vnode.dom.querySelectorAll('tr'))
 	if(hideSelected) {
 		const rowsToHide = rows
@@ -146,6 +146,14 @@ function tableFixHead (e) {
       th.style.transform = `translateY(${sT}px)`
     );
 }
+var lineupIds = []
+var lastLineupIds = []
+var setIds = []
+var lastSetIds = []
+var displayArtists = []
+var lastDisplaySets = []
+var displaySets = []
+var lastDisplayArtists = []
 const AssignSetStages = {
 		name: 'AssignStages',
 		preload: (rParams) => {
@@ -174,10 +182,29 @@ const AssignSetStages = {
 		},
 		oninit: ({attrs}) => {
 			if (attrs.titleSet) attrs.titleSet(`Assign artists to stages`)
+				lineupIds = remoteData.Lineups.getFestivalArtistIds(festivalId()).sort((a, b) => a - b)
+			setIds = dateId() ? remoteData.Dates.getSubSetIds(dateId()).sort((a, b) => a - b) : []
+			displayArtists = remoteData.Artists.getMany(lineupIds)
+			displaySets = sets.getMany(setIds)
+		
 		},
 		onupdate: vnode => {
 			hideRows(vnode)
 		},
+	onbeforeupdate: () => {
+		lastLineupIds = lineupIds
+		lineupIds = remoteData.Lineups.getFestivalArtistIds(festivalId()).sort((a, b) => a - b)
+		lastDisplayArtists = displayArtists
+		displayArtists = remoteData.Artists.getMany(lineupIds)
+		lastDisplaySets = displaySets
+		setIds = dateId() ? remoteData.Dates.getSubSetIds(dateId()).sort((a, b) => a - b) : []
+		displaySets = sets.getMany(setIds)
+		
+		const sameLineup = _.isEqual(lastDisplayArtists, displayArtists)
+		const sameSets = _.isEqual(lastDisplaySets, displaySets)
+		//console.log('update set lineup', sameLineup, lastLineupIds, lineupIds)
+		return !sameLineup || !sameSets
+	},
 		oncreate: vnode => {
 			
 			vnode.dom.querySelectorAll(".tableFixHead").forEach(el => 

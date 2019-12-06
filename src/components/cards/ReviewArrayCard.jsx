@@ -1,4 +1,4 @@
-// ReviewArrayCard.jsx
+// src/components/cards/ReviewArrayCard.jsx
 
 import m from 'mithril'
 // Services

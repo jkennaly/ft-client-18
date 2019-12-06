@@ -31,6 +31,7 @@ const SeriesDetail = {
 		const seriesId = parseInt(rParams.id, 10)
 		//messages.forArtist(seriesId)
 		//console.log('Research preload', seriesId, festivalId, rParams)
+		remoteData.Festivals.remoteCheck(true)
 		if(seriesId) return remoteData.Series.subjectDetails({subject: seriesId, subjectType: SERIES})
 	},
 	oninit: ({attrs}) => {

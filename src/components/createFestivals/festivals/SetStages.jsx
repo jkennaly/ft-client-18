@@ -15,18 +15,19 @@ import NavCard from '../../../components/cards/NavCard.jsx';
 import EventSelector from '../../detailViewsPregame/fields/event/EventSelector.jsx'
 import UIButton from '../../ui/UIButton.jsx';
 import TextEntryModal from '../../modals/TextEntryModal.jsx';
+import SeriesWebsiteField from '../../detailViewsPregame/fields/series/SeriesWebsiteField.jsx'
 
 import {remoteData} from '../../../store/data';
+import {seriesChange, festivalChange} from '../../../store/action/event'
 
-const captureStages = (els, festivalId, userId) => {
+const captureStages = (els, festivalId) => {
 	//console.log(els)
 	const stageData = _.reduce(els, (pv, el, i) => { 
 		pv.push({
 			name: el.textContent, 
 			priority: i + 1,
 			festival: festivalId,
-			type: 1,
-			user: userId
+			type: 1
 		})
 		return pv
 	}, [])
@@ -41,16 +42,16 @@ const captureStages = (els, festivalId, userId) => {
 	const delPromise = remoteData.Places.batchDelete(deleteStages)
 
 	Promise.all([addPromise, delPromise])
-		.then(() => console.log('captureStages promises resolved'))
+		//.then(() => console.log('captureStages promises resolved'))
 
 
 }
+const {Series: series, Festivals: festivals, Dates: dates, Places: places, Sets: sets} = remoteData
 
+const seriesId = () => parseInt(m.route.param('seriesId'), 10)
+const festivalId = () => parseInt(m.route.param('festivalId'), 10)
+const dateId = () => parseInt(m.route.param('dateId'), 10)
 const SetStages = (vnode) => { 
-	var seriesId = 0
-	var festivalId = 0
-	var dateId = 0
-	var userId = 0
 	var currentStages = {}
 	var prevStages = {}
 	var allStages = {}
@@ -61,23 +62,16 @@ const SetStages = (vnode) => {
 		while (currentStages.firstChild) {
 		    currentStages.removeChild(currentStages.firstChild)
 	}}
-	const seriesChange = e => {
-		//console.log(e.target.value)
-		seriesId = parseInt(e.target.value, 10)
-		festivalId = 0
-		//resetSelector('#festival')
-		dateId = 0
-		newStageNames = []
+	const seriesChangea = e => {
 		clearMovedStages()
+		return seriesChange(e)
 
 		//resetSelector('#date')
 	}
-	const festivalChange = e => {
-		//console.log(e.target.value)
-		festivalId = parseInt(e.target.value, 10)
-		dateId = 0
+	const festivalChangea = seriesId => e => {
 		newStageNames = []
 		clearMovedStages()
+		return festivalChange(seriesId)(e)
 
 		//resetSelector('#date')
 	}
@@ -90,56 +84,63 @@ const SetStages = (vnode) => {
 
 	return {
 		oncreate: vnode => {
-			currentStages = vnode.dom.children[2].children[0].children[0].children[1]
-			drake = dragula([
-				currentStages,
-				vnode.dom.children[2].children[0].children[1].children[1],
-				vnode.dom.children[2].children[0].children[2].children[1],
-			])
+			currentStages = vnode.dom.querySelector(`.ft-card-container`)
+			drake = dragula(
+				[].slice.call(vnode.dom.querySelectorAll(`.ft-widget-dragula`))
+			)
+		
 		},
 		oninit: ({attrs}) => {
-			userId = auth.userId()
 			if (attrs.titleSet) attrs.titleSet(`Set up Stages`)
+
+			return Promise.all([
+				festivalId() ? places.maintainList({where: {festival: {inq: series.getSubFestivalIds(seriesId())}}}) : [],
+				dateId() ? sets.maintainList({where: {day: {inq: dates.getSubDayIds(dateId)}}}) : true
+			
+			])
 		},
 		view: () => 
 		<div class="launcher-container">
 			<div class="stage-banner-container">
 					<EventSelector 
-						seriesId={seriesId}
-						festivalId={festivalId}
-						seriesChange={seriesChange}
-						festivalChange={festivalChange}
+						seriesId={seriesId()}
+						festivalId={festivalId()}
+						seriesChange={seriesChangea}
+						festivalChange={festivalChangea(seriesId())}
 					/>
 			</div>
+			<SeriesWebsiteField id={seriesId()} />
 			<div>
 				<UIButton action={e => addingStage = true} buttonName="New Stage" />
 	  			<UIButton action={copyPreviousStages} buttonName="Copy previous stages" />
-				<UIButton action={e => captureStages(currentStages.children, festivalId, userId)} buttonName="SAVE" />
+				<UIButton action={e => captureStages(currentStages.children, festivalId())} buttonName="SAVE" />
 		  </div>
 				<div class="main-stage-content-scroll">
 				<WidgetContainer>
-					<FixedCardWidget header="Current Stage Order" tall={true}>
+					<FixedCardWidget header="Current Stage Order" containerClasses={'ft-widget-dragula'} tall={true}>
 						{
 							(!newStageNames.length ? [] : newStageNames)
 								.map(p => <NavCard fieldValue={p} key={p}/>)
 						}
-						{!festivalId ? [] : remoteData.Places.forFestival(festivalId)
+						{!festivalId() ? [] : remoteData.Places.forFestival(festivalId())
 							.map(p => 
 								<NavCard fieldValue={p.name} key={p.id}/>
 						)}
 					</FixedCardWidget>
-					<FixedCardWidget header="Previous Stages" tall={true}>
-						{!festivalId ? [] : _.uniqBy(remoteData.Places.list
-													.filter(p => remoteData.Festivals.getPeerIds(festivalId).indexOf(p.festival) > -1), x => x.name)
+					<FixedCardWidget header="Previous Stages" containerClasses={'ft-widget-dragula'} tall={true}>
+						{!festivalId() ? [] : _.uniqBy(remoteData.Places.list
+													.filter(p => remoteData.Festivals.getPeerIds(festivalId()).indexOf(p.festival) > -1), x => x.name)
 							.map(p => 
 								<NavCard fieldValue={p.name} key={p.id}/>
 						)}
 					</FixedCardWidget>
-					<FixedCardWidget header="All Stages" tall={true}>
+				{/*
+					<FixedCardWidget header="All Stages" containerClasses={'ft-widget-dragula'} tall={true}>
 						{_.uniqBy(remoteData.Places.list, x => x.name).map(p => 
 							<NavCard fieldValue={p.name} key={p.id}/>
 						)}
 					</FixedCardWidget>
+					*/}
 				</WidgetContainer>
 			</div>
 			<TextEntryModal 

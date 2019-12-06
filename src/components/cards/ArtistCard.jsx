@@ -1,4 +1,4 @@
-// ArtistCard.jsx
+// src/components/cards/ArtistCard.jsx
 
 import m from 'mithril'
 
@@ -12,9 +12,10 @@ import {remoteData} from '../../store/data';
 const defaultClick = attrs => () => m.route.set("/artists" + "/pregame" + '/' + attrs.data.id)
 
 const ArtistCard = {
+  //oninit: ({attrs}) => remoteData.Artists.getLocakPromise(attrs.data.id).catch(console.error),
   view: ({ attrs }) => <div 
     class={"ft-card ft-card-artist " + (attrs.uiClass ? attrs.uiClass : '')} 
-    key={'artist-' + attrs.data.id} 
+    key={'artist-' + (attrs.data ? attrs.data.id : attrs.subject)} 
     onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}
   >
     <div class="ft-fields-with-thumbnail">

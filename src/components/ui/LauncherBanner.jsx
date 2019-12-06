@@ -3,11 +3,15 @@
 import m from 'mithril'
 import _ from 'lodash'
 
+import {remoteData} from '../../store/data'
+
 import StageTitle from './StageTitle.jsx';
 import DisplayButton from './DisplayButton.jsx';
 import BannerButton from './BannerButton.jsx';
 import CollapsibleMenu from './CollapsibleMenu.jsx';
 import SearchBar from './SearchBar.jsx';
+
+const {Flags: flags} = remoteData
 
 var titleCache = {}
 const title = (attrs) => {
@@ -40,7 +44,14 @@ const LauncherBanner = () => {
 
 				{attrs.userRoles.includes('user') ? 
 					<BannerButton 
-						icon={<i class="fas fa-envelope"/>}
+						icon={<span class="fa-layers fa-fw ft-icon-stack">
+						    <i class="fas fa-envelope"/>
+						    {flags.pending([attrs.userId, attrs.userRoles]).length ? <i 
+								class="fas fa-flag" 
+								style="color:white;" 
+								data-fa-transform="shrink-8 up-3.8 left-4"
+							/> : ''}
+  					</span>}
 						clickFunction={e => m.route.set('/messages')}
 					/> 
 					: ''

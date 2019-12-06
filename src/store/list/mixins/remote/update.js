@@ -1,4 +1,4 @@
-// update.js
+// src/store/list/mixins/remote/update.js
 
 import provide from '../../../loading/provide'
 

@@ -32,7 +32,7 @@ const FixArtist = (vnode) => {
 			if (attrs.titleSet) attrs.titleSet(`Fix Artist Names`)
 		},
 		view: () => 
-		<div class="launcher-container">
+		<div class="ft-launcher-container">
 			<div class="stage-banner-container">
 			</div>
 				<div class="main-stage-content-scroll">

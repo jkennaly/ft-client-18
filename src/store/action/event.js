@@ -1,4 +1,4 @@
-// event.js
+// src/store/action/event.js
 
 import m from 'mithril'
 import _ from 'lodash'

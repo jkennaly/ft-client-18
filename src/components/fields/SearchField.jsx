@@ -6,7 +6,7 @@ const SearchField = {
   view: ({ attrs }) =>
     <span class="ft-search-field">
     	<label class="hidden" for="search-input">Search</label>
-      	<input type="text" oninput={e => attrs.patternChange(e.target.value)} name="search-input" placeholder="Search" />
+      	<input type="text" oninput={e => attrs.patternChange(e.target.value)} name="search-input" placeholder="Festivals & Artists" />
     </span>
 };
 

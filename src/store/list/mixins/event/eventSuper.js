@@ -1,4 +1,4 @@
-// eventSuper.js
+// src/store/list/mixins/event/eventSuper.js
 import _ from 'lodash'
 
 export default (superList) => { return  {

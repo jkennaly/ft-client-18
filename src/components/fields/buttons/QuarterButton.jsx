@@ -1,4 +1,4 @@
-// QuarterButton.jsx
+// src/components/fields/buttons/QuarterButton.jsx
 
 import m from 'mithril'
 
@@ -6,7 +6,7 @@ import m from 'mithril'
 const QuarterButton = vnode => { 
 	return {
 	  view: ({ attrs, children }) =>
-	    <div class="ft-quarter-button" >
+	    <div class="ft-quarter-button" onclick={attrs.clickFunction} >
 	      {children}
 	    </div>
 }}

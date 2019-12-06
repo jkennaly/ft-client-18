@@ -121,4 +121,5 @@ export default {
 			.filter(m => m.subjectType === 2 && (m.messageType === 2 || m.messageType === 1) && m.fromuser === author && _.includes(artistIds, m.subject))
 			.filter(m => moment(m.timestamp).add(1, 'y').isAfter())
 			.map(m => m.subject))},
+		
 }

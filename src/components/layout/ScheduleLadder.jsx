@@ -1,4 +1,4 @@
-// ScheduleLadder.jsx
+// src/components/layout/ScheduleLadder.jsx
 
 import m from 'mithril'
 import  ScheduleLabel from '../fields/ScheduleLabel.jsx';
@@ -24,6 +24,7 @@ const ScheduleLadder = (vnode) => {
 		},
 		view: ({attrs, children}) => {
 		    return <div class="schedule-ladder">
+		    	{children.find(x => x.attrs && x.attrs.display)}
 		      	<div class="schedule-labels">
 		      		{
 		      			labels(attrs)
@@ -40,13 +41,16 @@ const ScheduleLadder = (vnode) => {
 		      		attrs.stageIds.map(stageId => <div class="schedule-setbox">
 		        	{
 		        		children
-		        			.filter(x => x.attrs.stage === stageId)
+		        			//.filter(x => console.log(`ScheduleLadder`, stageId, x) || true)
+		        			.filter(x => x.attrs && x.attrs.stage === stageId)
 
 		        	}
 		      		</div>)
 		      	: <div class="schedule-setbox">
 		        	{
 		        		children
+		        			//.filter(x => console.log(`ScheduleLadder`, x) || true)
+		        			.filter(x => x.attrs && x.attrs.set)
 
 		        	}
 		      		</div> }

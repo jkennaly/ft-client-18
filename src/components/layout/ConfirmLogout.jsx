@@ -1,4 +1,4 @@
-// ConfirmLogout.jsx
+// src/components/layout/ConfirmLogout.jsx
 
 import m from 'mithril'
 import Auth from '../../services/auth.js';

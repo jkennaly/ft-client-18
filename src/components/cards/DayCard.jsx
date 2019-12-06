@@ -1,4 +1,4 @@
-// DayCard.jsx
+// src/components/cards/DayCard.jsx
 
 import m from 'mithril'
 

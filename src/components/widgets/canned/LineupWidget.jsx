@@ -1,4 +1,4 @@
-// LineupWidget.jsx
+// src/components/widgets/canned/LineupWidget.jsx
 
 //given a list of bands to research, this widget 
 //filters out unneded ones, sorts the rest and displays artist cards
@@ -39,7 +39,7 @@ const LineupWidget = vnode => {
 		//console.log('ArtistSearchWidget pattern ' + pattern)
 	}
 	return {
-		view: (vnode) => <FixedCardWidget header="Festival Lineup">
+		view: (vnode) => <FixedCardWidget header="Festival Lineup" tall={vnode.attrs.tall}>
 		{
 			/*
 				<ReviewModal 
@@ -71,6 +71,7 @@ const LineupWidget = vnode => {
 					}, (a, b) => '' + a.id + '.' + b.id))
 					.map(data => <ArtistCard 
 						data={data}
+						clickFunction={vnode.attrs.clickFunctionForData ? vnode.attrs.clickFunctionForData(data) : undefined}
 						festivalId={vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param('id'), 10)}
 					/>)
 			}

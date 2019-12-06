@@ -1,4 +1,4 @@
-// eventSub.js
+// src/store/list/mixins/event/eventSub.js
 
 export default (subList) => { return  {
 	getSubIds (id) { 

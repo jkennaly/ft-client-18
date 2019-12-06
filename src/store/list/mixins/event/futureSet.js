@@ -1,17 +1,18 @@
-// futureSet.js
+// src/store/list/mixins/event/futureSet.js
 import _ from 'lodash'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
 var dateBaseCache = {}
 export default {
 	active (id) {
-		//console.log(this, id)
 		try {
 			const s = this.getStartMoment(id)
 			const e = this.getEndMoment(id)
+		console.log(this.fieldName + 'active ok', id, moment().isBetween(s, e))
 			return  moment().isBetween(s, e)
 		}
 		catch {
+		console.log(this.fieldName + 'active bad', id)
 			return false
 		}
 	},

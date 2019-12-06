@@ -1,15 +1,4 @@
-// SetCard.jsx
-// attrs: 	
-//  eventId
-//  superId
-//	nameFrag
-//  artistName
-//  artistPriorityName
-//	stageId
-//	dayId
-//	seriesId
-//	festivalId
-//  averageRating
+// src/components/cards/SetCard.jsx
 
 import m from 'mithril'
 import _ from 'lodash'
@@ -21,7 +10,9 @@ import  AverageRatingField from '../fields/AverageRatingField.jsx';
 import {subjectData} from '../../store/subjectData.js';
 import {remoteData} from '../../store/data.js';
 
-const currentSet = _.memoize(id => subjectData.get({subject: id, subjectType: subjectData.SET}))
+const {Sets: sets} = remoteData
+
+const currentSet = id => sets.get(id)
 const setIdField = (field, id) => currentSet(id) ? currentSet(id)[field] : 0
 
 const SetCard = {
@@ -33,8 +24,8 @@ const SetCard = {
       </div>
       <div class="ft-set-diff-fields">
           <CheckedInUsersField subjectObject={attrs.subjectObject} />
+        <NameField fieldValue={remoteData.Sets.getTimeString(attrs.subjectObject.subject)} />
           {/*
-        <NameField fieldValue={remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(setIdField('band', attrs.subjectObject.subject), remoteData.Days.getFestivalId(setIdField('day', attrs.subjectObject.subject))))} />
       */}
         <StageNameField stageId={setIdField('stage', attrs.subjectObject.subject)} />
 

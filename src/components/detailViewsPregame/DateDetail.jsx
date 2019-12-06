@@ -33,13 +33,13 @@ const lineups = remoteData.Lineups
 
 const id = () => parseInt(m.route.param('id'), 10)
 const date = () => dates.get(id())
-const dso = _.memoize(dateId => {return {subject: dateId, subjectType: DATE}})
+const dso = dateId => {return {subject: dateId, subjectType: DATE}}
 const festivalId = dateId => dates.getSuperId(dateId)
 const sets = () => {
 	const dayIds = dates.getSubDayIds(id())
 	return remoteData.Sets.getFiltered(s => dayIds.includes(s.day))
 }
-const user = _.memoize(attrs => _.isInteger(attrs.userId) ? attrs.userId : 0, attrs => attrs.userId)
+const user = attrs => _.isInteger(attrs.userId) ? attrs.userId : 0
 const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
 const lineup = lineups.forFestival
 
@@ -53,7 +53,9 @@ const DateDetail = {
 			const dateId = parseInt(rParams.id, 10)
 			//messages.forArtist(dateId)
 			//console.log('Research preload', seriesId, festivalId, rParams)
+			
 			if(dateId) return dates.subjectDetails({subject: dateId, subjectType: DATE})
+
 		},
 		oninit: ({attrs}) => {
 			if (attrs.titleSet) attrs.titleSet(dates.getEventName(id()))
@@ -73,6 +75,10 @@ const DateDetail = {
 			//there is a valid date id
 			//the date has not ended
 			//there is no checkin for the date 
+		}
+		{
+			//console.log('user roles', roles(attrs))
+
 		}
 		{ date() && !dates.ended(id()) && !messages.implicit(dso(id())) ? 
 			<IntentToggle 
