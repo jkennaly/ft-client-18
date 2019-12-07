@@ -306,33 +306,35 @@ export const subjectData = {
 
 	},
 	data: ({subject, subjectType}) => subjectType && subject ? remoteData[subjectDataField(subjectType)].get(subject) : '',
-	ratingBy: (sub, type, author = auth.userId()) => {
+	ratingBy: (sub, type, user) => {
+		const author = user ? user : 0
 		//console.log('subjectData ratingBy sub: ' + sub + 'type: ' + type + 'author: ' + author)
 		const message = getRating(sub, type, author)
 		const rate = message && message.content ? parseInt(message.content, 10) : 0
 		return rate
 	},
-	ratingId: (sub, type, author = auth.userId()) => {
+	ratingId: (sub, type, user) => {
+		const author = user ? user : 0
 		const message = getRating(sub, type, author)
 		const id = message && message.id
 		return id
 	},
-	ratingObject: (subjectObject, author = auth.userId()) => {
-		const {subject} = subjectObject
-		const {subjectType} = subjectObject
+	ratingObject: (subjectObject, user) => {
+		const author = user ? user : 0
+		const {subject, subjectType} = subjectObject
 		//the gold rating is the user's most recent rating for the subject
 		const message = getRating(subject, subjectType, author)
 		const goldRating = message && message.content && parseInt(message.content, 10)
-		//console.log('ratingsObject gold', goldRating)
+		if(subject === 5102)console.log('ratingsObject gold', goldRating)
 		if(goldRating) return _.assign({}, {author: author, rating: goldRating, color: 'gold'}, subjectObject)
 		//the green rating is the average of the users relatedRatings
 		const relatedSubjects = []
-		//console.log('ratingsObject relatedSubjects', relatedSubjects)
+		if(subject === 5102)console.log('ratingsObject relatedSubjects', relatedSubjects)
 		const relatedRatings = relatedSubjects
 			.map(({subject, subjectType}) => getRating(subject, subjectType, author))
 			.filter(_.isInteger)
 		const greenRating = relatedRatings.reduce((avg, r, i, arr) => avg + r / arr.length, 0)
-		//console.log('ratingsObject green', greenRating)
+		if(subject === 5102)console.log('ratingsObject green', greenRating)
 		if(greenRating) return _.assign({}, {author: author, rating: goldRating, color: 'forestgreen'}, subjectObject)
 		//the black rating is the average of all avable ratings for the primary, or if none, the secondarties
 		const primaryRatings = remoteData.Messages.getFiltered({messageType: 2, subject: subject, subjectType: subjectType})
@@ -346,7 +348,7 @@ export const subjectData = {
 			.filter(x => x)
 		const allRatings = [...primaryRatings, ...secondaryRatings].filter(x => x)
 		const blackRating = allRatings.length ? allRatings.reduce((avg, r, i, arr) => avg + r / arr.length, 0) : 0
-//console.log('ratingsObject black', blackRating)
+		if(subject === 5102)console.log('ratingsObject black', blackRating)
 		
 		return blackRating ? _.assign({}, {author: author, rating: blackRating, color: 'black'}, subjectObject) : _.assign({}, {author: author, rating: 0, color: 'black'}, subjectObject)
 	},
@@ -367,9 +369,9 @@ export const subjectData = {
 		const id = message && message.id
 		return id
 	},
-	ended: subjectObject => subjectObject && subjectObject.subject && remoteData[subjectDataField(subjectObject.subjectType)][eventEnded[subjectObject.subjectType]](subjectObject.subject),
-	active: subjectObject => subjectObject && subjectObject.subject && remoteData[subjectDataField(subjectObject.subjectType)][eventActive[subjectObject.subjectType]](subjectObject.subject),
-	future: subjectObject => subjectObject && subjectObject.subject && remoteData[subjectDataField(subjectObject.subjectType)][eventFuture[subjectObject.subjectType]](subjectObject.subject),
+	ended: subjectObject => subjectObject && subjectObject.subject && _.invoke(remoteData, `[${subjectDataField(subjectObject.subjectType)}][${eventEnded[subjectObject.subjectType]}]`, subjectObject.subject),
+	active: subjectObject => subjectObject && subjectObject.subject && _.invoke(remoteData, `[${subjectDataField(subjectObject.subjectType)}][${eventActive[subjectObject.subjectType]}]`, subjectObject.subject),
+	future: subjectObject => subjectObject && subjectObject.subject && _.invoke(remoteData, `[${subjectDataField(subjectObject.subjectType)}][${eventFuture[subjectObject.subjectType]}]`, subjectObject.subject),
 	checkIn: subjectObject => {
 		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
 
@@ -382,7 +384,7 @@ export const subjectData = {
 		        content: 0
 		    })
 		}},
-	checkedIn: (subjectObject = {subject: auth.userId(), subjectType: USER}, options = {}) => {
+	checkedIn: (subjectObject, options = {}) => {
 		//console.log('subjectData checkedIn', subjectObject, options)
 		if(!subjectObject.subject) return false
 		const subjectObjectSpecsUser = subjectObject.subjectType === USER
@@ -441,8 +443,8 @@ export const subjectData = {
 		return subjectDirectCheckins
 
 	},
-	feelingClass: subjectObject => {
-		const rating = subjectData.ratingObject(subjectObject)
+	feelingClass: (subjectObject, userId) => {
+		const rating = subjectData.ratingObject(subjectObject, userId)
 		const strength = rating.color === 'black' ? 'weak' : 'strong'
 		const feeling = !rating.rating ? '' :
 			rating.rating < 3 ? 'hate' :
@@ -595,7 +597,7 @@ export const subjectData = {
 
 		return bulkUpdatePromise
 	},
-	getReviews: subjectObject => {
+	getReviews: (subjectObject, userId) => {
 		//console.log('subjectData getDetail', secondarySubjectObjects(subjectObject.subjectType)(subjectObject.subject))
 		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
 		if(!primaryField) return {}
@@ -624,8 +626,8 @@ export const subjectData = {
 		
 		const reviews = reviewArrays([...allPrimaryReviewMessages, ...secondaryReviewMessages])
 		//console.log('subjectData.getReviews reviews', reviews)
-		const myReviews = reviews.filter(r => r.author === auth.userId())
-		const friendReviews = reviews.filter(r => r.author !== auth.userId())
+		const myReviews = reviews.filter(r => r.author === userId)
+		const friendReviews = reviews.filter(r => r.author !== userId)
 		return {
 			myReviews: myReviews,
 			friendReviews: friendReviews

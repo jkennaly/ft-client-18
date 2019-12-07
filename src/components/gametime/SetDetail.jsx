@@ -39,19 +39,24 @@ const jsx = {
 				sources={['local']}
 				addDisabled={!attrs.checkedIn}
 				userId={attrs.userId}
+				usePlaceholders={true}
 			/>
 		</FixedCardWidget>
-		{attrs.checkinAllowed ?
 			<FixedCardWidget >
+		{attrs.checkinAllowed ?
 				<CheckinToggle 
 					subjectObject={attrs.subjectObject} 
 					debug={false}
 					permission={attrs.checkinAllowed} 
 					allowed={attrs.checkinAllowed}
 				/>
-				{attrs.checkedIn ? <ReviewCard subjectObject={attrs.subjectObject} name={subjectData.name(attrs.subjectObject)} /> : ''}
-			</FixedCardWidget>
 		: ''}
+				{attrs.checkedIn ? <ReviewCard 
+					subjectObject={attrs.subjectObject} 
+					name={subjectData.name(attrs.subjectObject)} 
+					popModal={attrs.popModal}
+				/> : ''}
+			</FixedCardWidget>
 		{attrs.checkins && attrs.checkins.active && attrs.checkins.active.length ? <ReviewArraysWidget 
 			header={`Checked In`}
 		>
@@ -147,7 +152,7 @@ const SetDetail = {
 			ended: []
 		})
 		const name = sets.getName(setId)
-		const reviews = subjectData.getReviews(subjectObject)
+		const reviews = subjectData.getReviews(subjectObject, userId)
 		const myReviews = reviews.myReviews
 		const friendReviews = reviews.friendReviews
 		const mapping = {
@@ -164,7 +169,8 @@ const SetDetail = {
 			checkins: checkins,
 			name: name,
 			myReviews: myReviews,
-			friendReviews: friendReviews
+			friendReviews: friendReviews,
+			popModal: attrs.popModal
 		}
 		//console.log('SetDetail attrComp mapping', mapping)
 	

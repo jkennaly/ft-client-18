@@ -30,10 +30,10 @@ const jsx = {
 		/>
 			<div class="main-stage-gametime-content-scroll">
 			{
-				/locations/.test(m.route.get()) ? <Locations dateId={attrs.dateId} dayId={attrs.dayId} subjectObject={attrs.subjectObject} /> :
+				/locations/.test(m.route.get()) ? <Locations dateId={attrs.dateId} dayId={attrs.dayId} subjectObject={attrs.subjectObject} userId={attrs.userId} /> :
 				attrs.subjectType === 9 ? <Schedule dateId={attrs.dateId} dayId={attrs.dayId} subjectObject={attrs.subjectObject}/> : 
 				attrs.subjectType === 8 ? <NowPlaying dateId={attrs.dateId} dayId={attrs.dayId} subjectObject={attrs.subjectObject}/> : 
-				<SetDetail dateId={attrs.dateId} dayId={attrs.dayId} subjectObject={attrs.subjectObject} userId={attrs.userId}/> 
+				<SetDetail dateId={attrs.dateId} dayId={attrs.dayId} subjectObject={attrs.subjectObject} userId={attrs.userId} popModal={attrs.popModal}/> 
 			}
 			</div>
 		</div>
@@ -70,7 +70,8 @@ const Gametime = {
 				subjectType: attrs.subjectType
 			},
 			subject: attrs.subject,
-			subjectType: attrs.subjectType
+			subjectType: attrs.subjectType,
+			popModal: attrs.popModal
 		}
 	
 		return m(jsx, mapping )

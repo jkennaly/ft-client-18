@@ -18,5 +18,13 @@ export default (days) => { return  {
 		const endMoment = this.getEndMoment(id)
 		return startMoment.format('h:mm') + ' ' + endMoment.format('h:mm')
 	},
-	getTimeString (id) {return this.getSetTimeText(id) }
+	getTimeString (id) {
+		try {
+		return this.getSetTimeText(id) 
+	}
+		catch {
+			return ''
+		}
+	}
+
 }}

@@ -36,13 +36,14 @@ const Schedule = ({attrs}) => {
 				{stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).map(stage => <h2 class="ft-schedule-header-field">{stage.name}</h2>)}
 			</div>
 
-			<ScheduleLadder stageIds={stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).map(x => x.id)}>
+			<ScheduleLadder  stageIds={stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).map(x => x.id)}>
 				{ [<ScheduleNowBar display={true} dayId={attrs.subjectObject.subject} />,
 				...allSets(attrs.subjectObject.subject)
 				//.filter(x => console.log('Schedule Ladder ', x) || true)
 					.filter(data => data.end)
 					//.filter(data => data.stage === 159)
 					.map(data => <ScheduleSet 
+						userId={attrs.userId} 
 						set={data}
 						top={true}
 						stage={data.stage}

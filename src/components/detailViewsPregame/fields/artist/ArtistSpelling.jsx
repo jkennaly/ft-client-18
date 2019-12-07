@@ -8,7 +8,7 @@ const auth = new Auth();
 import m from 'mithril'
 import _ from 'lodash'
 const dragula = require("dragula");
-const Promise = require('promise-polyfill').default
+//const Promise = require('promise-polyfill').default
 
 import WidgetContainer from '../../../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../../../components/widgets/FixedCard.jsx';

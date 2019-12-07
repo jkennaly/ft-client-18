@@ -14,7 +14,7 @@ import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 const rawPlaces = (subjectObject, count = 5) => {
 	const places = subjectData.places(subjectObject)
 	const placeSearchStrings = places
-		.map(s => {return {subject: s.id, subjectType: subjectData.PLACE}})
+		.map(s => {return {subject: s.id, subjectType: PLACE}})
 		//map to search string
 		.map(so => _.assign({}, so, {name: subjectData.name(so)}))
 	return pattern => _.take(smartSearch(placeSearchStrings,
@@ -50,12 +50,12 @@ const Locations = () => {
 	}
 	return {
 		view: ({attrs}) => <div>
-			{console.log('Locations subjectObject', attrs.subjectObject)}
+			{console.log('Locations attrs', attrs)}
 			<WidgetContainer>
 		
 				<FixedCardWidget header={`Check In`} display={true}>
 					{// my current checkin
-						`Current checkin: ${subjectData.name(subjectData.checkedIn())}`
+						`Current checkin: ${subjectData.name(subjectData.checkedIn({subject: attrs.userId, subjectType: USER}))}`
 					}
 					{subjectData.active(attrs.subjectObject) ? <div>
 
@@ -78,7 +78,7 @@ const Locations = () => {
 							if(a.priority - b.priority) return a.priority - b.priority
 							return 0
 						})
-						.map(s => subjectCard({subject: s.id, subjectType: subjectData.PLACE}, {dayId: attrs.dayId}))
+						.map(s => subjectCard({subject: s.id, subjectType: PLACE}, {dayId: attrs.dayId}))
 
 				}
 				</FixedCardWidget>
@@ -88,7 +88,7 @@ const Locations = () => {
 
 					subjectData.users(attrs.subjectObject)
 						.map(s => {
-							const mainSubject = {subject: s.id, subjectType: subjectData.USER}
+							const mainSubject = {subject: s.id, subjectType: USER}
 							const contextObject = subjectData.checkedIn(mainSubject)
 							return subjectCard(mainSubject, {contextObject: contextObject, data: s})
 						})

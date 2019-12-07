@@ -79,11 +79,12 @@ const DateDetail = {
 		{
 			//console.log('user roles', roles(attrs))
 
+
 		}
 		{ date() && !dates.ended(id()) && !messages.implicit(dso(id())) ? 
 			<IntentToggle 
 				subjectObject={dso(id())}
-				permission={roles(attrs).includes('user')}
+				permission={attrs.userRoles.includes('user')}
 			/> 
 		: '' }
 		{

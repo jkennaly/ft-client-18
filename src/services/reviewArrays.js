@@ -102,7 +102,7 @@ const createPreMergeArrays = reviewArrays => {
 		.filter(blackoutClearFilter(blackouts))
 		//not blacked out by a more recent rating
 		.filter((ra, i, raa) => {
-			recentBlackouts = allBlackouts.slice(0, i)
+			const recentBlackouts = allBlackouts.slice(0, i)
 			return(blackoutClearFilter(recentBlackouts)(ra))
 		})
 		.map(ra => [ra])

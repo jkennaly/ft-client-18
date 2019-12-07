@@ -1,7 +1,7 @@
 // index.jsx
 
 import m from 'mithril'
-const Promise = require('promise-polyfill').default
+//const Promise = require('promise-polyfill').default
 const root = document.getElementById("app");
 
 //console.log('app running index.jsx')

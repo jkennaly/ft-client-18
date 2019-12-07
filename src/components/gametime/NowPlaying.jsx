@@ -37,26 +37,20 @@ const NowPlaying = () => {
 			{
 				setsD(attrs.dayId)
 					.filter(s => sets.active(s.id))
-					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: SET}} />)
+					.map(s => <SetCard userId={attrs.userId} subjectObject={{subject: s.id, subjectType: SET}} />)
 
 			}
 			</FixedCardWidget>
 		
 			<FixedCardWidget 
 				header={`Next Up`}
-				display={setsD(attrs.dayId)
-					.filter(s => s.day === attrs.dayId)
-					.filter(s => sets.future(s.id))
-					.sort((a, b) => a.start - b.start)[0]
-					} >
+				display={sets.future(attrs.dayId).length} >
 			{
-				_.uniqBy(setsD(attrs.dayId)
-					.filter(s => s.day === attrs.dayId)
-					.filter(s => sets.future(s.id))
+				_.uniqBy(sets.future(attrs.dayId)
 					.sort((a, b) => a.start - b.start), 
 					'stage'
 					)
-					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: SET}} />)
+					.map(s => <SetCard userId={attrs.userId} subjectObject={{subject: s.id, subjectType: SET}} />)
 
 			}
 			</FixedCardWidget>
@@ -64,18 +58,19 @@ const NowPlaying = () => {
 			<FixedCardWidget 
 				header={`Last Played`}
 				display={setsD(attrs.dayId)
-					.filter(s => s.day === attrs.dayId)
 					.filter(s => sets.ended(s.id))[0]
 					} >
 			{
 				_.uniqBy(setsD(attrs.dayId)
-					.filter(s => s.day === attrs.dayId)
 					.filter(s => sets.ended(s.id))
 					.sort((a, b) => b.end - a.end), 
 					'stage'
 					)
 				//.filter(x => console.log('Last Played', x) || true)
-					.map(s => <SetCard subjectObject={{subject: s.id, subjectType: SET}} />)
+					.map(s => <SetCard 
+						userId={attrs.userId} 
+						subjectObject={{subject: s.id, subjectType: SET}} 
+					/>)
 
 			}
 			</FixedCardWidget>

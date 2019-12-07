@@ -51,13 +51,13 @@ const Launcher = {
 		<WidgetContainer>
 			<FixedCardWidget header="My Festivals">
 			{
-				remoteData.Dates.checkedIn()
+				remoteData.Dates.checkedIn(attrs.userId)
 					.map(data => <DateCard 
 						eventId={data.id}
 					/>)
 			}
 			{
-				remoteData.Festivals.intended()
+				remoteData.Festivals.intended(attrs.userId)
 					.map(data => <FestivalCard 
 						eventId={data.id}
 					/>)

@@ -43,7 +43,7 @@ const jsx = {
                 }) : undefined}
                 phCreator={attrs.usePlaceholders ? subjectData.name({
                     subject: attrs.userId,
-                    subjectType: subjectData.USER
+                    subjectType: USER
                 }) : undefined}
                 phSourceUrl={attrs.usePlaceholders ? String(window.location).replace(/(gametime)/, 'image') + '/' + attrs.userId : undefined}
                 existingLicense={attrs.usePlaceholders}
@@ -67,7 +67,8 @@ const CloudImageField = {
             subject: attrs.subject,
             subjectType: attrs.subjectType,
             popModal: attrs.popModal,
-            hideFlag: attrs.hideFlag
+            hideFlag: attrs.hideFlag,
+            usePlaceholders: attrs.usePlaceHolders
         }
             //console.log(`ScheduleThemer mapping`, mapping)
         return m(jsx, mapping)

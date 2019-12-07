@@ -1,8 +1,8 @@
 // dateCheckin.js
 
 
-export default (messages) => { return  {
+export default (messages) => { return {
 	checkedIn (userId) {return this.current()
-			.filter(date => messages.getFiltered({subject: date.id, subjectType: 8, messageType: 3, fromuser: userId}).length)
+			.filter(date => messages.implicit({subjectType: this.subjectType, subject: date.id}, userId))
 		
 }}}

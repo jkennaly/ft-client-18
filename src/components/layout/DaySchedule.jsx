@@ -54,6 +54,7 @@ const DaySchedule = (vnode) => {
 					.filter(data => data.end)
 					//.filter(data => data.stage === 159)
 					.map(data => <ScheduleSet 
+						userId={attrs.userId} 
 						set={data}
 						startOffset={startOffset(attrs.sets)}
 						top={true}

@@ -8,11 +8,11 @@ export default {
 		try {
 			const s = this.getStartMoment(id)
 			const e = this.getEndMoment(id)
-		console.log(this.fieldName + 'active ok', id, moment().isBetween(s, e))
+		//console.log(this.fieldName + 'active ok', id, moment().isBetween(s, e))
 			return  moment().isBetween(s, e)
 		}
 		catch {
-		console.log(this.fieldName + 'active bad', id)
+		//console.log(this.fieldName + 'active bad', id)
 			return false
 		}
 	},
@@ -29,33 +29,26 @@ export default {
 	current () {return this.list.filter(d => {
 		//now is greater than the start moment but less than the end moment
 		try {
-			const s = this.getStartMoment(id)
-			const e = this.getEndMoment(id)
+			const s = this.getStartMoment(d.id)
+			const e = this.getEndMoment(d.id)
 			return  moment().isBetween(s, e, 'minute')
 		}
 		catch {
 			return false
 		}
 	})},
-	future () {
-		const current = this.current()
-			.map(d => d.id)
-		return this.list
-			.filter(d => current.indexOf(d.id) < 0)
-			.filter(d => {
-		try {
+	future (dayId) {
+		return this.getFiltered(d => {
+			if(dayId && dayId !== d.day) return false
+			try {
 				var now = moment()
-			const s = this.getStartMoment(id)
-			return  s.isAfter(now, 'minute')
-		}
-		catch {
-			return false
-		}
-				//now is greater than now
-				var now = moment()
-				var start = this.getStartMoment(d.id)
-				return start.isAfter(now, 'minute')
-			})
+				const s = this.getStartMoment(d.id)
+				return  s.isAfter(now, 'minute')
+			}
+			catch {
+				return false
+			}
+		})
 	},
 	soon (minutesAhead = 30) {
 		//console.log('this soon ' + minutesAhead)

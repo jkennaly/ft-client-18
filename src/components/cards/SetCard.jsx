@@ -20,7 +20,7 @@ const SetCard = {
     <div class={"ft-card ft-card-set " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set('/gametime/3/' + attrs.subjectObject.subject)}>
       <div class="ft-set-name-fields">
         <NameField fieldValue={subjectData.name(attrs.subjectObject)} />
-      <AverageRatingField ratingObject={subjectData.ratingObject(attrs.subjectObject)}/>
+      <AverageRatingField ratingObject={subjectData.ratingObject(attrs.subjectObject, attrs.userID)}/>
       </div>
       <div class="ft-set-diff-fields">
           <CheckedInUsersField subjectObject={attrs.subjectObject} />
