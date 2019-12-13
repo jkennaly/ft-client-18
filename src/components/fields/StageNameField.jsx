@@ -1,4 +1,4 @@
-// StageNameField.jsx
+// src/components/fields/StageNameField.jsx
 //attrs: stageId
 
 import m from 'mithril'

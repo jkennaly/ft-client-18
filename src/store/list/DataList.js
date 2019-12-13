@@ -52,12 +52,14 @@ DataList.prototype.replaceList = function(data) {
 	const list = _.isArray(data) ? data : []
 	const newMeta = calcMeta(list)
 	const dataChange = list.some(li => {
+		if(!li) return false
 		const cv = this.get(li.id)
 		const alreadyDeleted = li.deleted && !cv
 		const same = alreadyDeleted || _.eq(cv, li)
 		//console.log('replaceList li', li, cv, alreadyDeleted, same)
 		return !same
 	}) || this.list.some(li => {
+		if(!li) return false
 		const cv = list.find(l => l.id === li.id)
 		const same =  _.eq(cv, li)
 		//console.log('replaceList li', li, cv, alreadyDeleted, same)
@@ -78,6 +80,7 @@ DataList.prototype.backfillList = function(list, localEntry = false) {
 	if(!this) throw new Error("Invalid DataList call backfillList")
 	if(!_.isArray(list)) throw new Error("Invalid list backfill")
 	const changed = li => {
+		if(!li) return false
 		const cv = this.get(li.id)
 		const alreadyDeleted = li.deleted && !cv
 		const same = alreadyDeleted || _.eq(cv, li)
@@ -141,8 +144,16 @@ DataList.prototype.acquireListUpdate = function(queryString, url, simResponse) {
 		.then(() => updated)
 }
 
+var supCache = {}
+
 DataList.prototype.acquireListSupplement = function(queryString, url, simResponse) {
 	if(!this) throw new Error("Invalid DataList call acquireListSupplement")
+		//check if we have run this query before and the cahce is still good
+	const key = `${this.fieldName}.${queryString}.${url}`
+	const maxAge = this.remoteInterval * 1000
+	const cacheGood = _.get(supCache, key, 0) + maxAge > Date.now()
+	if(cacheGood) return Promise.resolve(false)
+	_.set(supCache, key, Date.now())
 		var updated = false
 		//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
 	return updateModel(this.fieldName, queryString, url, simResponse)
@@ -153,6 +164,7 @@ DataList.prototype.acquireListSupplement = function(queryString, url, simRespons
 
 DataList.prototype.maintainList = function(filterObject) {
 	if(!this) throw new Error("Invalid DataList call maintainList")
+	return this.acquireListSupplement(`filter=${JSON.stringify(filterObject)}`)
 		/*
 	const listIdsPresent = this.loopFiltered(filterObject).map(x => x.id)
 	const andObject = {id: {nin: listIdsPresent}}
@@ -178,12 +190,6 @@ DataList.prototype.maintainList = function(filterObject) {
 
 	}
 	*/
-	var updated = false
-	//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
-	return provide(undefined, this.fieldName, `?filter=${JSON.stringify(filterObject)}`, '', `GET` )
-		.then((list) => {if(_.isArray(list)) this.backfillList(list);})
-		.then(() => archive(this.fieldName, this.list))
-		.then(() => updated)
 }
 
 export default DataList

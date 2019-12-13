@@ -46,23 +46,23 @@ export default ({artists, days, sets, messages, series, festivals, venues, place
 					date: subjectData.id
 				}})
 				return Promise.all([
-					lineups.acquireListUpdate(lineQuery, lineEnd)
+					lineups.acquireListSupplement(lineQuery, lineEnd)
 						.then(upd => updated = updated || upd)
 						//artists
 						.then(() => lineups.getFiltered({festival: subjectData.festival})
 							.map(x => x.band)
 						)
 						.then(artistIds => artists.getManyPromise(artistIds)),
-					days.acquireListUpdate(dayQuery, dayEnd)
+					days.acquireListSupplement(dayQuery, dayEnd)
 						.then(upd => updated = updated || upd)
 						//sets
 						.then(() => days.getFiltered({date: so.subject})
 							.map(x => x.id)
 						)
 						.then(dayIds => {
-							sets.acquireListUpdate(`filter=${JSON.stringify({where: {day: {inq: dayIds}}})}`)
+							sets.acquireListSupplement(`filter=${JSON.stringify({where: {day: {inq: dayIds}}})}`)
 						}),
-					places.acquireListUpdate(`filter=${JSON.stringify({where: {festival: subjectData.festival}})}`)
+					places.acquireListSupplement(`filter=${JSON.stringify({where: {festival: subjectData.festival}})}`)
 					,
 					messages.loadForFestival(subjectData.festival)
 						.then(upd => updated = updated || upd)

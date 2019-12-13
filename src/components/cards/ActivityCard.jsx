@@ -10,6 +10,7 @@ import  NameField from '../fields/NameField.jsx';
 import  AverageRatingField from '../fields/AverageRatingField.jsx';
 import  UserAvatarField from '../fields/UserAvatarField.jsx';
 import  DiscussOverlay from '../cardOverlays/DiscussOverlay.jsx'
+import  UserCard from '../cards/UserCard.jsx'
 import {remoteData} from '../../store/data';
 
 const displayComment = me => me.filter(m => m.messageType === 1 || m.messageType === 8)[0]
@@ -78,8 +79,8 @@ const ActivityCard = vnode => {
               class="ft-card-title"
               onclick={attrs.headact ? attrs.headact : () => 0}
               >{attrs.headline}</span> : ''}
-              {attrs.discusser === attrs.userId || !remoteData.MessagesMonitors.unread(id(attrs)) ? '' : <div class="quarter" onclick={e => {
-                //console.log('quarter click') 
+              {attrs.discusser === attrs.userId || !remoteData.MessagesMonitors.unread(id(attrs)) ? '' : <div class="ft-quarter ft-close-click" onclick={e => {
+                //console.log('ft-quarter click') 
                 //console.log('MessagesMonitors length ' + remoteData.MessagesMonitors.list.length)
                 if(attrs.discusser !== attrs.userId) remoteData.MessagesMonitors.markRead(id(attrs))
                 e.stopPropagation()
@@ -88,8 +89,16 @@ const ActivityCard = vnode => {
             </div>}
           </div>
           <div class="ft-horizontal-fields ft-flex-grow">
-            <div class="ft-vertical-fields">
-              <UserAvatarField data={attrs.discusser} />
+            <div class="ft-vertical-fields ft-card-above-overlay">
+              <UserAvatarField data={attrs.discusser} itemClicked={e => {
+                attrs.popModal('option', {
+                  headerCard: <UserCard 
+                    contextObject={{subjectType: USER, subject: attrs.discusser}} 
+                    data={remoteData.Users.get(attrs.discusser)} 
+                    small={true}
+                  />,
+                  options: remoteData.Users.interactOptions(attrs.discusser)
+              })}} />
               {attrs.rating ? <AverageRatingField averageRating={attrs.rating} /> : ''}
               <span>{year(attrs)}</span>
             </div>

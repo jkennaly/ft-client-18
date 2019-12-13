@@ -1,4 +1,4 @@
-// SetNameField.jsx
+// src/components/fields/SetNameField.jsx
 //attrs: 
 //	artistName
 //	seriesId

@@ -4,7 +4,6 @@ import Auth from '../../../../services/auth.js';
 const auth = new Auth();
 
 
-
 import m from 'mithril'
 import _ from 'lodash'
 const dragula = require("dragula");

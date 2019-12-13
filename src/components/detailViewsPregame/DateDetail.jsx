@@ -1,4 +1,4 @@
-// DateDetail.jsx
+// src/components/detailViewsPregame/DateDetail.jsx
 
 
 import m from 'mithril'

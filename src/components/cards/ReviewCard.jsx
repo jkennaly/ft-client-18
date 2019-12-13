@@ -8,7 +8,7 @@ const ReviewCard = {
 	  view: ({ attrs }) =>
 	    <div class={"ft-card ft-card-review " + (attrs.uiClass ? attrs.uiClass : '')} >
 	      <div class="ft-fields" onclick={e => attrs.popModal('review', {
-			subject: attrs.subjectObject ? attrs.subjectObject : {
+			subjectObject: attrs.subjectObject ? attrs.subjectObject : {
 				subject: attrs.data.id,
 				subjectType: attrs.subjectType ? attrs.subjectType : ARTIST
 			}

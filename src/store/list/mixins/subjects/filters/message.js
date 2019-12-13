@@ -84,19 +84,6 @@ export default {
 		forSet (setId) {return this.aboutSets()
 			.filter(m => m.subject === setId)
 		},
-		forArtistReviewCard (artistId) {return  this.list
-			.filter(m => (m.subjectType === 2) && (m.subject === artistId) && m.fromuser)
-			.reduce((final, me) => {
-				if(!final[me.fromuser]) final[me.fromuser] = []
-				final[me.fromuser].push(me)
-				final[me.fromuser] = final[me.fromuser]
-					.sort((a, b) => {
-						if(a.messageType - b.messageType) return a.messageType - b.messageType
-						return timeStampSort(a, b)
-					})
-				return final
-			}, {})
-		},
 		forced ({artistIds, festivalId}) {return  _.uniq(this.list
 			.filter(m => m.fromuser ===  m.touser && m.subjectType === 2 && m.messageType === 4 && _.includes(artistIds, m.subject))
 			.filter(m => researchApplicable(m.content, {festivalId: festivalId}))

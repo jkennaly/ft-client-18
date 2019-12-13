@@ -36,22 +36,26 @@ const ArtistEntryModal = {
                 //console.log(selectedId)
                 //if there is a selected id, return it
                 //if not, create the artist, then return that id
-                if(selectedId && !textValue.length) {
-                    attrs.hide()
-                    attrs.action(remoteData.Lineups.create({band: selectedId, festival: attrs.festivalId}))
-                    selectedId = 0
-                    textValue = ''
-                    return
-                }
+                if(selectedId && !textValue.length) attrs.action(remoteData.Lineups.create({band: selectedId, festival: attrs.festivalId})
+                   .then(result => {
+                        attrs.hide()
+                        selectedId = 0
+                        textValue = ''
+                        return result
+                    })
+                    .then(() => m.redraw())
+                    .catch(console.error))
                 //make sure the name is not in thr list
                 const matchedArtist = _.find(remoteData.Artists.list, a => _.toLower(a.name) === _.toLower(textValue))
-                if(matchedArtist && matchedArtist.id) {
-                    attrs.hide()
-                    attrs.action(remoteData.Lineups.create({band: matchedArtist.id, festival: attrs.festivalId}))
-                    selectedId = 0
-                    textValue = ''
-                    return
-                }
+                if(matchedArtist && matchedArtist.id) attrs.action(remoteData.Lineups.create({band: matchedArtist.id, festival: attrs.festivalId})
+                   .then(result => {
+                        attrs.hide()
+                        selectedId = 0
+                        textValue = ''
+                        return result
+                    })
+                    .then(() => m.redraw())
+                    .catch(console.error))
 
                 if(textValue) attrs.action(remoteData.Lineups.addArtist({name: textValue}, attrs.festivalId)
                     .then(result => {
@@ -59,7 +63,9 @@ const ArtistEntryModal = {
                         selectedId = 0
                         textValue = ''
                         return result
-                    }))
+                    })
+                    .then(() => m.redraw())
+                    .catch(console.error))
 
                 //
             }} buttonName="Accept" />

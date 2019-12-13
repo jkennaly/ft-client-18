@@ -58,8 +58,8 @@ const SubjectReviewCard = vnode => {
       
         <div class="ft-vertical-fields-100-width">
         <div class="ft-card-above-overlay">
-            { !attrs.userId || (attrs.reviewer === attrs.userId || !remoteData.MessagesMonitors.unread(_.get(attrs.messageArray.find(m => m.messageType === 1), 'id'))) ? '' : <div class="quarter ft-close-click" onclick={e => {
-              //console.log('quarter click', attrs.reviewer, attrs.userId, _.get(comment(attrs), 'id')) 
+            { !attrs.userId || (attrs.reviewer === attrs.userId || !remoteData.MessagesMonitors.unread(_.get(attrs.messageArray.find(m => m.messageType === 1), 'id'))) ? '' : <div class="ft-quarter ft-close-click" onclick={e => {
+              //console.log('ft-quarter click', attrs.reviewer, attrs.userId, _.get(comment(attrs), 'id')) 
               //console.log('MessagesMonitors length ' + remoteData.MessagesMonitors.list.length)
               if(attrs.userId && attrs.reviewer !== attrs.userId && _.get(comment(attrs), 'id')) remoteData.MessagesMonitors.markRead(_.get(comment(attrs), 'id'))
               e.stopPropagation()

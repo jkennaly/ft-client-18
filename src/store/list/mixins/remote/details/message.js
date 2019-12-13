@@ -1,4 +1,4 @@
-// src/store/list/mixins/remote/details/flag.js
+// src/store/list/mixins/remote/details/message.js
 
 
 
@@ -27,10 +27,10 @@ export default (subjects) => {return {
 				//get to the baseMessage
 				if(subjectData.subjectType !== MESSAGE) return subjectData
 					if(!subjectData.baseMessage) throw new Error(`expected baseMessage: ${subjectData}`)
-				return this.getLocalPromise({subject: subjectData.baseMessage, subjectType: MESSAGE})
+				return this.getLocalPromise(subjectData.baseMessage)
 			})
 			.then(baseMessage => {
-				const typeString = subjectDataField(baseMessage.subjectType)
+				const typeString = subjectDataField(baseMessage.subjectType).toLowerCase()
 				//console.log('subjects.Messages.eventConnectedFilter cachePath')
 				//console.log(typeString)
 				//console.log(cachePath)
@@ -41,10 +41,10 @@ export default (subjects) => {return {
 					{baseMessage: baseMessage.id},
 					{id: {nin: discuss}}
 				]}})
-				console.log('subjectDetails typeString', typeString)
+				//console.log('subjectDetails typeString', typeString)
 				return Promise.all([
 					subjects[typeString].getLocalPromise(baseMessage.subject),
-					this.acquireListUpdate(messQuery)
+					this.acquireListSupplement(messQuery)
 						.then(upd => updated = updated || upd)
 				])
 			})

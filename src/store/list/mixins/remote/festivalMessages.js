@@ -9,22 +9,14 @@ export default {
 			if(!festivalId) {
 				return Promise.reject('No festivalId')
 			}
-			//console.log('loadForFestival')
+			//console.log('loadForFestival', festivalId)
 			//console.log(festivalId)
-			const eventSubjectObject = {subjectType: 7, subject: festivalId}
+			const eventSubjectObject = {subjectType: FESTIVAL, subject: festivalId}
 			//check if the festival has already been loaded
 			const dataFieldName = '/api/' + 'Messages'
 			const end = dataFieldName + '/forFestival/'
-			if(!bulkUpdateSubjectCache[end]) bulkUpdateSubjectCache[end] = {}
-
-			const alreadyLoaded = bulkUpdateSubjectCache[end][festivalId]
-			if(alreadyLoaded) return Promise.resolve(true)
-			bulkUpdateSubjectCache[end][festivalId] = true
-
-
-			return this.acquireListUpdate('', end + festivalId)
+			return this.acquireListSupplement('', end + festivalId)
 				.catch(err => {
-					bulkUpdateSubjectCache[end][festivalId] = false
 					console.log('this loadForFestival Promise.all')
 					console.log(err)
 				})
@@ -36,21 +28,14 @@ export default {
 			}
 			//console.log('loadForFestival')
 			//console.log(artistId)
-			const eventSubjectObject = {subjectType: 2, subject: artistId}
+			const eventSubjectObject = {subjectType: ARTIST, subject: artistId}
 			//check if the festival has already been loaded
 			const dataFieldName = 'Messages'
 			const end = '/api/' + dataFieldName + '/forArtist/'
-			if(!bulkUpdateSubjectCache[end]) bulkUpdateSubjectCache[end] = {}
 
-			const alreadyLoaded = bulkUpdateSubjectCache[end][artistId]
-			if(alreadyLoaded) return Promise.resolve(true)
-			bulkUpdateSubjectCache[end][artistId] = true
-
-
-			return this.acquireListUpdate('', end + artistId)
-				.then(() => false)
+			return this.acquireListSupplement('', end + artistId)
+				//.then(() => false)
 				.catch(err => {
-					bulkUpdateSubjectCache[end][artistId] = false
 					console.log('this loadForArtist Promise.all')
 					console.error(err)
 				})

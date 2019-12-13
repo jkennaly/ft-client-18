@@ -45,6 +45,9 @@ global.RATING = 2
 global.CHECKIN = 3
 global.DISCUSSION = 8
 
+global.FOLLOW = 9
+global.BLOCK = 10
+
 
 
 

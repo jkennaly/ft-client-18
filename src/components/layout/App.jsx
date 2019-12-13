@@ -89,9 +89,26 @@ const bannerTitle = (title, route = m.route.get()) => {
 
 
 }
-const authorize = (rawUserPromise, resolveComponent, rejectComponent) => (rParams) => rawUserPromise
+var lastUser = [0, []]
+const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAuthenticated()		
+	.then(rawUserData)
+	.then(acb => {
+		acb[0] && remoteData.Flags.remoteCheck()
+		acb[0] && remoteData.Intentions.remoteCheck()
+		acb[0] && remoteData.Messages.acquireListSupplement('filter=' + JSON.stringify({
+			limit: 1,
+			order: 'id DESC',
+			where: {
+				fromuser: acb[0],
+				messageType: CHECKIN
+			}
+		}))
+		return acb
+	})
+	.catch(err => [0, []])
+	.then(user => lastUser = user)
 	.then(userDataRaw => {
-		//console.log(`route resolved`)
+		//console.log(`route resolved`, rParams)
 		return {
 		oninit: () => {
 			//console.log(`component init`, userDataRaw, resolveComponent)
@@ -126,17 +143,8 @@ const authorize = (rawUserPromise, resolveComponent, rejectComponent) => (rParam
 		bannerTitle('')
 		return rejectComponent ? rejectComponent : Launcher
 	})
-var lastUser = [0, []]
 
-var rawUserPromise = auth.isAuthenticated()		
-	.then(rawUserData)
-	.then(acb => {
-		remoteData.Flags.remoteCheck()
-		remoteData.Intentions.remoteCheck()
-		return acb
-	})
-	.catch(err => [0, []])
-	.then(user => lastUser = user)
+
 const App = {
 	name: 'App',
 	oncreate: (vnode) => {
@@ -162,7 +170,7 @@ const App = {
 				onmatch: ConfirmLogout
 			},
 			"/launcher": {
-			 	onmatch: authorize(rawUserPromise, Launcher, Launcher)
+			 	onmatch: authorize(Launcher, Launcher)
 			},
 			"/callback": {
 				onmatch: () => {
@@ -218,33 +226,33 @@ const App = {
 				}
 			},
 			"/research": {
-				onmatch: authorize(rawUserPromise, Research, Launcher)
+				onmatch: authorize(Research, Launcher)
 
 			},
 			"/research/:seriesId": {
-				onmatch: authorize(rawUserPromise, Research, Launcher)
+				onmatch: authorize(Research, Launcher)
 
 			},
 			"/research/:seriesId/:festivalId": {
-				onmatch: authorize(rawUserPromise, Research, Launcher)
+				onmatch: authorize(Research, Launcher)
 
 			},
 			"/messages": {
-				onmatch: authorize(rawUserPromise, Messages, Launcher)
+				onmatch: authorize(Messages, Launcher)
 			},
 			"/messages/:filter": {
-				onmatch: authorize(rawUserPromise, Messages, Launcher)
+				onmatch: authorize(Messages, Launcher)
 			},
 			"/gametime/locations/:subjectType/:subject": {
-				onmatch: authorize(rawUserPromise, Gametime, Launcher)
+				onmatch: authorize(Gametime, Launcher)
 
 			},
 			"/gametime/:subjectType/:subject": {
-				onmatch: authorize(rawUserPromise, Gametime, Launcher)
+				onmatch: authorize(Gametime, Launcher)
 
 			},
 			"/admin": {
-				onmatch: authorize(rawUserPromise, Admin, Launcher)
+				onmatch: authorize(Admin, Launcher)
 			},
 			"/discussion/:messageId": {
 				onmatch: () =>
@@ -270,7 +278,7 @@ const App = {
 
 					remoteData.Series.remoteCheck()
 
-					return authorize(rawUserPromise, SeriesView, SeriesView) (routing)
+					return authorize(SeriesView, SeriesView) (routing)
 				}
 			},
 			"/stages/pregame": {
@@ -293,13 +301,13 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/sets/pregame/assignDays": {
-				onmatch: authorize(rawUserPromise, AssignDays, Launcher)
+				onmatch: authorize(AssignDays, Launcher)
 			},
 			"/sets/pregame/assignTimes": {
-				onmatch: authorize(rawUserPromise, AssignTimes, Launcher)
+				onmatch: authorize(AssignTimes, Launcher)
 			},
 			"/sets/pregame/assignStages": {
-				onmatch: authorize(rawUserPromise, AssignSetStages, Launcher)
+				onmatch: authorize(AssignSetStages, Launcher)
 			},
 			"/fests/pregame/assignStages": {
 				onmatch: () =>
@@ -308,7 +316,7 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/fests/pregame/assignLineup": {
-				onmatch: authorize(rawUserPromise, SetLineup, Launcher)
+				onmatch: authorize(SetLineup, Launcher)
 			},
 			"/artists/pregame/fix": {
 				onmatch: () =>
@@ -330,7 +338,7 @@ const App = {
 
 					//remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
 
-					return authorize(rawUserPromise, ArtistDetail, ArtistDetail) (routing)
+					return authorize(ArtistDetail, ArtistDetail) (routing)
 				}
 				 
 			},
@@ -340,7 +348,7 @@ const App = {
 					remoteData.Festivals.remoteCheck(true)
 					remoteData.Series.remoteCheck(true)
 
-					return authorize(rawUserPromise, CreateFestival, Launcher) (routing)
+					return authorize(CreateFestival, Launcher) (routing)
 				}
 			},
 			"/fests/pregame/new": {
@@ -348,16 +356,11 @@ const App = {
 
 					
 
-					return authorize(rawUserPromise, CreateFestival, Launcher) (routing)
+					return authorize(CreateFestival, Launcher) (routing)
 				}
 			},
 			"/fests/pregame/:id": {
-				onmatch:(routing) => {
-
-					remoteData.Festivals.subjectDetails({subject: routing.id, subjectType: FESTIVAL})
-
-					return authorize(rawUserPromise, FestivalDetail, FestivalDetail) (routing)
-				}
+				onmatch: authorize(FestivalDetail, FestivalDetail)
 			},
 			"/dates/pregame/new/:festivalId": {
 				onmatch: () =>
@@ -372,10 +375,10 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/dates/pregame/:id": {
-				onmatch: authorize(rawUserPromise, DateDetail, DateDetail)
+				onmatch: authorize(DateDetail, DateDetail)
 			},
 			"/days/pregame/:id": {
-				onmatch: authorize(rawUserPromise, DayDetail, DayDetail)
+				onmatch: authorize(DayDetail, DayDetail)
 			},
 			"/series/pregame/new": {
 				onmatch: () =>
@@ -384,7 +387,7 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/series/pregame/:id": {
-				onmatch: authorize(rawUserPromise, SeriesDetail, SeriesDetail)
+				onmatch: authorize(SeriesDetail, SeriesDetail)
 			},
 			"/sets/pregame/:id": {
 				onmatch: SetDetail
@@ -396,7 +399,7 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/themer/schedule": {
-				onmatch: authorize(rawUserPromise, ScheduleThemer, ScheduleThemer)
+				onmatch: authorize(ScheduleThemer, ScheduleThemer)
 			}
 		});
 		

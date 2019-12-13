@@ -71,6 +71,7 @@ const LineupWidget = vnode => {
 					}, (a, b) => '' + a.id + '.' + b.id))
 					.map(data => <ArtistCard 
 						data={data}
+						reviewSubject={vnode.attrs.clickFunctionForData || !vnode.attrs.popModal ? undefined : s => vnode.attrs.popModal('review', {subjectObject: s})}
 						clickFunction={vnode.attrs.clickFunctionForData ? vnode.attrs.clickFunctionForData(data) : undefined}
 						festivalId={vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param('id'), 10)}
 					/>)

@@ -1,4 +1,4 @@
-// AverageRatingField.jsx
+// src/components/fields/AverageRatingField.jsx
 // attrs:
 //	averageRating
 //	pretext

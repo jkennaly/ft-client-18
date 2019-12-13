@@ -26,6 +26,7 @@ import ArtistCard from '../../cards/ArtistCard.jsx'
 import ScheduleSet from '../../fields/ScheduleSet.jsx'
 import SetScheduleModal from '../../modals/SetScheduleModal.jsx'
 
+import AddSingleArtist from '../lineups/AddSingleArtist.jsx'
 
 import ScheduleLadder from '../../layout/ScheduleLadder.jsx'
 import WidgetContainer from '../../layout/WidgetContainer.jsx'
@@ -117,6 +118,8 @@ const AssignTimes = {
 				stageChange={stageChange(seriesId(), festivalId(), dateId(), dayId())}
 			/>
 		    {!dayId() || !stageId() ? '' : <div>
+		    <AddSingleArtist festivalId={festivalId()} popModal={attrs.popModal} />
+		    
 		    	<WidgetContainer>	
 		    	<LineupWidget 
 		    		festivalId={festivalId()} 

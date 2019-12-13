@@ -1,4 +1,4 @@
-// SeriesDetail.jsx
+// src/components/detailViewsPregame/SeriesDetail.jsx
 
 
 import m from 'mithril'

@@ -1,4 +1,4 @@
-// CloudImageField.jsx
+// src/components/fields/CloudImageField.jsx
 
 
 import m from 'mithril'

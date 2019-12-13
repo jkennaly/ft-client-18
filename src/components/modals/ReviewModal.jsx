@@ -18,26 +18,26 @@ import {subjectData} from '../../store/subjectData'
 var selectedId = 0
 const ReviewModal = vnode => {
     var changeFlag = 1
-    var name = vnode.attrs.subject.subject ? subjectData.name(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType) : ''
-    var rating = vnode.attrs.subject.subject ? subjectData.ratingBy(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user) : 0
-    var comment = vnode.attrs.subject.subject ? subjectData.commentBy(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user) : ''
+    var name = vnode.attrs.subjectObject.subject ? subjectData.name(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType) : ''
+    var rating = vnode.attrs.subjectObject.subject ? subjectData.ratingBy(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user) : 0
+    var comment = vnode.attrs.subjectObject.subject ? subjectData.commentBy(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user) : ''
     //console.log('new ReviewModal  for ' + name + '@' + rating)
     var baselineRating = rating + 0
     var baselineComment = comment + '' 
-    var ratingId = subjectData.ratingId(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user)
-    var commentId = subjectData.commentId(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user)
+    var ratingId = subjectData.ratingId(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user)
+    var commentId = subjectData.commentId(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user)
     var localRating = 0
     var localComment = ''
     var sub = ''
 
     const submit = attrs => e => {
-        //console.log('ReviewModal')
+        //console.log('ReviewModal', attrs, e)
         //console.log(textValue)
         //console.log(selectedId)
         //if there is a selected id, return it
         //if not, create the artist, then return that id
         e.stopPropagation()
-        attrs.hide(attrs.subject)
+        attrs.hide(attrs.subjectObject)
         //console.log('Save')
         //console.log('localRating ' + localRating)
         //console.log('localComment ' + localComment)
@@ -46,8 +46,8 @@ const ReviewModal = vnode => {
         return Promise.all([
             newRatingMessage ? remoteData.Messages.create({
                 //fromuser: attrs.user,
-                subject: attrs.subject.subject,
-                subjectType: attrs.subject.subjectType,
+                subject: attrs.subjectObject.subject,
+                subjectType: attrs.subjectObject.subjectType,
                 messageType: 2,
                 content: '' + localRating
             }) : true,
@@ -58,8 +58,8 @@ const ReviewModal = vnode => {
         ) : true,
             newCommentMessage ? remoteData.Messages.create({
             //fromuser: attrs.user,
-            subject: attrs.subject.subject,
-            subjectType: attrs.subject.subjectType,
+            subject: attrs.subjectObject.subject,
+            subjectType: attrs.subjectObject.subjectType,
             messageType: 1,
             content: localComment
 
@@ -73,19 +73,19 @@ const ReviewModal = vnode => {
             .then(() => m.redraw()) 
     }
     const init = vnode => {
-        if(!vnode.attrs.subject) throw new Error('No subject for ReviewModal')
-            //console.log('consider updating ReviewModal  for ', vnode.attrs.subject)
+        if(!vnode.attrs.subjectObject) throw new Error('No subject for ReviewModal')
+            //console.log('consider updating ReviewModal  for ', vnode.attrs.subjectObject)
             //console.log('consider updating ReviewModal  for user ' + vnode.attrs.user)
-            const newSub = '' + vnode.attrs.subject.subject + '-' + vnode.attrs.subject.subjectType + '-' + vnode.attrs.user
+            const newSub = '' + vnode.attrs.subjectObject.subject + '-' + vnode.attrs.subjectObject.subjectType + '-' + vnode.attrs.user
             if(sub === newSub) return
-            name = subjectData.name(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType)
-            rating = subjectData.ratingBy(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user),
-            comment = subjectData.commentBy(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user)
+            name = subjectData.name(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType)
+            rating = subjectData.ratingBy(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user),
+            comment = subjectData.commentBy(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user)
             sub = '' + newSub
             baselineRating = rating + 0
             baselineComment = comment + '' 
-            ratingId = subjectData.ratingId(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user)
-            commentId = subjectData.commentId(vnode.attrs.subject.subject, vnode.attrs.subject.subjectType, vnode.attrs.user)
+            ratingId = subjectData.ratingId(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user)
+            commentId = subjectData.commentId(vnode.attrs.subjectObject.subject, vnode.attrs.subjectObject.subjectType, vnode.attrs.user)
             localRating = rating + 0
             changeFlag = changeFlag + 1
             if(changeFlag > 1000000) changeFlag = 1

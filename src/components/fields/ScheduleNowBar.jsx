@@ -1,4 +1,4 @@
-// ScheduleNowBar.jsx
+// src/components/fields/ScheduleNowBar.jsx
 
 import m from 'mithril'
 import {remoteData} from '../../store/data'

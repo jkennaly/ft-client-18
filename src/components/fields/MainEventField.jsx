@@ -1,4 +1,4 @@
-// MainEventField.jsx
+// src/components/fields/MainEventField.jsx
 //attrs: 	seriesId
 //			festivalId
 

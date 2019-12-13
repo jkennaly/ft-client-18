@@ -1,4 +1,4 @@
-// DayNameField.jsx
+// src/components/fields/DayNameField.jsx
 //attrs: dayId
 
 import m from 'mithril'

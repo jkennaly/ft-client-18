@@ -11,7 +11,7 @@ const LargeCardWidget = {
   <header>
   {vnode.attrs.header}
   {vnode.attrs.closeClick ? 
-     <span class="quarter ft-close-click" onclick={vnode.attrs.closeClick}><i class="fas fa-times"/></span> :
+     <span class="ft-quarter ft-close-click" onclick={vnode.attrs.closeClick}><i class="fas fa-times"/></span> :
       ''}
   {vnode.attrs.headerCard}
   </header>

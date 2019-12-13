@@ -33,6 +33,7 @@ import SubjectTypeList from './list/models/SubjectTypeList'
 import MessageList from './list/models/MessageList'
 import MessagesMonitorList from './list/models/MessagesMonitorList'
 import IntentionList from './list/models/IntentionList'
+import InteractionList from './list/models/InteractionList'
 import ProfileList from './list/models/ProfileList'
 import FlagList from './list/models/FlagList'
 
@@ -86,6 +87,8 @@ import nameMatch from './list/mixins/search/nameMatch'
 import artistConnections from './list/mixins/relations/artistConnections'
 import messageMonitor from './list/mixins/relations/messageMonitor'
 import intent from './list/mixins/relations/intent'
+import interact from './list/mixins/relations/interact'
+import interactOptions from './list/mixins/relations/interactOptions'
 import merge from './list/mixins/remote/merge'
 import subjectDetails from './list/mixins/remote/details/subject'
 import artistDetails from './list/mixins/remote/details/artist'
@@ -137,6 +140,7 @@ let subjectTypes =  new SubjectTypeList()
 let messages =  new MessageList()
 let messagesMonitors =  new MessagesMonitorList()
 let intentions =  new IntentionList()
+let interactions =  new InteractionList()
 let users =  new ProfileList()
 let flags =  new FlagList()
 
@@ -369,13 +373,22 @@ Object.assign(intentions,
 	deletion,
 	intent
 )
+Object.assign(interactions,
+	getPromise,
+	filterable,
+	create,
+	updateInstance,
+	deletion,
+	interact
+)
 Object.assign(users,
 	getPromise,
 	filterable,
 	subjective,
 	userName,
 	messageEventConnections,
-	subjectDetails
+	subjectDetails,
+	interactOptions(interactions)
 )
 Object.assign(flags,
 	getPromise,

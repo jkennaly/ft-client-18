@@ -11,18 +11,16 @@ import {subjectData} from '../../store/subjectData';
 const defaultClick = ({contextObject}) => () => m.route.set(contextObject ? `/gametime/${contextObject.subjectType}/${contextObject.subject}` : m.route.get())
 
 
-const UserCard = vnode => {
-  
-  return {
+const UserCard = {
     view: ({ attrs }) =>
-      <div class="ft-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
-      {console.log('CheckedInUsersField attrs.contextObject', attrs.contextObject)}
+      <div class={attrs.small ? "ft-card" : "ft-card-large"} onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
+      {console.log('UserCard attrs.contextObject', attrs.contextObject)}
         <div class="ft-vertical-fields">
           <UserAvatarField data={attrs.data.id} />
         </div>
-          {attrs.contextObject ? <NameField fieldValue={subjectData.name(attrs.contextObject)} /> : ''}
+          {attrs.contextObject && (attrs.contextObject.subject !== attrs.data.id || attrs.contextObject.subjectType !== USER) ? <NameField fieldValue={subjectData.name(attrs.contextObject)} /> : ''}
       </div>
     
-}};
+}
 
 export default UserCard;

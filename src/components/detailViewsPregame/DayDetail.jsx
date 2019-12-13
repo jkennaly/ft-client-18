@@ -1,4 +1,4 @@
-// DayDetail.jsx
+// src/components/detailViewsPregame/DayDetail.jsx
 
 
 import m from 'mithril'
@@ -48,6 +48,14 @@ const DayDetail = {
 	oninit: ({attrs}) => {
 		//console.log('dayDetails init')
 		if (attrs.titleSet) attrs.titleSet(days.getEventName(id()))
+
+	},
+	oncreate: ({dom}) => {
+		const height = dom.clientHeight
+		//console.log('ArtistDetail DOM height', height)
+		const scroller = dom.querySelector('.ft-schedule')
+		scroller.style['height'] = `${height - 270}px`
+		scroller.style['flex-grow'] = 0
 
 	},
 	view: () => <div class="main-stage">

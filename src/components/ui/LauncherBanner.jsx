@@ -26,8 +26,8 @@ const LauncherBanner = () => {
 	return {
 		
 	view: ({ attrs, children }) =>
-		<div class="stage-banner-container">
-			<div class="stage-banner">
+		<div class="ft-stage-banner-container">
+			<div class="ft-stage-banner">
 				<StageTitle title={title(attrs)} />
 				<SearchBar  />
 				{

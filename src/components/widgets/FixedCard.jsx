@@ -6,7 +6,7 @@ import m from 'mithril'
 import FiftyButton from '../cardOverlays/fifty/FiftyButton.jsx'
 
 const classes = attrs => {
-	return (attrs.quarter ? 'quarter ' : '') + 
+	return (attrs.quarter ? 'ft-quarter ' : '') + 
 	(attrs.display ? '' : 'hidden ') + 
   (attrs.tall ? 'ft-widget-tall ' : '')
 }

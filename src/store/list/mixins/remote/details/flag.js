@@ -32,7 +32,7 @@ export default (messages) => { return {
 					{subjectType: so.subjectType},
 					{id: {nin: skipIds}}
 				]}})
-				return messages.acquireListUpdate(messQuery, messEnd)
+				return messages.acquireListSupplement(messQuery, messEnd)
 					.then(upd => updated = updated || upd)
 					.then(() => {
 						const bases = messages.getFiltered({subjectType: FLAG, subject: subjectData.id})
@@ -44,7 +44,7 @@ export default (messages) => { return {
 							{baseMessage: {inq: bases}},
 							{id: {nin: discuss}}
 						]}})
-						return messages.acquireListUpdate(messQuery, messEnd)
+						return messages.acquireListSupplement(messQuery, messEnd)
 							.then(upd => updated = updated || upd)
 					})
 					

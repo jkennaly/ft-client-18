@@ -1,4 +1,4 @@
-// CheckedInUsersField.jsx
+// src/components/fields/CheckedInUsersField.jsx
 //attrs: userId
 
 import m from 'mithril'

@@ -33,7 +33,7 @@ const FixArtist = (vnode) => {
 		},
 		view: () => 
 		<div class="ft-launcher-container">
-			<div class="stage-banner-container">
+			<div class="ft-stage-banner-container">
 			</div>
 				<div class="main-stage-content-scroll">
 			<div class="ft-name-field">

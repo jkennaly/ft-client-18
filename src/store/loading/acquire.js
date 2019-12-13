@@ -75,7 +75,7 @@ const headerBase = {
 export function updateModel(modelName, queryString = '', url, simResponse) {
 	let updated = false
 
-	const reqUrl = url ? url + (queryString ? '?' : '') + (queryString) : `/api/${modelName}?${(queryString)}`
+	const reqUrl = url ? url + (queryString ? '?' : '') + (queryString) : `/api/${modelName}${queryString ? '?' : ''}${(queryString ? queryString : '')}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)
 	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 

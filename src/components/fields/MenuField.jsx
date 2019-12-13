@@ -1,4 +1,4 @@
-// MenuField.jsx
+// src/components/fields/MenuField.jsx
 
 import m from 'mithril'
 const classes = attrs => 'ft-menu-field ' + (attrs.selected ? 'ft-menu-item-selected' : '')

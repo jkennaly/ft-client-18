@@ -1,4 +1,4 @@
-// QuarterButton.jsx
+// src/components/fields/buttons/QuarterButton.jsx
 
 import m from 'mithril'
 

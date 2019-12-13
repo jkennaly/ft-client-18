@@ -23,12 +23,17 @@ const artistData = ({dataField, fallback, festivalId, userId, search, recordCoun
 		smartSearch(dataField.list.filter(prefilter), search.pattern, search.fields)
 			.map(x => x.entry)
 	 : dataField.list.sort(fallback)
+	 /*
 	 Promise.all(_.take(searchMatches, 2 * recordCount).map(a => remoteData.Messages.loadForArtist.call(remoteData.Messages, a.id)))
 	 	.then(ar => {
-	 		if(!_.take(ar, 5).reduce((pv, cv) => pv && cv, true)) m.redraw()
+	 		if(!_.take(ar, 5).reduce((pv, cv) => pv && cv, true)) {
+	 			console.log('artistData redraw trigger')
+	 			m.redraw()
+	 		} 
 	 		return ar
 	 	})
 	 	.catch(console.error)
+	 	*/
 	return _.take(searchMatches, recordCount)
 }
 	//console.log('Launcher read')

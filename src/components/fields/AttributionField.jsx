@@ -1,4 +1,4 @@
-// AttributionField.jsx
+// src/components/fields/AttributionField.jsx
 
 import m from 'mithril'
 import QuarterButton from './buttons/QuarterButton.jsx'

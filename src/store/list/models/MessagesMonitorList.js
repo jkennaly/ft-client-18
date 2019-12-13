@@ -2,7 +2,7 @@
 
 import DataList from '../DataList'
 
-function MessagesMonitorList(opt = {fieldName: 'MessagesMonitors'}) {
+function MessagesMonitorList(opt = {fieldName: 'MessagesMonitors', remoteInterval: 10}) {
   DataList.call(this, opt)
   this.core = false
 }

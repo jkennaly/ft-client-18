@@ -9,6 +9,9 @@ export default {
 		if(!id) {
 			return Promise.reject('No id for getPromise ' + this.fieldName)
 		}
+		if(!_.isInteger(id)) {
+			throw new Error('Invalid getPromise id', id)
+		}
 
 		//get subjectData from the model, loading from the server if needed
 		//const get = this.get(id)
@@ -30,9 +33,9 @@ export default {
 			*/
 			.then(upd => {
 				const get = this.get(id)
-				if(!get && !upd && this.fieldName !== 'Profiles') throw new Error(`no instance found ${this.fieldName} id:${id} ${typeof id}`)
+				//if(!get && !upd && this.fieldName !== 'Profiles') throw new Error(`no instance found ${this.fieldName} id:${id} ${typeof id}`)
 				//if(!get && this.fieldName !== 'Profiles') throw new Error(`no instance loaded ${this.fieldName} id:${id} ${typeof id} first:`, this.list[0])
-				return get ? get : {}
+				return get ? get : undefined
 			})
 			.catch(err => {
 				console.error(err)
@@ -42,7 +45,10 @@ export default {
 	},
 	getLocalPromise (id) {
 		if(!id) {
-			return Promise.reject('No id for getPromise ' + this.fieldName)
+			return Promise.reject('No id for getLocalPromise ' + this.fieldName)
+		}
+		if(!_.isInteger(id)) {
+			throw new Error('Invalid getLocalPromise id', id)
 		}
 
 		//get subjectData from the model, loading from the server if needed
@@ -74,7 +80,7 @@ export default {
 		}})
 		//for each subject Type, collect detail information
 
-		return this.acquireListUpdate(idsQuery, end)
+		return this.acquireListSupplement(idsQuery, end)
 			.then(upd => {
 				if(!this.secDataPromise) return upd
 				return this.secDataPromise()

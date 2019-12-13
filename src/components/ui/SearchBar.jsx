@@ -50,8 +50,19 @@ const SearchBar = vnode => {
 			}
 			return true
 		},
-		view: (vnode) => <div>
-				<SearchField patternChange={searchObject.setResults} />
+		/*
+		oncreate: ({dom}) => {
+			const vpw = document.body.offsetWidth
+			const elWidth = vpw > 799 ? '10em' : '50px'
+			dom.style.width = elWidth
+
+		},
+		*/
+		view: (vnode) => <div class="ft-search-bar">
+				<SearchField 
+					patternChange={searchObject.setResults}
+					//ph={`Festivals & Artists`}
+				/>
 			<CollapsibleMenu 
 				menu={searchObject.getResults()} 
 				collapsed={menuHidden}

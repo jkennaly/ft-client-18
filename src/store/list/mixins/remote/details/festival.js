@@ -32,14 +32,14 @@ export default ({artists, dates, messages}, lineups) => { return {
 					festival: so.subject
 				}})
 				return Promise.all([
-					lineups.acquireListUpdate(lineQuery, lineEnd)
+					lineups.acquireListSupplement(lineQuery, lineEnd)
 						.then(upd => updated = updated || upd)
 						//artists
 						.then(() => lineups.getFiltered({festival: so.subject})
 							.map(x => x.band)
 						)
 						.then(artistIds => artists.getManyPromise(artistIds)),
-					dates.acquireListUpdate(dateQuery, dateEnd)
+					dates.acquireListSupplement(dateQuery, dateEnd)
 						.then(upd => updated = updated || upd),
 					messages.loadForFestival(so.subject)
 						.then(upd => updated = updated || upd)

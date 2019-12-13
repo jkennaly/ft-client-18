@@ -1,4 +1,4 @@
-// ArtistDetail.jsx
+// src/components/detailViewsPregame/ArtistDetail.jsx
 
 
 import m from 'mithril'
@@ -6,7 +6,6 @@ import _ from 'lodash'
 
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
-import ArtistReviewCard from '../../components/cards/ArtistReviewCard.jsx';
 import DateCard from '../../components/cards/DateCard.jsx';
 import NavCard from '../../components/cards/NavCard.jsx';
 import ReviewCard from '../../components/cards/ReviewCard.jsx';
@@ -63,6 +62,7 @@ const ArtistDetail = {
 						subject={id()} 
 						sources={['url']} 
 						popModal={attrs.popModal}
+						addDisabled={!attrs.userRoles.includes('admin')}
 					/>
 				</FixedCardWidget>
 		

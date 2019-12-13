@@ -89,6 +89,7 @@ const ActivityWidget = vnode => {
 						headact={e => {
 							if(data.subjectType === 2) m.route.set("/artists" + "/pregame" + '/' + data.subject)
 						}}
+						popModal={vnode.attrs.popModal}
 						discussSubject={(so, me) => vnode.attrs.popModal('discuss', {
 							messageArray: me,
 							subjectObject: so,

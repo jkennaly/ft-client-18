@@ -1,5 +1,4 @@
-// SetDetail.jsx
-
+// src/components/detailViewsPregame/SetDetail.jsx
 
 import m from 'mithril'
 import _ from 'lodash'

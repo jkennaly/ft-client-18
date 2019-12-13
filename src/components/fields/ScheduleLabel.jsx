@@ -1,4 +1,4 @@
-// ScheduleLabel.jsx
+// src/components/fields/ScheduleLabel.jsx
 
 import m from 'mithril'
 

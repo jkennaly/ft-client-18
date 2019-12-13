@@ -38,7 +38,7 @@ const DiscussionWidget = {
 			const discussionBase = baseMessage(attrs.messageArray)
 			return Promise.all([
 				attrs.messageArray.map(subjectData.getLocalPromise),
-				discussionBase && discussionBase.messageType ? remoteData.Messages.acquireListSupplement('filter[where][baseMessage]=' + discussionBase.id) : [] 			])
+				discussionBase && discussionBase.messageType ? remoteData.Messages.acquireListSupplement(`filter=${JSON.stringify({where: {baseMessage: discussionBase.id}})}`) : [] 			])
 		},
 		view: ({attrs}) => <LargeCardWidget 
 				header="Discuss"

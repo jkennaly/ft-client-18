@@ -1,10 +1,10 @@
-// UserAvatarField.jsx
+// src/components/fields/UserAvatarField.jsx
 //attrs: userId
 
 import m from 'mithril'
 import _ from 'lodash'
 
-import {remoteData} from '../../store/data';
+import {remoteData} from '../../store/data'
 
 
 
@@ -14,7 +14,7 @@ const UserAvatarField = vnode => {
 			.catch(err=> {
 				console.error('UserAvatarField data grab error', err)
 			}),
-		view: ({ attrs }) => <div class="ft-horizontal-fields">
+		view: ({ attrs }) => <div class="ft-horizontal-fields" onclick={attrs.itemClicked}>
 		{ attrs.data ? <div>
 			<img src={remoteData.Users.getPic(attrs.data)} />
 			<div class="ft-vertical-fields">

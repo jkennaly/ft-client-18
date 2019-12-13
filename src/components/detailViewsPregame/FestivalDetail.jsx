@@ -1,4 +1,4 @@
-// FestivalDetail.jsx
+// src/components/detailViewsPregame/FestivalDetail.jsx
 
 import m from "mithril";
 import _ from "lodash";
@@ -33,7 +33,7 @@ const FestivalDetail = {
 		//route may not be resolved; use rParams and not m.route.param
 		const festivalId = parseInt(rParams.id, 10)
 		//messages.forArtist(festivalId)
-		//console.log('Research preload', seriesId, festivalId, rParams)
+		///console.log('FestivalDetail preload', festivalId, rParams)
 		if(festivalId) return festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL})
 
 	},
@@ -59,7 +59,11 @@ const FestivalDetail = {
 
 				<WidgetContainer>
 					<LineupWidget festivalId={id()} />
-					<ActivityWidget festivalId={id()} userId={attrs.userId} popModal={attrs.popModal} />
+					<ActivityWidget 
+						festivalId={id()} 
+						userId={attrs.userId} 
+						popModal={attrs.popModal} 
+					/>
 					<ResearchWidget list={[]} userId={attrs.userId} popModal={attrs.popModal} />
 					<FixedCardWidget header="Related Events">
 						{(remoteData.Dates.getMany(

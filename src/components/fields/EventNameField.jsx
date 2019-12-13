@@ -1,4 +1,4 @@
-// ComposedNameField.jsx
+// src/components/fields/ComposedNameField.jsx
 
 import m from 'mithril'
 import _ from 'lodash'

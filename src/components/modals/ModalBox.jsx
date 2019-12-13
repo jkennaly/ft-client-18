@@ -7,6 +7,7 @@ import Artist from './ArtistEntryModal.jsx'
 import Discuss from './DiscussModal.jsx'
 import Flag from './FlagModal.jsx'
 import Image from './ImageModal.jsx'
+import OptionSelect from './OptionSelectModal.jsx'
 import Review from './ReviewModal.jsx'
 import Schedule from './SetScheduleModal.jsx'
 import Text from './TextEntryModal.jsx'
@@ -16,6 +17,7 @@ const modals = {
 	discuss: Discuss,
 	flag: Flag,
 	image: Image,
+	option: OptionSelect,
 	review: Review,
 	schedule: Schedule,
 	text: Text

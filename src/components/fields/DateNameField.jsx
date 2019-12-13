@@ -1,4 +1,4 @@
-// DateNameField.jsx
+// src/components/fields/DateNameField.jsx
 //attrs: dateId
 
 import m from 'mithril'

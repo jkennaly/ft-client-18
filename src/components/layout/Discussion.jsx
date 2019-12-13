@@ -22,7 +22,7 @@ const Discussion = (vnode) => { return {
 	},
 	view: () => 
 	<div class="ft-launcher-container">
-		<div class="stage-banner-container">
+		<div class="ft-stage-banner-container">
 		</div>
 		{
 			//subject image/name

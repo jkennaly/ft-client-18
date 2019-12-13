@@ -7,7 +7,6 @@ import _ from 'lodash'
 import {subjectData} from '../../store/subjectData'
 import {remoteData} from '../../store/data'
 
-import ArtistReviewCard from '../../components/cards/ArtistReviewCard.jsx';
 import ReviewCard from '../../components/cards/ReviewCard.jsx';
 import ReviewArrayCard from '../../components/cards/ReviewArrayCard.jsx';
 import UserCard from '../../components/cards/UserCard.jsx';
@@ -27,7 +26,7 @@ const jsx = {
 	view: function ({attrs}) {return <div>
 	
 {
-	console.log('gt setDetail attrs', attrs)
+	//console.log('gt setDetail attrs', attrs)
 }
 	<WidgetContainer>
 	<NameField fieldValue={attrs.name} />

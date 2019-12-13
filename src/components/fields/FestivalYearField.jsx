@@ -1,4 +1,4 @@
-// FestivalYearField.jsx
+// src/components/fields/FestivalYearField.jsx
 //attrs: festivalId
 
 import m from 'mithril'

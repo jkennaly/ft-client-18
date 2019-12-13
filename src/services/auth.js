@@ -9,9 +9,6 @@ localforage.config({
   name: "FestiGram",
   storeName: "FestiGram"
 })
-import emptyPromise from 'empty-promise'
-//const Promise = require('promise-polyfill').default
-//import {tokenFunction} from './requests'
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
 

@@ -43,6 +43,11 @@ export default (dates) => { return  {
 		dates.active
 	)},
 	future (daysAhead = 0) {
-		return this.getFiltered(f => moment().add(daysAhead, 'days').isBefore(this.getEndMoment(f.id)))
+		return this.getFiltered(f => {
+			const end = this.getEndMoment(f.id)
+			if(!end) return false
+			return moment().add(daysAhead, 'days').isBefore(end)
+
+		})
 	},
 }}

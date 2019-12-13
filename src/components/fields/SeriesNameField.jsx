@@ -1,4 +1,4 @@
-// SeriesNameField.jsx
+// src/components/fields/SeriesNameField.jsx
 //attrs: seriesId
 
 import m from 'mithril'

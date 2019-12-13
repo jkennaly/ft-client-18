@@ -260,7 +260,7 @@ const AssignDays = {
 				dateChange={dateChange(seriesId(), festivalId())}
 			/>
 			{dateId() ? <div>
-				<AddSingleArtist festivalId={festivalId()} />
+				<AddSingleArtist festivalId={festivalId()} popModal={attrs.popModal} />
 		    <ToggleControl
 				offLabel={'Show All'}
 				onLabel={'Hide assigned'}

@@ -1,4 +1,4 @@
-// ScheduleSet.jsx
+// src/components/fields/ScheduleSet.jsx
 
 import m from 'mithril'
 import _ from 'lodash'

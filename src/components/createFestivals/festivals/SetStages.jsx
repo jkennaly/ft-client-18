@@ -38,8 +38,8 @@ const captureStages = (els, festivalId) => {
 		.filter(p => !_.some(stageData, {name: p.name, festival: festivalId}))
 
 
-	const addPromise = remoteData.Places.batchCreate(stageData, festivalId)
-	const delPromise = remoteData.Places.batchDelete(deleteStages)
+	const addPromise = stageData.length ? remoteData.Places.batchCreate(stageData, festivalId) : undefined
+	const delPromise = deleteStages.length ? remoteData.Places.batchDelete(deleteStages) : undefined
 
 	Promise.all([addPromise, delPromise])
 		//.then(() => console.log('captureStages promises resolved'))
@@ -101,7 +101,7 @@ const SetStages = (vnode) => {
 		},
 		view: () => 
 		<div class="launcher-container">
-			<div class="stage-banner-container">
+			<div class="ft-stage-banner-container">
 					<EventSelector 
 						seriesId={seriesId()}
 						festivalId={festivalId()}

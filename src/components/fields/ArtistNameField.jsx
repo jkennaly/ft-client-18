@@ -1,4 +1,4 @@
-// ArtistNameField.jsx
+// src/components/fields/ArtistNameField.jsx
 //attrs: artistId
 
 import m from 'mithril'
