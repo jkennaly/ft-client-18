@@ -1,4 +1,4 @@
-// CheckinToggle.jsx
+// src/components/ui/canned/CheckinToggle.jsx
 
 //given a list of bands to research, this widget 
 //filters out unneded ones, sorts the rest and displays artist cards

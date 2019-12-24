@@ -1,4 +1,4 @@
-// StageTitle.jsx
+// src/components/ui/StageTitle.jsx
 
 import m from 'mithril'
 

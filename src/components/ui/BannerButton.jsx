@@ -1,6 +1,4 @@
-
-
-// BannerButton.jsx
+// src/components/ui/BannerButton.jsx
 
 import m from 'mithril'
 

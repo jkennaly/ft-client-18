@@ -1,4 +1,4 @@
-// LauncherBanner.jsx
+// src/components/ui/ LauncherBanner.jsx
 
 import m from 'mithril'
 import _ from 'lodash'
@@ -7,11 +7,12 @@ import {remoteData} from '../../store/data'
 
 import StageTitle from './StageTitle.jsx';
 import DisplayButton from './DisplayButton.jsx';
+import LiveButton from './LiveButton.jsx';
 import BannerButton from './BannerButton.jsx';
 import CollapsibleMenu from './CollapsibleMenu.jsx';
 import SearchBar from './SearchBar.jsx';
 
-const {Flags: flags} = remoteData
+const {Flags: flags, Dates: dates} = remoteData
 
 var titleCache = {}
 const title = (attrs) => {
@@ -28,6 +29,11 @@ const LauncherBanner = () => {
 	view: ({ attrs, children }) =>
 		<div class="ft-stage-banner-container">
 			<div class="ft-stage-banner">
+			{_.uniqBy([
+				...dates.checkedIn(attrs.userId),
+				...dates.intended()
+				], 'id').map(d => <LiveButton date={d} />)
+			}
 				<StageTitle title={title(attrs)} />
 				<SearchBar  />
 				{

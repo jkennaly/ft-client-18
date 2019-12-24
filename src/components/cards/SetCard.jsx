@@ -2,6 +2,8 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+
 
 import  CheckedInUsersField from '../fields/CheckedInUsersField.jsx';
 import  NameField from '../fields/NameField.jsx';
@@ -24,6 +26,7 @@ const SetCard = {
       </div>
       <div class="ft-set-diff-fields">
           <CheckedInUsersField subjectObject={attrs.subjectObject} />
+        <NameField fieldValue={moment(remoteData.Sets.getStartMoment(attrs.subjectObject.subject)).fromNow()} />
         <NameField fieldValue={remoteData.Sets.getTimeString(attrs.subjectObject.subject)} />
           {/*
       */}

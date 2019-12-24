@@ -87,10 +87,10 @@ let baseMoment, startMoment, endMoment
         onclick={attrs.clickFunction ? attrs.clickFunction : () => 0}
         key={'_' + (attrs.set.id ? attrs.set.id : '' + attrs.set.band + '.' + attrs.set.start)}
       >
-    	<ArtistNameField artistId={attrs.set.band} />
+    	<ArtistNameField artistId={attrs.set.band} />{(attrs.set.end - attrs.set.start) < 40 ? ` ${sets.getSetTimeText(attrs.set.id)}` : ''}
     	<div>
         <span>
-          {sets.getSetTimeText(attrs.set.id)}
+          {(attrs.set.end - attrs.set.start) >= 40 ? sets.getSetTimeText(attrs.set.id) : ''}
         </span>
       </div>
     </div>

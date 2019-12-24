@@ -8,7 +8,7 @@ export default ({sets, days, dates, festivals}) => { return  {
 		//day: any sub event or the assoc date or the assoc festival
 		const lastCheckin = this.lastCheckin(userId)
 		if(!lastCheckin) return false
-		const directCheckin = so.subjectType === lastCheckin.subjectType && so.subject === lastCheckin.subject
+		const directCheckin = so.subjectType === lastCheckin.subjectType && so.subject === lastCheckin.subject || this.some(m => m.subjectType === DATE && m.messageType === CHECKIN && so.subject === m.subject)
 		const peerCheckin = !directCheckin && so.subjectType === lastCheckin.subjectType
 		const implicitCheckinPossible = !directCheckin && !peerCheckin && 
 			[8, 9, 3].includes(lastCheckin.subjectType) &&

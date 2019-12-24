@@ -1,4 +1,4 @@
-// StageBanner.jsx
+// src/components/ui/StageBanner.jsx
 
 import m from 'mithril';
 

@@ -1,4 +1,4 @@
-// ToggleControl.jsx
+// src/components/ui/ToggleControl.jsx
 
 import m from 'mithril'
 import _ from 'lodash'

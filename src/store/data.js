@@ -72,7 +72,8 @@ import eventSub from './list/mixins/event/eventSub'
 import placeName from './list/mixins/subjects/place'
 import setName from './list/mixins/event/setName'
 import research from './list/mixins/event/research'
-import intended from './list/mixins/event/intended'
+import intended from './list/mixins/event/intendedFestival'
+import intendedDate from './list/mixins/event/intendedDate'
 import imgEvent from './list/mixins/event/img'
 import messageEventConnections from './list/mixins/subjects/messageConnections/event'
 import messageArtistConnections from './list/mixins/subjects/messageConnections/artist'
@@ -230,7 +231,8 @@ Object.assign(dates,
 	dateWithDays(days),
 	dateFilters(festivals),
 	getPromise,
-	dateDetails(subjects, lineups, intentions)
+	dateDetails(subjects, lineups, intentions),
+	intendedDate(intentions)
 )
 Object.assign(days,
 	filterable,
@@ -449,6 +451,7 @@ export const remoteData = {
 	Messages: messages,
 	MessagesMonitors: messagesMonitors,
 	Intentions: intentions,
+	Interactions: interactions,
 	Users: users,
 	Flags: flags,
 	dataLoad: window.mockery ? Promise.resolve(true) : (Promise.all(

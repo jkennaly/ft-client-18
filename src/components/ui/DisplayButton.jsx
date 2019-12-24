@@ -1,4 +1,4 @@
-// DisplayButton.jsx
+// src/components/ui/DisplayButton.jsx
 
 import m from 'mithril'
 import _ from 'lodash'

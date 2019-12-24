@@ -95,9 +95,9 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 	.then(acb => {
 		acb[0] && remoteData.Flags.remoteCheck()
 		acb[0] && remoteData.Intentions.remoteCheck()
+		acb[0] && remoteData.Interactions.remoteCheck()
+		acb[0] && remoteData.MessagesMonitors.remoteCheck()
 		acb[0] && remoteData.Messages.acquireListSupplement('filter=' + JSON.stringify({
-			limit: 1,
-			order: 'id DESC',
 			where: {
 				fromuser: acb[0],
 				messageType: CHECKIN
@@ -193,8 +193,6 @@ const App = {
 								//.then(udr => [console.log(`callback new raw promise`, udr), udr][1])
 								.catch(err => [0, []] )
 								.then(user => lastUser = user)
-							remoteData.Flags.remoteCheck()
-							remoteData.Intentions.remoteCheck()
 							return acb
 						})
         				.then(acb => m.route.set(acb && acb.appState && acb.appState.route ? acb.appState.route : '/launcher', ))

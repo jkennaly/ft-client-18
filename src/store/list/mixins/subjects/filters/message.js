@@ -25,6 +25,13 @@ const researchApplicable = (content, opt) => {
 
 
 export default {
+	subjectActivity (so) {
+		const baseMessages = this.getFiltered(so)
+		const baseIds = baseMessages.map(x => x.id)
+		const discussionMessages = this.getFiltered(m => baseIds.includes(m.baseMessage))
+		return [...baseMessages, ...discussionMessages]
+	},
+	
 		discussionOf (id) {return this.list.filter(m => m.baseMessage === id)},
 		aboutType (sType) {return this.list.filter(m => m.subjectType === sType)},
 		ofType (mType) {return this.list.filter(m => m.messageType === mType)},

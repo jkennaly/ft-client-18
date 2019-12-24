@@ -36,6 +36,7 @@ o.spec("store/data", function() {
 	'Messages',
 	'MessagesMonitors',
 	'Intentions',
+	'Interactions',
 	'Users',
 	'Flags',
 	'dataLoad'

@@ -1,4 +1,4 @@
-// LogoutButton.jsx
+// src/components/ui/LogoutButton.jsx
 
 import m from 'mithril'
 

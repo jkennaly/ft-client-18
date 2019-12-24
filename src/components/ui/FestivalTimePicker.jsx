@@ -1,4 +1,4 @@
-// FestivalTimePicker.jsx
+// src/components/ui/FestivalTimePicker.jsx
 
 import m from 'mithril'
 

@@ -95,6 +95,15 @@ const DateDetail = {
 			//one of:
 				//there is an implicit checkin for the date
 				//there is an intent for the date
+				/*
+			console.log('DateDetail show checkin toggle', date() , 
+			roles(attrs).includes('user') , 
+			!dates.ended(id()) , 
+			dates.active(id()) , (
+				messages.implicit(dso(id())) ||
+				intentions.find(dso(id()))
+			))
+			*/
 		}
 		{ date() && 
 			roles(attrs).includes('user') && 

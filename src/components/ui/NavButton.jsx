@@ -1,4 +1,4 @@
-// NavButton.jsx
+// src/components/ui/NavButton.jsx
 
 import m from 'mithril'
 

@@ -73,16 +73,16 @@ const Research = {
 						userId={user(attrs)} 
 						popModal={attrs.popModal}
 					/>
-					<ArtistSearchWidget 
-						festivalId={festivalId()} 
-						overlay={'research'} 
-						popModal={attrs.popModal}
-					/>
 					<ActivityWidget 
 						festivalId={festivalId()} 
 						userId={user(attrs)} 
 						popModal={attrs.popModal}
 						artistIds={remoteData.Festivals.reviewedArtistIds(festivalId(), user(attrs))} 
+					/>
+					<ArtistSearchWidget 
+						festivalId={festivalId()} 
+						overlay={'research'} 
+						popModal={attrs.popModal}
 					/>
 				</WidgetContainer>
 

@@ -1,4 +1,4 @@
-// CollapsibleMenu.jsx
+// src/components/ui/CollapsibleMenu.jsx
 // attrs:
 //  selected
 //  stateChange

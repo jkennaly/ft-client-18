@@ -1,4 +1,4 @@
-// MenuItem.jsx
+// src/components/ui/MenuItem.jsx
 
 import m from 'mithril'
 

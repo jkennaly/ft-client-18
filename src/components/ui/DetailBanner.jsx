@@ -1,4 +1,4 @@
-// DetailBanner.jsx
+// src/components/ui/DetailBanner.jsx
 
 import m from 'mithril';
 

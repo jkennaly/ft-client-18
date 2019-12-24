@@ -96,10 +96,26 @@ const jsx = {
 			}
 		</ReviewArraysWidget> : ''}
 		{attrs.friendReviews && attrs.friendReviews.length ? <ReviewArraysWidget 
+			header={`Followed Reviews`}
+		>
+			{
+				attrs.friendReviews
+					.filter(r => remoteData.Interactions.some(i => r.author === i.subject && i.subjectType === USER && i.type === FOLLOW))
+					//.filter(r => console.log('SetDetail review.friendReviews map', r) || true)
+					.map(review => <ReviewArrayCard 
+						review={review} 
+						shortDefault={true}
+					/>)
+					
+					
+			}
+		</ReviewArraysWidget> : ''}
+		{attrs.friendReviews && attrs.friendReviews.length ? <ReviewArraysWidget 
 			header={`Other Reviews`}
 		>
 			{
 				attrs.friendReviews
+					.filter(r => !remoteData.Interactions.some(i => r.author === i.subject && i.subjectType === USER && i.type === FOLLOW))
 					//.filter(r => console.log('SetDetail review.friendReviews map', r) || true)
 					.map(review => <ReviewArrayCard 
 						review={review} 

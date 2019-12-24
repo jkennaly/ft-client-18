@@ -7,6 +7,8 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+
 import smartSearch from 'smart-search'
 
 import ArtistCard from '../../../components/cards/ArtistCard.jsx';
@@ -53,6 +55,15 @@ const ResearchWidget = vnode => {
 					recordCount: 10, 
 					prefilter: data => !_.includes(removed, data.id)
 				})
+					.map(d => {
+						d.time = remoteData.Messages.subjectActivity({subjectType: ARTIST, subject: d.id})
+							.map(m => moment(m.timestamp).valueOf())
+							.sort((a, b) => b - a)
+							.reduce((pv, cv) => pv || cv, 0)
+						//console.log()
+						return d
+					})
+					.sort((a, b) => b.time - a.time)
 					.map(data => <ArtistCard 
 						data={data}
 						festivalId={vnode.attrs.festivalId ? vnode.attrs.festivalId : parseInt(m.route.param("id"), 10)}

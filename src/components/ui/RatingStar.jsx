@@ -1,4 +1,4 @@
-// RatingStar.jsx
+// src/components/ui/RatingStar.jsx
 
 import m from 'mithril'
 

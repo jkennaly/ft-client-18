@@ -1,4 +1,4 @@
-// SearchBar.jsx
+// src/components/ui/SearchBar.jsx
 
 import m from 'mithril'
 import _ from 'lodash'
