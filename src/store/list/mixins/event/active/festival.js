@@ -7,7 +7,11 @@ export default (dates) => { return  {
 	eventActive (id) {return this.get(id) && (parseInt(this.get(id).year, 10) >= (new Date().getFullYear()))},
 	getStartMoment (id) {
 		const dateIds = this.getSubDateIds(id)
-		if(!dateIds.length) return undefined
+		if(!dateIds.length) {
+			const fest = this.get(id)
+			if(!fest) return undefined
+			return moment(fest.year, 'YYYY')
+		}
 		const startInts = dateIds.map(dates.getStartMoment)
 			.map(m => m.valueOf())
 			.filter(_.isNumber)
@@ -18,7 +22,11 @@ export default (dates) => { return  {
 	},
 	getEndMoment (id) {
 		const dateIds = this.getSubDateIds(id)
-		if(!dateIds.length) return undefined
+		if(!dateIds.length) {
+			const fest = this.get(id)
+			if(!fest) return undefined
+			return moment(fest.year, 'YYYY')
+		}
 		const endInts = dateIds.map(id => dates.getEndMoment(id))
 			.map(m => m.valueOf())
 			.filter(_.isNumber)

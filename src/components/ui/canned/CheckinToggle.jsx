@@ -35,7 +35,7 @@ const CheckinToggle = {
 					const notCheckedIn = !messages.implicit(attrs.subjectObject, attrs.userId)
 					const checkinAllowed = _.isBoolean(attrs.checkinAllowed) ? attrs.checkinAllowed :  notCheckedIn && subjectData.active(attrs.subjectObject) && attrs.permission
 				//console.log('CheckinToggle setter start',attrs.userId, attrs.subjectObject, checkinAllowed)
-				console.log('CheckinToggle', attrs.subjectObject, attrs.userId, notCheckedIn, checkinAllowed, subjectData.active(attrs.subjectObject), newState)
+				//console.log('CheckinToggle', attrs.subjectObject, attrs.userId, notCheckedIn, checkinAllowed, subjectData.active(attrs.subjectObject), newState)
 					if(checkinAllowed) subjectData.checkIn(attrs.subjectObject)
 					//open the subject in gametime
 					//console.log('CheckinToggle setter checkinAllowed',checkinAllowed)

@@ -33,7 +33,7 @@ export default {
 		loadModel(this.fieldName)
 			.then(archived => _.filter(archived, data)[0])
 			.then(current => {
-				console.log('setIntent ')
+				//console.log('setIntent ')
 		//send to server
 				if(current && current.deleted) {
 					return this.updateInstance(_.assign({}, current, {deleted: 0, timestamp: undefined}), current.id)

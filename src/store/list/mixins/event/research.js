@@ -44,7 +44,18 @@ export default (artists, messages, lineups, artpris) => { return  {
 					const hidden = !forced && !recent && !skipped && !saved && _.includes(researchObject.hides, a.id)
 					return forced || !recent && !skipped && !saved && !hidden
 				})
+				.map(d => {
+					d.time = messages.subjectActivity({subjectType: ARTIST, subject: d.id})
+						.map(m => moment(m.timestamp).valueOf())
+						.sort((a, b) => b - a)
+						.reduce((pv, cv) => pv || cv, 0)
+					//console.log('ArtistData', d)
+					return d
+				})
 				.sort((a, b) => {
+					//sort by recency
+					if(a.time - b.time) return b.time - a.time
+					//sort by priority
 					const aPriId = lineups.getPriFromArtistFest(a.id, id)
 					const bPriId = lineups.getPriFromArtistFest(b.id, id)
 					if(aPriId === bPriId) return a.name.localeCompare(b.name)

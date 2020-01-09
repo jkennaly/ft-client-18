@@ -3,6 +3,7 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+import {reviewSorter, festivalIdsByEndTimeSort} from '../../services/sorts'
 
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
@@ -15,20 +16,36 @@ import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import DiscussionWidget from '../../components/widgets/canned/DiscussionWidget.jsx';
 import AdminWidget from '../../components/widgets/Admin.jsx';
+import UIButton from '../../components/ui/UIButton.jsx';
 
 import CloudImageField from '../../components/fields/CloudImageField.jsx';
 
 
 import {remoteData} from '../../store/data';
 
-const artists = remoteData.Artists
-const messages = remoteData.Messages
-const messagesMonitors = remoteData.MessagesMonitors
+const {
+	Artists: artists,
+	Messages: messages,
+	MessagesMonitors: messagesMonitors,
+	Interactions: interactions,
+	Festivals: festivals
+} = remoteData
+
 
 
 const artist = (id) => artists.get(id)
+const comments = (id) => messages
+	.getFiltered({
+		subjectType: ARTIST, 
+		subject: id, 
+		messageType: COMMENT
+	})
 
-const jsx = {
+const messageSorter = reviewSorter(interactions)
+
+const jsx = () => { 
+	let count = 5
+	return {
 	view: ({attrs}) => <div class="main-stage">
 
 			<WidgetContainer>
@@ -59,13 +76,16 @@ const jsx = {
 				<FixedCardWidget header="Festival Lineups">
 					{
 						remoteData.Lineups.festivalsForArtist(attrs.artistId)
-							.sort((a, b) => b - a)
+							.sort(festivalIdsByEndTimeSort(festivals))
 							.map(f => <FestivalCard eventId={f} artistId={attrs.artistId} />)
 					}
 				</FixedCardWidget>
 				{
 					//find each message about this attrs.artist and order by user
-					_.map(messages.getFiltered({subjectType: ARTIST, subject: attrs.artistId, messageType: COMMENT}),
+					_.map(_.take(messageSorter(attrs.userId)(
+						comments(attrs.artistId)
+							), count)
+							,
 						me => <DiscussionWidget 
 							messageArray={[me]} 
 							userId={attrs.userId}
@@ -78,9 +98,16 @@ const jsx = {
 						/>
 					)
 				}
+				{ comments(attrs.artistId).length > count ? <UIButton action={e => {
+            //attrs.hide()
+            e.stopPropagation()
+            //console.log('pre rating ' + rating)
+            count += 3
+            m.redraw()
+        }} buttonName="Show More" /> : '' }
 			</WidgetContainer>
 		</div>
-}
+}}
 
 const ArtistDetail = {
 		preload: (rParams) => {
@@ -93,8 +120,8 @@ const ArtistDetail = {
 			if(artistId) return artists.subjectDetails({subject: artistId, subjectType: ARTIST})
 		},
 		oninit: ({attrs}) => {
-			//console.log('ArtistDetail init')
-			const artistId = parseInt(rParams.id, 10)
+			//console.log('ArtistDetail init', _.keys(attrs))
+			const artistId = parseInt(attrs.id, 10)
 			if (attrs.titleSet) attrs.titleSet(artist(artistId) ? artist(artistId).name : '')
 
 		},

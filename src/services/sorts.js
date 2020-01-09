@@ -102,3 +102,48 @@ export const artistSorter = ({Messages, Artists, Lineups, ArtistPriorities, Fest
 	}, () => 0), a => `${a}-${sortArray.join('.')}-${invertArray.join('.')}`)
 	return (a, b) => scoreFunction ? scoreFunction(b) - scoreFunction(a) : 0
 }
+
+export const reviewSorter = interactions => viewer => sortArray => _.flatten(
+	sortArray
+		.sort(timeStampSort)
+		.reduce((pv, cv, i, arr) => {
+			const user = cv.fromuser === viewer
+			//each category sorted by newest date first within that category
+			//firstEl reserved for newest review by user
+			if(user && !pv[0].length) {
+				pv[0] = [cv]
+				return pv
+			}
+			//headEls are the first 5 reviews by followed (maximum of one )
+			const followed = !user && interactions.some(int => int.type === FOLLOW && int.subjectType === USER && int.subject === cv.fromuser)
+			if(followed && pv[1].length < 5 && !pv[1].some(el => el.fromuser === cv.fromuser)) {
+				pv[1].push(cv)
+				return pv
+			}
+			const other = !user && !followed
+			if(user) pv[2].push(cv)
+			if(followed) pv[3].push(cv)
+			if(other) pv[4].push(cv)
+
+			return pv
+		}, [
+			[], //user current review
+			[], //followed reviews
+			[], //old user reviews
+			[], //old followed reviews
+			[] //other reviews
+		])
+)
+
+export const festivalIdsByEndTimeSort = festivals => (a, b) => {
+	const am = festivals.getEndMoment(a)
+	const bm = festivals.getEndMoment(b)
+	if(am && !bm) return -1
+	if(!am && bm) return 1
+	if(!am && !bm) return 0
+	return festivals.getEndMoment(b).valueOf() - festivals.getEndMoment(a).valueOf()
+
+}
+
+
+
