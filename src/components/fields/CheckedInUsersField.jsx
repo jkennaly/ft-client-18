@@ -21,17 +21,17 @@ const formerUsers = subjectObject => allUsers(subjectObject)
 
 const CheckedInUsersField = vnode => {
 	return {
-		view: ({ attrs }) => <div class="ft-horizontal-fields ft-fb-fg4">
+		view: ({ attrs }) => <div class="c44-horizontal-fields c44-fb-fg4">
 
 			{/* checked in users on left */
 				currentUsers(attrs.subjectObject)
 					//.filter(x => console.log('CheckedInUsersField currentUsers', x) || true)
-			.map(u => <i class="fas fa-user ft-als-l"/>)
+			.map(u => <i class="fas fa-user c44-als-l"/>)
 			}
 			{/* checked out users on right */
 				formerUsers(attrs.subjectObject)
 					//.filter(x => console.log('CheckedInUsersField formerUsers', x) || true)
-			.map(u => <i class="far fa-user ft-als-r"/>)
+			.map(u => <i class="far fa-user c44-als-r"/>)
 			}
         </div>
 }} ;

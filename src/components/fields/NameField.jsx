@@ -4,7 +4,7 @@ import m from 'mithril'
 
 const NameField = {
 	view: ({ attrs }) =>
-		<span class="ft-name-field">
+		<span class="c44-name-field">
 			{attrs.fieldValue}
 		</span >
 };

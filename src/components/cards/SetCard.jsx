@@ -19,12 +19,12 @@ const setIdField = (field, id) => currentSet(id) ? currentSet(id)[field] : 0
 
 const SetCard = {
   view: ({ attrs }) =>
-    <div class={"ft-card ft-card-set " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set('/gametime/3/' + attrs.subjectObject.subject)}>
-      <div class="ft-set-name-fields">
+    <div class={"c44-card c44-card-set " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set('/gametime/3/' + attrs.subjectObject.subject)}>
+      <div class="c44-set-name-fields">
         <NameField fieldValue={subjectData.name(attrs.subjectObject)} />
       <AverageRatingField ratingObject={subjectData.ratingObject(attrs.subjectObject, attrs.userID)}/>
       </div>
-      <div class="ft-set-diff-fields">
+      <div class="c44-set-diff-fields">
           <CheckedInUsersField subjectObject={attrs.subjectObject} />
         <NameField fieldValue={moment(remoteData.Sets.getStartMoment(attrs.subjectObject.subject)).fromNow()} />
         <NameField fieldValue={remoteData.Sets.getTimeString(attrs.subjectObject.subject)} />

@@ -9,7 +9,7 @@ import {remoteData} from '../../../../store/data'
 const DaySelectBar = vnode => { 
 
 	return {
-		view: ({attrs}) => <div class="ft-card-container-horizontal">
+		view: ({attrs}) => <div class="c44-card-container-horizontal">
 
 			{
 				/*
@@ -21,7 +21,7 @@ const DaySelectBar = vnode => {
 					.map(data => <DayCard 
 						eventId={data.id}
 						useShort={true}
-						uiClass={data.id === attrs.currentId ? 'ft-card-selected' : ''}
+						uiClass={data.id === attrs.currentId ? 'c44-card-selected' : ''}
 						clickFunction={e => attrs.dayChange(e.target.value)}
 					/>)
 			}

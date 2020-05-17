@@ -14,10 +14,10 @@ const UserAvatarField = vnode => {
 			.catch(err=> {
 				console.error('UserAvatarField data grab error', err)
 			}),
-		view: ({ attrs }) => <div class="ft-horizontal-fields" onclick={attrs.itemClicked}>
+		view: ({ attrs }) => <div class="c44-horizontal-fields" onclick={attrs.itemClicked}>
 		{ attrs.data ? <div>
 			<img src={remoteData.Users.getPic(attrs.data)} />
-			<div class="ft-vertical-fields">
+			<div class="c44-vertical-fields">
 	            <span>{remoteData.Users.getName(attrs.data)}</span>
 	            
 	        </div>

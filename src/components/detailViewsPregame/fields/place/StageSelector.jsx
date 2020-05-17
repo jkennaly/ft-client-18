@@ -6,11 +6,11 @@ import {remoteData} from '../../../../store/data'
 const StageSelector = {
 	oninit: ({attrs}) => {
 	},
-	view: ({ attrs }) => <div class="ft-name-field">
-		<label for="ft-stage-selector">
+	view: ({ attrs }) => <div class="c44-name-field">
+		<label for="c44-stage-selector">
 	        {`Festival Stage`}
 	    </label>
-		    <select id="ft-stage-selector" name="stage" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.stageChange}>
+		    <select id="c44-stage-selector" name="stage" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.stageChange}>
 		    	<option value={0} selected={attrs.stageId ? `` : "selected"}>{`Select a stage`}</option>
 	      		{remoteData.Places.forFestival(attrs.festivalId)
 	      			.filter(p => p.type === 1)

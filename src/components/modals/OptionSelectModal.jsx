@@ -7,15 +7,15 @@ import _ from 'lodash'
 // change selections
 import MenuItem from '../ui/MenuItem.jsx';
 
-const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'c44-modal ' + (attrs.display ? '' : 'hidden')
 var textValue = ''
 const OptionSelectModal = {
 	view: ({attrs}) => <div class={classes(attrs)}>
         {
             console.log('OptionSelectModal', attrs)
         }
-        <div class="ft-modal-content">
-        <div class="ft-quarter ft-close-click" onclick={e => {
+        <div class="c44-modal-content">
+        <div class="c44-quarter c44-close-click" onclick={e => {
             e.stopPropagation()
             attrs.hide()
           }}>

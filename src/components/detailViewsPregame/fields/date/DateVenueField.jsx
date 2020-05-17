@@ -8,7 +8,7 @@ const DateVenueField = {
 	oninit: ({attrs}) => {
 	},
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
+		<div class="c44-name-field">
 			{remoteData.Venues.getPlaceName(remoteData.Dates.get(attrs.id) ? remoteData.Dates.get(attrs.id).venue : 0)}
 		</div >
 };

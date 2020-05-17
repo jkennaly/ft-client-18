@@ -61,7 +61,7 @@ const ScheduleThemer = {
 			//console.log(`ScheduleThemer mapping`, mapping)
 		return m({
 			oncreate: vnode => {
-				drake = dragula([].slice.call(vnode.dom.querySelectorAll(`.ft-widget-dragula`)))
+				drake = dragula([].slice.call(vnode.dom.querySelectorAll(`.c44-widget-dragula`)))
 			},
 			view: ({attrs}) => <div class="main-stage">
 			{
@@ -80,11 +80,11 @@ const ScheduleThemer = {
 
 				<div class="main-stage-content-scroll">
 				<WidgetContainer>
-					<FixedCardWidget header="Score Types" containerClasses={'ft-widget-dragula'}>
+					<FixedCardWidget header="Score Types" containerClasses={'c44-widget-dragula'}>
 					</FixedCardWidget>
-					<FixedCardWidget header="Applied Scores" containerClasses={'ft-widget-dragula'}>
+					<FixedCardWidget header="Applied Scores" containerClasses={'c44-widget-dragula'}>
 					</FixedCardWidget>
-					<FixedCardWidget header="Palettes" containerClasses={'ft-widget-dragula'}>
+					<FixedCardWidget header="Palettes" containerClasses={'c44-widget-dragula'}>
 					</FixedCardWidget>
 				</WidgetContainer>
 				</div>

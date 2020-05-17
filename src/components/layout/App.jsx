@@ -54,7 +54,7 @@ const auth = new Auth();
 
 
 const WelcomeView = ({attrs}) => [
-	<h1 class="app-title">FestiGram</h1>,
+	<h1 class="app-title">Client-44</h1>,
 	<h2 class="app-greeting">Welcome</h2>,
 	<span class="app-description">Like Instacart, but for music festivals*</span>,
 	<div class="login-button">
@@ -70,7 +70,7 @@ const forceLoginRoute = err => {
 }
 
 const rawUserData = status => status ? Promise.all([
-	auth.getFtUserId(),
+	auth.getC44UserId(),
 	auth.getRoles()
 	]).then(([u, r]) => [_.isNumber(u) ? u : 0, _.isArray(r) ? r : []]) : [0, []]
 
@@ -80,12 +80,12 @@ const title = (attrs) => {
 	const cached = _.get(titleCache, key)
 	if(cached) return cached
 	if(attrs.titleGet()) return attrs.titleGet()
-	return `FestiGram`
+	return `Client-44`
 }
 const bannerTitle = (title, route = m.route.get()) => {
 	//console.log('bannerTitle', title, titleCache)
 	if(_.isString(title)) _.set(titleCache, route, title)
-	return _.get(titleCache, route, `FestiGram`)
+	return _.get(titleCache, route, `Client-44`)
 
 
 }
@@ -261,7 +261,7 @@ const App = {
 			"/manage/pregame": {
 				onmatch: () => auth.getAccessToken()		
 					.then(() => Promise.all([
-						auth.getFtUserId(),
+						auth.getC44UserId(),
 						auth.getRoles()
 					]))
 					.then(userDataRaw => <Launcher userId={userDataRaw[0]} userRoles={userDataRaw[1]} />)

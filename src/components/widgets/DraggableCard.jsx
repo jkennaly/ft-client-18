@@ -8,7 +8,7 @@ const DraggableCardWidget = {
     return (
 <section>
   <header>{vnode.attrs.header}</header>
-  <ul id="columns" class="ft-card-container">  
+  <ul id="columns" class="c44-card-container">  
     { vnode.children }
   </ul>
   <footer>{vnode.attrs.footer}</footer>

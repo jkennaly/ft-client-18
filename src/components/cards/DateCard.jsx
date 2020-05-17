@@ -8,12 +8,12 @@ import {remoteData} from '../../store/data'
 
 const DateCard = {
   view: ({ attrs }) =>
-    <div class={"ft-card ft-card-date " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set("/dates" + "/pregame" + '/' + attrs.eventId + (attrs.eventId === 'new' && attrs.festivalId ? '/' + attrs.festivalId : ''))}>
-      <div class="ft-fields-with-thumbnail">
+    <div class={"c44-card c44-card-date " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set("/dates" + "/pregame" + '/' + attrs.eventId + (attrs.eventId === 'new' && attrs.festivalId ? '/' + attrs.festivalId : ''))}>
+      <div class="c44-fields-with-thumbnail">
       {attrs.eventId ? <DateNail 
         eventId={attrs.eventId}
       /> : ''}
-        <div class="ft-fields">
+        <div class="c44-fields">
         {attrs.eventId !== 'new' ? 
         <ComposedNameField fieldValue={remoteData.Dates.getEventName(attrs.eventId)} /> : 
         <ComposedNameField fieldValue={'New Date'} />}

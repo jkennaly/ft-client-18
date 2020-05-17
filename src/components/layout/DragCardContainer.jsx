@@ -5,7 +5,7 @@ import m from 'mithril'
 const DragCardContainer = {
   view: ({ children }) => {
     return (
-      <ul id="columns" class="ft-card-container">
+      <ul id="columns" class="c44-card-container">
         {children}
       </ul>
     )

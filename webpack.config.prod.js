@@ -10,9 +10,6 @@ module.exports = {
 	mode: "production",
 	entry: './src/index.jsx',
 	devtool: "source-map",
-	devServer: {
-		contentBase: "./dist"
-	},
 	 optimization: {
     minimizer: [
       new TerserPlugin({
@@ -29,8 +26,7 @@ module.exports = {
 		new HtmlWebpackPlugin({
 			template: "./index.html",
 			filename: "index.html",
-			inject: false,
-			favicon: 'src/favicon.ico'
+			inject: false
 		}),
 		new MiniCssExtractPlugin({
       filename: "[name].css",
@@ -77,12 +73,23 @@ module.exports = {
 		},
         {
             test: /\.(png|jp(e*)g|svg)$/,  
-			exclude: /(node_modules)/,
+			exclude: [/(node_modules)\//, /fav\//],
             use: [{
                 loader: 'url-loader',
                 options: { 
                     limit: 8000, // Convert images < 8kb to base64 strings
                     name: 'img/[name].[ext]'
+                } 
+            }]
+		}, 
+        {
+            test: /fav\/(.*)\.(png|ico|xml)$/,  
+			exclude: /(node_modules)\//,
+            use: [{
+                loader: 'url-loader',
+                options: { 
+                    limit: 16000, // Convert images < 8kb to base64 strings
+                    name: 'fav/[name].[ext]'
                 } 
             }]
 		}

@@ -49,7 +49,7 @@ let discoveryArtists = []
 const Launcher = {
 	name: 'Launcher',
 	oninit: ({attrs}) => {
-		if(attrs.titleSet) attrs.titleSet(`FestiGram Launcher`, m.route.get())
+		if(attrs.titleSet) attrs.titleSet(`Client-44 Launcher`, m.route.get())
 		//console.log('Launcher init')
 	},
 	view: ({attrs}) => <div class="main-stage">

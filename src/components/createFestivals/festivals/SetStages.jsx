@@ -84,9 +84,9 @@ const SetStages = (vnode) => {
 
 	return {
 		oncreate: vnode => {
-			currentStages = vnode.dom.querySelector(`.ft-card-container`)
+			currentStages = vnode.dom.querySelector(`.c44-card-container`)
 			drake = dragula(
-				[].slice.call(vnode.dom.querySelectorAll(`.ft-widget-dragula`))
+				[].slice.call(vnode.dom.querySelectorAll(`.c44-widget-dragula`))
 			)
 		
 		},
@@ -101,7 +101,7 @@ const SetStages = (vnode) => {
 		},
 		view: () => 
 		<div class="launcher-container">
-			<div class="ft-stage-banner-container">
+			<div class="c44-stage-banner-container">
 					<EventSelector 
 						seriesId={seriesId()}
 						festivalId={festivalId()}
@@ -117,7 +117,7 @@ const SetStages = (vnode) => {
 		  </div>
 				<div class="main-stage-content-scroll">
 				<WidgetContainer>
-					<FixedCardWidget header="Current Stage Order" containerClasses={'ft-widget-dragula'} tall={true}>
+					<FixedCardWidget header="Current Stage Order" containerClasses={'c44-widget-dragula'} tall={true}>
 						{
 							(!newStageNames.length ? [] : newStageNames)
 								.map(p => <NavCard fieldValue={p} key={p}/>)
@@ -127,7 +127,7 @@ const SetStages = (vnode) => {
 								<NavCard fieldValue={p.name} key={p.id}/>
 						)}
 					</FixedCardWidget>
-					<FixedCardWidget header="Previous Stages" containerClasses={'ft-widget-dragula'} tall={true}>
+					<FixedCardWidget header="Previous Stages" containerClasses={'c44-widget-dragula'} tall={true}>
 						{!festivalId() ? [] : _.uniqBy(remoteData.Places.list
 													.filter(p => remoteData.Festivals.getPeerIds(festivalId()).indexOf(p.festival) > -1), x => x.name)
 							.map(p => 
@@ -135,7 +135,7 @@ const SetStages = (vnode) => {
 						)}
 					</FixedCardWidget>
 				{/*
-					<FixedCardWidget header="All Stages" containerClasses={'ft-widget-dragula'} tall={true}>
+					<FixedCardWidget header="All Stages" containerClasses={'c44-widget-dragula'} tall={true}>
 						{_.uniqBy(remoteData.Places.list, x => x.name).map(p => 
 							<NavCard fieldValue={p.name} key={p.id}/>
 						)}

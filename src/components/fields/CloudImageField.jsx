@@ -20,7 +20,7 @@ const cl = cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
     var addingImage = false
 const jsx = {
     //oninit: () => console.log('CloudImageField jsx init'),
-    view: ({attrs}) => <div class="ft-full-image">
+    view: ({attrs}) => <div class="c44-full-image">
         {attrs.imagePath ? m.trust(cl.imageTag(attrs.imagePath, {alt: "artist image", width: 288, height: 250, crop: "fit"}).toHtml()) : ''}
         {attrs.image ? <AttributionField imageId={attrs.image.id} popModal={attrs.popModal} hideFlag={attrs.hideFlag} /> : ''}
         {!attrs.addDisabled && !attrs.image ? <NavButton fieldValue="Add image" action={e => addingImage = true} /> : ''}

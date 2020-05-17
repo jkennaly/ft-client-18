@@ -8,7 +8,7 @@ const DateBaseField = {
 	oninit: ({attrs}) => {
 	},
 	view: ({ attrs }) =>
-		<div class="ft-date-field">
+		<div class="c44-date-field">
 			{remoteData.Dates.get(attrs.id) ? (new Date(remoteData.Dates.get(attrs.id).basedate)).toUTCString() : ''}
 		</div >
 };

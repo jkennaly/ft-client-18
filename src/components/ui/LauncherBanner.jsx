@@ -20,15 +20,15 @@ const title = (attrs) => {
 	const cached = _.get(titleCache, key)
 	if(cached) return cached
 	if(attrs.titleGet()) return attrs.titleGet()
-	return `FestiGram`
+	return `Client-44`
 }
 const LauncherBanner = () => {
 
 	return {
 		
 	view: ({ attrs, children }) =>
-		<div class="ft-stage-banner-container">
-			<div class="ft-stage-banner">
+		<div class="c44-stage-banner-container">
+			<div class="c44-stage-banner">
 			{_.uniqBy([
 				...dates.checkedIn(attrs.userId),
 				...dates.intended()
@@ -50,12 +50,12 @@ const LauncherBanner = () => {
 
 				{attrs.userRoles.includes('user') ? 
 					<BannerButton 
-						icon={<span class="fa-layers fa-fw ft-icon-stack">
+						icon={<span class="fa-layers fa-fw c44-icon-stack">
 						    <i class="fas fa-envelope"/>
 						    {flags.pending([attrs.userId, attrs.userRoles]).length ? <i 
 								class="fas fa-flag" 
 								style="color:white;" 
-								data-fa-transform="shrink-8 up-3.8 left-4"
+								data-fa-transform="shrink-8 up-3.8 lec44-4"
 							/> : ''}
   					</span>}
 						clickFunction={e => m.route.set('/messages')}

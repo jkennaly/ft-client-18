@@ -13,13 +13,13 @@ import FestivalTimePicker from '../../components/ui/FestivalTimePicker.jsx';
 import {remoteData} from '../../store/data';
 
 const upsertSet = data => 0
-const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'c44-modal ' + (attrs.display ? '' : 'hidden')
 var startTime = 0
 var endTime = 0
 var selectedId = 0
 const SetScheduleModal = {
 	view: ({attrs}) => <div class={classes(attrs)}>
-        <div class="ft-modal-content">
+        <div class="c44-modal-content">
             <ComposedNameField fieldValue={remoteData.Days.getEventName(attrs.set.day)} />
             <StageNameField stageId={attrs.set.stage} />
             <ArtistNameField artistId={attrs.set.band} />

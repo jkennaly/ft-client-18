@@ -8,11 +8,11 @@ const DaySelector = {
 	oninit: ({attrs}) => {
 	},
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
-			<label for="ft-day-selector">
+		<div class="c44-name-field">
+			<label for="c44-day-selector">
 		        {`Festival Day`}
 		    </label>
-			    <select id="ft-day-selector" name="day" class={attrs.dateId ? '' : 'hidden'} onchange={attrs.dayChange}>
+			    <select id="c44-day-selector" name="day" class={attrs.dateId ? '' : 'hidden'} onchange={attrs.dayChange}>
 			    	<option value={0} selected={ attrs.dayId ? '' : "selected"}>{`Select a day`}</option>
 		      		{remoteData.Days.getMany(
 							remoteData.Dates.getSubIds(attrs.dateId))

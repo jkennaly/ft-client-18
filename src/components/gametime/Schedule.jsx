@@ -26,14 +26,14 @@ const Schedule = ({attrs}) => {
 			//console.log('Gametime oninit')
 		},
 		oncreate: ({attrs, dom}) => {
-			dom.querySelector('.ft-schedule-header').style.width = `calc(${stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).length * 300}px + 12em)`
+			dom.querySelector('.c44-schedule-header').style.width = `calc(${stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).length * 300}px + 12em)`
 		},
 		onupdate: ({attrs, dom}) => {
-			dom.querySelector('.ft-schedule-header').style.width = `calc(${stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).length * 300}px + 12em)`
+			dom.querySelector('.c44-schedule-header').style.width = `calc(${stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).length * 300}px + 12em)`
 		},
-		view: ({attrs}) => <div class="ft-schedule">
-			<div class="ft-schedule-header">
-				{stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).map(stage => <h2 class="ft-schedule-header-field">{stage.name}</h2>)}
+		view: ({attrs}) => <div class="c44-schedule">
+			<div class="c44-schedule-header">
+				{stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).map(stage => <h2 class="c44-schedule-header-field">{stage.name}</h2>)}
 			</div>
 
 			<ScheduleLadder  stageIds={stages(allSets(_.get(attrs.subjectObject, 'subject', 0))).map(x => x.id)}>

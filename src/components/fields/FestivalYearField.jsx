@@ -14,7 +14,7 @@ const getFestivalYear = id => {
 
 const FestivalYearField = {
 	view: ({ attrs }) =>
-		<span class="ft-name-field">
+		<span class="c44-name-field">
 			{(getFestivalYear(attrs.festivalId))}
 		</span >
 };

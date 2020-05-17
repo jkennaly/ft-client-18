@@ -6,7 +6,7 @@ import {remoteData} from '../../../../store/data'
 
 const SeriesWebsiteField = {
 	view: ({ attrs }) =>
-		<div class="ft-name-field">Description:
+		<div class="c44-name-field">Description:
 			<p>{remoteData.Series.get(attrs.id).description}</p>
 		</div >
 };

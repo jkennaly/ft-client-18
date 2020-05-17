@@ -21,8 +21,8 @@ const Discussion = (vnode) => { return {
 			if (attrs.titleSet) attrs.titleSet(`Discussion`)
 	},
 	view: () => 
-	<div class="ft-launcher-container">
-		<div class="ft-stage-banner-container">
+	<div class="c44-launcher-container">
+		<div class="c44-stage-banner-container">
 		</div>
 		{
 			//subject image/name

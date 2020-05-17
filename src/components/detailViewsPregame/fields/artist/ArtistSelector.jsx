@@ -7,8 +7,8 @@ const ArtistSelector = {
 	oninit: ({attrs}) => {
 	},
 	view: ({ attrs }) =>
-		<div class="ft-name-field">
-			<label for="artist" class="ft-center">
+		<div class="c44-name-field">
+			<label for="artist" class="c44-center">
 		        {attrs.label ? attrs.label : `Artist`}
 		    </label>
 			    <select id="artist" name="artist" onchange={attrs.artistChange}>

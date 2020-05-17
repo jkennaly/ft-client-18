@@ -6,7 +6,7 @@ import m from 'mithril'
 const QuarterButton = vnode => { 
 	return {
 	  view: ({ attrs, children }) =>
-	    <div class="ft-quarter-button" onclick={attrs.clickFunction} >
+	    <div class="c44-quarter-button" onclick={attrs.clickFunction} >
 	      {children}
 	    </div>
 }}

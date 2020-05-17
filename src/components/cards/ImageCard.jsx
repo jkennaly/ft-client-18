@@ -15,15 +15,15 @@ import {subjectData} from '../../store/subjectData';
 
 const ImageCard = {
     view: ({ attrs }) =>
-      <div class="ft-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : e => true}>
+      <div class="c44-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : e => true}>
             <h2>{subjectData.name(attrs.image)}</h2>
 
-          <div class="ft-horizontal-fields ft-flex-grow">
-            <div class="ft-vertical-fields">
+          <div class="c44-horizontal-fields c44-flex-grow">
+            <div class="c44-vertical-fields">
               <UserAvatarField data={attrs.image.user} />
               <span>{moment(attrs.image.timestamp).utc().fromNow()}</span>
             </div>
-              <span class="ft-flex-grow">
+              <span class="c44-flex-grow">
                 <CloudImageField
                   addDisabled={true} 
                   hideFlag={true}

@@ -39,7 +39,7 @@ const ModalBox = {
 		m.redraw()
 	},
 	view: () =>
-		<div class="ft-modal-box">
+		<div class="c44-modal-box">
 			{!modals[display] ? '' : m(modals[display], modalAttrs)}
 		</div>
 }

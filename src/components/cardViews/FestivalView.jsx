@@ -13,7 +13,7 @@ import {remoteData} from '../../store/data';
 const nameReduce = targetId => (n, s) => n.length || s.id !== targetId ? n : s.name
 
 const FestivalView = (auth) => { return {
-	oninit: ({attrs}) => {if (attrs.titleSet) attrs.titleSet(`FestiGram Years`)},
+	oninit: ({attrs}) => {if (attrs.titleSet) attrs.titleSet(`Client-44 Years`)},
 	view: () => <div class="main-stage">
 
 		<CardContainer>

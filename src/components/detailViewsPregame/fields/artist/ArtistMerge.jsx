@@ -9,7 +9,7 @@ import UIButton from '../../../../components/ui/UIButton.jsx';
 import ArtistSelector from '../../../../components/detailViewsPregame/fields/artist/ArtistSelector.jsx'
 import {remoteData} from '../../../../store/data';
 
-const classes = attrs => 'ft-launcher-container ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'c44-launcher-container ' + (attrs.display ? '' : 'hidden')
 var textValue = ''
 var selectedId1 = 0
 var selectedId2 = 0
@@ -29,7 +29,7 @@ const ArtistMerge = {
                 defaultText="merge artist"
                 artistChange={e => selectedId2 = parseInt(e.target.value, 10)}
             />
-            <div class="ft-name-field">
+            <div class="c44-name-field">
                 <label for="result-id">
                     {`Name of merged artist:`}
                 </label>

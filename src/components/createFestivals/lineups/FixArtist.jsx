@@ -32,11 +32,11 @@ const FixArtist = (vnode) => {
 			if (attrs.titleSet) attrs.titleSet(`Fix Artist Names`)
 		},
 		view: () => 
-		<div class="ft-launcher-container">
-			<div class="ft-stage-banner-container">
+		<div class="c44-launcher-container">
+			<div class="c44-stage-banner-container">
 			</div>
 				<div class="main-stage-content-scroll">
-			<div class="ft-name-field">
+			<div class="c44-name-field">
 				<label for="fix-type">
 			        {`Select the type of fix to make:`}
 			    </label>

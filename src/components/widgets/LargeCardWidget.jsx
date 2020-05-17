@@ -11,11 +11,11 @@ const LargeCardWidget = {
   <header>
   {vnode.attrs.header}
   {vnode.attrs.closeClick ? 
-     <span class="ft-quarter ft-close-click" onclick={vnode.attrs.closeClick}><i class="fas fa-times"/></span> :
+     <span class="c44-quarter c44-close-click" onclick={vnode.attrs.closeClick}><i class="fas fa-times"/></span> :
       ''}
   {vnode.attrs.headerCard}
   </header>
-  <div class={"ft-card-container " + (vnode.attrs.containerClasses ? vnode.attrs.containerClasses : '')}>  
+  <div class={"c44-card-container " + (vnode.attrs.containerClasses ? vnode.attrs.containerClasses : '')}>  
     { vnode.children }
   </div>
   <footer>{vnode.attrs.footer}</footer>

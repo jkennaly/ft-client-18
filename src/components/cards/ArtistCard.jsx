@@ -14,11 +14,11 @@ const defaultClick = attrs => () => m.route.set("/artists" + "/pregame" + '/' + 
 const ArtistCard = {
   //oninit: ({attrs}) => remoteData.Artists.getLocakPromise(attrs.data.id).catch(console.error),
   view: ({ attrs }) => <div 
-    class={"ft-card ft-card-artist " + (attrs.uiClass ? attrs.uiClass : '')} 
+    class={"c44-card c44-card-artist " + (attrs.uiClass ? attrs.uiClass : '')} 
     key={'artist-' + (attrs.data ? attrs.data.id : attrs.subject)} 
     onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}
   >
-    <div class="ft-fields-with-thumbnail">
+    <div class="c44-fields-with-thumbnail">
       {attrs.overlay === 'research' && attrs.data ? <ResearchOverlay 
         artistId={attrs.data.id}
         reviewSubject={attrs.reviewSubject}
@@ -27,11 +27,11 @@ const ArtistCard = {
         subjectType={2} 
         subject={attrs.data.id}
       /> : ''}
-      <div class="ft-vertical-fields">
-        <div class="ft-fields">
+      <div class="c44-vertical-fields">
+        <div class="c44-fields">
           {attrs.data ? <ComposedNameField fieldValue={`${attrs.data.name}`} /> : ''}
         </div>
-        {attrs.festivalId ? <div class="ft-set-diff-fields">
+        {attrs.festivalId ? <div class="c44-set-diff-fields">
           <NameField fieldValue={remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(attrs.data.id, attrs.festivalId))} />
         </div> : ''}
       </div>

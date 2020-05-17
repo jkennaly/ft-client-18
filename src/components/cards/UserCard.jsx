@@ -13,9 +13,9 @@ const defaultClick = ({contextObject}) => () => m.route.set(contextObject ? `/ga
 
 const UserCard = {
     view: ({ attrs }) =>
-      <div class={attrs.small ? "ft-card" : "ft-card-large"} onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
+      <div class={attrs.small ? "c44-card" : "c44-card-large"} onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
       {console.log('UserCard attrs.contextObject', attrs.contextObject)}
-        <div class="ft-vertical-fields">
+        <div class="c44-vertical-fields">
           <UserAvatarField data={attrs.data.id} />
         </div>
           {attrs.contextObject && (attrs.contextObject.subject !== attrs.data.id || attrs.contextObject.subjectType !== USER) ? <NameField fieldValue={subjectData.name(attrs.contextObject)} /> : ''}

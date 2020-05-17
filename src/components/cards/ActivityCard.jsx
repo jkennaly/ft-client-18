@@ -42,9 +42,9 @@ const classes = ({messageArray, userId, discusser}) => {
   const ownReview = userId && discusser === userId
   const reviewUnread = reviewId && !ownReview && remoteData.MessagesMonitors.unread(reviewId)
   //console.log('ActivityCard classes', userId, ownReview, reviewUnread, reviewMessage)
-  return `ft-card-large ${
-    ownReview ? 'ft-own-content' :
-    !reviewUnread ? 'ft-already-read' :
+  return `c44-card-large ${
+    ownReview ? 'c44-own-content' :
+    !reviewUnread ? 'c44-already-read' :
   '' }`
 } 
 const ActivityCard = vnode => {
@@ -73,14 +73,14 @@ const ActivityCard = vnode => {
           rating={attrs.rating}
           fallbackClick={defaultClick}
         /> : ''}
-        <div class="ft-vertical-fields ft-flex-grow">
-          <div class="ft-horizontal-fields ft-card-above-overlay">
+        <div class="c44-vertical-fields c44-flex-grow">
+          <div class="c44-horizontal-fields c44-card-above-overlay">
             {attrs.headline ? <span 
-              class="ft-card-title"
+              class="c44-card-title"
               onclick={attrs.headact ? attrs.headact : () => 0}
               >{attrs.headline}</span> : ''}
-              {attrs.discusser === attrs.userId || !remoteData.MessagesMonitors.unread(id(attrs)) ? '' : <div class="ft-quarter ft-close-click" onclick={e => {
-                //console.log('ft-quarter click') 
+              {attrs.discusser === attrs.userId || !remoteData.MessagesMonitors.unread(id(attrs)) ? '' : <div class="c44-quarter c44-close-click" onclick={e => {
+                //console.log('c44-quarter click') 
                 //console.log('MessagesMonitors length ' + remoteData.MessagesMonitors.list.length)
                 if(attrs.discusser !== attrs.userId) remoteData.MessagesMonitors.markRead(id(attrs))
                 e.stopPropagation()
@@ -88,8 +88,8 @@ const ActivityCard = vnode => {
               <i class="fas fa-times"/>
             </div>}
           </div>
-          <div class="ft-horizontal-fields ft-flex-grow">
-            <div class="ft-vertical-fields ft-card-above-overlay">
+          <div class="c44-horizontal-fields c44-flex-grow">
+            <div class="c44-vertical-fields c44-card-above-overlay">
               <UserAvatarField data={attrs.discusser} itemClicked={e => {
                 attrs.popModal('option', {
                   headerCard: <UserCard 
@@ -102,7 +102,7 @@ const ActivityCard = vnode => {
               {attrs.rating ? <AverageRatingField averageRating={attrs.rating} /> : ''}
               <span>{year(attrs)}</span>
             </div>
-              <span class="ft-flex-grow" onclick={defaultClick}>
+              <span class="c44-flex-grow" onclick={defaultClick}>
                 {!attrs.shortDefault || showLong || !comment(attrs) ? comment(attrs) : comment(attrs).substring(0, 50) + '...(+expand)'}
               </span>
           </div>

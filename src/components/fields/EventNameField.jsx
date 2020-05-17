@@ -41,7 +41,7 @@ const getEventName = _.memoize((id, eventAr, suffix) => {
 
 const EventNameField = {
 	view: ({ attrs }) =>
-		<span class="ft-field">
+		<span class="c44-field">
 			{getEventName(attrs.superId, attrs.eventTier, attrs.nameFrag)}
 		</span >
 };

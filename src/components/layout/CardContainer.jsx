@@ -5,7 +5,7 @@ import m from 'mithril'
 const CardContainer = {
   view: ({ children }) => {
     return (
-      <div class="ft-card-container">
+      <div class="c44-card-container">
         {children}
       </div>
     )
