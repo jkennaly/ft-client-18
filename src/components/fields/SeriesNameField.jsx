@@ -14,7 +14,7 @@ const getSeriesName = id => {
 
 const SeriesNameField = {
 	view: ({ attrs }) =>
-		<span class="ft-name-field">
+		<span class="c44-name-field">
 			{(getSeriesName(attrs.seriesId))}
 			
 		

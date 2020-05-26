@@ -14,7 +14,7 @@ const getStageName = id => {
 
 const StageNameField = {
 	view: ({ attrs }) =>
-		<span class="ft-name-field">
+		<span class="c44-name-field">
 			{(getStageName(attrs.stageId))}
 			
 		

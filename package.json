@@ -1,5 +1,5 @@
 {
-  "name": "festigram-client",
+  "name": "client-44",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -66,8 +66,8 @@
     "test": "NODE_ENV=test nyc --reporter=text-summary --reporter=html npx babel-node node_modules/ospec/bin/ospec './tests/**/**.test.js' --require ./tests/test-setup.js",
     "watch": "onchange -i 'src/**/*' 'tests/**/*.js' -- npm run build",
     "start": "webpack-dev-server --open",
-    "set-dev": "cp webpack.config.dev.js webpack.config.js && cp src/services/auth0-variables.dev.js src/services/auth0-variables.js",
-    "set-prod": "cp webpack.config.prod.js webpack.config.js && cp src/services/auth0-variables.prod.js src/services/auth0-variables.js",
+    "set-dev": "cp webpack.config.dev.js webpack.config.js",
+    "set-prod": "cp webpack.config.prod.js webpack.config.js",
     "prebuild": "clear && npm run test",
     "build": "webpack --config webpack.config.js",
     "postbuild": "[ -f ./deploy.js ] && node deploy.js"

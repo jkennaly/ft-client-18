@@ -1,13 +1,11 @@
 // auth.js
 
-import auth00 from '@auth0/auth0-spa-js';
-import AUTH0_DATA from './auth0-variables';
 import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
 localforage.config({
-  name: "FestiGram",
-  storeName: "FestiGram"
+  name: "Client-44",
+  storeName: "Client-44"
 })
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
@@ -41,17 +39,9 @@ var userRoleCache = []
 var dataReset = () => true
 var auth0 = {}
 var authHandler = {}
-const authLoad = window.mockery ? Promise.reject('mocked') : (auth00({
-    domain: AUTH0_DATA.DOMAIN,
-    client_id: AUTH0_DATA.CLIENTID,
-    redirect_uri: AUTH0_DATA.CALLBACKURL,
-    audience: AUTH0_DATA.AUDIENCE,
-    scope: scopeAr
-  })
-  .then(o => auth0 = o)
-  .then(() => 'authLoaded')
+const authLoad = (window.mockery ? Promise.reject('mocked') : Promise.resolve('authLoaded'))
   .catch(err => err !== 'mocked' && console.error('auth0 instantiantion failed', err))
-)
+
 var lastToken
 export default class Auth {
   
@@ -86,50 +76,7 @@ export default class Auth {
 
         if(!handling) throw 'not handling'
       })
-      //.catch(err => {if(err === 'not handling') return; console.error(err)})
-      .then(() => auth0.handleRedirectCallback())
-      .then(x => {
-        //console.log('handleRedirectCallback', x)
-        return x
-      })
-      .then(redirect => {
-        return auth0.getUser()
-          .then(user => {
-            //console.log('auth0.getUser', user);
-            return userData = user
-          })
-          .then(user => this.getFtUserId(user))
-          .then(id => {
-            //console.log('setting id')
-            localStorage.setItem('ft_user_id', id)
-          })
-          .then(() => this.getRoles().then(roles => userRoleCache = roles))
-          //.then(() => m.redraw())
-          .then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
-          .then(() => redirect)
-          .catch(err => {
-            //if(err === 'Invalid state' || err.Error === "There are no query params available for parsing.") return
-            console.error('handleRedirectCallback', err)
-          })
-         
-      })
-      .catch(err => {
-        if(err === 'mocked') return
-        if(err === 'not handling') return
-        console.error('handleAuthentication', err)
-      })
-      //.then(({appState}) => m.route.set(appState && appState.route ? appState.route : '/launcher'))
-      //.then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
-      /*
-      .then(hrcb => {
-          console.log('redirected', hrcb)
-          return hrcb
-      })
-      */
-      //.then(() => this.getFtUserId('handleAuthentication'))
-      /*
-      .then(() => {})
-      */
+      
   }
 
 

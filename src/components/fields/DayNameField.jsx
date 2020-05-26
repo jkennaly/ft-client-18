@@ -14,7 +14,7 @@ const getDayName = id => {
 
 const DayNameField = {
 	view: ({ attrs }) =>
-		<span class="ft-name-field">
+		<span class="c44-name-field">
 			{(getDayName(attrs.dayId))}
 			
 		

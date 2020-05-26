@@ -8,7 +8,7 @@ function MessageList(opt = {
 	}) {
   DataList.call(this, opt)
   this.core = false
-  this.subjectType = 10
+  this.subjectType = 3
 }
 MessageList.prototype = Object.create(DataList.prototype)
 

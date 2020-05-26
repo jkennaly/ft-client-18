@@ -33,16 +33,6 @@ const menuList = (userRoles) => {
 			path: '/launcher',
 			icon: <FortyButton><img src="/favicon.ico" /></FortyButton>
 		},
-		{
-			name: 'Festivals',
-			path: '/series/pregame',
-			icon: <FortyButton><i class="fas fa-icons"></i></FortyButton>
-		},
-		(userRoles.includes('user') ? {
-			name: 'Research',
-			path: '/research',
-			icon: <FortyButton><i class="fas fa-clipboard-check"></i></FortyButton>
-		} : ''),
 		(userRoles.includes('user') ? {
 			name: 'Theme',
 			path: '/themer/schedule',
@@ -67,7 +57,7 @@ const DisplayButton = vnode => {
 			document.body.removeEventListener('click', hideMenu(dom))
 		},
 		view: ({ attrs }) => <div>
-			<div class="ft-nav-button" onclick={() => menuHidden = !menuHidden}>
+			<div class="c44-nav-button" onclick={() => menuHidden = !menuHidden}>
 				{attrs.icon}
 			</div>
 			<CollapsibleMenu 

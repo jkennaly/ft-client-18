@@ -5,7 +5,7 @@ import m from 'mithril'
 const WidgetContainer = {
   view: ({ children }) => {
     return (
-      <div class="ft-widget-container">
+      <div class="c44-widget-container">
         {children}
       </div>
     )

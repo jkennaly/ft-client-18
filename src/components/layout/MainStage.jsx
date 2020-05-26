@@ -4,7 +4,7 @@ import m from 'mithril'
 
 const MainStage = {
 	view: (vnode) =>
-		<div class="main-stage">
+		<div class="c44-main-stage">
 			{vnode.children}
 		</div>
 };

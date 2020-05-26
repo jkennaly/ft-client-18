@@ -6,8 +6,8 @@ import  ComposedNameField from '../fields/ComposedNameField.jsx'
 
 const ReviewCard = {
 	  view: ({ attrs }) =>
-	    <div class={"ft-card ft-card-review " + (attrs.uiClass ? attrs.uiClass : '')} >
-	      <div class="ft-fields" onclick={e => attrs.popModal('review', {
+	    <div class={"c44-card c44-card-review " + (attrs.uiClass ? attrs.uiClass : '')} >
+	      <div class="c44-fields" onclick={e => attrs.popModal('review', {
 			subjectObject: attrs.subjectObject ? attrs.subjectObject : {
 				subject: attrs.data.id,
 				subjectType: attrs.subjectType ? attrs.subjectType : ARTIST

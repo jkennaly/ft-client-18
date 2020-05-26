@@ -4,7 +4,7 @@ import m from 'mithril'
 
 const ComposedNameField = {
 	view: ({ attrs }) =>
-		<span class="ft-field">
+		<span class="c44-field">
 			{attrs.fieldValue}
 		</span >
 };

@@ -43,9 +43,9 @@ const classes = ({messageArray, userId, reviewer}) => {
   const ownReview = reviewer === userId
   const reviewUnread = reviewId && !ownReview && remoteData.MessagesMonitors.unread(reviewId)
 
-  return `ft-card-large ${
-    ownReview ? 'ft-own-content' :
-    !reviewUnread ? 'ft-already-read' :
+  return `c44-card-large ${
+    ownReview ? 'c44-own-content' :
+    !reviewUnread ? 'c44-already-read' :
   '' }`
 } 
 
@@ -56,10 +56,10 @@ const SubjectReviewCard = vnode => {
     view: ({ attrs }) =>
       <div class={classes(attrs)} onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
       
-        <div class="ft-vertical-fields-100-width">
-        <div class="ft-card-above-overlay">
-            { !attrs.userId || (attrs.reviewer === attrs.userId || !remoteData.MessagesMonitors.unread(_.get(attrs.messageArray.find(m => m.messageType === 1), 'id'))) ? '' : <div class="ft-quarter ft-close-click" onclick={e => {
-              //console.log('ft-quarter click', attrs.reviewer, attrs.userId, _.get(comment(attrs), 'id')) 
+        <div class="c44-vertical-fields-100-width">
+        <div class="c44-card-above-overlay">
+            { !attrs.userId || (attrs.reviewer === attrs.userId || !remoteData.MessagesMonitors.unread(_.get(attrs.messageArray.find(m => m.messageType === 1), 'id'))) ? '' : <div class="c44-quarter c44-close-click" onclick={e => {
+              //console.log('c44-quarter click', attrs.reviewer, attrs.userId, _.get(comment(attrs), 'id')) 
               //console.log('MessagesMonitors length ' + remoteData.MessagesMonitors.list.length)
               if(attrs.userId && attrs.reviewer !== attrs.userId && _.get(comment(attrs), 'id')) remoteData.MessagesMonitors.markRead(_.get(comment(attrs), 'id'))
               e.stopPropagation()
@@ -67,12 +67,12 @@ const SubjectReviewCard = vnode => {
             <i class="fas fa-times"/>
           </div>}
         </div>
-      <div class="ft-horizontal-fields">
+      <div class="c44-horizontal-fields">
       {attrs.overlay === 'discuss' && attrs.discussSubject && attrs.messageArray ? <DiscussOverlay 
         discussSubject={attrs.discussSubject}
         messageArray={attrs.messageArray}
       /> : ''}
-        <div class="ft-vertical-fields">
+        <div class="c44-vertical-fields">
           <UserAvatarField data={attrs.reviewer} />
           <AverageRatingField averageRating={rating(attrs)} />
           <span>{year(attrs)}</span>
