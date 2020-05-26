@@ -3,8 +3,8 @@
 import _ from 'lodash'
 import localforage from 'localforage'
 localforage.config({
-	name: "FestiGram",
-	storeName: "FestiGram"
+	name: "Client-44",
+	storeName: "Client-44"
 })
 import {updateModel, coreChecked} from './acquire.js'
 //pull data from localforage and convert into an array

@@ -30,7 +30,7 @@ const auth = new Auth();
 
 
 const WelcomeView = ({attrs}) => [
-	<h1 class="app-title">FestiGram</h1>,
+	<h1 class="app-title">Client-44</h1>,
 	<h2 class="app-greeting">Welcome</h2>,
 	<span class="app-description">Like Instacart, but for music festivals*</span>,
 	<div class="login-button">
@@ -46,7 +46,7 @@ const forceLoginRoute = err => {
 }
 
 const rawUserData = status => status ? Promise.all([
-	auth.getFtUserId(),
+	auth.getC44UserId(),
 	auth.getRoles()
 	]).then(([u, r]) => [_.isNumber(u) ? u : 0, _.isArray(r) ? r : []]) : [0, []]
 
@@ -58,12 +58,12 @@ const title = (attrs) => {
 	const cached = _.get(titleCache, key)
 	if(cached) return cached
 	if(attrs.titleGet()) return attrs.titleGet()
-	return `FestiGram`
+	return `Client-44`
 }
 const bannerTitle = (title, route = m.route.get()) => {
 	//console.log('bannerTitle', title, titleCache)
 	if(_.isString(title)) _.set(titleCache, route, title)
-	return _.get(titleCache, route, `FestiGram`)
+	return _.get(titleCache, route, `Client-44`)
 
 }
 //console.log(`app here`)
@@ -140,7 +140,239 @@ const App = {
 			"/launcher": {
 			 	onmatch: authorize(Launcher, Launcher)
 			},
+<<<<<<< HEAD
 		})
+=======
+			"/callback": {
+				onmatch: () => {
+					const query = window.location.search
+        			const handling = /code/.test(query) && /state/.test(query)
+
+        			if(!handling) return m.route.set('/launcher')
+        			localStorage.clear()
+        			return auth.handleAuthentication()
+        		/*
+        		.then(x => {
+        			console.log('auth callback', x)
+        			return x
+        		})
+				*/						
+						.then(acb => {
+							//console.log(`callback new raw promise`)
+							rawUserPromise = auth.isAuthenticated()		
+								.then(rawUserData)
+								//.then(udr => [console.log(`callback new raw promise`, udr), udr][1])
+								.catch(err => [0, []] )
+								.then(user => lastUser = user)
+							return acb
+						})
+        				.then(acb => m.route.set(acb && acb.appState && acb.appState.route ? acb.appState.route : '/launcher', ))
+        				//.then(() => m.redraw())
+				}
+			},
+			"/:mode/subject/:subjectType/:subject": {
+				onmatch: (rParams) => {
+					//console.log('pregame subject', rParams)
+					const nextParams = _.omit(rParams, ['mode', 'subjectType', 'subject'])
+					if(rParams.subjectType === `${ARTIST}`) return m.route
+						.set(`/artists/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${SERIES}`) return m.route
+						.set(`/series/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${FESTIVAL}`) return m.route.
+						set(`/fests/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${DATE}`) return m.route
+						.set(`/dates/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${DAY}` && rParams.mode === `pregame`) return m.route
+						.set(`/days/${rParams.mode}/${rParams.subject}`, nextParams)
+					if(rParams.subjectType === `${DAY}` && rParams.mode === `gametime`) return m.route
+						.set(`/gametime/${subjectType}/${subject}`, nextParams)
+					if(rParams.subjectType === `${SET}` && rParams.mode === `pregame`) return m.route
+						.set(`/artists/pregame/${_.get(
+							remoteData.Sets.get(_.toInteger(rParams.subject)), 'band'
+						)}`, nextParams)
+					if(rParams.subjectType === `${SET}` && rParams.mode === `gametime`) return m.route
+						.set(`/gametime/${subjectType}/${subject}`, nextParams)
+				}
+			},
+			"/research": {
+				onmatch: authorize(Research, Launcher)
+
+			},
+			"/research/:seriesId": {
+				onmatch: authorize(Research, Launcher)
+
+			},
+			"/research/:seriesId/:festivalId": {
+				onmatch: authorize(Research, Launcher)
+
+			},
+			"/messages": {
+				onmatch: authorize(Messages, Launcher)
+			},
+			"/messages/:filter": {
+				onmatch: authorize(Messages, Launcher)
+			},
+			"/gametime/locations/:subjectType/:subject": {
+				onmatch: authorize(Gametime, Launcher)
+
+			},
+			"/gametime/:subjectType/:subject": {
+				onmatch: authorize(Gametime, Launcher)
+
+			},
+			"/admin": {
+				onmatch: authorize(Admin, Launcher)
+			},
+			"/discussion/:messageId": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(Discussion)
+						.catch(forceLoginRoute)
+			},
+			"/manage/pregame": {
+				onmatch: () => auth.getAccessToken()		
+					.then(() => Promise.all([
+						auth.getC44UserId(),
+						auth.getRoles()
+					]))
+					.then(userDataRaw => <Launcher userId={userDataRaw[0]} userRoles={userDataRaw[1]} />)
+					//.then(userDataRaw => m(Launcher, {userId: userDataRaw[0], userRoles: userDataRaw[1]}))
+					.catch(err => {
+						if(err.error === 'login_required') return <Launcher userId={0} userRoles={[]} />
+						console.error(err)
+					})
+			},
+			"/series/pregame": {
+				onmatch: (routing) => {
+
+					remoteData.Series.remoteCheck()
+
+					return authorize(SeriesView, SeriesView) (routing)
+				}
+			},
+			"/stages/pregame": {
+				onmatch: () => auth.isAuthenticated()		
+					.then(rawUserData)
+					.then(userDataRaw => {return {
+						view: () => {
+							return m(FestivalView, {userId: userDataRaw[0], userRoles: userDataRaw[1]})
+						}
+					}})
+					.catch(err => {
+						console.error(err)
+						return m(FestivalView)
+					})
+			},
+			"/venues/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateVenue(auth))
+						.catch(forceLoginRoute)
+			},
+			"/sets/pregame/assignDays": {
+				onmatch: authorize(AssignDays, Launcher)
+			},
+			"/sets/pregame/assignTimes": {
+				onmatch: authorize(AssignTimes, Launcher)
+			},
+			"/sets/pregame/assignStages": {
+				onmatch: authorize(AssignSetStages, Launcher)
+			},
+			"/fests/pregame/assignStages": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(SetStages)
+						.catch(forceLoginRoute)
+			},
+			"/fests/pregame/assignLineup": {
+				onmatch: authorize(SetLineup, Launcher)
+			},
+			"/artists/pregame/fix": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(FixArtist)
+						.catch(forceLoginRoute)
+			},
+			"/artists/pregame/fix/:id": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(FixArtist)
+						.catch(forceLoginRoute)
+			},
+			"/users/pregame/:id": {
+				onmatch: SeriesDetail
+			},
+			"/artists/pregame/:id": {
+			 	onmatch: (routing) => {
+
+					//remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
+
+					return authorize(ArtistDetail, ArtistDetail) (routing)
+				}
+				 
+			},
+			"/fests/pregame/new/:seriesId": {
+				onmatch:(routing) => {
+
+					remoteData.Festivals.remoteCheck(true)
+					remoteData.Series.remoteCheck(true)
+
+					return authorize(CreateFestival, Launcher) (routing)
+				}
+			},
+			"/fests/pregame/new": {
+				onmatch:(routing) => {
+
+					
+
+					return authorize(CreateFestival, Launcher) (routing)
+				}
+			},
+			"/fests/pregame/:id": {
+				onmatch: authorize(FestivalDetail, FestivalDetail)
+			},
+			"/dates/pregame/new/:festivalId": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateDate(auth))
+						.catch(forceLoginRoute)
+			},
+			"/dates/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateDate(auth))
+						.catch(forceLoginRoute)
+			},
+			"/dates/pregame/:id": {
+				onmatch: authorize(DateDetail, DateDetail)
+			},
+			"/days/pregame/:id": {
+				onmatch: authorize(DayDetail, DayDetail)
+			},
+			"/series/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateSeries(auth))
+						.catch(forceLoginRoute)
+			},
+			"/series/pregame/:id": {
+				onmatch: authorize(SeriesDetail, SeriesDetail)
+			},
+			"/sets/pregame/:id": {
+				onmatch: SetDetail
+			},
+			"/stages/pregame/:id": {
+				onmatch: () =>
+					auth.getAccessToken()						
+					.then(() => SeriesDetail(auth))
+						.catch(forceLoginRoute)
+			},
+			"/themer/schedule": {
+				onmatch: authorize(ScheduleThemer, ScheduleThemer)
+			}
+		});
+		
+>>>>>>> 86cfeeb045b16bf0a308c9c8ef37b95fa30b2edf
 		//m.mount(document.getElementById("DisplayBar"), {view: function () {return m(LauncherBanner, _.assign({}, lastUser, {}))}})
 	},
 	view: ({ children }) =>

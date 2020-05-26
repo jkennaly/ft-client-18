@@ -25,7 +25,7 @@ const userIdFromToken = userData => token => m.request({
 })
 .then(result => {
   const id = result.id
-  if(!id) throw 'invalid id received from getFtUserId() ' + id
+  if(!id) throw 'invalid id received from getC44UserId() ' + id
   return id
 })
 
@@ -48,17 +48,6 @@ export default class Auth {
 
   login(prev) {
     authLoad
-    /*
-      .then(hrcb => {
-          console.log('authLoad', hrcb)
-          return hrcb
-      })
-      */
-      .then(() => auth0.loginWithRedirect({
-        appState: {
-          route: prev
-        }
-      }))
       .catch(err => console.error('login error', err))
   }
 
@@ -76,7 +65,52 @@ export default class Auth {
 
         if(!handling) throw 'not handling'
       })
-      
+      //.catch(err => {if(err === 'not handling') return; console.error(err)})
+      /*
+      .then(() => auth0.handleRedirectCallback())
+      .then(x => {
+        //console.log('handleRedirectCallback', x)
+        return x
+      })
+      .then(redirect => {
+        return auth0.getUser()
+          .then(user => {
+            //console.log('auth0.getUser', user);
+            return userData = user
+          })
+          .then(user => this.getC44UserId(user))
+          .then(id => {
+            //console.log('setting id')
+            localStorage.setItem('c44_user_id', id)
+          })
+          .then(() => this.getRoles().then(roles => userRoleCache = roles))
+          //.then(() => m.redraw())
+          .then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
+          .then(() => redirect)
+          .catch(err => {
+            //if(err === 'Invalid state' || err.Error === "There are no query params available for parsing.") return
+            console.error('handleRedirectCallback', err)
+          })
+         
+      })
+      .catch(err => {
+        if(err === 'mocked') return
+        if(err === 'not handling') return
+        console.error('handleAuthentication', err)
+      })
+      */
+      //.then(({appState}) => m.route.set(appState && appState.route ? appState.route : '/launcher'))
+      //.then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
+      /*
+      .then(hrcb => {
+          console.log('redirected', hrcb)
+          return hrcb
+      })
+      */
+      //.then(() => this.getC44UserId('handleAuthentication'))
+      /*
+      .then(() => {})
+      */
   }
 
 
@@ -94,14 +128,14 @@ export default class Auth {
   }
 
   //returns a promise that resolves to a userIdCache
-  getFtUserId(userData) {
+  getC44UserId(userData) {
     const onAuthRoute = /auth/.test(window.location)
     if(onAuthRoute) return Promise.resolve(0)
-    const localUser = parseInt(localStorage.getItem('ft_user_id'), 10)
+    const localUser = parseInt(localStorage.getItem('c44_user_id'), 10)
     if(localUser) return Promise.resolve(localUser)
     if(userIdPromiseCache.then) return userIdPromiseCache
     if(!localUser && !userData) return Promise.reject(0)
-    //console.log('getFtUserId', userData)
+    //console.log('getC44UserId', userData)
     //console.trace()
     userIdPromiseCache = authLoad
       .then(() => this.getValidToken())
@@ -112,7 +146,7 @@ export default class Auth {
     
       .catch(err => {
           userIdCache = 0
-        localStorage.setItem('ft_user_id', 0)
+        localStorage.setItem('c44_user_id', 0)
         //console.error('userIdPromiseCache failed', err)
       })
     return userIdPromiseCache
@@ -131,22 +165,21 @@ export default class Auth {
       .catch(err => console.error('logout data reset failed', err))
     userIdCache = 0
     userRoleCache = []
-    auth0.logout({client_id: AUTH0_DATA.CLIENTID, returnTo:AUTH0_DATA.CALLBACKURL})
     // navigate to the default route
     //if(!skipRoute) m.route.set('/')
   }
 
   isAuthenticated() {
-    if(!localStorage.getItem('ft_user_id')) return Promise.reject('login required')
+    if(!localStorage.getItem('c44_user_id')) return Promise.reject('login required')
     
     return authLoad
-      .then(() => auth0.isAuthenticated())
+      .finally(() => true)
   }
 
   getValidToken() {
-    //if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
+  
     return authLoad
-      .then(() => auth0.getTokenSilently())
+      .finally(() => 'token')
   
   }
 
@@ -158,7 +191,7 @@ export default class Auth {
   }
   getIdTokenClaims()  {
     return authLoad
-      .then(() => auth0.getIdTokenClaims())
+      .then(() => [])
   }
   getRoles() {
     return this.getIdTokenClaims()

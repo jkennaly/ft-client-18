@@ -20,7 +20,7 @@ const title = (attrs) => {
 	const cached = _.get(titleCache, key)
 	if(cached) return cached
 	if(attrs.titleGet()) return attrs.titleGet()
-	return `FestiGram`
+	return `Client-44`
 }
 const LauncherBanner = () => {
 
@@ -29,6 +29,14 @@ const LauncherBanner = () => {
 	view: ({ attrs, children }) =>
 		<div class="c44-stage-banner-container">
 			<div class="c44-stage-banner">
+<<<<<<< HEAD
+=======
+			{_.uniqBy([
+				...dates.checkedIn(attrs.userId),
+				...dates.intended()
+				], 'id').map(d => <LiveButton date={d} />)
+			}
+>>>>>>> 86cfeeb045b16bf0a308c9c8ef37b95fa30b2edf
 				<StageTitle title={title(attrs)} />
 				<SearchBar  />
 				{

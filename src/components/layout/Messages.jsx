@@ -28,7 +28,11 @@ const Messages = {
 		dom.querySelector('.c44-pane-double').style['height'] = `${height}px`
 	},
 	view: ({attrs}) => 
+<<<<<<< HEAD
 		<div class="c44-main-stage">
+=======
+		<div class="main-stage">
+>>>>>>> 86cfeeb045b16bf0a308c9c8ef37b95fa30b2edf
 				<div class="c44-horizontal-fields">
 					<div class="c44-pane-single">
 						<MessageCategoryPane 
