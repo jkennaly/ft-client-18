@@ -5,9 +5,14 @@
 
 # testing
 /coverage
+/.nyc_output
+/apiData/*.json
+/tests/entry
 
 # production
-/build
+/dist
+deploy.js
+stats.json
 
 # misc
 .DS_Store
@@ -291,6 +296,6 @@ GitHub.sublime-settings
 
 /config/**/*
 
-/src/services/auth0-variables.js
+/src/services/*variables*
 /.firebaserc
 /firebase.json

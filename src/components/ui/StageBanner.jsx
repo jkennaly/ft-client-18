@@ -1,15 +1,16 @@
-// StageBanner.jsx
+// src/components/ui/StageBanner.jsx
 
-const m = require('mithril');
+import m from 'mithril';
 
 import StageTitle from './StageTitle.jsx';
 import LogoutButton from './LogoutButton.jsx';
 
+import BannerButton from '../ui/BannerButton.jsx';
+
 const StageBanner = {
 	view: ({ attrs }) =>
-		<div class="stage-banner">
-			<StageTitle title={attrs.title} />
-			<LogoutButton action={attrs.action} />
+		<div class="c44-stage-banner">
+			<DisplayButton icon={<i class="fas fa-bars"/>} />
 		</div>
 };
 

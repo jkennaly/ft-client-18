@@ -1,11 +1,11 @@
-// CardContainer.jsx
+// src/components/layout/CardContainer.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const CardContainer = {
   view: ({ children }) => {
     return (
-      <div class="card-container">
+      <div class="c44-card-container">
         {children}
       </div>
     )

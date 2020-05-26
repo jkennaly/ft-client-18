@@ -1,10 +1,10 @@
-// StageTitle.jsx
+// src/components/ui/StageTitle.jsx
 
-const m = require("mithril");
+import m from 'mithril'
 
 const StageTitle = {
 	view: ({ attrs }) =>
-		<div class="stage-title">{attrs.title}</div>
+		<div class="c44-stage-title">{attrs.title}</div>
 };
 
 export default StageTitle;

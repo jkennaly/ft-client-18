@@ -1,0 +1,25 @@
+// src/components/fields/DayNameField.jsx
+//attrs: dayId
+
+import m from 'mithril'
+////import _ from 'lodash'
+
+import {remoteData} from '../../store/data';
+
+const getDayName = id => {
+	const day = remoteData.Days.get(id)
+	if(!day) return ''
+	return day.name
+}
+
+const DayNameField = {
+	view: ({ attrs }) =>
+		<span class="c44-name-field">
+			{(getDayName(attrs.dayId))}
+			
+		
+		
+		</span >
+};
+
+export default DayNameField;
