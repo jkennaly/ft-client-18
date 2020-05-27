@@ -66,11 +66,15 @@
     "test": "NODE_ENV=test nyc --reporter=text-summary --reporter=html npx babel-node node_modules/ospec/bin/ospec './tests/**/**.test.js' --require ./tests/test-setup.js",
     "start": "webpack-dev-server --open",
     "prebuild": "clear && npm run test",
+    "prebuild:dev": "npm run prebuild",
+    "prebuild:prod": "npm run prebuild",
     "build": "webpack --config webpack.config.prod.js",
     "build:dev": "webpack --config webpack.config.dev.js",
     "build:prod": "webpack --config webpack.config.prod.js",
     "postbuild": "[ -f ./deploy.js ] && node deploy.js",
-    "watch": "onchange -i 'src/**/*' 'tests/**/*.js' -- npm run build:dev"
+    "postbuild:dev": "npm run postbuild",
+    "postbuild:prod": "npm run postbuild",
+    "watch": "npm run build:dev && onchange -i 'src/**/*' 'tests/**/*.js' -- npm run build:dev"
   },
   "nyc": {
     "require": [
