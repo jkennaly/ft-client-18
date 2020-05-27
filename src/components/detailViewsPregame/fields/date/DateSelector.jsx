@@ -8,11 +8,11 @@ const DateSelector = {
 	oninit: ({attrs}) => {
 	},
 	view: ({ attrs }) =>
-		<div class="c44-name-field">
-					<label for="c44-date-selector">
+		<div class="ft-name-field">
+					<label for="ft-date-selector">
 				        {`Festival Date`}
 				    </label>
-					    <select id="c44-date-selector" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.dateChange}>
+					    <select id="ft-date-selector" class={attrs.festivalId ? '' : 'hidden'} onchange={attrs.dateChange}>
 					    	<option value={0} selected={ attrs.dateId ? '' : "selected"}>{`Select a date`}</option>
 				      		{(remoteData.Dates.getMany(
 							remoteData.Festivals.getSubIds(attrs.festivalId))

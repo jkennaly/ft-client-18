@@ -14,7 +14,7 @@ import {remoteData} from '../../../../store/data'
 const EventSelector = vnode => { 
 
 	return {
-		view: ({attrs}) => <div class="c44-event-selector" id="c44-event-selector">
+		view: ({attrs}) => <div class="ft-event-selector" id="ft-event-selector">
 			{!attrs.seriesChange ? '' : <SeriesSelector 
 				seriesId={attrs.seriesId}
 				seriesChange={attrs.seriesChange}

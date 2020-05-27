@@ -18,7 +18,7 @@ const getSubject = attrs => {
 const DiscussButton = vnode => { 
 	return {
 	  view: ({ attrs }) =>
-	    <div class="c44-fifty-button" onclick={e => {
+	    <div class="ft-fifty-button" onclick={e => {
 	    	const so = getSubject(attrs)
 	    	attrs.discussSubject(so, attrs.messageArray)
 	    	e.stopPropagation()

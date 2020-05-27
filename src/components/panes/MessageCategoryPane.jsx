@@ -16,7 +16,7 @@ import {subjectData} from '../../store/subjectData';
 
 const MessageCategoryPane = {
 	
-		view: ({attrs}) => <div class="c44-vertical-fields">
+		view: ({attrs}) => <div class="ft-vertical-fields">
 				<CenterMenuCard fieldValue="unread" action={e => m.route.set(`/messages/unread`)} />
 				<CenterMenuCard fieldValue="my recent messages" action={e => m.route.set(`/messages/userRecent`)} />
 				<CenterMenuCard fieldValue="flags" action={e => m.route.set(`/messages/flags`)} />

@@ -26,20 +26,20 @@ const DaySchedule = (vnode) => {
 	//how long to make the schedule, starting from start offset
 	return {
 		oncreate: ({attrs, dom}) => {
-			dom.querySelector('.c44-schedule-header').style.width = `calc(${attrs.stages.length * 300}px + 12em)`
+			dom.querySelector('.ft-schedule-header').style.width = `calc(${attrs.stages.length * 300}px + 12em)`
 		},
 		onupdate: ({attrs, dom}) => {
-			dom.querySelector('.c44-schedule-header').style.width = `calc(${attrs.stages.length * 300}px + 12em)`
+			dom.querySelector('.ft-schedule-header').style.width = `calc(${attrs.stages.length * 300}px + 12em)`
 		},
 	view: ({attrs}) =>
-		<div class="c44-schedule-container">
+		<div class="ft-schedule-container">
 		{!attrs.hideDayBar ? <DaySelectBar dateId={attrs.dateId} dayChange={dayChange} currentId={attrs.dayId} /> : ''}
 
-		<div class="c44-schedule">
+		<div class="ft-schedule">
 		{
 			//console.log(`DaySchedule set length`, attrs.sets.length, attrs.dateId, attrs.stages)
-		}	<div class="c44-schedule-header">
-				{attrs.stages.map(stage => <h2 class="c44-schedule-header-field">{stage.name}</h2>)}
+		}	<div class="ft-schedule-header">
+				{attrs.stages.map(stage => <h2 class="ft-schedule-header-field">{stage.name}</h2>)}
 			</div>
 
 			{attrs.dayId && attrs.sets.length ? <ScheduleLadder 

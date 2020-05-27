@@ -14,7 +14,7 @@ const getDateName = id => {
 
 const DateNameField = {
 	view: ({ attrs }) =>
-		<span class="c44-name-field">
+		<span class="ft-name-field">
 			{(getDateName(attrs.dateId))}
 		</span >
 };

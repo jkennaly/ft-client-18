@@ -11,17 +11,33 @@ import Auth from '../services/auth.js'
 const auth = new Auth()
 
 const subjectDataField = type => {return _.get({
-	'5': 'Flags',
-	'4': 'Images',
-	'3': 'Messages',
-	'2': 'Site',
+	'13': 'Flags',
+	'12': 'Images',
+	'11': 'Site',
+	'10': 'Messages',
+	'9': 'Days',
+	'8': 'Dates',
+	'7': 'Festivals',
+	'6': 'Series',
+	'5': 'Venues',
+	'4': 'Places',
+	'3': 'Sets',
+	'2': 'Artists',
 	'1': 'Users'
 }, type, '')}
 
-global.FLAG = 5
-global.IMAGE = 4
-global.MESSAGE = 3
-global.SITE = 2
+global.FLAG = 13
+global.IMAGE = 12
+global.FESTIGRAM = 11
+global.MESSAGE = 10
+global.DAY = 9
+global.DATE = 8
+global.FESTIVAL = 7
+global.SERIES = 6
+global.VENUE = 5
+global.PLACE = 4
+global.SET = 3
+global.ARTIST = 2
 global.USER = 1
 
 global.COMMENT = 1
@@ -45,24 +61,60 @@ global.BLOCK = 10
 const subTypes = [
 	undefined, //nothing
 	undefined, //users
-	undefined, //site
+	undefined, //artists
+	undefined, //sets
+	undefined, //places
+	undefined, //venues
+	7, //series
+	8, //festivals
+	9, //dates
+	3, //days
 	undefined, //messages
+	undefined, //site
 	undefined, //images
 	undefined, //flags
 
 
 ]
 
+const artistSets = so => remoteData.Sets.getFiltered(s => s.band === so.subject)
+	.map(s => s.id)
+	.map(id => {return {subject: id, subjectType: 3}})
 
 const secondarySubjectObjects = type => {return {
 	//Flags
-	'5': so => [],
+	'13': so => [],
 	//Images
-	'4': so => [],
+	'12': so => [],
 	//Site
-	'2': so => [],
+	'11': so => [],
 	//Messages
-	'3': so => [],
+	'10': so => [],
+	//Days
+	'9': so => [],
+	//Dates
+	'8': so => [],
+	//Festivals
+	'7': so => [],
+	//Series
+	'6': so => [],
+	//Venues
+	'5': so => [],
+	//Places
+	'4': so => [],
+	//Sets
+	'3': so => {
+		const theSet = remoteData.Sets.get(so.subject)
+		//console.log('subjectData secondarySubjectObjects for ', so, theSet)
+		if(theSet && theSet.band) return [
+			{subject: theSet.band, subjectType: 2},
+			...artistSets(so)
+		]
+		return []
+
+	},
+	//Artists
+	'2': artistSets,
 	//Users
 	'1': so => []
 }[type]}
@@ -421,6 +473,84 @@ export const subjectData = {
 		//all artists in lineup
 		//future: all places for festival
 	},
+	dates: (subjectObject) => {
+		if(!subjectObject) return []
+		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
+		const lowerDates = primaryField.getSubDateIds ? primaryField.getSubDateIds(subjectObject.subject) : []
+		const higherDates = primaryField.getDateId ? [primaryField.getDateId(subjectObject.subject)] : []
+		const allDates = [...(lowerDates ? lowerDates : []), ...(higherDates ? higherDates : [])]
+			.filter(x => x)
+		//console.log('subjectData dates', subjectObject, allDates, primaryField.getDateId(subjectObject.subject))
+		return remoteData.Dates.getMany(allDates)
+	},
+	festivals: (subjectObject) => {
+		if(!subjectObject) return []
+		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
+		const lowerFestivals = primaryField.getSubFestivalIds ? primaryField.getSubFestivalIds(subjectObject.subject) : []
+		const higherFestivals = primaryField.getFestivalId ? [primaryField.getFestivalId(subjectObject.subject)] : []
+		const allFestivals = [...(lowerFestivals ? lowerFestivals : []), ...(higherFestivals ? higherFestivals : [])]
+			.filter(x => x)
+		//console.log('subjectData Festivals', subjectObject, allFestivals, primaryField.getFestivalId(subjectObject.subject))
+		return remoteData.Festivals.getMany(allFestivals)
+	},
+	days: (subjectObject) => {
+		if(!subjectObject) return []
+		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
+		const lowerDays = primaryField.getSubDayIds ? primaryField.getSubDayIds(subjectObject.subject) : []
+		const higherDays = primaryField.getDayId ? [primaryField.getDayId(subjectObject.subject)] : []
+		const allDays = [...(lowerDays ? lowerDays : []), ...(higherDays ? higherDays : [])]
+			.filter(x => x)
+		//console.log('subjectData dates', subjectObject, allDates, primaryField.getDateId(subjectObject.subject))
+		return remoteData.Days.getMany(allDays)
+	},
+	sets: (subjectObject) => {
+		if(!subjectObject) return []
+		const dataField = remoteData[subjectDataField(subjectObject.subjectType)]
+		if(!dataField) console.log('subjectData sets so', subjectObject, subjectDataField(subjectObject.subjectType))
+		const ids = dataField.getSubSetIds ? dataField.getSubSetIds(subjectObject.subject) : []
+		return remoteData.Sets.getMany(ids)
+	},
+	subEvent: (main, possibleSub) => {
+		if(!possibleSub || !possibleSub.subjectType) throw new Error('missing possible subEvent', possibleSub)
+		//get level for subs
+		//get subjectData method name for possibleSub level
+		const method = subjectDataField(possibleSub.subjectType).toLowerCase()
+		console.log('subEvent method', method, possibleSub)
+		const subs = subjectData[method](main)
+		const retVal = subs.length && _.some(subs, s => s.id === possibleSub.subject)
+		//console.log('subjectData subEvent', main, possibleSub, method, subs, retVal)
+		return retVal
+	},
+	subEvents: (subjectObject) => {
+		if(!subjectObject) return []
+		const df = remoteData[subjectDataField(subjectObject.subjectType)]
+		const subType = subTypes[subjectObject[subjectObject.subjectType]]
+		if(!df || !df.getSubIds || !subType) return []
+		return subjectData.getManySingleType(
+			df.getSubIds(subjectObject.subject)
+			.map(id => {return {subject: id, subjectType: subType}})
+		)
+
+
+	},
+	peerEvents: (subjectObject) => {
+		if(!subjectObject) return []
+		const df = remoteData[subjectDataField(subjectObject.subjectType)]
+		if(!df || !df.getPeerIds) return []
+		return subjectData.getManySingleType(
+			df.getPeerIds(subjectObject.subject)
+			.map(id => {return {subject: id, subjectType: subjectObject.subjectType}})
+		)
+
+	},
+	places: (subjectObject) => {
+		if(!subjectObject) return []
+		return subjectData.festivals(subjectObject)
+			.map(festival => { return{subject: festival.id, subjectType: FESTIVAL}})
+			.map(f => remoteData.Places.getFiltered(f))
+			//.filter(s => console.log('subjectData.places festival', s) || true)
+			.reduce((pv, cv) => [...pv, ...cv], [])
+	},
 	users: (subjectObject) => {
 		if(!subjectObject) return []
 		//return all users active on the subjectObject
@@ -469,6 +599,42 @@ export const subjectData = {
 			})
 
 		return bulkUpdatePromise
+	},
+	getReviews: (subjectObject, userId) => {
+		//console.log('subjectData getDetail', secondarySubjectObjects(subjectObject.subjectType)(subjectObject.subject))
+		const primaryField = remoteData[subjectDataField(subjectObject.subjectType)]
+		if(!primaryField) return {}
+		const name = primaryField.getName(subjectObject.subject)
+		if(/undefined/.test(name)) return {}
+		
+		const relatedMessages = remoteData.Messages.getFiltered(subjectObject)
+
+
+		const allPrimaryReviewMessages = relatedMessages
+			.filter(m => m.messageType === RATING || m.messageType === COMMENT)
+		//console.log('subjectData getReviews', subjectObject, name)
+
+		
+		const secondaryReviewSubjects = secondarySubjectObjects(subjectObject.subjectType)(subjectObject)
+		const useSecondary = secondaryReviewSubjects && secondaryReviewSubjects.length
+
+		//console.log('subjectData.getReviews secondaryReviewSubjects', secondaryReviewSubjects)
+
+		const secondaryReviewMessages = (useSecondary ? secondaryReviewSubjects : [])
+			.map(f => remoteData.Messages.getFiltered(f))
+			//.filter(m => console.log('subjectData secondaryReviewMessages', m))
+			.reduce((pv, cv) => [...pv, ...cv], [])
+
+		//console.log('subjectData.getReviews secondaryReviewMessages', secondaryReviewMessages)
+		
+		const reviews = reviewArrays([...allPrimaryReviewMessages, ...secondaryReviewMessages])
+		//console.log('subjectData.getReviews reviews', reviews)
+		const myReviews = reviews.filter(r => r.author === userId)
+		const friendReviews = reviews.filter(r => r.author !== userId)
+		return {
+			myReviews: myReviews,
+			friendReviews: friendReviews
+		}
 	},
 	getDetail: (subjectObject) => {
 		//console.log('subjectData getDetail', secondarySubjectObjects(subjectObject.subjectType)(subjectObject.subject))

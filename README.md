@@ -1,5 +1,3 @@
-# Client 44
+# FestivalTime
 
-
-PWA project template
->>>>>>> dev
+Make your festival better

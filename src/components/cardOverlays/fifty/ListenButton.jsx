@@ -17,7 +17,7 @@ const getSubject = attrs => {
 const ListenButton = vnode => { 
 	return {
 	  view: ({ attrs }) =>
-	    <div class="c44-fifty-button" onclick={e => {
+	    <div class="ft-fifty-button" onclick={e => {
 	    	const name = subjectData.name(attrs.subject, attrs.subjectType)
 	    	window.open('https://open.spotify.com/search/' + name)
 	    	e.stopPropagation()

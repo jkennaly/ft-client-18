@@ -9,7 +9,7 @@ import FiftyButton from './fifty/FiftyButton.jsx'
 
 const opened = {
   prompt: 'Initial Response',
-  icon: <span class="fa-layers fa-2x fa-fw c44-icon-stack">
+  icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
     <i class="fas fa-flag"/>
     <i 
       class="fas fa-eye" 
@@ -21,7 +21,7 @@ const opened = {
 }
 const review = {
   prompt: 'Report Action',
-  icon: <span class="fa-layers fa-2x fa-fw c44-icon-stack">
+  icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
     <i class="fas fa-flag"/>
     <i 
       class="fas fa-comment-alt" 
@@ -32,7 +32,7 @@ const review = {
 }
 const responded = (popModal, flag, discussFlag) => {return {
   prompt: 'Accept Response',
-  icon: <span class="fa-layers fa-2x fa-fw c44-icon-stack">
+  icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
     <i class="fas fa-flag"/>
     <i 
       class="fas fa-check" 
@@ -56,7 +56,7 @@ const responded = (popModal, flag, discussFlag) => {return {
 }}
 const responseUpdate = {
   prompt: 'Update Response',
-  icon: <span class="fa-layers fa-2x fa-fw c44-icon-stack">
+  icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
     <i class="fas fa-flag"/>
     <i 
       class="fas fa-check-double" 
@@ -67,7 +67,7 @@ const responseUpdate = {
 }
 const close = {
   prompt: 'Close',
-  icon: <span class="fa-layers fa-2x fa-fw c44-icon-stack">
+  icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
     <i class="fas fa-flag"/>
     <i 
       class="fas fa-flag-checkered" 
@@ -78,7 +78,7 @@ const close = {
 }
 const objectedClose = {
   prompt: 'Close',
-  icon: <span class="fa-layers fa-2x fa-fw c44-icon-stack">
+  icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
     <i class="fas fa-flag"/>
     <i 
       class="fas fa-flag-checkered" 
@@ -97,7 +97,7 @@ const nextStatus = ({flag, asAdmin, popModal, discussFlag}) => flag.status === 1
 
 const AdminOverlay = {
 	//oninit: ({attrs}) => console.log('AdminOverlay init', attrs),
-  view: ({ attrs }) => <div class="c44-card-overlay" onclick={attrs.fallbackClick}>
+  view: ({ attrs }) => <div class="ft-card-overlay" onclick={attrs.fallbackClick}>
     { attrs.flag.status === 5 ? <DiscussButton 
       subjectType={FLAG} 
       subject={attrs.flag.id}

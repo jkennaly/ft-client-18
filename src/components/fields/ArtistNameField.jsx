@@ -14,7 +14,7 @@ const getArtistName = id => {
 
 const ArtistNameField = {
 	view: ({ attrs }) =>
-		<span class="c44-name-field">
+		<span class="ft-name-field">
 			{(getArtistName(attrs.artistId))}
 		</span >
 };

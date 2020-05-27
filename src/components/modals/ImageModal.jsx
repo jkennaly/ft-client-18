@@ -11,7 +11,7 @@ import {subjectData} from '../../store/subjectData'
 import UIButton from '../ui/UIButton.jsx';
 import CloudinaryUploadWidget from '../widgets/CloudinaryUpload.jsx'
 
-const classes = attrs => 'c44-modal ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
     var widgetExists = false
     var title = ''
     var author = ''
@@ -35,11 +35,11 @@ const ImageModal = {
         )
         license = licenses.length ? licenses[0].license : license
         licenseUrl = licenses.length ? licenses[0].licenseUrl : licenseUrl
-        licenseSelect = <div class="c44-name-field">
+        licenseSelect = <div class="ft-name-field">
         <label for="license">
             {`License Name`}
         </label>
-            <select id="c44-license-selector" name="license" onchange={e => {
+            <select id="ft-license-selector" name="license" onchange={e => {
                 license = e.target.innerHTML
                 licenseUrl = e.target.value
                 e.stopPropagation()
@@ -66,7 +66,7 @@ const ImageModal = {
     },
     */
     view: ({attrs}) => <div class={classes(attrs)}>
-        <div class="c44-modal-content">
+        <div class="ft-modal-content">
             <h1>Add {subjectData.name(attrs.subject, attrs.subjectType)} Image</h1>
             <div>Image Title</div>
             <input type="text" 

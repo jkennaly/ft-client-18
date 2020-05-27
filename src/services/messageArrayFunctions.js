@@ -168,7 +168,7 @@ export const mapActivities = (loadSubjectObject, messages, ActivityCard, userId)
 		for(var i=1;i<=spacers;i++) {
 			spacerArr.push(m('.spacer'))
 		}
-		const newDiv = m(".c44-horizontal-fields",
+		const newDiv = m(".ft-horizontal-fields",
 			spacerArr,
 			m(ActivityCard, {
 				messageArray: [obj] ,
@@ -194,7 +194,7 @@ export const mapActivities = (loadSubjectObject, messages, ActivityCard, userId)
 	//console.log(id)
 	//console.log(id + 123456)
 	//console.log(message)
-		const newDiv = m(".c44-horizontal-fields",
+		const newDiv = m(".ft-horizontal-fields",
 					spacerArr,
 					m(ActivityCard, {
 						messageArray: [message],

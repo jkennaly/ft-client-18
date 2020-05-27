@@ -13,8 +13,8 @@ const ReviewArrayCard = vnode => {
   
   return {
     view: ({ attrs }) =>
-      <div class="c44-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : e => false}>
-        <div class="c44-vertical-fields">
+      <div class="ft-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : e => false}>
+        <div class="ft-vertical-fields">
           <UserAvatarField data={attrs.review.author} />
           <AverageRatingField averageRating={attrs.review.rating} />
           <span>{moment(attrs.review.timestamp).fromNow()}</span>

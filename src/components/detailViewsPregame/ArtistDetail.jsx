@@ -128,7 +128,7 @@ const ArtistDetail = {
 	oncreate: ({dom}) => {
 		const height = dom.clientHeight
 		//console.log('ArtistDetail DOM height', height)
-		const scroller = dom.querySelector('.c44-widget-container')
+		const scroller = dom.querySelector('.ft-widget-container')
 		scroller.style['height'] = `${height - 270}px`
 		scroller.style['flex-grow'] = 0
 

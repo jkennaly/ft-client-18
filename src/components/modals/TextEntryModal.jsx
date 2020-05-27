@@ -7,11 +7,11 @@ import _ from 'lodash'
 // change selections
 import UIButton from '../ui/UIButton.jsx';
 
-const classes = attrs => 'c44-modal ' + (attrs.display ? '' : 'hidden')
+const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
 var textValue = ''
 const TextEntryModal = {
 	view: ({attrs}) => <div class={classes(attrs)}>
-        <div class="c44-modal-content">
+        <div class="ft-modal-content">
             <div>{attrs.prompt}</div>
             <div>{attrs.textInsert}</div>
             <input type="text" onchange={e => textValue = e.target.value}/>

@@ -13,7 +13,7 @@ import {remoteData} from '../../store/data';
 
 
 const ArtistView = (auth) => { return {
-	oninit: ({attrs}) => {if (attrs.titleSet) attrs.titleSet(`Client-44 Artists`)},
+	oninit: ({attrs}) => {if (attrs.titleSet) attrs.titleSet(`FestiGram Artists`)},
 	view: () => <div class="main-stage">
 		<CardContainer>
 			{

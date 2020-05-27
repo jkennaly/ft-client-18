@@ -11,7 +11,7 @@ import {remoteData} from '../../store/data';
 
 
 const DateView = (auth) => { return {
-	oninit: ({attrs}) => {if (attrs.titleSet) attrs.titleSet(`Client-44 Dates`)},
+	oninit: ({attrs}) => {if (attrs.titleSet) attrs.titleSet(`FestiGram Dates`)},
 	view: () => <div class="main-stage">
 		<CardContainer>
 			{

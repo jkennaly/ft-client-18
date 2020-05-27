@@ -8,7 +8,7 @@ import ListenButton from './fifty/ListenButton.jsx'
 
 
 const ResearchOverlay = {
-  view: ({ attrs }) => <div class="c44-card-overlay">
+  view: ({ attrs }) => <div class="ft-card-overlay">
     <ReviewButton 
       subjectType={2} 
       subject={attrs.artistId}

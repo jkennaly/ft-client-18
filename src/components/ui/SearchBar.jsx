@@ -58,7 +58,7 @@ const SearchBar = vnode => {
 
 		},
 		*/
-		view: (vnode) => <div class="c44-search-bar">
+		view: (vnode) => <div class="ft-search-bar">
 				<SearchField 
 					patternChange={searchObject.setResults}
 					//ph={`Festivals & Artists`}

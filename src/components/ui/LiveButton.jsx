@@ -11,7 +11,7 @@ const {
 } = remoteData
 const LiveButton = {
 	view: ({ attrs }) =>
-		<div class="c44-button-live" onclick={e => {
+		<div class="ft-button-live" onclick={e => {
 			m.route.set(`gametime/${DATE}/${attrs.date.id}`)
 		}}>
 			<span>LIVE<br />{

@@ -9,7 +9,7 @@ import RatingStar from '../ui/RatingStar.jsx';
 //import './vendor/SimpleStarRating/SimpleStarRating.css'
 /*
 
-		<div class="c44-name-field c44-average-rating-field">
+		<div class="ft-name-field ft-average-rating-field">
 			<span>{attrs.pretext}: {attrs.averageRating}</span>
 			<span class={(attrs.averageRating >= 0.95 ? 'fas' : 'far') + ' fa-star'} />
 			<span class={(attrs.averageRating >= 1.95 ? 'fas' : 'far') + ' fa-star'} />

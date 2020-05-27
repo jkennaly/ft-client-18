@@ -16,7 +16,7 @@ const getSubject = attrs => {
 const ReviewButton = vnode => { 
 	return {
 	  view: ({ attrs }) =>
-	    <div class="c44-fifty-button" onclick={e => {
+	    <div class="ft-fifty-button" onclick={e => {
 	    	const sub = getSubject(attrs)
 	    	attrs.reviewSubject(sub)
 	    	e.stopPropagation()

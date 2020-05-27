@@ -9,9 +9,9 @@ import  SeriesNameField from './SeriesNameField.jsx';
 
 const MainEventField = {
   view: ({ attrs }) =>
-    <div class="c44-name-fields">
+    <div class="ft-name-fields">
         <SeriesNameField seriesId={attrs.seriesId} /> 
-        <div class="c44-name-field c44-spacer" /> 
+        <div class="ft-name-field ft-spacer" /> 
         <FestivalYearField festivalId={attrs.festivalId} />
       </div>
 };

@@ -9,10 +9,33 @@ const auth = new Auth();
 import {getList} from './loading/enlist'
 import {coreCheck} from './loading/acquire'
 
-import MessageList from './list/models/MessageList'
-import FlagList from './list/models/FlagList'
+import ArtistList from './list/models/ArtistList'
 import ImageList from './list/models/ImageList'
+import SeriesList from './list/models/SeriesList'
+import FestivalList from './list/models/FestivalList'
+import DateList from './list/models/DateList'
+import DayList from './list/models/DayList'
+import SetList from './list/models/SetList'
+import LineupList from './list/models/LineupList'
+import VenueList from './list/models/VenueList'
+import OrganizerList from './list/models/OrganizerList'
+import PlaceList from './list/models/PlaceList'
+import ArtistPriorityList from './list/models/ArtistPriorityList'
+import StagePriorityList from './list/models/StagePriorityList'
+import StageLayoutList from './list/models/StageLayoutList'
+import PlaceTypeList from './list/models/PlaceTypeList'
+import ArtistAliasList from './list/models/ArtistAliasList'
+import ParentGenreList from './list/models/ParentGenreList'
+import GenreList from './list/models/GenreList'
+import ArtistGenreList from './list/models/ArtistGenreList'
+import MessageTypeList from './list/models/MessageTypeList'
+import SubjectTypeList from './list/models/SubjectTypeList'
+import MessageList from './list/models/MessageList'
+import MessagesMonitorList from './list/models/MessagesMonitorList'
+import IntentionList from './list/models/IntentionList'
+import InteractionList from './list/models/InteractionList'
 import ProfileList from './list/models/ProfileList'
+import FlagList from './list/models/FlagList'
 
 
 import appendable from './list/mixins/local/appendable'
@@ -94,19 +117,66 @@ import upsert from './list/mixins/remote/upsert'
 
 let dataLoad = Promise.resolve(false)
 
+let artists =  new ArtistList()
 let images =  new ImageList()
+let series =  new SeriesList()
+let festivals =  new FestivalList()
+let dates =  new DateList()
+let days =  new DayList()
+let sets =  new SetList()
+let lineups =  new LineupList()
+let venues =  new VenueList()
+let organizers =  new OrganizerList()
+let places =  new PlaceList()
+let artistPriorities =  new ArtistPriorityList()
+let stagePriorities =  new StagePriorityList()
+let stageLayouts =  new StageLayoutList()
+let placeTypes =  new PlaceTypeList()
+let artistAliases =  new ArtistAliasList()
+let parentGenres =  new ParentGenreList()
+let genres =  new GenreList()
+let artistGenres =  new ArtistGenreList()
+let messageTypes =  new MessageTypeList()
+let subjectTypes =  new SubjectTypeList()
 let messages =  new MessageList()
+let messagesMonitors =  new MessagesMonitorList()
+let intentions =  new IntentionList()
+let interactions =  new InteractionList()
 let users =  new ProfileList()
 let flags =  new FlagList()
 
 
 const subjects = {
+	series: series,
+    festivals: festivals,
+    dates: dates,
+    days: days,
+    sets: sets,
+    artists: artists,
+    venues: venues,
+    places: places,
     messages: messages,
     profiles: users,
     images: images,
     flags: flags
 }
 
+
+Object.assign(artists,
+	filterable,
+	appendable,
+	named,
+	rated(messages),
+	virginal(messages, festivals, lineups),
+	subjective,
+	nameMatch,
+	messageArtistConnections(subjects),
+	merge,
+	update,
+	getPromise,
+	nameSearch,
+	artistDetails(subjects, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities)
+)
 Object.assign(images,
 	filterable,
 	img,
@@ -114,7 +184,161 @@ Object.assign(images,
 	getPromise,
 	subjectDetails,
 	create,
-	messageName(subjects)
+	messageName(subjects),
+	imgEvent(subjects, lineups)
+)
+Object.assign(series,
+	filterable,
+	subjective,
+	event,
+	eventSub(festivals),
+	messageEventConnections,
+	seriesIds(subjects),
+	nameMatch,
+	seriesActive(dates),
+	create,
+	updateInstance,
+	getPromise,
+	subjectDetails
+)
+Object.assign(festivals,
+	filterable,
+	subjective,
+	event,
+	eventSub(dates),
+	eventSuper(series),
+	messageFestivalConnections(messages, lineups),
+	research(artists, messages, lineups, artistPriorities),
+	intended(intentions),
+	create,
+	festivalActive(dates),
+	festivalIds(subjects),
+	getPromise,
+	festivalDetails(subjects, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities, intentions)
+
+)
+Object.assign(dates,
+	filterable,
+	subjective,
+	momentsDate(days, venues),
+	futureDate,
+	event,
+	eventSub(days),
+	eventSuper(festivals),
+	messageEventConnections,
+	dateIds(subjects, lineups),
+	dateCheckin(messages),
+	dateWithDays(days),
+	dateFilters(festivals),
+	getPromise,
+	dateDetails(subjects, lineups, intentions),
+	intendedDate(intentions)
+)
+Object.assign(days,
+	filterable,
+	event,
+	eventSub(sets),
+	eventSuper(dates),
+	momentsDay(dates),
+	messageEventConnections,
+	futureDate,
+	dayIds(subjects),
+	getPromise,
+	dayDetails(subjects)
+)
+Object.assign(sets,
+	filterable,
+	subjective,
+	event,
+	setName(artists),
+	eventSuper(days),
+	momentsSet(days),
+	messageEventConnections,
+	setIds(subjects),
+	setFilters(dates, festivals, lineups),
+	setsForDay,
+	batchCreate,
+	batchDelete,
+	batchUpdate,
+	upsert,
+	deletion,
+	getPromise,
+	forDayAndStage,
+	futureSet,
+	setDetails(subjects)
+
+)
+Object.assign(lineups,
+	filterable,
+	appendable,
+	artistConnections(artistPriorities, artists, festivals),
+	create,
+	uploadLineupArtists(artists),
+	batchDelete,
+	getPromise,
+	batchUpdate
+)
+Object.assign(venues,
+	filterable,
+	subjective,
+	named,
+	messageEventConnections,
+	placeName,
+	create,
+	getPromise,
+	subjectDetails
+)
+Object.assign(organizers,
+	getPromise,
+	filterable
+)
+Object.assign(places,
+	filterable,
+	subjective,
+	named,
+	messageEventConnections,
+	batchCreate,
+	batchDelete,
+	placeAdmin(series, festivals),
+	getPromise,
+	subjectDetails
+)
+Object.assign(artistPriorities,
+	filterable,
+	leveled,
+	getPromise,
+	named
+)
+Object.assign(stagePriorities,
+	getPromise,
+	filterable
+)
+Object.assign(stageLayouts,
+	getPromise,
+	filterable
+)
+Object.assign(placeTypes,
+	getPromise,
+	filterable
+)
+Object.assign(artistAliases,
+	filterable,
+	batchCreate,
+	batchDelete,
+	getPromise,
+	forArtist
+)
+Object.assign(parentGenres,
+	getPromise,
+	filterable
+)
+Object.assign(genres,
+	getPromise,
+	filterable
+)
+Object.assign(artistGenres,
+	getPromise,
+	filterable
 )
 Object.assign(messages,
 	getPromise,
@@ -124,6 +348,7 @@ Object.assign(messages,
 	messageEventConnections,
 	connectionFilter(subjects),
 	messageFilters,
+	monitoredMessageFilters(messagesMonitors),
 	festivalMessages,
 	create,
 	upsert,
@@ -131,13 +356,41 @@ Object.assign(messages,
 	messageDetails(subjects),
 	messageCheckin(subjects)
 )
+Object.assign(messagesMonitors,
+	getPromise,
+	filterable,
+	messageMonitor,
+	create,
+	batchCreate,
+	batchDelete
+)
+Object.assign(intentions,
+	getPromise,
+	filterable,
+	forSubject,
+	create,
+	batchCreate,
+	batchDelete,
+	updateInstance,
+	deletion,
+	intent
+)
+Object.assign(interactions,
+	getPromise,
+	filterable,
+	create,
+	updateInstance,
+	deletion,
+	interact
+)
 Object.assign(users,
 	getPromise,
 	filterable,
 	subjective,
 	userName,
 	messageEventConnections,
-	subjectDetails
+	subjectDetails,
+	interactOptions(interactions)
 )
 Object.assign(flags,
 	getPromise,
@@ -150,11 +403,55 @@ Object.assign(flags,
 	messageName(subjects)
 )
 const baseKeys = [
+'Artists',
 'Images',
+'Series',
+'Festivals',
+'Dates',
+'Days',
+'Sets',
+'Lineups',
+'Venues',
+'Organizers',
+'Places',
+'ArtistPriorities',
+'StagePriorities',
+'StageLayouts',
+'PlaceTypes',
+'ArtistAliases',
+'ParentGenres',
+'Genres',
+'ArtistGenres',
+'MessageTypes',
+'SubjectTypes',
+'Intentions',
 ]
 export const remoteData = {
+	Artists: artists,
 	Images: images,
+	Series: series,
+	Festivals: festivals,
+	Dates: dates,
+	Days: days,
+	Sets: sets,
+	Lineups: lineups,
+	Venues: venues,
+	Organizers: organizers,
+	Places: places,
+	ArtistPriorities: artistPriorities,
+	StagePriorities: stagePriorities,
+	StageLayouts: stageLayouts,
+	PlaceTypes: placeTypes,
+	ArtistAliases: artistAliases,
+	ParentGenres: parentGenres,
+	Genres: genres,
+	ArtistGenres: artistGenres,
+	MessageTypes: messageTypes,
+	SubjectTypes: subjectTypes,
 	Messages: messages,
+	MessagesMonitors: messagesMonitors,
+	Intentions: intentions,
+	Interactions: interactions,
 	Users: users,
 	Flags: flags,
 	dataLoad: window.mockery ? Promise.resolve(true) : (Promise.all(

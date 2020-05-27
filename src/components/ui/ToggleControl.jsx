@@ -7,11 +7,11 @@ import _ from 'lodash'
 
 const ToggleControl = vnode => {
 	return {
-		view: ({ attrs }) => <ul class="c44-toggle-control">
-  <li class="c44-toggle-list-item">
+		view: ({ attrs }) => <ul class="ft-toggle-control">
+  <li class="ft-toggle-list-item">
     <div>{attrs.offLabel}</div>
     <input 
-    	class="c44-toggle c44-toggle-light" 
+    	class="ft-toggle ft-toggle-light" 
     	id={`${attrs.offLabel}-${attrs.onLabel}`} 
     	type="checkbox"
     	onclick={e => {
@@ -21,7 +21,7 @@ const ToggleControl = vnode => {
     	}}
         checked={attrs.getter()}
     />
-    <label class="c44-toggle-btn" for={`${attrs.offLabel}-${attrs.onLabel}`}></label>
+    <label class="ft-toggle-btn" for={`${attrs.offLabel}-${attrs.onLabel}`}></label>
     <div>{attrs.onLabel}</div>
   </li>
   </ul>

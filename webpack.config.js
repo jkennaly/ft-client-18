@@ -7,12 +7,23 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const webpack = require("webpack");
 
 module.exports = {
-	mode: "development",
+	mode: "production",
 	entry: './src/index.jsx',
-	devtool: "inline-source-map",
+	devtool: "source-map",
 	devServer: {
 		contentBase: "./dist"
 	},
+	 optimization: {
+    minimizer: [
+      new TerserPlugin({
+    parallel: true,
+    terserOptions: {
+      ecma: 6,
+    },
+  }),
+      new OptimizeCSSAssetsPlugin({})
+    ]
+  },
 	plugins: [
 		new CleanWebpackPlugin(),
 		new HtmlWebpackPlugin({
@@ -20,19 +31,17 @@ module.exports = {
 			filename: "index.html",
 			inject: false
 		}),
+		new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css"
+    }),
 		new webpack.ProvidePlugin({
 	        //$: "jquery",
 	        //jQuery: "jquery",
 	        //_: "lodash",
 	        cloudy: "cloudinary-core"
     	}),
-    	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-		new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[id].css"
-    }),
-      new OptimizeCSSAssetsPlugin({})
-
+    	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
 	],
 	output: {
 		path: path.resolve(__dirname, './dist'),

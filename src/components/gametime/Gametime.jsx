@@ -4,8 +4,8 @@ import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
 localforage.config({
-	name: "Client-44",
-	storeName: "Client-44"
+	name: "FestiGram",
+	storeName: "FestiGram"
 })
 
 import Schedule from './Schedule.jsx'

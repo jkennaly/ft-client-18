@@ -84,13 +84,13 @@ const Admin = {
 	oncreate: ({dom}) => {
 		const height = dom.clientHeight
 		//console.log('ArtistDetail DOM height', height)
-		const scroller = dom.querySelector('.c44-widget-container')
+		const scroller = dom.querySelector('.ft-widget-container')
 		scroller.style['height'] = `${height - 270}px`
 		scroller.style['flex-grow'] = 0
 
 	},
-	view: () => <div class="c44-main-stage">
-		<div class="c44-main-stage-content">
+	view: () => <div class="main-stage">
+		<div class="main-stage-content">
 			<WidgetContainer>
 				<FixedCardWidget header="Create Festivals" tall={true}>
 					<SeriesCard eventId="new"/>

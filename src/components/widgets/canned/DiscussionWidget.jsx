@@ -94,7 +94,7 @@ const DiscussionWidget = {
 							)
 					) : {}
 				)
-				//map the tree to activity cards with lec44-spacers (1 space for each depth of tree)
+				//map the tree to activity cards with left-spacers (1 space for each depth of tree)
 
 			}
 			</LargeCardWidget>	

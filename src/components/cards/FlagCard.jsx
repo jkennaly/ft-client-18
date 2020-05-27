@@ -33,7 +33,7 @@ const FlagCard = vnode => {
   
   return {
     view: ({ attrs }) =>
-      <div class="c44-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
+      <div class="ft-card-large" onclick={attrs.clickFunction ? attrs.clickFunction : defaultClick(attrs)}>
       {attrs.discussFlag ? <AdminOverlay 
         discussFlag={attrs.discussFlag}
         asAdmin={attrs.asAdmin}
@@ -41,7 +41,7 @@ const FlagCard = vnode => {
         flag={attrs.flag}
         popModal={attrs.popModal}
       /> : ''}
-        <div class="c44-vertical-fields">
+        <div class="ft-vertical-fields">
         {
           //console.log(`FlagCard attrs`, attrs)
         }
@@ -49,13 +49,13 @@ const FlagCard = vnode => {
           <span>{moment(attrs.flag.timestamp).utc().fromNow()}</span>
           <span>{status[attrs.flag.status]}</span>
         </div>
-          <div class="c44-flag-subject">
+          <div class="ft-flag-subject">
             {subjectData.subjectDataField(attrs.flag.subjectType)}:{attrs.flag.subject}
           </div>
-          <div class="c44-flag-content">
+          <div class="ft-flag-content">
             {attrs.flag.content}
           </div>
-          <div class="c44-flag-response">
+          <div class="ft-flag-response">
             {attrs.flag.response}
           </div>
       </div>

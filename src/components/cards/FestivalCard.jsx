@@ -12,14 +12,14 @@ import {remoteData} from '../../store/data';
 
 const FestivalCard = {
   view: ({ attrs }) =>
-    <div class={"c44-card c44-card-festival " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => {m.route.set(attrs.route ? attrs.route : "/fests" + "/pregame" + '/' + attrs.eventId + (attrs.eventId === 'new' && attrs.eventId ? '/' + attrs.eventId : ''));}}>
-      <div class="c44-fields-with-thumbnail">
+    <div class={"ft-card ft-card-festival " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => {m.route.set(attrs.route ? attrs.route : "/fests" + "/pregame" + '/' + attrs.eventId + (attrs.eventId === 'new' && attrs.eventId ? '/' + attrs.eventId : ''));}}>
+      <div class="ft-fields-with-thumbnail">
       {attrs.eventId ? <FestNail 
         festivalId={attrs.eventId}
       /> : ''}
         {attrs.eventId !== 'new' ? <MainEventField seriesId={remoteData.Festivals.getSeriesId(attrs.eventId)} festivalId={attrs.eventId} /> : <ComposedNameField fieldValue={'New Festival Year'} />}
       </div>
-      {attrs.artistId ? <div class="c44-set-diff-fields">
+      {attrs.artistId ? <div class="ft-set-diff-fields">
           {remoteData.ArtistPriorities.getName(remoteData.Lineups.getPriFromArtistFest(attrs.artistId, attrs.eventId))}
         </div> : ''}
     </div>

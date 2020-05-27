@@ -24,23 +24,19 @@ const Messages = {
 	oncreate: ({dom}) => {
 		const height = dom.clientHeight
 		//console.log('Messages DOM', height)
-		dom.querySelector('.c44-pane-single').style['height'] = `${height}px`
-		dom.querySelector('.c44-pane-double').style['height'] = `${height}px`
+		dom.querySelector('.ft-pane-single').style['height'] = `${height}px`
+		dom.querySelector('.ft-pane-double').style['height'] = `${height}px`
 	},
 	view: ({attrs}) => 
-<<<<<<< HEAD
-		<div class="c44-main-stage">
-=======
 		<div class="main-stage">
->>>>>>> 86cfeeb045b16bf0a308c9c8ef37b95fa30b2edf
-				<div class="c44-horizontal-fields">
-					<div class="c44-pane-single">
+				<div class="ft-horizontal-fields">
+					<div class="ft-pane-single">
 						<MessageCategoryPane 
 							userId={attrs.userId} 
 							userRoles={attrs.userRoles} 
 						/>
 					</div>
-					<div class="c44-pane-double">
+					<div class="ft-pane-double">
 						<DiscussionPane 
 							userId={attrs.userId}
 							userRoles={attrs.userRoles} 

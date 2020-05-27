@@ -17,7 +17,7 @@ const CircleNail = {
         }
         return m({
             view: ({attrs}) => <div 
-                class="c44-card-thumbnail" 
+                class="ft-card-thumbnail" 
                 onclick={e => {
                     //console.log('CircleNail click', `/pregame/subjects/${attrs.img.subjectType}/${attrs.img.subject}`, attrs.img )
                     if(!attrs.img) return

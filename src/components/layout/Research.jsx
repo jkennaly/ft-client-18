@@ -54,7 +54,7 @@ const Research = {
 			if (attrs.titleSet) attrs.titleSet(`Research`)
 		},
 		view: ({attrs}) => 
-		<div class="c44-main-stage">
+		<div class="main-stage">
 		
 				<EventSelector 
 					seriesId={seriesId()}

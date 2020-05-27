@@ -1,11 +1,13 @@
 // auth.js
 
+import auth00 from '@auth0/auth0-spa-js';
+import AUTH0_DATA from './auth0-variables';
 import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
 localforage.config({
-  name: "Client-44",
-  storeName: "Client-44"
+  name: "FestiGram",
+  storeName: "FestiGram"
 })
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
@@ -25,7 +27,7 @@ const userIdFromToken = userData => token => m.request({
 })
 .then(result => {
   const id = result.id
-  if(!id) throw 'invalid id received from getC44UserId() ' + id
+  if(!id) throw 'invalid id received from getFtUserId() ' + id
   return id
 })
 
@@ -39,15 +41,34 @@ var userRoleCache = []
 var dataReset = () => true
 var auth0 = {}
 var authHandler = {}
-const authLoad = (window.mockery ? Promise.reject('mocked') : Promise.resolve('authLoaded'))
+const authLoad = window.mockery ? Promise.reject('mocked') : (auth00({
+    domain: AUTH0_DATA.DOMAIN,
+    client_id: AUTH0_DATA.CLIENTID,
+    redirect_uri: AUTH0_DATA.CALLBACKURL,
+    audience: AUTH0_DATA.AUDIENCE,
+    scope: scopeAr
+  })
+  .then(o => auth0 = o)
+  .then(() => 'authLoaded')
   .catch(err => err !== 'mocked' && console.error('auth0 instantiantion failed', err))
-
+)
 var lastToken
 export default class Auth {
   
 
   login(prev) {
     authLoad
+    /*
+      .then(hrcb => {
+          console.log('authLoad', hrcb)
+          return hrcb
+      })
+      */
+      .then(() => auth0.loginWithRedirect({
+        appState: {
+          route: prev
+        }
+      }))
       .catch(err => console.error('login error', err))
   }
 
@@ -66,7 +87,6 @@ export default class Auth {
         if(!handling) throw 'not handling'
       })
       //.catch(err => {if(err === 'not handling') return; console.error(err)})
-      /*
       .then(() => auth0.handleRedirectCallback())
       .then(x => {
         //console.log('handleRedirectCallback', x)
@@ -78,10 +98,10 @@ export default class Auth {
             //console.log('auth0.getUser', user);
             return userData = user
           })
-          .then(user => this.getC44UserId(user))
+          .then(user => this.getFtUserId(user))
           .then(id => {
             //console.log('setting id')
-            localStorage.setItem('c44_user_id', id)
+            localStorage.setItem('ft_user_id', id)
           })
           .then(() => this.getRoles().then(roles => userRoleCache = roles))
           //.then(() => m.redraw())
@@ -98,7 +118,6 @@ export default class Auth {
         if(err === 'not handling') return
         console.error('handleAuthentication', err)
       })
-      */
       //.then(({appState}) => m.route.set(appState && appState.route ? appState.route : '/launcher'))
       //.then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
       /*
@@ -107,7 +126,7 @@ export default class Auth {
           return hrcb
       })
       */
-      //.then(() => this.getC44UserId('handleAuthentication'))
+      //.then(() => this.getFtUserId('handleAuthentication'))
       /*
       .then(() => {})
       */
@@ -128,14 +147,14 @@ export default class Auth {
   }
 
   //returns a promise that resolves to a userIdCache
-  getC44UserId(userData) {
+  getFtUserId(userData) {
     const onAuthRoute = /auth/.test(window.location)
     if(onAuthRoute) return Promise.resolve(0)
-    const localUser = parseInt(localStorage.getItem('c44_user_id'), 10)
+    const localUser = parseInt(localStorage.getItem('ft_user_id'), 10)
     if(localUser) return Promise.resolve(localUser)
     if(userIdPromiseCache.then) return userIdPromiseCache
     if(!localUser && !userData) return Promise.reject(0)
-    //console.log('getC44UserId', userData)
+    //console.log('getFtUserId', userData)
     //console.trace()
     userIdPromiseCache = authLoad
       .then(() => this.getValidToken())
@@ -146,7 +165,7 @@ export default class Auth {
     
       .catch(err => {
           userIdCache = 0
-        localStorage.setItem('c44_user_id', 0)
+        localStorage.setItem('ft_user_id', 0)
         //console.error('userIdPromiseCache failed', err)
       })
     return userIdPromiseCache
@@ -165,21 +184,22 @@ export default class Auth {
       .catch(err => console.error('logout data reset failed', err))
     userIdCache = 0
     userRoleCache = []
+    auth0.logout({client_id: AUTH0_DATA.CLIENTID, returnTo:AUTH0_DATA.CALLBACKURL})
     // navigate to the default route
     //if(!skipRoute) m.route.set('/')
   }
 
   isAuthenticated() {
-    if(!localStorage.getItem('c44_user_id')) return Promise.reject('login required')
+    if(!localStorage.getItem('ft_user_id')) return Promise.reject('login required')
     
     return authLoad
-      .finally(() => true)
+      .then(() => auth0.isAuthenticated())
   }
 
   getValidToken() {
-  
+    //if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
     return authLoad
-      .finally(() => 'token')
+      .then(() => auth0.getTokenSilently())
   
   }
 
@@ -191,7 +211,7 @@ export default class Auth {
   }
   getIdTokenClaims()  {
     return authLoad
-      .then(() => [])
+      .then(() => auth0.getIdTokenClaims())
   }
   getRoles() {
     return this.getIdTokenClaims()

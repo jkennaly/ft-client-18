@@ -13,7 +13,7 @@ import ActivityCard from '../../components/cards/ActivityCard.jsx';
 import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData'
 
-const classes = attrs => {return 'c44-modal ' + (attrs.display ? '' : 'hidden');}
+const classes = attrs => {return 'ft-modal ' + (attrs.display ? '' : 'hidden');}
 var selectedId = 0
 
 const displayComment = me => me.filter(m => m.messageType === 1 || m.messageType === 8)[0]
@@ -69,7 +69,7 @@ const DiscussModal = vnode => {
 
         },
     	view: ({attrs}) => <div class={classes(attrs)}>
-            <div class="c44-modal-content">
+            <div class="ft-modal-content">
                 {attrs.headline ? <h3>{attrs.headline}</h3> : subjectData.name(attrs.subjectObject.subject, attrs.subjectObject.subjectType)}
                 {/* base comment with no discussion overlay */}
                 {attrs.messageArray ? 
@@ -91,7 +91,7 @@ const DiscussModal = vnode => {
         //console.log('localComment ' + localComment)
                         localComment = e.target.value; 
                     }} 
-                    class="c44-modal-textarea"
+                    class="ft-modal-textarea"
                     onkeypress={e => {
                         if(e.keyCode === 13) return submit(attrs)(e)
                     }}

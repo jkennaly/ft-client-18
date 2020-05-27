@@ -22,7 +22,7 @@ const MyRatingField = vnode => {
 			//console.log('MyRatingField vnode.attrs.currentRating ' + vnode.attrs.currentRating)
 		},
 		view: ({ attrs }) =>
-		<span class="c44-rating-field">{attrs.pretext}
+		<span class="ft-rating-field">{attrs.pretext}
 			<RatingStar filled={showRating >= 0.95} action={e => {showRating = 1; if(attrs.action) attrs.action(showRating);}}/>
 			<RatingStar filled={showRating >= 1.95} action={e => {showRating = 2; if(attrs.action) attrs.action(showRating);}}/>
 			<RatingStar filled={showRating >= 2.95} action={e => {showRating = 3; if(attrs.action) attrs.action(showRating);}}/>

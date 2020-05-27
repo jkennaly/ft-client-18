@@ -6,8 +6,8 @@ import  ComposedNameField from '../fields/ComposedNameField.jsx';
 
 const DragCard = {
   view: ({ attrs }) =>
-    <li class={"c44-card column" + attrs.uiClass ? attrs.uiClass : ''} onclick={attrs.action}>
-      <div class="c44-fields">
+    <li class={"ft-card column" + attrs.uiClass ? attrs.uiClass : ''} onclick={attrs.action}>
+      <div class="ft-fields">
         <ComposedNameField fieldValue={attrs.fieldValue} />
       </div>
     </li>

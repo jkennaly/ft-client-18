@@ -16,7 +16,7 @@ const getSeriesId = ({id, festivalId}) => {
 const website = attrs => _.get(remoteData.Series.get(getSeriesId(attrs)), 'website')
 const SeriesWebsiteField = {
 	view: ({ attrs }) =>
-		<div class="c44-name-field">Website: {
+		<div class="ft-name-field">Website: {
 			website(attrs) ? 
 				<a href={website(attrs)} target="_blank">
 					{website(attrs)}

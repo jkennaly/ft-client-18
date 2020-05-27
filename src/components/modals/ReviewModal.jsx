@@ -94,12 +94,12 @@ const ReviewModal = vnode => {
             //console.log('localRating ' + localRating)
             //console.log('changeFlag ' + changeFlag)
     }
-const classes = vnode => {init(vnode);return 'c44-modal ' + (vnode.attrs.display ? '' : 'hidden');}
+const classes = vnode => {init(vnode);return 'ft-modal ' + (vnode.attrs.display ? '' : 'hidden');}
     return {
         onupdate: init,
         oninit: init,
     	view: (vnode) => <div class={classes(vnode)}>
-            <div class="c44-modal-content">
+            <div class="ft-modal-content">
                 <ComposedNameField fieldValue={name} />
                 <MyRatingField 
                     currentRating={rating} 
@@ -121,7 +121,7 @@ const classes = vnode => {init(vnode);return 'c44-modal ' + (vnode.attrs.display
                         localComment = e.target.value; 
                         comment = localComment
                     }} 
-                    class="c44-modal-textarea"
+                    class="ft-modal-textarea"
                     
                     onkeypress={e => {
                         if(e.keyCode === 13) return submit(vnode.attrs)(e)

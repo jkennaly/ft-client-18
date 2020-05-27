@@ -9,7 +9,7 @@ import {subjectData} from '../../../../store/subjectData'
 const EventPeerBar = vnode => { 
 
 	return {
-		view: ({attrs}) => <div class="c44-card-container-horizontal">
+		view: ({attrs}) => <div class="ft-card-container-horizontal">
 			{
 				/*
 					horizontal card container for peer events
