@@ -79,7 +79,7 @@ const Admin = {
 		oninit: ({attrs}) => {
 
 
-		if (attrs.titleSet) attrs.titleSet(`Client-44 Admin`)
+		if (attrs.titleSet) attrs.titleSet(`FestiGram Admin`)
 		},
 	oncreate: ({dom}) => {
 		const height = dom.clientHeight

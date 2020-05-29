@@ -1,8 +1,8 @@
 // src/store/loading/archive.js
 import localforage from 'localforage'
 localforage.config({
-	name: "Client-44",
-	storeName: "Client-44"
+	name: "FestiGram",
+	storeName: "FestiGram"
 })
 
 export default function setLocalList(modelName, newList) {

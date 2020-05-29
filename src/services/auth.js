@@ -1,7 +1,6 @@
 // auth.js
 
 import auth00 from '@auth0/auth0-spa-js';
-import AUTH0_DATA from './auth0-variables';
 import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
@@ -9,6 +8,9 @@ localforage.config({
   name: "FestiGram",
   storeName: "FestiGram"
 })
+
+const AUTH0_DATA = typeof AUTH0_CONFIG === 'undefined' ? {} : AUTH0_CONFIG
+
 
 const scopeAr = 'openid profile email admin create:messages verify:festivals create:festivals'
 

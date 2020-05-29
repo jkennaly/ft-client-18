@@ -6,8 +6,24 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const webpack = require("webpack");
 
+const mode = 'development'
+import authDev from './src/services/auth0-variables.dev.json';
+import authProd from './src/services/auth0-variables.prod.json';
+
+
+function composeConfig(env) { /* Helper function to dynamically set runtime config */
+  if (env === 'development') {
+    return authDev;
+  }
+
+  if (env === 'production') {
+    return authProd;
+  }
+}
+
+
 module.exports = {
-	mode: "development",
+	mode: mode,
 	entry: './src/index.jsx',
 	devtool: "inline-source-map",
 	devServer: {
@@ -31,7 +47,13 @@ module.exports = {
       filename: "[name].css",
       chunkFilename: "[id].css"
     }),
-      new OptimizeCSSAssetsPlugin({})
+      new OptimizeCSSAssetsPlugin({}),
+    	new webpack.DefinePlugin({
+			ENV: mode
+		}),
+    	new webpack.DefinePlugin({
+			AUTH0_CONFIG: JSON.stringify(composeConfig(mode))
+		})
 
 	],
 	output: {

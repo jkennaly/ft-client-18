@@ -20,7 +20,7 @@ const title = (attrs) => {
 	const cached = _.get(titleCache, key)
 	if(cached) return cached
 	if(attrs.titleGet()) return attrs.titleGet()
-	return `Client-44`
+	return `FestiGram`
 }
 const LauncherBanner = () => {
 
