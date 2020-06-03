@@ -41,6 +41,7 @@ var accessTokenPending = false
 var userIdCache = 0
 var userRoleCache = []
 var dataReset = () => true
+var cacheReset = () => true
 var auth0 = {}
 var authHandler = {}
 var lastToken, lastUserData
@@ -190,6 +191,10 @@ export default class Auth {
       .then(() => this.getValidToken())
       //.then(accessToken => [console.log('userIdPromiseCache userData', userData, console.trace()), accessToken][1])
       .then(userIdFromToken(userData))
+      .then(id => {
+        this.cacheCleaner()
+        return id
+      })
       //.then(userId => [console.log('userIdPromiseCache userId', userId), userId][1])
 
     
@@ -203,6 +208,9 @@ export default class Auth {
   }
   recore (coreCheck) {
     dataReset = coreCheck
+  }
+  cacheCleaner (cleanCaches) {
+    cacheReset = cleanCaches
   }
 
   logout(skipRoute) {

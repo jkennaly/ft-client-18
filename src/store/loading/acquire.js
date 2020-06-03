@@ -49,6 +49,11 @@ const auth = new Auth()
 ]
 */
 
+const loggedOnly = [
+  /Intentions/,
+  /MessagesMonitors/
+
+]
 
 
 export const coreCheck = () => localforage.getItem('Model.core')
@@ -103,13 +108,13 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 					return req
 				})
 				*/
-				.then(authResult => fetch(reqUrl, { 
+				.then(authResult => !_.isString(authResult) && loggedOnly.find(e => e.test(reqUrl)) ? [] : fetch(reqUrl, { 
 				   	method: 'get', 
 				   	headers: new Headers(
-				   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
+				   		_.isString(authResult) ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
 		   			)
 				}))
-				.then(response => response.json())
+				.then(response => response.json ? response.json() : response)
 		})
 
 		.then(response => _.isArray(response.data) || response.data && response.data.id ? response.data : response)

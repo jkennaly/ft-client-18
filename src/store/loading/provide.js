@@ -18,18 +18,24 @@ const formBase = {
 import Auth from '../../services/auth.js'
 const auth = new Auth()
 
+const loggedOnly = [
+  /Intentions/,
+  /MessagesMonitors/
+
+]
 export default function (data, modelName, queryString = '', url, method = 'POST', simResponse, options = {}) {
 	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
 	const usingFormData = simResponse || data instanceof FormData
 	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getAccessToken()
-		.then(authResult => fetch(reqUrl, { 
+		.then(authResult => !_.isString(authResult) && loggedOnly.find(e => e.test(reqUrl)) ? [] : fetch(reqUrl, { 
 		   	method: method, 
 		   	headers: new Headers(
-		   		authResult ? _.assign({}, (options.form ? formBase : headerBase), {Authorization: `Bearer ${authResult}`}) : (options.form ? formBase : headerBase)
+		   		_.isString(authResult) ? _.assign({}, (options.form ? formBase : headerBase), {Authorization: `Bearer ${authResult}`}) : (options.form ? formBase : headerBase)
    			),
 			body: (options.form ? data : JSON.stringify(data)) 
 		}))
 		.then(response => {
+			if(_.isArray(response)) return response
 			try {
 				return response.json()
 			} catch (err) {

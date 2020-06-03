@@ -480,8 +480,14 @@ export const clearData = () => {
 		//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
 	
 }
+export const clearCaches = () => {
+	_.each(remoteData, dataField => dataField.clearCaches && dataField.clearCaches())
+	//init the lists with core data
+	//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
+}
 
 auth.recore(clearData)
+auth.cacheCleaner(clearCaches)
 
 if(!window.mockery) {
 	//init the lists with core data
