@@ -326,12 +326,12 @@ o.spec("store/data Festival Mixin methods", function() {
 	    	dates.clear()
 	    	dates.replaceList(futureDates)
     		intentions.replaceList(noIntentions)
-			o(festivals.intended(bigHorizon).length).equals(0) `no intentions, date in future`
+			o(festivals.intended(bigHorizon, {skipDetails: true}).length).equals(0) `no intentions, date in future`
 
 	    	dates.clear()
 			dates.replaceList(pastDates)
     		intentions.replaceList(noIntentions)
-			o(festivals.intended(bigHorizon).length).equals(0) `no intentions, no date in future`
+			o(festivals.intended(bigHorizon, {skipDetails: true}).length).equals(0) `no intentions, no date in future`
 
 	    	dates.clear()
 			dates.replaceList(splitDates)
@@ -348,7 +348,7 @@ o.spec("store/data Festival Mixin methods", function() {
 				
 			))
 */
-			o(festivals.intended(bigHorizon).length).equals(0) `intention for date, date has passed, other dates for festival in future`
+			o(festivals.intended(bigHorizon, {skipDetails: true}).length).equals(0) `intention for date, date has passed, other dates for festival in future`
 
 			//returns
 	    	dates.clear()
@@ -364,7 +364,7 @@ o.spec("store/data Festival Mixin methods", function() {
 					intentions.getFiltered(i => i.subjectType === DATE && festivals.getSubDateIds(festival.id).includes(i.subject)).length
 			))
 */
-			o(festivals.intended(bigHorizon).length).equals(1) `intention for date, date in future, other dates for festival in past`
+			o(festivals.intended(bigHorizon, {skipDetails: true}).length).equals(1) `intention for date, date in future, other dates for festival in past`
 				    	
 	    })
     })

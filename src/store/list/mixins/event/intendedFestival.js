@@ -1,7 +1,7 @@
 // src/store/list/mixins/event/intended.js
 
 export default (intentions, dates) => { return  {
-	intended (daysAhead = 0) {//console.log('' + this.list.length + '-' + remoteData.Dates.list.length)
+	intended (daysAhead = 0, opts = {skipDetails: false}) {//console.log('' + this.list.length + '-' + remoteData.Dates.list.length)
 		const futures = this.future(daysAhead)
 		//console.log('intended')
 		//console.log(intentions.list)
@@ -14,7 +14,7 @@ export default (intentions, dates) => { return  {
 		}
 			
 		)
-		intentFestivals.forEach(f => this.subjectDetails({subjectType: FESTIVAL, subject: f.id}))
+		if(!opts.skipDetails) intentFestivals.forEach(f => this.subjectDetails({subjectType: FESTIVAL, subject: f.id}))
 		return intentFestivals
 	}
 	

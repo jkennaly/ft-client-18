@@ -235,7 +235,7 @@ export default class Auth {
     accessTokenPromiseCache = authLoad
       .then(() => this.getValidToken())
       .catch(err => accessTokenPromiseCache = {})
-      
+    return accessTokenPromiseCache
   }
   getIdTokenClaims()  {
     return authLoad

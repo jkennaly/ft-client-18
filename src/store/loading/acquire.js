@@ -78,46 +78,53 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 	const reqUrl = url ? url + (queryString ? '?' : '') + (queryString) : `/api/${modelName}${queryString ? '?' : ''}${(queryString ? queryString : '')}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)
-	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 
-		(auth.getAccessToken()
-			.catch(err => {
-				if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
-				throw err
-			})
-			//.then(x => console.log('authResult', x) && x || x)
-			/*
-			.then(authResult => { 
-				console.log('updateModel reqUrl', reqUrl)
-				const req = m.request({
-	    			method: 'GET',
-	    			url: reqUrl,
-					config: tokenFunction(authResult),
-					background: true
+	//if(simResponse) console.log('acquire simResponse', simResponse)
+	const resultChain = Promise.resolve(true)
+		.then(() => {
+			if(simResponse && simResponse.remoteData) return Promise[simResponse.remoteResult](simResponse.remoteData)
+			return auth.getAccessToken()
+				.catch(err => {
+					if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
+					throw err
 				})
-				console.log('req', req)
-				req.then(x => console.log('updateModel response') && x || x)
-				req.catch(x => console.log('updateModel err', x))
-				return req
-			})
-			*/
-			.then(authResult => fetch(reqUrl, { 
-			   	method: 'get', 
-			   	headers: new Headers(
-			   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
-	   			)
-			})))
-		.then(response => response.json())
+				//.then(x => console.log('authResult', x) && x || x)
+				/*
+				.then(authResult => { 
+					console.log('updateModel reqUrl', reqUrl)
+					const req = m.request({
+		    			method: 'GET',
+		    			url: reqUrl,
+						config: tokenFunction(authResult),
+						background: true
+					})
+					console.log('req', req)
+					req.then(x => console.log('updateModel response') && x || x)
+					req.catch(x => console.log('updateModel err', x))
+					return req
+				})
+				*/
+				.then(authResult => fetch(reqUrl, { 
+				   	method: 'get', 
+				   	headers: new Headers(
+				   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
+		   			)
+				}))
+				.then(response => response.json())
+		})
+
 		.then(response => _.isArray(response.data) || response.data && response.data.id ? response.data : response)
-		.then(response => response.id ? [response] : response)
 		/*
 		.then(x => {
 			console.log('resultChain', x)
 			return x
 		})
 		*/
+		.then(response => response.id ? [response] : response)
+		
+		
 		.then(data => {updated = Boolean(data.length); return data})
-		.catch(err => console.error(err))
-	const localChain = simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem))
+		//.catch(err => console.error('updateModel resultChain err', err))
+	const localChain = (simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem)))
 		.then(item => _.isArray(item) ? item : [])
 	return Promise.all([resultChain, localChain])
 		.then(([newData, oldData]) => {if(updated) return _.unionBy(newData, oldData, 'id');})
