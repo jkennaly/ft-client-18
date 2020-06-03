@@ -230,8 +230,11 @@ export default class Auth {
 
   getAccessToken(opts) {
     //this returns a promise that resolves to a valid token
-    return authLoad
+
+    if(accessTokenPromiseCache.then) return accessTokenPromiseCache
+    accessTokenPromiseCache = authLoad
       .then(() => this.getValidToken())
+      .catch(err => accessTokenPromiseCache = {})
       
   }
   getIdTokenClaims()  {
