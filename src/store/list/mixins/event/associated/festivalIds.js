@@ -8,7 +8,7 @@ export default ({series, dates, days, sets}) => { return  {
 			return fest.series
 	},
 	getSubDateIds (id, filter = x => x) {
-		return dates.list.filter(s => s.festival === id).map(s => s.id)
+		return dates.list.filter(s => s.festival === id).map(s => s.id).filter(filter)
 	},
 	getSubDayIds (id) {
 		const dates = this.getSubDateIds(id)

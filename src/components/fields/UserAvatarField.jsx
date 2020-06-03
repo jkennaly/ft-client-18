@@ -16,7 +16,7 @@ const UserAvatarField = vnode => {
 			}),
 		view: ({ attrs }) => <div class="ft-horizontal-fields" onclick={attrs.itemClicked}>
 		{ attrs.data ? <div>
-			<img src={remoteData.Users.getPic(attrs.data)} />
+			<img class="ft-user-avatar-image" src={remoteData.Users.getPic(attrs.data)} />
 			<div class="ft-vertical-fields">
 	            <span>{remoteData.Users.getName(attrs.data)}</span>
 	            

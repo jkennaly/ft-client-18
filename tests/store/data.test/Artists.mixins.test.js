@@ -53,6 +53,7 @@ o.spec("store/data Artist Mixin methods", function() {
     	})
     })
 
+
     //rated
     o.spec("rated", function() {
     	o('getRating', function(){

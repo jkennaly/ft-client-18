@@ -23,8 +23,8 @@ const jsx = {
     view: ({attrs}) => <div class="ft-full-image">
         {attrs.imagePath ? m.trust(cl.imageTag(attrs.imagePath, {alt: "artist image", width: 288, height: 250, crop: "fit"}).toHtml()) : ''}
         {attrs.image ? <AttributionField imageId={attrs.image.id} popModal={attrs.popModal} hideFlag={attrs.hideFlag} /> : ''}
-        {!attrs.addDisabled && !attrs.image ? <NavButton fieldValue="Add image" action={e => addingImage = true} /> : ''}
-        {!attrs.image && !attrs.addDisabled && attrs.subjectType === 2 ? <a 
+        {!attrs.addDisabled && !attrs.image && attrs.userRoles.includes('admin') ? <NavButton fieldValue="Add image" action={e => addingImage = true} /> : ''}
+        {!attrs.image && !attrs.addDisabled && attrs.subjectType === 2 && attrs.userRoles.includes('admin') ? <a 
             href={"https://www.google.com/search?q=" + encodeURIComponent(subjectData.name(attrs.subject, attrs.subjectType)) + "+site%3Acommons.wikimedia.org&hs=lbE&channel=fs&tbm=isch&source=lnt&tbs=sur:fc&sa=X"} 
             target="_blank">
             <NavButton fieldValue="Image Search" />
@@ -64,6 +64,7 @@ const CloudImageField = {
             imagePath: image ? image.url.substring(image.url.indexOf('artists/')) : '',
             usePlaceholders: Boolean(attrs.camera && attrs.userId),
             userId: attrs.userId,
+            userRoles: attrs.userRoles,
             subject: attrs.subject,
             subjectType: attrs.subjectType,
             popModal: attrs.popModal,

@@ -62,10 +62,10 @@ const Launcher = {
 					/>)
 			}
 			{
-				remoteData.Festivals.intended(attrs.userId)
+				attrs.userId ? remoteData.Festivals.intended()
 					.map(data => <FestivalCard 
 						eventId={data.id}
-					/>)
+					/>) : ''
 			}
 			</FixedCardWidget>
 			<FixedCardWidget header="Current Festival Dates">

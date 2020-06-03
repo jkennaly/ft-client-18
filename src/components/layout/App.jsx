@@ -108,7 +108,7 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 		}))
 		return acb
 	})
-	.catch(err => [0, []])
+	.catch(err => console.error('no authorize') || [0, []])
 	.then(user => lastUser = user)
 	.then(userDataRaw => {
 		//console.log(`route resolved`, rParams)

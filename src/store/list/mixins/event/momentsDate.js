@@ -37,5 +37,8 @@ export default (days, venues) => { return  {
 	},
 	activeDay (id) {
 		return this.getSubDayIds(id).find(id => days.active(id))
+	},
+	_cache_clear_moments_date () {
+		dateBaseCache = {}
 	}
 }}

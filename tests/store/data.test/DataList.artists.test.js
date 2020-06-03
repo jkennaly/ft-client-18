@@ -195,7 +195,7 @@ o.spec("remoteCheck Artist", function() {
         	})
         	.then(done)
         	.catch(err => {
-        		o(err).equals('a') `rejection`
+        		o(err).equals('dead') `rejection`
         		done()
         	})
 

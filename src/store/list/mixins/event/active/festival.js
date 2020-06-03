@@ -4,7 +4,6 @@ import _ from 'lodash'
 import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
 export default (dates) => { return  {
-	eventActive (id) {return this.get(id) && (parseInt(this.get(id).year, 10) >= (new Date().getFullYear()))},
 	getStartMoment (id) {
 		const dateIds = this.getSubDateIds(id)
 		if(!dateIds.length) {
@@ -12,7 +11,7 @@ export default (dates) => { return  {
 			if(!fest) return undefined
 			return moment(fest.year, 'YYYY')
 		}
-		const startInts = dateIds.map(dates.getStartMoment)
+		const startInts = dateIds.map(id => dates.getStartMoment(id))
 			.map(m => m.valueOf())
 			.filter(_.isNumber)
 			.sort((a, b) => a - b)
@@ -46,10 +45,7 @@ export default (dates) => { return  {
 			return false
 		}
 	},
-	activeDate (id) {return  _.some(
-		this.getSubDateIds(id), 
-		dates.active
-	)},
+	activeDate (id) {return  this.getSubDateIds(id).some(did => dates.active(did))},
 	future (daysAhead = 0) {
 		return this.getFiltered(f => {
 			const end = this.getEndMoment(f.id)

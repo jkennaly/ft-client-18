@@ -7,8 +7,8 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const webpack = require("webpack");
 
 const mode = 'development'
-import authDev from './src/services/auth0-variables.dev.json';
-import authProd from './src/services/auth0-variables.prod.json';
+const authDev = require('./src/services/auth0-variables.dev.json')
+const authProd = require('./src/services/auth0-variables.prod.json')
 
 
 function composeConfig(env) { /* Helper function to dynamically set runtime config */
@@ -28,6 +28,10 @@ module.exports = {
 	devtool: "inline-source-map",
 	devServer: {
 		contentBase: "./dist"
+	},
+	node: {
+	    Buffer: false,
+	    process: false
 	},
 	plugins: [
 		new CleanWebpackPlugin(),
@@ -60,6 +64,7 @@ module.exports = {
 		path: path.resolve(__dirname, './dist'),
 		filename: 'bundle.js',
 	},
+
 	module: {
 		rules: [
 		      {

@@ -53,6 +53,7 @@ const jsx = () => {
 				<FixedCardWidget >
 					<CloudImageField 
 						userId={attrs.userId} 
+						userRoles={attrs.userRoles} 
 						subjectType={2} 
 						subject={attrs.artistId} 
 						sources={['url']} 

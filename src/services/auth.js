@@ -43,6 +43,18 @@ var userRoleCache = []
 var dataReset = () => true
 var auth0 = {}
 var authHandler = {}
+var lastToken, lastUserData
+
+const clean = () => {
+
+    localStorage.clear()
+    localforage.clear()
+      .then(() => dataReset())
+      //.then(() => console.log('data Reset'))
+      .catch(err => console.error('logout data reset failed', err))
+    userIdCache = 0
+    userRoleCache = []
+}
 const authLoad = window.mockery ? Promise.reject('mocked') : (auth00({
     domain: AUTH0_DATA.DOMAIN,
     client_id: AUTH0_DATA.CLIENTID,
@@ -51,10 +63,24 @@ const authLoad = window.mockery ? Promise.reject('mocked') : (auth00({
     scope: scopeAr
   })
   .then(o => auth0 = o)
+  .then(o => o.getTokenSilently())
+  .then(status => {
+    if(!status) {
+      localStorage.setItem('ft_user_id', 0)
+      throw 'auth fail'
+    }
+    return status
+  })
   .then(() => 'authLoaded')
-  .catch(err => err !== 'mocked' && console.error('auth0 instantiantion failed', err))
+  .catch(err => {
+    if(err.error === 'login_required') {
+      clean()
+      return
+    } 
+    err !== 'mocked' && console.error('auth0 instantiantion failed', err)
+
+  })
 )
-var lastToken
 export default class Auth {
   
 
@@ -149,7 +175,9 @@ export default class Auth {
   }
 
   //returns a promise that resolves to a userIdCache
-  getFtUserId(userData) {
+  getFtUserId(userDataSupplied) {
+    const userData = userDataSupplied ? userDataSupplied : lastUserData
+    lastUserData = userData
     const onAuthRoute = /auth/.test(window.location)
     if(onAuthRoute) return Promise.resolve(0)
     const localUser = parseInt(localStorage.getItem('ft_user_id'), 10)
@@ -179,13 +207,7 @@ export default class Auth {
 
   logout(skipRoute) {
     // Clear Access Token and ID Token from local storage
-    localStorage.clear()
-    localforage.clear()
-      .then(() => dataReset())
-      .then(() => console.log('data Reset'))
-      .catch(err => console.error('logout data reset failed', err))
-    userIdCache = 0
-    userRoleCache = []
+    clean()
     auth0.logout({client_id: AUTH0_DATA.CLIENTID, returnTo:AUTH0_DATA.CALLBACKURL})
     // navigate to the default route
     //if(!skipRoute) m.route.set('/')
@@ -196,6 +218,7 @@ export default class Auth {
     
     return authLoad
       .then(() => auth0.isAuthenticated())
+      
   }
 
   getValidToken() {
@@ -205,11 +228,11 @@ export default class Auth {
   
   }
 
-  getAccessToken() {
+  getAccessToken(opts) {
     //this returns a promise that resolves to a valid token
     return authLoad
-      .then(() => this.isAuthenticated())
-      .then(status => status && lastToken ? lastToken : this.getValidToken())
+      .then(() => this.getValidToken())
+      
   }
   getIdTokenClaims()  {
     return authLoad

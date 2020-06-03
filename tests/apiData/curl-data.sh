@@ -26,5 +26,5 @@
 #	curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/MessagesMonitors?filter[limit]=20' > messagesMonitor.json
 #	curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/Intentions?filter[limit]=20' > intention.json
 #	curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/Users?filter[limit]=20' > user.json
-	curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/core/all/data' > core.json
+#	curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/core/all/data' > core.json
 	

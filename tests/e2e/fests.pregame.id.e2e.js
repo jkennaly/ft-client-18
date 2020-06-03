@@ -10,8 +10,8 @@ o.beforeEach(function() {
     })
 
 
-o("FestiGram", function(done, timeout) {
-	timeout(30000)
+o("FestiGram", function(done) {
+	o.timeout(30000)
     nightmare
       .goto('http://localhost:8080')
       .wait(".ft-card")
@@ -26,8 +26,8 @@ o("FestiGram", function(done, timeout) {
       	done()
       })
 })
-o("FestiGram festivals unlogged", function(done, timeout) {
-	timeout(30000)
+o("FestiGram festivals unlogged", function(done) {
+	o.timeout(30000)
     nightmare
       .goto('http://localhost:8080')
       .wait(".festivals-upcoming")
@@ -45,8 +45,8 @@ o("FestiGram festivals unlogged", function(done, timeout) {
 
 
     })
-o("FestiGram festivals unlogged not attending", function(done, timeout) {
-  timeout(30000)
+o("FestiGram festivals unlogged not attending", function(done) {
+  o.timeout(30000)
     nightmare
       .goto('http://localhost:8080')
       .wait(".festivals-upcoming")

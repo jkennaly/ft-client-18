@@ -81,10 +81,10 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 
 		(auth.getAccessToken()
 			.catch(err => {
-				if(err.error === 'login_required' || err === 'login required') return
+				if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
 				throw err
 			})
-			//.then(x => console.log('authResult') && x || x)
+			.then(x => console.log('authResult', x) && x || x)
 			/*
 			.then(authResult => { 
 				console.log('updateModel reqUrl', reqUrl)

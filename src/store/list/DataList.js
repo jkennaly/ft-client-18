@@ -25,8 +25,18 @@ function DataList(opt = {}) {
 	this.baseEndpoint = `/api/${this.fieldName}`
 }
 
+DataList.prototype.clearCaches = function() {
+	if(!this) throw new Error("Invalid DataList call clearCache")
+	Object.keys(this)
+		.filter(k => /^_cache_clear/.test(k))
+		.forEach(k => this[k]())
+
+	return true
+}
+
 DataList.prototype.setMeta = function(meta) {
 	if(!this) throw new Error("Invalid DataList call setMeta")
+	this.clearCaches()
 	return this.meta = _.clone(meta)
 }
 
@@ -98,10 +108,14 @@ DataList.prototype.backfillList = function(list, localEntry = false) {
 
 DataList.prototype.clear = function() {
 	if(!this) throw new Error("Invalid DataList call clear")
+	//console.log('DataList clear', this.fieldName)
 	this.list = []
 	this.meta = defaultMeta()
 	this.lastRemoteLoad = 0
 	this.lastRemoteCheck = 0
+	//find all cache properties and kill them
+	this.clearCaches()
+
 	return true
 }
 

@@ -27,17 +27,21 @@ module.exports = {
 	mode: mode,
 	entry: './src/index.jsx',
 	devtool: "source-map",
-	 optimization: {
-    minimizer: [
-      new TerserPlugin({
-    parallel: true,
-    terserOptions: {
-      ecma: 6,
-    },
-  }),
-      new OptimizeCSSAssetsPlugin({})
-    ]
-  },
+	node: {
+	    Buffer: false,
+	    process: false
+	},
+	optimization: {
+    	minimizer: [
+		    new TerserPlugin({
+		    	parallel: true,
+			    terserOptions: {
+			      ecma: 6,
+			    },
+		  	}),
+	      	new OptimizeCSSAssetsPlugin({})
+    	]
+  	},
 	plugins: [
 		new CleanWebpackPlugin(),
 		new HtmlWebpackPlugin({
