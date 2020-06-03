@@ -84,7 +84,7 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 				if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
 				throw err
 			})
-			.then(x => console.log('authResult', x) && x || x)
+			//.then(x => console.log('authResult', x) && x || x)
 			/*
 			.then(authResult => { 
 				console.log('updateModel reqUrl', reqUrl)
