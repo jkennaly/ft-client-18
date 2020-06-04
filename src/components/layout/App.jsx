@@ -56,11 +56,10 @@ const auth = new Auth();
 const WelcomeView = ({attrs}) => [
 	<h1 class="app-title">FestiGram</h1>,
 	<h2 class="app-greeting">Welcome</h2>,
-	<span class="app-description">Like Instacart, but for music festivals*</span>,
+	<span class="app-description">A Festival App For The Rest Of Us</span>,
 	<div class="login-button">
 		<UIButton action={() => auth.login(attrs.prev)} buttonName="LOGIN" />
-	</div>,
-	<span>*: Not anything like Instacart. Please don't sue me.</span>
+	</div>
 ];
 
 const forceLoginRoute = err => {

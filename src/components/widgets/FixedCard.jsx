@@ -15,7 +15,7 @@ const FixedCardWidget = {
   view: (vnode) => {
     return (
 <section class={`ft-widget-fixed-card ${classes(vnode.attrs)}`}>
-  <header class="ft-widget-header"><div class="ft-widget-header-text">{vnode.attrs.header}</div>{vnode.attrs.button ? <FiftyButton>{vnode.attrs.button}</FiftyButton> : ''}</header>
+  {vnode.attrs.header ? <header class="ft-widget-header"><div class="ft-widget-header-text">{vnode.attrs.header}</div>{vnode.attrs.button ? <FiftyButton>{vnode.attrs.button}</FiftyButton> : ''}</header> : ''}
   <div class={"ft-card-container " + (vnode.attrs.containerClasses ? vnode.attrs.containerClasses : '')}>  
     { vnode.children }
   </div>

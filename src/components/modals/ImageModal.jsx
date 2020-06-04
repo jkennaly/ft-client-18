@@ -1,4 +1,5 @@
 // ImageModal.jsx
+// src/components/modals
 
 
 import m from 'mithril'
@@ -11,82 +12,65 @@ import {subjectData} from '../../store/subjectData'
 import UIButton from '../ui/UIButton.jsx';
 import CloudinaryUploadWidget from '../widgets/CloudinaryUpload.jsx'
 
-const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
-    var widgetExists = false
-    var title = ''
-    var author = ''
-    var sourceUrl = ''
-    var license = ''
-    var licenseUrl = ''
-    var licenseSelect = ''
-    var licenses = []
-    const validated = () => {
-        //console.log('ImageModal validated', title , author , sourceUrl , license , licenseUrl)
-        return title && author && sourceUrl && license && licenseUrl
-    }
-const ImageModal = {
-    oninit: ({attrs}) => {
-        //console.log('ImageModal init', attrs)
-        title = attrs.phTitle
-        author = attrs.phCreator
-        sourceUrl = attrs.phSourceUrl
-        licenses = _.uniqBy(remoteData.Images.list,
-            img => img.licenseUrl
-        )
-        license = licenses.length ? licenses[0].license : license
-        licenseUrl = licenses.length ? licenses[0].licenseUrl : licenseUrl
-        licenseSelect = <div class="ft-name-field">
-        <label for="license">
-            {`License Name`}
-        </label>
-            <select id="ft-license-selector" name="license" onchange={e => {
-                license = e.target.innerHTML
-                licenseUrl = e.target.value
-                e.stopPropagation()
-            }}>
-                {
-                    licenses
-                        .map((s, i) => <option selected={!i} value={s.licenseUrl}>{s.license}</option>)
-                }
-            </select>
-    </div>
-    },
-    /*
-    onbeforeupdate: ({attrs}) => {
-        if(!attrs.existingLicense) return
-        title = attrs.phTitle
-        author = attrs.phCreator
-        sourceUrl = attrs.phSourceUrl
-        licenses = _.uniqBy(remoteData.Images.list,
-                        img => img.licenseUrl
-                    )
-        license = licenses.length ? licenses[0].license : license
-        licenseUrl = licenses.length ? licenses[0].licenseUrl : licenseUrl
+const {
+	Images: images
+} = remoteData
 
-    },
-    */
-    view: ({attrs}) => <div class={classes(attrs)}>
+
+const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
+var _widgetExists = false
+var _title = ''
+var _author = ''
+var _sourceUrl = ''
+var _license = ''
+var _licenseUrl = ''
+var _licenses = []
+
+const jsx = function({attrs}) {
+	function widgetExists(state) {if(_.isUndefined(state)) return _widgetExists; return _widgetExists = state}
+	function license(state) {if(_.isUndefined(state)) return _license || attrs.license; return _license = state}
+	function licenseUrl(state) {if(_.isUndefined(state)) return _licenseUrl || attrs.licenseUrl; return _licenseUrl = state}
+	function title(state) {if(_.isUndefined(state)) return _title || attrs.title; return _title = state}
+	function author(state) {if(_.isUndefined(state)) return _author || attrs.author; return _author = state}
+	function sourceUrl(state) {if(_.isUndefined(state)) return _sourceUrl || attrs.sourceUrl; return _sourceUrl = state}
+	function validated() {return title() && author() && sourceUrl() && license() && licenseUrl()}
+	return {
+	view: ({attrs}) => <div class={classes(attrs)}>
         <div class="ft-modal-content">
-            <h1>Add {subjectData.name(attrs.subject, attrs.subjectType)} Image</h1>
+            <h1>Add {attrs.subjectName} Image</h1>
             <div>Image Title</div>
             <input type="text" 
-                onchange={e => {title = e.target.value;}}
+                onchange={e => {title(e.target.value);}}
             />
             <div>Image Creator</div>
             <input type="text" 
-                onchange={e => {author = e.target.value;}}
+                onchange={e => {author(e.target.value);}}
             />
             <div>Image Source URL</div>
             <input type="text" 
-                onchange={e => {sourceUrl = e.target.value;}}
+                onchange={e => {sourceUrl(e.target.value);}}
             />
 
             {
-                attrs.existingLicense ? licenseSelect : <div>
+                attrs.licenses.length && attrs.phTitle ? <div class="ft-name-field">
+		            <label for="license">
+		                {`License Name`}
+		            </label>
+		                <select id="ft-license-selector" name="license" onchange={e => {
+		                    license(e.target.innerHTML)
+							licenseUrl(e.target.value)
+		                    e.stopPropagation()
+		                }}>
+		                    {
+		                        attrs.licenses
+		                            .map((s, i) => <option selected={!i} value={s.licenseUrl}>{s.license}</option>)
+		                    }
+		                </select>
+		        </div> : <div>
                     <div>Image License</div>
-                    <input type="text" onchange={e => license = e.target.value}/>
+                    <input type="text" onchange={e => license(e.target.value)}/>
                     <div>License URL</div>
-                    <input type="text" onchange={e => licenseUrl = e.target.value}/>  
+                    <input type="text" onchange={e => licenseUrl(e.target.value)}/>  
                 </div>
             }
 
@@ -97,11 +81,11 @@ const ImageModal = {
             }} buttonName="Cancel" />
             <UIButton action={validated() ? e => {
 
-                widgetExists = true
+                widgetExists(true)
 
                 
             } : e => 0} buttonName={validated() ? "Accept" : "Enter image origin"} />
-            {widgetExists ? <CloudinaryUploadWidget 
+            {widgetExists() ? <CloudinaryUploadWidget 
                 subject={attrs.subject}
                 subjectType={attrs.subjectType}
                 sources={attrs.sources}
@@ -114,19 +98,41 @@ const ImageModal = {
                             subject: attrs.subject,
                             subjectType: attrs.subjectType,
                             url: result[0].secure_url,
-                            title: title,
-                            sourceUrl: sourceUrl,
-                            author: author,
-                            license: license,
-                            licenseUrl: licenseUrl
+                            title: title(),
+                            sourceUrl: sourceUrl(),
+                            author: author(),
+                            license: license(),
+                            licenseUrl: licenseUrl()
                         })
-                        widgetExists = false
+                        widgetExists(false)
                         attrs.hide()
                     }
                 }}
             /> : ''}
         </div>
     </div>
-}
+}}
 
+const ImageModal = {
+	oninit: () => console.log('img modal'),
+	view: ({attrs}) => {
+		const licenses = _.uniqBy(images.getFiltered(x => true), 'licenseUrl')
+		const mapping = {
+			subject: attrs.subject,
+            subjectType: attrs.subjectType,
+			subjectName: subjectData.name(attrs.subject, attrs.subjectType),
+			sources: attrs.sources,
+			hide: attrs.hide,
+			display: attrs.display,
+			licenses: licenses,
+            title: attrs.phTitle,
+            sourceUrl: attrs.phSourceUrl,
+            author: attrs.phCreator,
+            license: licenses.length ? licenses[0].license : '',
+            licenseUrl: licenses.length ? licenses[0].licenseUrl : '',
+            action: attrs.action
+		}
+		return m(jsx, mapping)
+	}
+}
 export default ImageModal;
