@@ -21,6 +21,8 @@ import  DiscussModal from '../../modals/DiscussModal.jsx';
 import {remoteData} from '../../../store/data';
 import {subjectData} from '../../../store/subjectData'
 
+const {Messages: messages} = remoteData
+
 const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 	const baseData = remoteData.Festivals.getResearchList(festivalId, userId)
 		.filter(prefilter ? prefilter : x => true)
@@ -87,7 +89,7 @@ const ActivityWidget = vnode => {
 						shortDefault={true}
 						headline={subjectData.name(data.subject, data.subjectType)}
 						headact={e => {
-							if(data.subjectType === 2) m.route.set("/artists" + "/pregame" + '/' + data.subject)
+							if(messages.baseSubjectType(data.id) === 2) m.route.set("/artists" + "/pregame" + '/' + messages.baseSubject(data.id))
 						}}
 						popModal={vnode.attrs.popModal}
 						discussSubject={(so, me) => vnode.attrs.popModal('discuss', {

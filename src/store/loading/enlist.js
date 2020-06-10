@@ -32,5 +32,6 @@ export function getList(modelName) {
 				.then(() => loadModel(modelName))
 		))
 		.then(list => _.isArray(list) && list || [])
+		.catch(err => console.error(err))
 		//.then(data => console.dir('getList data ' + modelName) && false || data)
 }

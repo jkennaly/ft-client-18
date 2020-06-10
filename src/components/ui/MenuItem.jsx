@@ -12,10 +12,12 @@ const MenuItem = {
         class={(
             //the item is disabled if theres is not a valid path or 
             m.route.get() && (new RegExp(m.route.get().replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'))).test(attrs.data.path) ? `ft-menu-item-selected` :
+                attrs.data.header ? `ft-menu-item-header` :
                 attrs.data.path || attrs.clickFunction ? "ft-menu-item" : 
                 "ft-menu-item-disabled"
         )} 
         onclick={() => {
+            //console.log('MenuItem click', attrs)
         	if(attrs.data.path && attrs.data.params) m.route.set(attrs.data.path, attrs.data.params())
         	if(attrs.data.path) m.route.set(attrs.data.path)
         	if(attrs.clickFunction) attrs.clickFunction()
@@ -28,4 +30,4 @@ const MenuItem = {
     </div>
 }
 
-export default MenuItem;
+export default MenuItem

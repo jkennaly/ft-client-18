@@ -78,13 +78,17 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 	const reqUrl = url ? url + (queryString ? '?' : '') + (queryString) : `/api/${modelName}${queryString ? '?' : ''}${(queryString ? queryString : '')}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)
-	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 
+	//console.log(modelName, queryString = '', url, simResponse)
+	const resultChain = coreChecked
+		.catch(err => {})
+		.then(() => simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 
 		(auth.getAccessToken()
 			.catch(err => {
 				if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
 				throw err
 			})
-			//.then(x => console.log('authResult', x) && x || x)
+			.then(authResult => _.isString(authResult) ? authResult : false)
+			//.then(x => console.log('authResult ', x) && x || x)
 			/*
 			.then(authResult => { 
 				console.log('updateModel reqUrl', reqUrl)
@@ -106,7 +110,13 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 			   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
 	   			)
 			})))
-		.then(response => response.json())
+		.then(response => {
+		    if (!response.ok) {
+		      throw new Error('Network response was not ok')
+		    }
+		    return response
+		 })
+		.then(response => response.json()))
 		.then(response => _.isArray(response.data) || response.data && response.data.id ? response.data : response)
 		.then(response => response.id ? [response] : response)
 		/*
@@ -116,7 +126,7 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 		})
 		*/
 		.then(data => {updated = Boolean(data.length); return data})
-		.catch(err => console.error(err))
+		//.catch(err => console.error(err))
 	const localChain = simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem))
 		.then(item => _.isArray(item) ? item : [])
 	return Promise.all([resultChain, localChain])

@@ -364,7 +364,7 @@ o.spec("store/data Festival Mixin methods", function() {
 					intentions.getFiltered(i => i.subjectType === DATE && festivals.getSubDateIds(festival.id).includes(i.subject)).length
 			))
 */
-			o(festivals.intended(bigHorizon).length).equals(1) `intention for date, date in future, other dates for festival in past`
+			o(festivals.intended(bigHorizon, {noUpdate: true}).length).equals(1) `intention for date, date in future, other dates for festival in past`
 				    	
 	    })
     })

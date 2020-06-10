@@ -4,7 +4,8 @@ import provide from '../../../loading/provide'
 import _ from 'lodash'
 
 export default {
-	delete (data) { 
+	delete (dataRaw) {
+		const data = _.isNumber(dataRaw) ? this.get(dataRaw) : dataRaw
 		const end = `/api/${this.fieldName}/${data.id}`
 		//console.log('delete ' + this.fieldName)
 		//console.log(data, _.assign({}, data, {deleted: 1}))

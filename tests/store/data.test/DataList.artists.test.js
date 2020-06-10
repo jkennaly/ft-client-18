@@ -480,7 +480,7 @@ o.spec("acquireListUpdate Artist", function() {
         	localResult: 'resolve'
         })
         	.then(check => {
-        		o(check).equals(false) `no update because of simData`
+        		o(check).equals(true) `no update because of simData`
         	})
         	.then(done)
         	.catch(err => {

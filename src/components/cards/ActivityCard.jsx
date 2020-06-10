@@ -51,10 +51,10 @@ const ActivityCard = vnode => {
   var showLong = false
   
 
-  const defaultClick = e => {
+  const defaultClick = msg => e => {
     //console.log('span click'); 
     e.stopPropagation()
-    if(showLong) return 
+    if(showLong) m.route.set('/messages/related', {messageId: msg.id}) 
     showLong = true
   }
   return {
@@ -71,7 +71,7 @@ const ActivityCard = vnode => {
           messageArray={attrs.messageArray}
           headline={attrs.headline}
           rating={attrs.rating}
-          fallbackClick={defaultClick}
+          fallbackClick={defaultClick(attrs.messageArray[0])}
         /> : ''}
         <div class="ft-vertical-fields ft-flex-grow">
           <div class="ft-horizontal-fields ft-card-above-overlay">
@@ -102,7 +102,7 @@ const ActivityCard = vnode => {
               {attrs.rating ? <AverageRatingField averageRating={attrs.rating} /> : ''}
               <span>{year(attrs)}</span>
             </div>
-              <span class="ft-flex-grow" onclick={defaultClick}>
+              <span class="ft-flex-grow" onclick={defaultClick(attrs.messageArray[0])}>
                 {!attrs.shortDefault || showLong || !comment(attrs) ? comment(attrs) : comment(attrs).substring(0, 50) + '...(+expand)'}
               </span>
           </div>

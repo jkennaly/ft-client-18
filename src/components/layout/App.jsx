@@ -122,8 +122,9 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 				})
 		},
 		view: ({attrs}) => {
-		//console.log(`component resolving`, userDataRaw, resolveComponent)
+			//console.log(`component resolving`, attrs.filter, resolveComponent)
 			const attrIds = _.reduce(attrs, (passing, v, k) => {
+				if(passing[k]) return passing
 				const kOk = /^id$/.test(k) || /Id$/.test(k) || /^subject/.test(k)
 				const useV = kOk && (_.isInteger(v) || /^\d+$/.test(v))
 				passing[k] = _.isInteger(v) ? v : _.toInteger(v)

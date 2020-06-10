@@ -31,7 +31,16 @@ export default {
 		const discussionMessages = this.getFiltered(m => baseIds.includes(m.baseMessage))
 		return [...baseMessages, ...discussionMessages]
 	},
-	
+	baseSubject (id) {
+		const msg = this.get(id)
+		const baseMessage = msg && msg.baseMessage ? this.get(msg.baseMessage) : msg
+		return _.get(baseMessage, 'subject')
+	},
+	baseSubjectType (id) {
+		const msg = this.get(id)
+		const baseMessage = msg && msg.baseMessage ? this.get(msg.baseMessage) : msg
+		return _.get(baseMessage, 'subjectType')
+	},
 		discussionOf (id) {return this.list.filter(m => m.baseMessage === id)},
 		aboutType (sType) {return this.list.filter(m => m.subjectType === sType)},
 		ofType (mType) {return this.list.filter(m => m.messageType === mType)},

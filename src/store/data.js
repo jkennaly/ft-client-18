@@ -353,6 +353,7 @@ Object.assign(messages,
 	create,
 	upsert,
 	updateInstance,
+	deletion,
 	messageDetails(subjects),
 	messageCheckin(subjects)
 )

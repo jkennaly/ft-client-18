@@ -60,7 +60,8 @@ const authLoad = window.mockery ? Promise.reject('mocked') : (auth00({
     client_id: AUTH0_DATA.CLIENTID,
     redirect_uri: AUTH0_DATA.CALLBACKURL,
     audience: AUTH0_DATA.AUDIENCE,
-    scope: scopeAr
+    scope: scopeAr,
+    cacheLocation: 'localstorage'
   })
   .then(o => auth0 = o)
   .then(o => o.getTokenSilently())
@@ -235,6 +236,7 @@ export default class Auth {
     accessTokenPromiseCache = authLoad
       .then(() => this.getValidToken())
       .catch(err => accessTokenPromiseCache = {})
+    return accessTokenPromiseCache
       
   }
   getIdTokenClaims()  {

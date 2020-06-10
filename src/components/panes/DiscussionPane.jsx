@@ -37,6 +37,8 @@ const DiscussionPane = {
 		{
 			//find each message about this artist and order by user
 			_.map(_.take(attrs.messageArrays, count)
+				.filter(x => x)
+				//.map(x => console.log('DiscussionPane', x) || x)
 				//at least on message in each me must be unread
 				//.map(x => {console.log('DiscussionPane jsx', x);return x;})
 				,
