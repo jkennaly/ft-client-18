@@ -39,15 +39,12 @@ const auth = new Auth()
 ]
 */
 //core acquisition is done on app start if there is no core already present
-/*
-[
 
-'Messages',
+const authOnly = [
+
 'MessagesMonitors',
-'Intentions',
-'Users',
+'Intentions'
 ]
-*/
 
 
 
@@ -104,7 +101,7 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 				return req
 			})
 			*/
-			.then(authResult => fetch(reqUrl, { 
+			.then(authResult => !_.isString(authResult) && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
 			   	method: 'get', 
 			   	headers: new Headers(
 			   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
