@@ -52,7 +52,7 @@
     "empty-promise": "^1.2.0",
     "jquery": "^3.4.1",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mithril": "^2.0.4",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
