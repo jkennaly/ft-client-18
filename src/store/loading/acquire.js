@@ -39,15 +39,12 @@ const auth = new Auth()
 ]
 */
 //core acquisition is done on app start if there is no core already present
-/*
-[
 
-'Messages',
+const authOnly = [
+
 'MessagesMonitors',
-'Intentions',
-'Users',
+'Intentions'
 ]
-*/
 
 const loggedOnly = [
   /Intentions/,
@@ -83,39 +80,46 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 	const reqUrl = url ? url + (queryString ? '?' : '') + (queryString) : `/api/${modelName}${queryString ? '?' : ''}${(queryString ? queryString : '')}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)
-	//if(simResponse) console.log('acquire simResponse', simResponse)
-	const resultChain = Promise.resolve(true)
-		.then(() => {
-			if(simResponse && simResponse.remoteData) return Promise[simResponse.remoteResult](simResponse.remoteData)
-			return auth.getAccessToken()
-				.catch(err => {
-					if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
-					throw err
+
+	//console.log(modelName, queryString = '', url, simResponse)
+	const resultChain = coreChecked
+		.catch(err => {})
+		.then(() => simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 
+		(auth.getAccessToken()
+			.catch(err => {
+				if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
+				throw err
+			})
+			.then(authResult => _.isString(authResult) ? authResult : false)
+			//.then(x => console.log('authResult ', x) && x || x)
+			/*
+			.then(authResult => { 
+				console.log('updateModel reqUrl', reqUrl)
+				const req = m.request({
+	    			method: 'GET',
+	    			url: reqUrl,
+					config: tokenFunction(authResult),
+					background: true
 				})
-				//.then(x => console.log('authResult', x) && x || x)
-				/*
-				.then(authResult => { 
-					console.log('updateModel reqUrl', reqUrl)
-					const req = m.request({
-		    			method: 'GET',
-		    			url: reqUrl,
-						config: tokenFunction(authResult),
-						background: true
-					})
-					console.log('req', req)
-					req.then(x => console.log('updateModel response') && x || x)
-					req.catch(x => console.log('updateModel err', x))
-					return req
-				})
-				*/
-				.then(authResult => !_.isString(authResult) && loggedOnly.find(e => e.test(reqUrl)) ? [] : fetch(reqUrl, { 
-				   	method: 'get', 
-				   	headers: new Headers(
-				   		_.isString(authResult) ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
-		   			)
-				}))
-				.then(response => response.json ? response.json() : response)
-		})
+				console.log('req', req)
+				req.then(x => console.log('updateModel response') && x || x)
+				req.catch(x => console.log('updateModel err', x))
+				return req
+			})
+			*/
+			.then(authResult => !_.isString(authResult) && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
+			   	method: 'get', 
+			   	headers: new Headers(
+			   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
+	   			)
+			})))
+		.then(response => {
+		    if (!response.ok) {
+		      throw new Error('Network response was not ok')
+		    }
+		    return response
+		 })
+		.then(response => response.json()))
 
 		.then(response => _.isArray(response.data) || response.data && response.data.id ? response.data : response)
 		/*
@@ -128,8 +132,10 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 		
 		
 		.then(data => {updated = Boolean(data.length); return data})
-		//.catch(err => console.error('updateModel resultChain err', err))
-	const localChain = (simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem)))
+
+		//.catch(err => console.error(err))
+	const localChain = simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem))
+
 		.then(item => _.isArray(item) ? item : [])
 	return Promise.all([resultChain, localChain])
 		.then(([newData, oldData]) => {if(updated) return _.unionBy(newData, oldData, 'id');})

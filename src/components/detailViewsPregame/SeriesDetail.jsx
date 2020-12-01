@@ -51,11 +51,11 @@ const SeriesDetail = {
 		{series() ? <SeriesDescriptionField id={id()} /> : ''}
 		{series() ? <SeriesWebsiteField id={id()} /> : ''}
 		<CardContainer>
-			<FestivalCard  seriesId={id()} eventId={'new'}/>
+			{roles(attrs) && roles(attrs).includes('admin') ? <FestivalCard  seriesId={id()} eventId={'new'}/> : ''}
 			{
 				(remoteData.Festivals.getMany(
-							remoteData.Series.getSubIds(id()))
-						)
+						remoteData.Series.getSubIds(id()))
+					)
 					.sort((a, b) => parseInt(b.year, 10) - parseInt(a.year, 10))
 					.map(data => <FestivalCard  
 						seriesId={data.series}

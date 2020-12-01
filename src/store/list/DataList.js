@@ -171,7 +171,7 @@ DataList.prototype.acquireListSupplement = function(queryString, url, simRespons
 		var updated = false
 		//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
 	return updateModel(this.fieldName, queryString, url, simResponse)
-		.then((upd) => {if(updated = upd) return getList(this.fieldName);})
+		.then((upd) => {if((updated = upd) && !simResponse) return getList(this.fieldName);})
 		.then((list) => {if(_.isArray(list)) this.backfillList(list);})
 		.then(() => updated)
 }

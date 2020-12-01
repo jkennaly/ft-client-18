@@ -17,6 +17,11 @@ const formBase = {
 }
 import Auth from '../../services/auth.js'
 const auth = new Auth()
+const authOnly = [
+
+'MessagesMonitors',
+'Intentions'
+]
 
 const loggedOnly = [
   /Intentions/,
@@ -27,7 +32,9 @@ export default function (data, modelName, queryString = '', url, method = 'POST'
 	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
 	const usingFormData = simResponse || data instanceof FormData
 	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getAccessToken()
-		.then(authResult => !_.isString(authResult) && loggedOnly.find(e => e.test(reqUrl)) ? [] : fetch(reqUrl, { 
+
+		.then(authResult =>  !_.isString(authResult) && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
+
 		   	method: method, 
 		   	headers: new Headers(
 		   		_.isString(authResult) ? _.assign({}, (options.form ? formBase : headerBase), {Authorization: `Bearer ${authResult}`}) : (options.form ? formBase : headerBase)

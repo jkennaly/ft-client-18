@@ -17,10 +17,10 @@ import _ from 'lodash'
 
 
 import MenuItem from './MenuItem.jsx';
-const classes = attrs => ('banner-menu-content ') + (attrs.collapsed ? 'hidden' : '')
+const classes = attrs => ('ft-banner-menu-content ') + (attrs.collapsed ? 'hidden' : '') + (attrs.left ? ' ft-l-0' : ' ft-r-0')
 const CollapsibleMenu = {
 	view: ({attrs}) =>
-		<div class={"banner-menu"}>
+		<div class={"ft-banner-menu ft-pr"}>
             <div class={classes(attrs)}>
                     {attrs.menu.map(i => <MenuItem 
                     	data={i}

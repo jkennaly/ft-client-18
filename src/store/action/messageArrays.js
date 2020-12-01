@@ -7,6 +7,9 @@ import {subjectData} from '../../store/subjectData'
 const baseFilter = (userId) => m => m.fromuser !== userId && ![RATING, CHECKIN].includes(m.messageType)
 const personalFilter = (userId) => m => m.fromuser === userId && ![RATING, CHECKIN].includes(m.messageType)
 
+
+const { Messages: messages} = remoteData
+
 export const remote = {
 	unread: (attrs) => {
 		const loopFilter = {
@@ -82,8 +85,34 @@ export const remote = {
 					.catch(console.error)
 			])
 			
+		},
+		related: (attrs) => {
+		const loopFilter = {
+				order: `id DESC`, 
+				limit: 50, 
+				skip: 0,
+				where: {
+					or: [
+						{id: attrs.messageId},
+						{baseMessage: attrs.messageId}
+					]
+				}
+			}
+			return Promise.all([
+				remoteData.Messages.maintainList(loopFilter)
+			])
+				.catch(console.error)
 		}
 }
+
+export const related = (userId, userRoles, id) => {
+	const msg = messages.get(id)
+	if(!msg) return []
+	const bmi = msg.baseMessage ? msg.baseMessage : msg.id
+	const baseMessage = msg && bmi ? messages.get(bmi) : msg
+	const childMessages = messages.getFiltered({baseMessage: bmi})
+	return [[baseMessage, ...childMessages]]
+} 
 
 export const unread = (userId) => _.uniq(remoteData.Messages.getFiltered(baseFilter(userId))
 	.map(x => x.baseMessage || x.id))
@@ -91,7 +120,6 @@ export const unread = (userId) => _.uniq(remoteData.Messages.getFiltered(baseFil
 	.map(id => {return m => m.id === id || m.baseMessage === id})
 	.map(discussFilter => remoteData.Messages.getFiltered(discussFilter))
 	.filter(discussion => discussion.some(m => m.fromuser !== userId && remoteData.MessagesMonitors.unread(m.id)))
-
 
 export const userRecent = (userId) => _.uniq(remoteData.Messages.getFiltered(personalFilter(userId))
 	.map(x => x.baseMessage || x.id))
@@ -101,10 +129,9 @@ export const userRecent = (userId) => _.uniq(remoteData.Messages.getFiltered(per
 	//.map(discussion => _.some(discussion, m => m.subjectType === FLAG) ? [remoteData.Flags.get(_.get(_.find(discussion, m => m.subjectType === FLAG), 'subject', 0)), ...discussion] : discussion)
 	.filter(discussion => !discussion.some(x => x.subjectType === FLAG))
 
-
 export const flags = (userId, userRoles) => {
 	const pending = remoteData.Flags.pending([userId, userRoles])
-	const waiting = remoteData.Flags.waiting([userId, userRoles])	
+	const waiting = remoteData.Flags.waiting([userId, userRoles])
 	return [...pending, ...waiting]
 		.map(f => [f, ...remoteData.Messages.getFiltered({subjectType: FLAG, subject: f.id})])
 		.map(([f, ...ma]) => [f, ...ma.map(m => m.id)])
