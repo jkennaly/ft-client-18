@@ -36,7 +36,7 @@ function composeConfig(env) { /* Helper function to dynamically set runtime conf
 module.exports = config => {
 const env = {
 	mode: mode,
-	authSource: config.auth === 'local' ? 'local' : 'auth0'
+	authSource: config && config.auth === 'local' ? 'local' : 'auth0'
 }
  return {
 	mode: mode,
