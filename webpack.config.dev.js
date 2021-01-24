@@ -12,9 +12,12 @@ const auth0Prod = require('./src/services/auth0-variables.prod.json')
 const authLocalDev = require('./src/services/authLocal-variables.dev.json')
 const authLocalProd = require('./src/services/authLocal-variables.prod.json')
 
+const params = process.argv.slice(2)
+const authSource = params.includes('local') ? 'local' : 'auth0'
+
 const env = {
 	mode: mode,
-	authSource: mode === 'development' ? 'local' : 'auth0'
+	authSource: authSource
 }
 
 
@@ -29,7 +32,12 @@ function composeConfig(env) { /* Helper function to dynamically set runtime conf
 }
 
 
-module.exports = {
+module.exports = config => {
+const env = {
+	mode: mode,
+	authSource: config && config.auth === 'local' ? 'local' : 'auth0'
+}
+ return {
 	mode: env.mode,
 	entry: './src/index.jsx',
 	devtool: "inline-source-map",
@@ -123,4 +131,4 @@ module.exports = {
 		}
 ]
 	}
-};
+}}
