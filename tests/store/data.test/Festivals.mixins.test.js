@@ -26,7 +26,7 @@ const dateData = [
 			    "user": 2,
 			    "name": "Weekend 1",
 			    "venue": 1,
-			    "basedate": "2020-04-10T00:00:00.000Z",
+			    "basedate": moment().subtract(6, 'weeks').format(),
 			    "deleted": 0,
 			    "timestamp": "2019-11-03T14:43:34.000Z",
 			    "festival": 72
@@ -36,7 +36,7 @@ const dateData = [
 			    "user": 2,
 			    "name": "Weekend 2",
 			    "venue": 1,
-			    "basedate": "2020-04-17T00:00:00.000Z",
+			    "basedate": moment().subtract(5, 'weeks').format(),
 			    "deleted": 0,
 			    "timestamp": "2019-11-03T16:46:27.000Z",
 			    "festival": 72
@@ -46,7 +46,7 @@ const dateData = [
 			    "user": 2,
 			    "name": "Weekend 1A",
 			    "venue": 1,
-			    "basedate": "2020-10-09T00:00:00.000Z",
+			    "basedate": moment().add(6, 'weeks').format(),
 			    "deleted": 0,
 			    "timestamp": "2020-05-27T20:05:19.000Z",
 			    "festival": 72
@@ -56,7 +56,7 @@ const dateData = [
 			    "user": 2,
 			    "name": "Weekend 2A",
 			    "venue": 1,
-			    "basedate": "2020-10-16T00:00:00.000Z",
+			    "basedate": moment().add(7, 'weeks').format(),
 			    "deleted": 0,
 			    "timestamp": "2020-05-27T20:05:54.000Z",
 			    "festival": 72

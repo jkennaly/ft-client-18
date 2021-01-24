@@ -8,17 +8,24 @@ const webpack = require("webpack");
 
 const mode = 'production'
 
-const authDev = require('./src/services/auth0-variables.dev.json');
-const authProd = require('./src/services/auth0-variables.prod.json');
+const auth0Dev = require('./src/services/auth0-variables.dev.json');
+const auth0Prod = require('./src/services/auth0-variables.prod.json');
+const authLocalDev = require('./src/services/authLocal-variables.dev.json')
+const authLocalProd = require('./src/services/authLocal-variables.prod.json')
+
+const env = {
+	mode: mode,
+	authSource: mode === 'development' ? 'local' : 'auth0'
+}
 
 
 function composeConfig(env) { /* Helper function to dynamically set runtime config */
-  if (env === 'development') {
-    return authDev;
+  if (env.mode === 'development') {
+    return env.authSource === 'auth0' ? auth0Dev : authLocalDev
   }
 
-  if (env === 'production') {
-    return authProd;
+  if (env.mode === 'production') {
+    return env.authSource === 'auth0' ? auth0Prod : authLocalProd
   }
 }
 
@@ -61,7 +68,7 @@ module.exports = {
     	}),
     	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     	new webpack.DefinePlugin({
-			AUTH0_CONFIG: JSON.stringify(composeConfig(mode))
+			AUTH_CONFIG: JSON.stringify(composeConfig(env))
 		})
 	],
 	output: {

@@ -91,7 +91,7 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 				throw err
 			})
 			.then(authResult => _.isString(authResult) ? authResult : false)
-			//.then(x => console.log('authResult ', x) && x || x)
+			//.then(x => console.log(modelName, 'authResult ', x) && x || x)
 			/*
 			.then(authResult => { 
 				console.log('updateModel reqUrl', reqUrl)

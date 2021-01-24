@@ -107,7 +107,7 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 		}))
 		return acb
 	})
-	.catch(err => console.error('no authorize') || [0, []])
+	.catch(err => console.error('no authorize: ' + JSON.stringify(err)) || [0, []])
 	.then(user => lastUser = user)
 	.then(userDataRaw => {
 		//console.log(`route resolved`, rParams)
@@ -177,9 +177,9 @@ const App = {
 			},
 			"/callback": {
 				onmatch: () => {
-					const query = window.location.search
-        			const handling = /code/.test(query) && /state/.test(query)
-
+					const query = window.location.href.substring(window.location.href.indexOf('?'))
+        			const handling = /code/.test(query) && /state/.test(query) || /token/.test(query)
+        			//console.log('callback query', query, window.location.href)
         			if(!handling) return m.route.set('/launcher')
         			localStorage.clear()
         			return auth.handleAuthentication()
