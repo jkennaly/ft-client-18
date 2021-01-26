@@ -43,7 +43,7 @@ const classes = ({messageArray, userId, reviewer}) => {
   const ownReview = reviewer === userId
   const reviewUnread = reviewId && !ownReview && remoteData.MessagesMonitors.unread(reviewId)
 
-  return `ft-card-large ${
+  return `ft-card-large ft-subject-review-card ${
     ownReview ? 'ft-own-content' :
     !reviewUnread ? 'ft-already-read' :
   '' }`

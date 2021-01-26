@@ -19,11 +19,16 @@ export default ({days, dates, series, festivals}) => {return{
 		festivals.remoteCheck()
 
 		var updated = false
-		return this.getPromise(so.subject)
+		return this.getLocalPromise(so.subject)
+			.then(subjectData => {
+				//get to the baseMessage
+				console.log('set subjectDetails', so, subjectData)
+				return subjectData
+			})
 			.then(subjectData => days.subjectDetails({subject: subjectData.day, subjectType: DAY}))
 			.then(upd => updated = updated || upd)
 			.then(upd => {
-				console.log('set reply', upd)
+				//console.log('set reply', upd)
 				return upd
 			})
 			.catch(err => {

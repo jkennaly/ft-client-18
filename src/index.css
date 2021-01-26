@@ -30,6 +30,89 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .App {display: flex;flex-direction: column;}
 .banner-button {display: flex;flex-direction: row;justify-content: flex-end;text-align: right;}
 .banner-button svg {position: relative;}
+
+.c44-up-container {color: var(--background-color-active);}
+.c44-up-header {}
+.c44-up-content-private {}
+.c44-up-content-mixed {}
+.c44-up-mixed-public {}
+.c44-up-mixed-private {}
+
+/* borders */
+.c44-bl1ca {border-left: 1px solid var(--color-active);}
+.c44-br1ca {border-right: 1px solid var(--color-active);}
+
+
+/* colors */
+/* color: disabled */
+.c44-cd {color: var(--color-disabled);}
+/* color: active */
+.c44-ca {color: var(--color-active);}
+
+/* background color: active */
+.c44-bca {background-color: var(--background-color-active);}
+
+/* display */
+.c44-df {display: flex;}
+.c44-dn {display: none;}
+.c44-dib {display: inline-block;}
+
+/* flex */
+.c44-fais {align-items: flex-start;}
+.c44-fg1 {flex-grow: 1;}
+.c44-fjcc {justify-content: center;}
+.c44-fjcs {justify-content: flex-start;}
+.c44-fjcsa {justify-content: space-around;}
+.c44-fjcsb {justify-content: space-between;}
+.c44-asc {align-self: center;}
+.c44-fhf {display: flex;}
+.c44-fvf {display: flex;flex-direction: column;}
+
+/* font-size */
+.c44-fs-36px {font-size: 36px;}
+
+/* height */
+.c44-h-80px {height: 80px;}
+.c44-h-160px {height: 160px;}
+
+/* margin */
+.c44-mla {margin-left: auto;}
+.c44-mra {margin-right: auto;}
+
+/* offsets */
+.c44-l-0 {left: 0;}
+.c44-t-0 {top: 0;}
+.c44-r-0 {right:0;}
+.c44-b-0 {bottom:0;}
+.c44-z-10 {z-index: 10;}
+.c44-l-m50pc {left: -50%;}
+.c44-l-50pc {left: 50%;}
+
+/* overflow */
+.c44-oys {overflow-y: scroll;}
+
+/* padding */
+.c44-p-5-10 {padding: 5px 10px;}
+
+
+/* position */
+.c44-pa {position: absolute;}
+.c44-pr {position: relative;}
+
+/* text-align */
+.c44-tac {text-align: center;}
+
+/* width */
+.c44-w-100 {width: 100%;}
+.c44-w-60 {width: 60%;}
+.c44-w-480px {width: 480px;}
+.c44-w-600px {width: 600px;}
+
+
+/* tricks */
+.c44-stack {will-change: opacity}
+
+
 .collapsible-menu {display: inline-block;position: absolute;}
 .footer {height: 80px;width: 100%;}
 .form-question {align-items: center;display: flex;justify-content: space-between;padding: 0;}

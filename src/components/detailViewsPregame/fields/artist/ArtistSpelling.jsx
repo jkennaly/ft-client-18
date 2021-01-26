@@ -1,7 +1,6 @@
 // 	ArtistSpelling.jsx
 // Services
-import Auth from '../../../../services/auth.js';
-const auth = new Auth();
+import Auth from '../../../../services/auth.js'
 
 
 import m from 'mithril'
@@ -62,7 +61,6 @@ const classes = attrs => 'ft-launcher-container ' + (attrs.display ? '' : 'hidde
 const ArtistSpelling = (vnode) => { 
 	var artistId = 0
 	var artist = {}
-	var userId = 0
 	var displayName = {}
 	var otherNames = {}
 	var removeNames = {}
@@ -108,7 +106,6 @@ const ArtistSpelling = (vnode) => {
 		},
 		oninit: ({attrs}) => {
 			artistId = parseInt(m.route.param('id'), 10)
-			userId = auth.userId()
 		},
 		onupdate: vnode => {
 
@@ -154,7 +151,7 @@ const ArtistSpelling = (vnode) => {
 			/>
 			<div>Display Name Length: {displayName.children ? displayName.children.length : 'NA'}</div>
 			{displayName.children && displayName.children.length === 1 ? 
-				<UIButton action={e => captureArtistNames(displayName.children, otherNames.children, removeNames.children, artistId, userId)} buttonName="SAVE" /> :
+				<UIButton action={e => captureArtistNames(displayName.children, otherNames.children, removeNames.children, artistId, (new Auth()).userId())} buttonName="SAVE" /> :
 				<UIButton action={() => 0} buttonName="SAVE only with exactly one display name" />
 			}
 	  

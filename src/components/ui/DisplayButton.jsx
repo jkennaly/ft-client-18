@@ -7,8 +7,6 @@ import CollapsibleMenu from './CollapsibleMenu.jsx';
 import FortyButton from '../fields/buttons/FortyButton.jsx'
 
 // Services
-import Auth from '../../services/auth.js';
-const auth = new Auth();
 const validUserItem = {
 			name: 'Logout',
 			path: '/confirm/logout',

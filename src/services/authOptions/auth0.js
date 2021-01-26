@@ -60,6 +60,8 @@ var authLoad
 export default class Auth {
   
   constructor() {
+    if(authLoad) return
+    authLoad = true
     authLoad = window.mockery ? Promise.reject('mocked') : (auth00({
       domain: AUTH0_DATA.DOMAIN,
       client_id: AUTH0_DATA.CLIENTID,
@@ -76,6 +78,21 @@ export default class Auth {
         throw 'auth fail'
       }
       return status
+    })
+    .then(() => this.getFtUserId())
+    .then(id => {
+      //console.log('setting id')
+      localStorage.setItem('ft_user_id', id)
+    })
+      .then(() => auth0.getIdTokenClaims())
+      .then(claims => claims ? claims["https://festigram/roles"] : [])
+    /*
+    .then(() => this.getRoles())
+    */
+    .then(roles => userRoleCache = roles)
+    .then(roles => {
+      //console.log('setting roles')
+      localStorage.setItem('ft_user_roles', JSON.stringify(roles))
     })
     .then(() => 'authLoaded')
     .catch(err => {
@@ -136,7 +153,12 @@ export default class Auth {
             //console.log('setting id')
             localStorage.setItem('ft_user_id', id)
           })
-          .then(() => this.getRoles().then(roles => userRoleCache = roles))
+          .then(() => this.getRoles())
+          .then(roles => userRoleCache = roles)
+          .then(roles => {
+            //console.log('setting roles')
+            localStorage.setItem('ft_user_roles', JSON.stringify(roles))
+          })
           //.then(() => m.redraw())
           .then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
           .then(() => redirect)
@@ -169,14 +191,14 @@ export default class Auth {
   userId() {
     //console.log('auth userId')
     //console.log(userIdCache)
-    return userIdCache
+    return parseInt(localStorage.getItem('ft_user_id'), 10)
   }
 
 
   userRoles() {
     //console.log('auth userId')
     //console.log(userIdCache)
-    return userRoleCache
+    return JSON.parse(localStorage.getItem('ft_user_roles'))
   }
 
   //returns a promise that resolves to a userIdCache

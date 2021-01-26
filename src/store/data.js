@@ -90,6 +90,7 @@ import messageMonitor from './list/mixins/relations/messageMonitor'
 import intent from './list/mixins/relations/intent'
 import interact from './list/mixins/relations/interact'
 import interactOptions from './list/mixins/relations/interactOptions'
+import recent from './list/mixins/relations/recent'
 import merge from './list/mixins/remote/merge'
 import subjectDetails from './list/mixins/remote/details/subject'
 import artistDetails from './list/mixins/remote/details/artist'
@@ -391,7 +392,8 @@ Object.assign(users,
 	userName,
 	messageEventConnections,
 	subjectDetails,
-	interactOptions(interactions)
+	interactOptions(interactions),
+	recent(messages)
 )
 Object.assign(flags,
 	getPromise,

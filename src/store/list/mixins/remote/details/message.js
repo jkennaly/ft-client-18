@@ -25,6 +25,7 @@ export default (subjects) => {return {
 		return this.getLocalPromise(so.subject)
 			.then(subjectData => {
 				//get to the baseMessage
+				//console.log('message subjectDetails', so, subjectData)
 				if(subjectData.subjectType !== MESSAGE) return subjectData
 					if(!subjectData.baseMessage) throw new Error(`expected baseMessage: ${subjectData}`)
 				return this.getLocalPromise(subjectData.baseMessage)
@@ -43,7 +44,7 @@ export default (subjects) => {return {
 				]}})
 				//console.log('subjectDetails typeString', typeString)
 				return Promise.all([
-					subjects[typeString].getLocalPromise(baseMessage.subject),
+					subjects[typeString].subjectDetails(baseMessage),
 					this.acquireListSupplement(messQuery)
 						.then(upd => updated = updated || upd)
 				])

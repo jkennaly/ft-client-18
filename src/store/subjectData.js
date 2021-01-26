@@ -8,7 +8,6 @@ import {reqOptionsCreate, tokenFunction} from '../services/requests.js'
 import {timeStampSort} from '../services/sorts.js'
 import {sameSubject} from '../services/subjectFunctions';
 import Auth from '../services/auth.js'
-const auth = new Auth()
 
 const subjectDataField = type => {return _.get({
 	'13': 'Flags',
@@ -585,7 +584,7 @@ export const subjectData = {
 
 		const dataField = remoteData[subjectDataField(subjectObject.subjectType)]
 		//get the raw data
-		const bulkUpdatePromise = auth.getAccessToken()
+		const bulkUpdatePromise = (new Auth()).getAccessToken()
 			.then(token => m.request(reqOptionsCreate(tokenFunction(token))(end, 'GET')()))
 			.then(result => result.data)
 			.then(dataField.backfillList)
@@ -644,7 +643,7 @@ export const subjectData = {
 		const subStrings = [
 			primaryField.getTimeString && primaryField.find(subjectObject.subject) ? primaryField.getTimeString(subjectObject.subject) : ''
 		].filter(x => x)
-		const subjectRating = subjectData.ratingBy(subjectObject.subject, subjectObject.subjectType, auth.userId())
+		const subjectRating = subjectData.ratingBy(subjectObject.subject, subjectObject.subjectType, (new Auth()).userId())
 		//checkin is allowed if subject is:
 			//a series/festival/date with an ongoing date (checked in stored at date)
 			//an ongoing day (also checkins to date if not already)
@@ -677,7 +676,7 @@ export const subjectData = {
 
 		][subjectObject.subjectType]
 		const checkinAllowed = primaryField[eventActive[subjectObject.subjectType]](subjectObject.subject)
-		const lastCheckin = checkinAllowed && remoteData.Messages.lastCheckin(auth.userId())
+		const lastCheckin = checkinAllowed && remoteData.Messages.lastCheckin((new Auth()).userId())
 		//console.log('SetDetail lastCheckin', lastCheckin)
 		const checkedIn = checkinAllowed && subjectObject.subject === lastCheckin.subject && subjectObject.subjectType === lastCheckin.subjectType
 
@@ -724,8 +723,8 @@ export const subjectData = {
 		*/
 
 
-		const myReviews = reviews.filter(r => r.author === auth.userId())
-		const friendReviews = reviews.filter(r => r.author !== auth.userId())
+		const myReviews = reviews.filter(r => r.author === (new Auth()).userId())
+		const friendReviews = reviews.filter(r => r.author !== (new Auth()).userId())
 		const detailObject = {
 			name: name,
 			subStrings: subStrings,

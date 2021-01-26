@@ -1,7 +1,5 @@
 // src/components/layout/Research.jsx
 // Services
-import Auth from '../../services/auth.js';
-const auth = new Auth();
 
 
 import m from 'mithril'

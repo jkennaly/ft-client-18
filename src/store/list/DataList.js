@@ -175,7 +175,13 @@ DataList.prototype.acquireListSupplement = function(queryString, url, simRespons
 		.then((list) => {if(_.isArray(list)) this.backfillList(list);})
 		.then(() => updated)
 }
+DataList.prototype.lbfilter = function(filter) { 
+	const end = `/api/${this.fieldName}?filter=${JSON.stringify(filter)}`
+	//console.log('lbfilter ' + this.fieldName)
+	//console.log(data)
+	return provide(undefined, this.fieldName, '', end, 'GET')
 
+} 
 DataList.prototype.maintainList = function(filterObject) {
 	if(!this) throw new Error("Invalid DataList call maintainList")
 	return this.acquireListSupplement(`filter=${JSON.stringify(filterObject)}`)

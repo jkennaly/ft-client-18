@@ -12,8 +12,6 @@ import {remoteData} from '../../../store/data';
 import {subjectData} from '../../../store/subjectData';
 import {sameSubject} from '../../../services/subjectFunctions';
 import ToggleControl from '../ToggleControl.jsx';
-import Auth from '../../../services/auth.js'
-const auth = new Auth()
 
 const {Messages: messages} = remoteData
 

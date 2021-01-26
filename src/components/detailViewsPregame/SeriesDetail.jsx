@@ -4,8 +4,6 @@
 import m from 'mithril'
 import _ from 'lodash'
 // Services
-import Auth from '../../services/auth.js';
-const auth = new Auth();
 
 
 import CardContainer from '../../components/layout/CardContainer.jsx';

@@ -28,6 +28,7 @@ import LauncherBanner from '../../components/ui/LauncherBanner.jsx';
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import ConfirmLogout from '../../components/layout/ConfirmLogout.jsx';
 import SeriesView from '../../components/cardViews/SeriesView.jsx';
+import UserView from '../../components/cardViews/UserView.jsx';
 import UIButton from '../../components/ui/UIButton.jsx';
 
 import SeriesDetail from '../../components/detailViewsPregame/SeriesDetail.jsx';
@@ -36,6 +37,7 @@ import DateDetail from '../../components/detailViewsPregame/DateDetail.jsx';
 import DayDetail from '../../components/detailViewsPregame/DayDetail.jsx';
 import SetDetail from '../../components/detailViewsPregame/SetDetail.jsx';
 import ArtistDetail from '../../components/detailViewsPregame/ArtistDetail.jsx';
+import UserDetail from '../../components/detailViewsPregame/UserDetail.js';
 
 import CreateSeries from '../../components/createFestivals/series/createSeries.jsx';
 import CreateFestival from '../../components/createFestivals/festivals/createFestival.jsx';
@@ -274,6 +276,14 @@ const App = {
 						console.error(err)
 					})
 			},
+			"/users/pregame": {
+				onmatch: (routing) => {
+
+					//remoteData.Users.recent(10)
+
+					return authorize(UserView, UserView) (routing)
+				}
+			},
 			"/series/pregame": {
 				onmatch: (routing) => {
 
@@ -332,7 +342,7 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 			"/users/pregame/:id": {
-				onmatch: SeriesDetail
+				onmatch: authorize(UserDetail, UserDetail)
 			},
 			"/artists/pregame/:id": {
 			 	onmatch: (routing) => {

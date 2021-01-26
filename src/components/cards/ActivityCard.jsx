@@ -42,7 +42,7 @@ const classes = ({messageArray, userId, discusser}) => {
   const ownReview = userId && discusser === userId
   const reviewUnread = reviewId && !ownReview && remoteData.MessagesMonitors.unread(reviewId)
   //console.log('ActivityCard classes', userId, ownReview, reviewUnread, reviewMessage)
-  return `ft-card-large ${
+  return `ft-card-large ft-activity-card ${
     ownReview ? 'ft-own-content' :
     !reviewUnread ? 'ft-already-read' :
   '' }`

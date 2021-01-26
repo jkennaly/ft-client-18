@@ -5,7 +5,6 @@
 
 
 import Auth from '../../../services/auth.js'
-const auth = new Auth()
 
 import m from 'mithril'
 
@@ -25,7 +24,7 @@ const IntentToggle = {
 				remoteData.Intentions[intentionMethod](attrs.subjectObject)
 			}}
 			permission={attrs.permission}
-			unauth={auth.login}
+			unauth={(new Auth()).login}
 
 		/>
 }
