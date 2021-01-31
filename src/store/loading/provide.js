@@ -16,7 +16,7 @@ const formBase = {
 	//'Content-Type': 'multipart/form-data'
 }
 import Auth from '../../services/auth.js'
-const auth = new Auth()
+const auth = Auth
 const authOnly = [
 
 'MessagesMonitors',

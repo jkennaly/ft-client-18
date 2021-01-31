@@ -1,7 +1,7 @@
 // src/components/layout/Admin.jsx
 // Services
 import Auth from '../../services/auth.js';
-const auth = new Auth();
+const auth = Auth;
 
 
 import m from 'mithril'

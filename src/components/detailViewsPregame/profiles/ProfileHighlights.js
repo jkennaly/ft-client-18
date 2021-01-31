@@ -14,7 +14,7 @@ const ProfileHighlights = {
 	//oncreate: console.log('Launched'),
 	//onupdate: () => console.log('ProfileHighlights update'),
 	view: ({attrs}) => 
-        m('.c44-h-160px.c44-w-480px.c44-tac.c44-ca.c44-l-0.c44-r-0.c44-b-0.c44-mla.c44-mra.c44-fvf.c44-fjcsa', {},
+        m('.c44-h-m160px.c44-w-480px.c44-tac.c44-ca.c44-l-0.c44-r-0.c44-b-0.c44-mla.c44-mra.c44-fvf.c44-fjcsa', {},
             m('h1.c44-pr', {}, 
                 _.get(attrs, 'userData.name', 'User Name')
             ),

@@ -88,24 +88,42 @@ DataList.prototype.replaceList = function(data) {
 	return list
 }
 
-DataList.prototype.backfillList = function(list, localEntry = false) {
+DataList.prototype.backfilling = function() {
+	var baseline = Promise.resolve(true)
+	return promise => {
+		if (!promise) return baseline
+		baseline = promise
+	}
+}()
+
+DataList.prototype.backfillList = function(list, localEntry  = false) {
 	if(!this) throw new Error("Invalid DataList call backfillList")
 	if(!_.isArray(list)) throw new Error("Invalid list backfill")
 	const changed = li => {
 		if(!li) return false
 		const cv = this.get(li.id)
-		const alreadyDeleted = li.deleted && !cv
-		const same = alreadyDeleted || _.eq(cv, li)
+		//console.log('backfillList changed', li, cv)
+		const same = cv && _.eq(cv, li)
 		return !same
 	}
-	const dataChange = list.some(changed)
-	this.lastRemoteLoad = localEntry ? this.lastRemoteLoad : Date.now()
-	this.lastRemoteCheck = localEntry ? this.lastRemoteCheck : Date.now()
-	if(!dataChange) return list
-	this.list = _.unionBy(list.filter(changed), this.list, 'id').filter(m => !m.deleted)
-	this.setMeta(calcMeta(this.list))
-	m.redraw()
-	return list
+	const backfillQ = this.backfilling()
+		.then(() => {
+			//console.log('backfillList new, old', list.map(x => x.id), this.list.map(x => x.id))
+			const dataChange = list.some(changed)
+			this.lastRemoteLoad = localEntry ? this.lastRemoteLoad : Date.now()
+			this.lastRemoteCheck = localEntry ? this.lastRemoteCheck : Date.now()
+			if(!dataChange) return list
+			this.list = _.unionBy(list.filter(changed), this.list, 'id').filter(m => !m.deleted)
+			this.setMeta(calcMeta(this.list))
+			return list
+		})
+		.then(list => {
+			m.redraw()
+			return list
+		})
+		.catch(err => console.log(err))
+	this.backfilling(backfillQ)
+	return backfillQ
 }
 
 DataList.prototype.clear = function() {
@@ -150,30 +168,46 @@ DataList.prototype.remoteCheck = function(force = false, simResponse) {
 
 DataList.prototype.acquireListUpdate = function(queryString, url, simResponse) {
 	if(!this) throw new Error("Invalid DataList call acquireListUpdate")
-		var updated = false
 		//console.log('acquireListUpdate fieldName, queryString, url', this.fieldName, queryString, url)
 	return updateModel(this.fieldName, queryString, url, simResponse)
-		.then((upd) => {if(updated = upd) return getList(this.fieldName);})
-		.then((list) => {if(_.isArray(list)) this.replaceList(list);})
-		.then(() => updated)
+		.then(([upd, newData]) => {
+			if(_.isArray(newData)) this.replaceList(newData)
+			return upd
+		})
 }
 
 var supCache = {}
+var supCachePromises = {}
 
 DataList.prototype.acquireListSupplement = function(queryString, url, simResponse) {
+	//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
 	if(!this) throw new Error("Invalid DataList call acquireListSupplement")
 		//check if we have run this query before and the cahce is still good
 	const key = `${this.fieldName}.${queryString}.${url}`
 	const maxAge = this.remoteInterval * 1000
 	const cacheGood = _.get(supCache, key, 0) + maxAge > Date.now()
-	if(cacheGood) return Promise.resolve(false)
+	if(cacheGood) return _.get(supCachePromises, key, false)
 	_.set(supCache, key, Date.now())
 		var updated = false
-		//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
-	return updateModel(this.fieldName, queryString, url, simResponse)
-		.then((upd) => {if((updated = upd) && !simResponse) return getList(this.fieldName);})
-		.then((list) => {if(_.isArray(list)) this.backfillList(list);})
-		.then(() => updated)
+	//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
+	const updPromise = updateModel(this.fieldName, queryString, url, simResponse)
+	/*
+		.then(upd => {
+			if(upd) m.redraw()
+			return upd
+		})
+		.then(upd => {
+			console.log(this.fieldName, 'acquireListSupplement', upd, this.list, queryString, url)
+			return upd
+		})
+		*/
+		.then(([upd, newData]) => {
+			if(_.isArray(newData)) this.backfillList(newData)
+			return upd
+		})
+		
+	_.set(supCachePromises, key, updPromise)
+	return updPromise
 }
 DataList.prototype.lbfilter = function(filter) { 
 	const end = `/api/${this.fieldName}?filter=${JSON.stringify(filter)}`

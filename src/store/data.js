@@ -4,7 +4,7 @@ import _ from 'lodash'
 import m from 'mithril'
 // Services
 import Auth from '../services/auth.js';
-const auth = new Auth();
+const auth = Auth;
 
 import {getList} from './loading/enlist'
 import {coreCheck} from './loading/acquire'

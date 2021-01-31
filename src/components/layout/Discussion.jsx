@@ -1,7 +1,7 @@
 // src/components/layout/Discussion.jsx
 // Services
 import Auth from '../../services/auth.js';
-const auth = new Auth();
+const auth = Auth;
 
 
 import m from 'mithril'

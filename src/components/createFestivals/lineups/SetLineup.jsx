@@ -1,7 +1,7 @@
 // 	src/components/createFestivals/lineups/SetLineup.jsx
 // Services
 import Auth from '../../../services/auth.js';
-const auth = new Auth();
+const auth = Auth;
 
 
 

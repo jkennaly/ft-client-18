@@ -110,6 +110,8 @@ const jsx = () => {
 		</div>
 }}
 
+var subjectPromise = {} 
+
 const ArtistDetail = {
 		preload: (rParams) => {
 			//if a promise returned, instantiation of component held for completion
@@ -118,13 +120,13 @@ const ArtistDetail = {
 			messagesMonitors.remoteCheck(true)
 			//messages.forArtist(artistId)
 			//console.log('Research preload', seriesId, festivalId, rParams)
-			if(artistId) return artists.subjectDetails({subject: artistId, subjectType: ARTIST})
+			subjectPromise[artistId] = artists.subjectDetails({subject: artistId, subjectType: ARTIST})
 		},
 		oninit: ({attrs}) => {
 			//console.log('ArtistDetail init', _.keys(attrs))
 			const artistId = parseInt(attrs.id, 10)
 			if (attrs.titleSet) attrs.titleSet(artist(artistId) ? artist(artistId).name : '')
-
+			return subjectPromise[artistId]
 		},
 	oncreate: ({dom}) => {
 		const height = dom.clientHeight
@@ -135,17 +137,18 @@ const ArtistDetail = {
 
 	},
 		view: ({attrs}) => {
+			/*
 			const activeDateSets = remoteData.Sets.getFiltered({band: attrs.artistId})
 				.filter(s => remoteData.Dates.active(remoteData.Days.getDateId(s.day)))
-				
-
+				*/
+			//console.log('ArtistDetail view', parseInt(m.route.param('id'), 10), artists.get(parseInt(m.route.param('id'), 10)))
 			const mapping = {
 				userId: attrs.userId,
 				userRoles: attrs.userRoles,
 				popModal: attrs.popModal,
 				artistId: parseInt(m.route.param('id'), 10),
 				artist: artists.get(parseInt(m.route.param('id'), 10)),
-				sets: activeDateSets
+				//sets: activeDateSets
 			}
 			return m(jsx, mapping)
 		}

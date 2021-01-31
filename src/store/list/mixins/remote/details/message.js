@@ -23,12 +23,17 @@ export default (subjects) => {return {
 		var updated = false
 
 		return this.getLocalPromise(so.subject)
+			.then(([subjectData, upd]) => {
+				updated = updated || upd
+				return subjectData
+			})
 			.then(subjectData => {
 				//get to the baseMessage
 				//console.log('message subjectDetails', so, subjectData)
 				if(subjectData.subjectType !== MESSAGE) return subjectData
 					if(!subjectData.baseMessage) throw new Error(`expected baseMessage: ${subjectData}`)
 				return this.getLocalPromise(subjectData.baseMessage)
+				.then(([subjectData, upd]) => subjectData)
 			})
 			.then(baseMessage => {
 				const typeString = subjectDataField(baseMessage.subjectType).toLowerCase()

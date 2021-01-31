@@ -97,7 +97,8 @@ export default class Auth {
     .then(() => 'authLoaded')
     .catch(err => {
       if(err.error === 'login_required') {
-        clean()
+        const lastId = localStorage.getItem('ft_user_id')
+        if(lastId) clean()
         return
       } 
       err !== 'mocked' && console.error('auth0 instantiantion failed', err)
@@ -267,6 +268,10 @@ export default class Auth {
 
     if(accessTokenPromiseCache.then) return accessTokenPromiseCache
     accessTokenPromiseCache = authLoad
+      .then(() => this.isAuthenticated())
+      .then(authd => {
+        if(!authd) throw new Error('no auth, no token')
+      })
       .then(() => this.getValidToken())
       .catch(err => accessTokenPromiseCache = {})
     return accessTokenPromiseCache

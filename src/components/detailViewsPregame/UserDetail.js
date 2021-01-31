@@ -2,12 +2,20 @@
 import m from 'mithril'
 import Profile from './profiles/Profile'
 import bites from '../../services/bites'
+import nextFestival from '../../services/bites/user/events/nextFestival'
+import favArtists from '../../services/bites/user/favorites/favArtists'
+import mostDiscussed from '../../services/bites/user/counts/mostDiscussed'
 
 import {remoteData} from '../../store/data';
 import {subjectData} from '../../store/subjectData';
 
 const {
-	Users: users
+	Users: users,
+	Intentions: intentions,
+	Festivals: festivals,
+	Artists: artists,
+	Sets: sets,
+	Messages: messages
 } = remoteData
 
 const UserDetail = { 
@@ -39,19 +47,9 @@ const UserDetail = {
 				}
 			],
 			mixed: [
-				{
-					name: 'Favorite Thing',
-					value: 'Fantastic Thing',
-					public: true
-				},
-				{
-					name: 'Secretly Favorite Thing',
-					value: 'George Michael',
-					public: false
-				},
-				{
-
-				}
+				nextFestival(attrs.id, intentions, festivals),
+				mostDiscussed(attrs.id, messages),
+				favArtists(attrs.id, artists, sets, messages)
 			],
 			userData: {
 				name: users.get(attrs.id).username,

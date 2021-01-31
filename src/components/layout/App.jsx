@@ -52,7 +52,7 @@ import FixArtist from '../../components/createFestivals/lineups/FixArtist.jsx';
 
 // Services
 import Auth from '../../services/auth.js';
-const auth = new Auth();
+const auth = Auth;
 
 
 const WelcomeView = ({attrs}) => [

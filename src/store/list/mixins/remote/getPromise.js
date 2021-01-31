@@ -12,14 +12,17 @@ export default {
 		if(!_.isInteger(id)) {
 			throw new Error('Invalid getPromise id', id)
 		}
-
+		//console.log(this.fieldName, 'getPromise start', id)
 		//get subjectData from the model, loading from the server if needed
 		//const get = this.get(id)
 		//if(get) return Promise.resolve(get)
 		const end = `/api/${this.fieldName}/${id}`
 		//for each subject Type, collect detail information
 
-		return this.acquireListSupplement(`filter=${JSON.stringify({where: {id: id}})}`)
+		return Promise.resolve(true)
+			//.then(() => this.fieldName === 'Profiles' ? console.log('getting Promise', id) : '')
+			.then(() => this.acquireListSupplement(`filter=${JSON.stringify({where: {id: id}})}`))
+			
 		/*
 			.then(upd => {
 				if(!this.secDataPromise) return upd
@@ -35,6 +38,7 @@ export default {
 				const get = this.get(id)
 				//if(!get && !upd && this.fieldName !== 'Profiles') throw new Error(`no instance found ${this.fieldName} id:${id} ${typeof id}`)
 				//if(!get && this.fieldName !== 'Profiles') throw new Error(`no instance loaded ${this.fieldName} id:${id} ${typeof id} first:`, this.list[0])
+				//if(this.fieldName === 'Profiles') console.log(this.fieldName, 'getPromise', upd, id, this.list)
 				return get ? get : undefined
 			})
 			.catch(err => {
@@ -57,9 +61,9 @@ export default {
 		const end = `/api/${this.fieldName}/${id}`
 		//for each subject Type, collect detail information
 		const current = this.get(id)
-		if(current) return Promise.resolve(current)
+		if(current) return Promise.resolve([current, false])
 
-		return this.getPromise(id)
+		return Promise.all([this.getPromise(id), true])
 
 	},
 	getManyPromise (ids) {

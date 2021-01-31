@@ -29,6 +29,7 @@ const SearchBar = vnode => {
 	const searchObject = {
 		setResults: function(pattern) {
 			rawArtists(pattern)
+			.then(artists => console.log('setResults artists', pattern, artists) || artists)
 				.then(artists => {
 					const series = rawSeries(pattern)
 					const seriesItems = series.map(s => {return {
@@ -44,6 +45,7 @@ const SearchBar = vnode => {
 					menuItems = [...seriesGroup, ...artistGroup]
 				})
 				.then(() => m.redraw())
+				.catch(console.log)
 		},
 		getResults: function() {
 			if(menuItems.length) menuHidden = false

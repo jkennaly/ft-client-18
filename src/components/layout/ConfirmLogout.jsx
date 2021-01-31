@@ -2,7 +2,7 @@
 
 import m from 'mithril'
 import Auth from '../../services/auth.js';
-const auth = new Auth();
+const auth = Auth;
 
 import UIButton from '../ui/UIButton.jsx'
 

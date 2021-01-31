@@ -16,9 +16,8 @@ const UserAvatarField = vnode => {
 			}),
 		view: ({ attrs }) => <div 
 			class="ft-horizontal-fields" 
-			onclick={() => console.log('UserAvatarField clicked')}
-			//onclick={attrs.itemClicked ? attrs.itemClicked : () => m.route.set(`/users/pregame/${attrs.data}`)}
-			>
+			onclick={attrs.itemClicked ? attrs.itemClicked : () => m.route.set(`/users/pregame/${attrs.data}`)
+		}>
 		{ attrs.data ? <div>
 			<img class="ft-user-avatar-image" src={remoteData.Users.getPic(attrs.data)} />
 			<div class="ft-vertical-fields">

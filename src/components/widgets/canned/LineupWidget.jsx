@@ -10,7 +10,7 @@ import _ from 'lodash'
 import smartSearch from 'smart-search'
 // Services
 import Auth from '../../../services/auth.js';
-const auth = new Auth();
+const auth = Auth;
 
 import ArtistCard from '../../../components/cards/ArtistCard.jsx';
 import SearchCard from '../../../components/cards/SearchCard.jsx';

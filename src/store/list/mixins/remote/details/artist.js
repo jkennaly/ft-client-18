@@ -23,6 +23,10 @@ export default ({artists, dates, sets, messages}, lineups, images, artistAliases
 		const setIdsPresent = sets.getFiltered(s => s.band === so.subject)
 			.map(s => s.id)
 		return this.getLocalPromise(so.subject)
+			.then(([subjectData, upd]) => {
+				updated = updated || upd
+				return subjectData
+			})
 			.then(subjectData => {
 				//lineups
 				const lineEnd = `/api/Lineups`

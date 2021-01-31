@@ -5,6 +5,7 @@
 import _ from 'lodash'
 
 var lastUpdate = {}
+var lastPromise = {}
 export default ({artists, days, sets, messages, series, festivals, venues, places}, lineups, intentions) => { return {
 	subjectDetails (so) {
 		if(!so || !so.subjectType || !so.subject) {
@@ -24,10 +25,21 @@ export default ({artists, days, sets, messages, series, festivals, venues, place
 		const updateTimeElapsed = Date.now() - _.get(lastUpdate, key, 0)
 		var updated = false
 		//return if less than 5 minutes elapsed
-		if(updateTimeElapsed < 5 * 60 * 1000) return Promise.resolve(updated)
+		//console.log('date subjectDetails', updateTimeElapsed, updateTimeElapsed < 5 * 60 * 1000, _.get(lastPromise, key))
+		if((updateTimeElapsed < 5 * 60 * 1000) && _.get(lastPromise, key)) return _.get(lastPromise, key, (() => Promise.reject('cache inconsistent ' + key)()))
+		if(updateTimeElapsed < 5 * 60 * 1000) return new Promise((resolve, reject) => {
+		    setTimeout(() => {
+		        resolve(this.subjectDetails(so))
+		    }, 1 * 1000)
+		})
 		_.set(lastUpdate, key, Date.now())
 
-		return this.getLocalPromise(so.subject)
+		const p = this.getLocalPromise(so.subject)
+			.then(([subjectData, upd]) => {
+				updated = updated || upd
+				//console.log('date subjectDetails getLocalPromise resolved', subjectData, upd)
+				return subjectData
+			})
 			.then(subjectData => {
 				series.remoteCheck(true)
 				festivals.remoteCheck(true)
@@ -69,10 +81,16 @@ export default ({artists, days, sets, messages, series, festivals, venues, place
 				])
 			})
 			.then(() => updated)
+			.then(upd => {
+				//console.log('date reply', upd)
+				return upd
+			})
 			.catch(err => {
 				console.log('this subjectDetails Promise.all')
 				console.log(err)
 			})
+		_.set(lastPromise, key, p)
+		return p
 
 		}
 }}

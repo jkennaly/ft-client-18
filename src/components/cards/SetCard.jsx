@@ -17,12 +17,20 @@ const {Sets: sets} = remoteData
 const currentSet = id => sets.get(id)
 const setIdField = (field, id) => currentSet(id) ? currentSet(id)[field] : 0
 
+var detailsLoaded = {} 
+
 const SetCard = {
+  oninit: (vnode) => {
+    const id = vnode.attrs.subjectObject.subject
+    return sets.subjectDetails(vnode.attrs.subjectObject)
+      .then(upd => detailsLoaded[id] = true)
+  },
   view: ({ attrs }) =>
     <div class={"ft-card ft-card-set " + (attrs.uiClass ? attrs.uiClass : '')} onclick={() => m.route.set('/gametime/3/' + attrs.subjectObject.subject)}>
+      {!detailsLoaded[attrs.subjectObject.subject] ? '' : <div>
       <div class="ft-set-name-fields">
        {
-        //console.log('SetCard', attrs)
+        //console.log('SetCard', attrs, detailsLoaded)
      }
       <NameField fieldValue={subjectData.name(attrs.subjectObject)} />
       <AverageRatingField ratingObject={subjectData.ratingObject(attrs.subjectObject, attrs.userID)}/>
@@ -36,6 +44,7 @@ const SetCard = {
         <StageNameField stageId={setIdField('stage', attrs.subjectObject.subject)} />
 
       </div>
+      </div>}
     </div>
 };
 

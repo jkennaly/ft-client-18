@@ -89,16 +89,12 @@ const ActivityCard = vnode => {
             </div>}
           </div>
           <div class="ft-horizontal-fields ft-flex-grow">
-            <div class="ft-vertical-fields ft-card-above-overlay">
-              <UserAvatarField data={attrs.discusser} itemClicked={e => {
-                attrs.popModal('option', {
-                  headerCard: <UserCard 
-                    contextObject={{subjectType: USER, subject: attrs.discusser}} 
-                    data={remoteData.Users.get(attrs.discusser)} 
-                    small={true}
-                  />,
-                  options: remoteData.Users.interactOptions(attrs.discusser)
-              })}} />
+            <div class="ft-vertical-fields ft-card-above-overlay" onclick={e => {
+            //console.log('span click', attrs.discusser); 
+            e.stopPropagation(); 
+            m.route.set(`/users/pregame/${attrs.discusser}`)
+          }}>
+              <UserAvatarField data={attrs.discusser} itemClicked={e => {}} />
               {attrs.rating ? <AverageRatingField averageRating={attrs.rating} /> : ''}
               <span>{year(attrs)}</span>
             </div>

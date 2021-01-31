@@ -52,6 +52,7 @@ const Gametime = {
 			if(dateId) return dates.subjectDetails({subject: dateId, subjectType: DATE})
 		},
 	view: ({attrs}) => {
+		if(!attrs.userId) return m.route.set('/--')
 		//console.log('gametime attrs', attrs)
 		const mapping = {
 			dateId: attrs.subjectType === 8 ? attrs.subject :

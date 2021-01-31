@@ -114,7 +114,7 @@ const jsx = function({attrs}) {
 }}
 
 const ImageModal = {
-	oninit: () => console.log('img modal'),
+	//oninit: () => console.log('img modal'),
 	view: ({attrs}) => {
 		const licenses = _.uniqBy(images.getFiltered(x => true), 'licenseUrl')
 		const mapping = {

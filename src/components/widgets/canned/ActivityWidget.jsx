@@ -12,7 +12,7 @@ import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.m
 
 // Services
 import Auth from '../../../services/auth';
-const auth = new Auth();
+const auth = Auth;
 
 import ActivityCard from '../../../components/cards/ActivityCard.jsx';
 import SearchCard from '../../../components/cards/SearchCard.jsx';

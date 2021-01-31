@@ -21,6 +21,10 @@ export default (messages) => { return {
 		var updated = false
 
 		return this.getLocalPromise(so.subject)
+			.then(([subjectData, upd]) => {
+				updated = updated || upd
+				return subjectData
+			})
 			.then(subjectData => {
 				//direct messages
 				const skipIds = messages

@@ -79,15 +79,22 @@ const SubjectReviewCard = vnode => {
             { attrs.reviewer === attrs.userId ? deleteOwn(attrs) : ''}
         </div>
       <div class="ft-horizontal-fields">
+      
+        <div class="ft-vertical-fields" onclick={e => {
+            //console.log('span click', attrs.reviewer); 
+            e.stopPropagation(); 
+            m.route.set(`/users/pregame/${attrs.reviewer}`)
+          }}>
+          <UserAvatarField data={attrs.reviewer} itemClicked={() => {}} />
+          <AverageRatingField averageRating={rating(attrs)} />
+          <span>{year(attrs)}</span>
+        </div>
+
+      <div class="ft-horizontal-fields c44-fg1">
       {attrs.overlay === 'discuss' && attrs.discussSubject && attrs.messageArray ? <DiscussOverlay 
         discussSubject={attrs.discussSubject}
         messageArray={attrs.messageArray}
       /> : ''}
-        <div class="ft-vertical-fields">
-          <UserAvatarField data={attrs.reviewer} />
-          <AverageRatingField averageRating={rating(attrs)} />
-          <span>{year(attrs)}</span>
-        </div>
           <span onclick={e => {
             //console.log('span click'); 
             e.stopPropagation(); 
@@ -96,6 +103,7 @@ const SubjectReviewCard = vnode => {
           }}>
             {!attrs.shortDefault || showLong || !comment(attrs) ? _.get(comment(attrs), 'content', '') : _.get(comment(attrs), 'content', '').substring(0, 50) + '...(+expand)'}
           </span>
+          </div>
       </div>
       </div>
       </div>

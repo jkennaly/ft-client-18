@@ -1,18 +1,7 @@
-// src/components/cards/ArtistCard.jsx
+// src/components/layout/MainStage.jsx
 
 import m from 'mithril'
 
-import  ComposedNameField from '../fields/ComposedNameField.jsx';
-import  NameField from '../fields/NameField.jsx';
-import  CircleNail from '../fields/CircleNail.jsx';
-import  ResearchOverlay from '../cardOverlays/ResearchOverlay.jsx'
-import {remoteData} from '../../store/data';
-
-
-const {Artists: artists} = remoteData
-
-
-const defaultClick = attrs => () => m.route.set("/artists" + "/pregame" + '/' + attrs.data.id)
 
 const jsx = {
   //oninit: ({attrs}) => remoteData.Artists.getLocakPromise(attrs.data.id).catch(console.error),
@@ -42,24 +31,14 @@ const jsx = {
   </div>
     
 };
-const ArtistCard = {
-  oninit: (vnode) => {
-    return vnode.attrs.subjectObject && artists.subjectDetails(vnode.attrs.subjectObject)
-  },
+const WidgetAccordion = {
   view: ({ attrs }) => {
-    //console.log('ArtistCard attrs', attrs)
+    //console.log('WidgetAccordion attrs', attrs)
     const mapping = {
-      uiClass: attrs.uiClass,
-      subjectObject: attrs.subjectObject,
-      data: artists.get(attrs.subjectObject ? attrs.subjectObject.subject : attrs.data ? attrs.data.id : {}),
-      festivalId: attrs.festivalId,
-      reviewSubject: attrs.reviewSubject,
-      overlay: attrs.overlay,
-      clickFunction: attrs.clickFunction
+      
     }
     return m(jsx, mapping)
   }
 }
 
-
-export default ArtistCard;
+export default WidgetAccordion

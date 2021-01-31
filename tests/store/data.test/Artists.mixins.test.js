@@ -32,24 +32,35 @@ o.spec("store/data Artist Mixin methods", function() {
 
     //appendable
     o.spec("appendable", function() {
-    	o('append', function(){
+    	o('append', function(done){
 	    	const [ a, ...restArtists ] = validData
+	    	artists.clear()
 	    	artists.replaceList(restArtists)
 	        const targetArtists = validData.sort((a, b) => a.id -b.id)
 	        artists.append(a)
-	        const gotArtists = artists.getFiltered(a => true).sort((a, b) => a.id -b.id)
-	        o(targetArtists).deepEquals(gotArtists) `getMany data objects`
+	        	.then(() => {
+			        const gotArtists = artists.getFiltered(a => true).sort((a, b) => a.id -b.id)
+			        o(targetArtists).deepEquals(gotArtists) `getMany data objects`
+
+	        	})
+	        	.then(done)
+	        	.catch(done)
     	})
     })
 
     //named
     o.spec("named", function() {
-    	o('getName', function(){
+    	o('getName', function(done){
 	    	artists.clear()
 	    	const [ a, ...restArtists ] = validData
 	        artists.append(a)
-	        const name = artists.getName(a.id)
-	        o(name).deepEquals(a.name) `getName data objects`
+	        	.then(() => {
+			        const name = artists.getName(a.id)
+			        o(name).deepEquals(a.name) `getName data objects`
+
+	        	})
+	        	.then(done)
+	        	.catch(done)
     	})
     })
 

@@ -10,7 +10,7 @@ localforage.config({
 import archive from './archive'
 import {tokenFunction} from '../../services/requests.js'
 import Auth from '../../services/auth.js'
-const auth = new Auth()
+const auth = Auth
 
 //core
 /*
@@ -138,8 +138,11 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 
 		.then(item => _.isArray(item) ? item : [])
 	return Promise.all([resultChain, localChain])
-		.then(([newData, oldData]) => {if(updated) return _.unionBy(newData, oldData, 'id');})
-		.then(data => {if(data) return setModel(data);})
-		.then(() => updated)
+		.then(([newData, oldData]) => [_.unionBy(newData, oldData, 'id'), newData])
+		.then(([data, newData]) => {
+			setModel(data)
+			return data
+		})
+		.then(data => [updated, data])
 }
 

@@ -151,7 +151,7 @@ const ArtistSpelling = (vnode) => {
 			/>
 			<div>Display Name Length: {displayName.children ? displayName.children.length : 'NA'}</div>
 			{displayName.children && displayName.children.length === 1 ? 
-				<UIButton action={e => captureArtistNames(displayName.children, otherNames.children, removeNames.children, artistId, (new Auth()).userId())} buttonName="SAVE" /> :
+				<UIButton action={e => captureArtistNames(displayName.children, otherNames.children, removeNames.children, artistId, Auth.userId())} buttonName="SAVE" /> :
 				<UIButton action={() => 0} buttonName="SAVE only with exactly one display name" />
 			}
 	  

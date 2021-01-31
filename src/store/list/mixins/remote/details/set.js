@@ -20,9 +20,9 @@ export default ({days, dates, series, festivals}) => {return{
 
 		var updated = false
 		return this.getLocalPromise(so.subject)
-			.then(subjectData => {
-				//get to the baseMessage
-				console.log('set subjectDetails', so, subjectData)
+			.then(([subjectData, upd]) => {
+				updated = updated || upd
+				//console.log('set subjectDetails getLocalPromise resolved', subjectData, upd)
 				return subjectData
 			})
 			.then(subjectData => days.subjectDetails({subject: subjectData.day, subjectType: DAY}))

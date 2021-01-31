@@ -74,6 +74,7 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 /* height */
 .c44-h-80px {height: 80px;}
 .c44-h-160px {height: 160px;}
+.c44-h-m160px {min-height: 160px;}
 
 /* margin */
 .c44-mla {margin-left: auto;}

@@ -32,7 +32,7 @@ export const subjectCard = (subjectObject, otherAttrs) => {
 		//case 5: return m(VenueCard, _.assign({subjectObject: subjectObject}, otherAttrs));
 		case PLACE: return m(PlaceCard, _.assign({subjectObject: subjectObject}, otherAttrs));
 		case SET: return m(SetCard, _.assign({subjectObject: subjectObject}, otherAttrs));
-		case ARTIST: return m(ArtistCard, _.assign({data: subjectData.get(subjectObject)}, otherAttrs));
+		case ARTIST: return m(ArtistCard, _.assign({subjectObject: subjectObject}, {data: subjectData.get(subjectObject)}, otherAttrs));
 		case USER: return m(UserCard, _.assign({subjectObject: subjectObject}, otherAttrs));
 		default: return '';
 	}

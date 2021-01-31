@@ -88,7 +88,7 @@ o.spec("store/data Artist List Manipulations", function() {
         o(artists.lastRemoteCheck).equals(0) `remote check reset`
 	})
 
-    o("backfill Artist list (remoteEntry)", function() {
+    o("backfill Artist list (remoteEntry)", function(done) {
     	artists.clear()
     	const halfData = validData.filter((e, i) => i % 2)
     	const quarterData = validData.filter((e, i) => i % 4 === 2)
@@ -100,13 +100,17 @@ o.spec("store/data Artist List Manipulations", function() {
         o(artists.list.length).equals(halfData.length) `replace list length match`
         
     	artists.backfillList(quarterData)
+            .then(() => {
         o(artists.list.length).equals(halfData.length + quarterData.length) `backfill list length match`
         o(metaQuivalent(artists.meta, threeMeta)).equals(true) `meta match`
         o(artists.lastRemoteLoad > oldRemoteLoad).equals(true) `remote load updated`
         o(artists.lastRemoteCheck > oldRemoteCheck).equals(true) `remote check updated`
+            })
+            .then(done)
+            .catch(done)
 	})
 
-    o("backfill Artist list (localEntry)", function() {
+    o("backfill Artist list (localEntry)", function(done) {
     	artists.clear()
     	const halfData = validData.filter((e, i) => i % 2)
     	const quarterData = validData.filter((e, i) => i % 4 === 2)
@@ -119,10 +123,14 @@ o.spec("store/data Artist List Manipulations", function() {
     	const oldRemoteCheck = 0 + artists.lastRemoteCheck
 
     	artists.backfillList(quarterData, true)
+            .then(() => {
         o(artists.list.length).equals(halfData.length + quarterData.length) `backfill list length match`
         o(metaQuivalent(artists.meta, threeMeta)).equals(true) `meta match`
         o(artists.lastRemoteLoad).equals(oldRemoteLoad) `remote load updated`
         o(artists.lastRemoteCheck).equals(oldRemoteCheck) `remote check updated`
+            })
+            .then(done)
+            .catch(done)
 	})
 
     o("get Artist", function() {

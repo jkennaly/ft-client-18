@@ -24,7 +24,7 @@ const IntentToggle = {
 				remoteData.Intentions[intentionMethod](attrs.subjectObject)
 			}}
 			permission={attrs.permission}
-			unauth={(new Auth()).login}
+			unauth={Auth.login}
 
 		/>
 }
