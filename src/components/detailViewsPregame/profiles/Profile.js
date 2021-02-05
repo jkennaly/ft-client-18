@@ -27,12 +27,12 @@ const Profile = {
         attrs.interactive ? m('hr.c44-w-100') : '',
         attrs.interactive ? attrs.interactive : '',
         m('hr.c44-w-100'),
-        m('section.c44-up-content-private', {}, 
+        !attrs.own ? '' : m('section.c44-up-content-private', {}, 
             (_.isArray(attrs.private) ? attrs.private : [])
                 .map(i => m(Item, i))
 
         ),
-        m('hr.c44-w-100'),
+        !attrs.own ? '' : m('hr.c44-w-100'),
         m('section.c44-up-content-mixed', {}, 
             m('section.c44-up-mixed-public', {},
             (_.isArray(attrs.mixed) ? attrs.mixed : [])

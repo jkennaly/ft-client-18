@@ -75,7 +75,7 @@ const UserDetail = {
 				bites: bites({subject: attrs.id, subjectType: USER}, remoteData, subjectData)
 
 			},
-			interactive: attrs.id === attrs.userId ? m(Tract, {
+			interactive: !attrs.userId ? '' : attrs.id === attrs.userId ? m(Tract, {
 					extracted: tractStates.FollowingDetails,
 					headline: `Following and Blocking`,
 			  		tractToggle: e => {
