@@ -45,7 +45,7 @@ const FlagCard = vnode => {
         {
           //console.log(`FlagCard attrs`, attrs)
         }
-          <UserAvatarField data={attrs.flag.fromuser} />
+          <UserAvatarField data={attrs.flag.fromuser} userId={attrs.userId} />
           <span>{moment(attrs.flag.timestamp).utc().fromNow()}</span>
           <span>{status[attrs.flag.status]}</span>
         </div>

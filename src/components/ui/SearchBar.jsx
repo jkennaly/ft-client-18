@@ -29,7 +29,7 @@ const SearchBar = vnode => {
 	const searchObject = {
 		setResults: function(pattern) {
 			rawArtists(pattern)
-			.then(artists => console.log('setResults artists', pattern, artists) || artists)
+			//.then(artists => console.log('setResults artists', pattern, artists) || artists)
 				.then(artists => {
 					const series = rawSeries(pattern)
 					const seriesItems = series.map(s => {return {

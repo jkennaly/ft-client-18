@@ -9,6 +9,7 @@ export default {
 	clearInteract (subjectObject, type) { 
 		const deletions = this.getFiltered(i => i.subject === subjectObject.subject && i.subjectType === subjectObject.subjectType)
 			.map(x => _.set(x, 'deleted', true))
+			.filter(x => x.id)
 		const interactIds = deletions
 			.map(i => i.id)
 
@@ -20,7 +21,7 @@ export default {
 		archive(this.fieldName, this.list)
 
 		//send to server
-		//console.log('this.clearInteract')
+		console.log('this.clearInteract', deletions)
 		//console.log(subjectObject)
 		//console.log(interactIds)
 		//console.log(this.list)

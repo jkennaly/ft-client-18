@@ -6,29 +6,32 @@ import m from 'mithril'
 import archive from '../../../loading/archive'
 import {loadModel} from '../../../loading/enlist'
 import {subjectData} from '../../../subjectData'
-import FortyButton from '../../../../components/fields/buttons/FortyButton.jsx'
 
 const followItem = interactions => (so) => { return {
 	name: `Follow ${subjectData.name(so)}`,
-	icon: m(FortyButton, m('i', {class: "fas fa-user-plus"})),
+	icon: m('i', {class: "fas fa-user-plus" ,
+				"data-fa-transform":"grow-15"}),
 	itemClicked: e => interactions.setInteract(so, FOLLOW),
 	data: subjectData.get(so)
 }}
 const unfollowItem = interactions => (so) => { return {
 	name: `Stop following ${subjectData.name(so)}`,
-	icon: m(FortyButton, m('i', {class: "fas fa-user-minus"})),
+	icon: m('i', {class: "fas fa-user-minus" ,
+				"data-fa-transform":"grow-15"}),
 	itemClicked: e => interactions.clearInteract(so, FOLLOW),
 	data: subjectData.get(so)
 }}
 const blockItem = interactions => (so) => { return {
 	name: `Block ${subjectData.name(so)}`,
-	icon: m(FortyButton, m('i', {class: "fas fa-user-shield"})),
+	icon: m('i', {class: "fas fa-user-shield" ,
+				"data-fa-transform":"grow-15"}),
 	itemClicked: e => interactions.setInteract(so, BLOCK),
 	data: subjectData.get(so)
 }}
 const unblockItem = interactions => (so) => { return {
 	name: `Stop blocking ${subjectData.name(so)}`,
-	icon: m(FortyButton, m('i', {class: "fas fa-user-circle"})),
+	icon: m('i', {class: "fas fa-user-circle" ,
+				"data-fa-transform":"grow-15"}),
 	itemClicked: e => interactions.clearInteract(so, BLOCK),
 	data: subjectData.get(so)
 }}

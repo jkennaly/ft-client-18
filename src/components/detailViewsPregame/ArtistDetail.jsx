@@ -28,7 +28,8 @@ const {
 	Messages: messages,
 	MessagesMonitors: messagesMonitors,
 	Interactions: interactions,
-	Festivals: festivals
+	Festivals: festivals,
+	Users: users
 } = remoteData
 
 
@@ -40,6 +41,7 @@ const comments = (id) => messages
 		subject: id, 
 		messageType: COMMENT
 	})
+	.filter(m => users.get(m.fromuser))
 
 const messageSorter = reviewSorter(interactions)
 

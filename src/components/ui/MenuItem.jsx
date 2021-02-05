@@ -2,7 +2,7 @@
 
 import m from 'mithril'
 
-import MenuField from '../fields/MenuField.jsx';
+import MenuField from '../fields/MenuField.jsx'
 
 
 

@@ -115,6 +115,7 @@ DataList.prototype.backfillList = function(list, localEntry  = false) {
 			if(!dataChange) return list
 			this.list = _.unionBy(list.filter(changed), this.list, 'id').filter(m => !m.deleted)
 			this.setMeta(calcMeta(this.list))
+			if(localEntry) archive(this.fieldName, this.list)
 			return list
 		})
 		.then(list => {
@@ -186,10 +187,12 @@ DataList.prototype.acquireListSupplement = function(queryString, url, simRespons
 	const key = `${this.fieldName}.${queryString}.${url}`
 	const maxAge = this.remoteInterval * 1000
 	const cacheGood = _.get(supCache, key, 0) + maxAge > Date.now()
+	//console.log('acquireListSupplement', key, cacheGood)
 	if(cacheGood) return _.get(supCachePromises, key, false)
 	_.set(supCache, key, Date.now())
 		var updated = false
 	//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
+	
 	const updPromise = updateModel(this.fieldName, queryString, url, simResponse)
 	/*
 		.then(upd => {
@@ -209,12 +212,23 @@ DataList.prototype.acquireListSupplement = function(queryString, url, simRespons
 	_.set(supCachePromises, key, updPromise)
 	return updPromise
 }
+
+var lbCache = {}
+var lbCachePromises = {}
 DataList.prototype.lbfilter = function(filter) { 
 	const end = `/api/${this.fieldName}?filter=${JSON.stringify(filter)}`
-	//console.log('lbfilter ' + this.fieldName)
-	//console.log(data)
-	return provide(undefined, this.fieldName, '', end, 'GET')
+	const key = end
+	const maxAge = this.remoteInterval * 1000
+	const cacheGood = _.get(lbCache, key, 0) + maxAge > Date.now()
+	//console.log('lbfilter', key, maxAge, cacheGood)
 
+	if(cacheGood) return _.get(lbCachePromises, key, false)
+	_.set(lbCache, key, Date.now())
+	//console.log(data)
+	const updPromise = provide(undefined, this.fieldName, '', end, 'GET')
+	
+	_.set(lbCachePromises, key, updPromise)
+	return updPromise
 } 
 DataList.prototype.maintainList = function(filterObject) {
 	if(!this) throw new Error("Invalid DataList call maintainList")

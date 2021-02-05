@@ -4,6 +4,10 @@
 
 import _ from 'lodash'
 
+const cacheLife = 1000 * 3600 // 1 hour
+
+var lastLoad = {}
+
 export default ({artists, dates, sets, messages}, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities) => { return {
 	subjectDetails (so) {
 		if(!so || !so.subjectType || !so.subject) {
@@ -11,6 +15,12 @@ export default ({artists, dates, sets, messages}, lineups, images, artistAliases
 		}
 		if(so.subjectType !== this.subjectType) return Promise.reject(`No artist subjectType mismatch ${so.subjectType} !== ${this.subjectType}` )
 
+
+		const key = `[${so.subjectType}][${so.subject}]`
+		const cacheValid = lastLoad[key] && (cacheLife + lastLoad[key] > Date.now())
+		//console.log('artist subjectDetails', key, cacheValid)
+		if(cacheValid) return Promise.resolve(false)
+		lastLoad[key] = Date.now()
 
 		//get subjectData from the model, loading from the server if needed
 		//for each subject Type, collect detail information
@@ -74,6 +84,7 @@ export default ({artists, dates, sets, messages}, lineups, images, artistAliases
 				])
 
 			})
+			.then(() => messages.messageSenders())
 			.then(() => updated)
 			
 			.catch(err => {

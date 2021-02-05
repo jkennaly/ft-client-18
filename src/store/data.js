@@ -91,6 +91,7 @@ import intent from './list/mixins/relations/intent'
 import interact from './list/mixins/relations/interact'
 import interactOptions from './list/mixins/relations/interactOptions'
 import recent from './list/mixins/relations/recent'
+import messageSenders from './list/mixins/relations/messageSenders'
 import merge from './list/mixins/remote/merge'
 import subjectDetails from './list/mixins/remote/details/subject'
 import artistDetails from './list/mixins/remote/details/artist'
@@ -100,6 +101,7 @@ import flagDetails from './list/mixins/remote/details/flag'
 import setDetails from './list/mixins/remote/details/set'
 import festivalDetails from './list/mixins/remote/details/festival'
 import messageDetails from './list/mixins/remote/details/message'
+import userDetails from './list/mixins/remote/details/user'
 import advanceFlag from './list/mixins/remote/advanceFlag'
 import batchCreate from './list/mixins/remote/batchCreate'
 import batchDelete from './list/mixins/remote/batchDelete'
@@ -356,7 +358,8 @@ Object.assign(messages,
 	updateInstance,
 	deletion,
 	messageDetails(subjects),
-	messageCheckin(subjects)
+	messageCheckin(subjects),
+	messageSenders(users)
 )
 Object.assign(messagesMonitors,
 	getPromise,
@@ -391,7 +394,8 @@ Object.assign(users,
 	subjective,
 	userName,
 	messageEventConnections,
-	subjectDetails,
+	userDetails(interactions),
+	updateInstance,
 	interactOptions(interactions),
 	recent(messages)
 )

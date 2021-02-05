@@ -85,7 +85,7 @@ const SubjectReviewCard = vnode => {
             e.stopPropagation(); 
             m.route.set(`/users/pregame/${attrs.reviewer}`)
           }}>
-          <UserAvatarField data={attrs.reviewer} itemClicked={() => {}} />
+          <UserAvatarField data={attrs.reviewer} itemClicked={() => {}} userId={attrs.userId} />
           <AverageRatingField averageRating={rating(attrs)} />
           <span>{year(attrs)}</span>
         </div>

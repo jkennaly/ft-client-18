@@ -21,9 +21,11 @@ const Profile = {
 	view: ({attrs}) => m('div.c44-up-container.c44-fvf.c44-fjcc.c44-w-600px', {},
         //console.log('Profile attrs', attrs),
         m('header.c44-up-header.c44-pr.c44-fvf', {}, 
-            m(`img`, {src: _.get(attrs, 'userData.imgs.profile.src', emptyUser)}),
+            m(`img.c44-h-ma50vh.c44-of-con`, {src: _.get(attrs, 'userData.imgs.profile.src', emptyUser)}),
             m(Highlights, {userData: attrs.userData})
         ),
+        attrs.interactive ? m('hr.c44-w-100') : '',
+        attrs.interactive ? attrs.interactive : '',
         m('hr.c44-w-100'),
         m('section.c44-up-content-private', {}, 
             (_.isArray(attrs.private) ? attrs.private : [])

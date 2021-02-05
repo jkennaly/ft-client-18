@@ -66,7 +66,7 @@ export default {
 		return Promise.all([this.getPromise(id), true])
 
 	},
-	getManyPromise (ids) {
+	getManyPromise (ids, opt = {}) {
 		if(!_.isArray(ids)) {
 			return Promise.reject('No ids for getManyPromise ' + this.fieldName)
 		}
@@ -88,10 +88,10 @@ export default {
 			.then(upd => {
 				if(!this.secDataPromise) return upd
 				return this.secDataPromise()
-					.then(upd2 => upd && upd2)
+					.then(upd2 => upd || upd2)
 			})
 			.then(upd => {
-				const get = this.getMany(ids)
+				const get = opt.upd ? upd : this.getMany(ids)
 				return get
 			})
 			.catch(err => {

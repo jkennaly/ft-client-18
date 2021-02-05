@@ -37,8 +37,8 @@ const SetCard = {
       </div>
       <div class="ft-set-diff-fields">
           <CheckedInUsersField subjectObject={attrs.subjectObject} />
-        <NameField fieldValue={moment(remoteData.Sets.getStartMoment(attrs.subjectObject.subject)).fromNow()} />
-        <NameField fieldValue={remoteData.Sets.getTimeString(attrs.subjectObject.subject)} />
+        <NameField fieldValue={moment(sets.getStartMoment(attrs.subjectObject.subject)).fromNow()} />
+        <NameField fieldValue={sets.getTimeString(attrs.subjectObject.subject)} />
           {/*
       */}
         <StageNameField stageId={setIdField('stage', attrs.subjectObject.subject)} />

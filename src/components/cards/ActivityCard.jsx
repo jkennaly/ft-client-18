@@ -94,7 +94,7 @@ const ActivityCard = vnode => {
             e.stopPropagation(); 
             m.route.set(`/users/pregame/${attrs.discusser}`)
           }}>
-              <UserAvatarField data={attrs.discusser} itemClicked={e => {}} />
+              <UserAvatarField data={attrs.discusser} itemClicked={e => {}} userId={attrs.userId} />
               {attrs.rating ? <AverageRatingField averageRating={attrs.rating} /> : ''}
               <span>{year(attrs)}</span>
             </div>

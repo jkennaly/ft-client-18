@@ -17,7 +17,7 @@ const MessageCard = {
 
           <div class="ft-horizontal-fields ft-flex-grow">
             <div class="ft-vertical-fields">
-              <UserAvatarField data={attrs.message.fromuser} />
+              <UserAvatarField data={attrs.message.fromuser} userId={attrs.userId} />
               <span>{moment(attrs.message.timestamp).utc().fromNow()}</span>
             </div>
               <span class="ft-flex-grow">

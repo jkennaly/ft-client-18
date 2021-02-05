@@ -30,6 +30,7 @@ export default (subjects) => {return {
 			.then(subjectData => {
 				//get to the baseMessage
 				//console.log('message subjectDetails', so, subjectData)
+				const userP = subjects.profiles.getLocalPromise(subjectData.fromuser)
 				if(subjectData.subjectType !== MESSAGE) return subjectData
 					if(!subjectData.baseMessage) throw new Error(`expected baseMessage: ${subjectData}`)
 				return this.getLocalPromise(subjectData.baseMessage)

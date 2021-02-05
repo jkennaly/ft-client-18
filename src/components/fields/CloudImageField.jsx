@@ -69,7 +69,8 @@ const CloudImageField = {
             subjectType: attrs.subjectType,
             popModal: attrs.popModal,
             hideFlag: attrs.hideFlag,
-            usePlaceholders: attrs.usePlaceHolders
+            usePlaceholders: attrs.usePlaceHolders,
+            addDisabled: attrs.addDisabled
         }
             //console.log(`ScheduleThemer mapping`, mapping)
         return m(jsx, mapping)

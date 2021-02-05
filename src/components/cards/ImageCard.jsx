@@ -20,7 +20,7 @@ const ImageCard = {
 
           <div class="ft-horizontal-fields ft-flex-grow">
             <div class="ft-vertical-fields">
-              <UserAvatarField data={attrs.image.user} />
+              <UserAvatarField data={attrs.image.user} userId={attrs.userId} />
               <span>{moment(attrs.image.timestamp).utc().fromNow()}</span>
             </div>
               <span class="ft-flex-grow">

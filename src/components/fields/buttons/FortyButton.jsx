@@ -1,9 +1,9 @@
-// src/components/fields/buttons/QuarterButton.jsx
+// src/components/fields/buttons/FortyButton.jsx
 
 import m from 'mithril'
 
 
-const QuarterButton = vnode => { 
+const FortyButton = vnode => { 
 	return {
 	  view: ({ attrs, children }) =>
 	    <div class="ft-button-forty" >
@@ -11,4 +11,4 @@ const QuarterButton = vnode => {
 	    </div>
 }}
 
-export default QuarterButton
+export default FortyButton

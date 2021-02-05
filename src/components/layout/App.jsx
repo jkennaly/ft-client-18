@@ -16,6 +16,7 @@ import MainStage from './MainStage.jsx';
 import DisplayBar from './DisplayBar.jsx';
 import Launcher from './Launcher.jsx';
 import ScheduleThemer from './ScheduleThemer.jsx';
+import Account from './Account.jsx';
 
 import Research from './Research.jsx';
 import Messages from './Messages.jsx';
@@ -165,17 +166,35 @@ const App = {
 //console.log('app running 2')
 		
 		m.route(mainStage, "/launcher", {
+			"/admin": {
+				onmatch: authorize(Admin, Launcher)
+			},
+			"/artists/pregame/fix": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(FixArtist)
+						.catch(forceLoginRoute)
+			},
+			"/artists/pregame/fix/:id": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(FixArtist)
+						.catch(forceLoginRoute)
+			},
+			"/artists/pregame/:id": {
+			 	onmatch: (routing) => {
+
+					//remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
+
+					return authorize(ArtistDetail, ArtistDetail) (routing)
+				}
+				 
+			},
 			"/auth": {
 				render: WelcomeView
 			},
 			"/auth/:prev": {
 				render: WelcomeView
-			},
-			"/confirm/logout": {
-				onmatch: ConfirmLogout
-			},
-			"/launcher": {
-			 	onmatch: authorize(Launcher, Launcher)
 			},
 			"/callback": {
 				onmatch: () => {
@@ -203,6 +222,92 @@ const App = {
         				.then(acb => m.route.set(acb && acb.appState && acb.appState.route ? acb.appState.route : '/launcher', ))
         				//.then(() => m.redraw())
 				}
+			},
+			"/confirm/logout": {
+				onmatch: ConfirmLogout
+			},
+			"/dates/pregame/:id": {
+				onmatch: authorize(DateDetail, DateDetail)
+			},
+			"/dates/pregame/new/:festivalId": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateDate(auth))
+						.catch(forceLoginRoute)
+			},
+			"/dates/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateDate(auth))
+						.catch(forceLoginRoute)
+			},
+			"/days/pregame/:id": {
+				onmatch: authorize(DayDetail, DayDetail)
+			},
+			"/discussion/:messageId": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(Discussion)
+						.catch(forceLoginRoute)
+			},
+			"/fests/pregame/assignLineup": {
+				onmatch: authorize(SetLineup, Launcher)
+			},
+			"/fests/pregame/assignStages": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(SetStages)
+						.catch(forceLoginRoute)
+			},
+			"/fests/pregame/:id": {
+				onmatch: authorize(FestivalDetail, FestivalDetail)
+			},
+			"/fests/pregame/new": {
+				onmatch:(routing) => {
+
+					
+
+					return authorize(CreateFestival, Launcher) (routing)
+				}
+			},
+			"/fests/pregame/new/:seriesId": {
+				onmatch:(routing) => {
+
+					remoteData.Festivals.remoteCheck(true)
+					remoteData.Series.remoteCheck(true)
+
+					return authorize(CreateFestival, Launcher) (routing)
+				}
+			},
+			"/gametime/locations/:subjectType/:subject": {
+				onmatch: authorize(Gametime, Launcher)
+
+			},
+			"/gametime/:subjectType/:subject": {
+				onmatch: authorize(Gametime, Launcher)
+
+			},
+			"/launcher": {
+			 	onmatch: authorize(Launcher, Launcher)
+			},
+			"/manage/pregame": {
+				onmatch: () => auth.getAccessToken()		
+					.then(() => Promise.all([
+						auth.getFtUserId(),
+						auth.getRoles()
+					]))
+					.then(userDataRaw => <Launcher userId={userDataRaw[0]} userRoles={userDataRaw[1]} />)
+					//.then(userDataRaw => m(Launcher, {userId: userDataRaw[0], userRoles: userDataRaw[1]}))
+					.catch(err => {
+						if(err.error === 'login_required') return <Launcher userId={0} userRoles={[]} />
+						console.error(err)
+					})
+			},
+			"/messages": {
+				onmatch: authorize(Messages, Launcher)
+			},
+			"/messages/:filter": {
+				onmatch: authorize(Messages, Launcher)
 			},
 			"/:mode/subject/:subjectType/:subject": {
 				onmatch: (rParams) => {
@@ -240,50 +345,6 @@ const App = {
 				onmatch: authorize(Research, Launcher)
 
 			},
-			"/messages": {
-				onmatch: authorize(Messages, Launcher)
-			},
-			"/messages/:filter": {
-				onmatch: authorize(Messages, Launcher)
-			},
-			"/gametime/locations/:subjectType/:subject": {
-				onmatch: authorize(Gametime, Launcher)
-
-			},
-			"/gametime/:subjectType/:subject": {
-				onmatch: authorize(Gametime, Launcher)
-
-			},
-			"/admin": {
-				onmatch: authorize(Admin, Launcher)
-			},
-			"/discussion/:messageId": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(Discussion)
-						.catch(forceLoginRoute)
-			},
-			"/manage/pregame": {
-				onmatch: () => auth.getAccessToken()		
-					.then(() => Promise.all([
-						auth.getFtUserId(),
-						auth.getRoles()
-					]))
-					.then(userDataRaw => <Launcher userId={userDataRaw[0]} userRoles={userDataRaw[1]} />)
-					//.then(userDataRaw => m(Launcher, {userId: userDataRaw[0], userRoles: userDataRaw[1]}))
-					.catch(err => {
-						if(err.error === 'login_required') return <Launcher userId={0} userRoles={[]} />
-						console.error(err)
-					})
-			},
-			"/users/pregame": {
-				onmatch: (routing) => {
-
-					//remoteData.Users.recent(10)
-
-					return authorize(UserView, UserView) (routing)
-				}
-			},
 			"/series/pregame": {
 				onmatch: (routing) => {
 
@@ -291,6 +352,27 @@ const App = {
 
 					return authorize(SeriesView, SeriesView) (routing)
 				}
+			},
+			"/series/pregame/:id": {
+				onmatch: authorize(SeriesDetail, SeriesDetail)
+			},
+			"/series/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateSeries(auth))
+						.catch(forceLoginRoute)
+			},
+			"/sets/pregame/assignDays": {
+				onmatch: authorize(AssignDays, Launcher)
+			},
+			"/sets/pregame/assignStages": {
+				onmatch: authorize(AssignSetStages, Launcher)
+			},
+			"/sets/pregame/assignTimes": {
+				onmatch: authorize(AssignTimes, Launcher)
+			},
+			"/sets/pregame/:id": {
+				onmatch: SetDetail
 			},
 			"/stages/pregame": {
 				onmatch: () => auth.isAuthenticated()		
@@ -305,104 +387,6 @@ const App = {
 						return m(FestivalView)
 					})
 			},
-			"/venues/pregame/new": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateVenue(auth))
-						.catch(forceLoginRoute)
-			},
-			"/sets/pregame/assignDays": {
-				onmatch: authorize(AssignDays, Launcher)
-			},
-			"/sets/pregame/assignTimes": {
-				onmatch: authorize(AssignTimes, Launcher)
-			},
-			"/sets/pregame/assignStages": {
-				onmatch: authorize(AssignSetStages, Launcher)
-			},
-			"/fests/pregame/assignStages": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(SetStages)
-						.catch(forceLoginRoute)
-			},
-			"/fests/pregame/assignLineup": {
-				onmatch: authorize(SetLineup, Launcher)
-			},
-			"/artists/pregame/fix": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(FixArtist)
-						.catch(forceLoginRoute)
-			},
-			"/artists/pregame/fix/:id": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(FixArtist)
-						.catch(forceLoginRoute)
-			},
-			"/users/pregame/:id": {
-				onmatch: authorize(UserDetail, UserDetail)
-			},
-			"/artists/pregame/:id": {
-			 	onmatch: (routing) => {
-
-					//remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
-
-					return authorize(ArtistDetail, ArtistDetail) (routing)
-				}
-				 
-			},
-			"/fests/pregame/new/:seriesId": {
-				onmatch:(routing) => {
-
-					remoteData.Festivals.remoteCheck(true)
-					remoteData.Series.remoteCheck(true)
-
-					return authorize(CreateFestival, Launcher) (routing)
-				}
-			},
-			"/fests/pregame/new": {
-				onmatch:(routing) => {
-
-					
-
-					return authorize(CreateFestival, Launcher) (routing)
-				}
-			},
-			"/fests/pregame/:id": {
-				onmatch: authorize(FestivalDetail, FestivalDetail)
-			},
-			"/dates/pregame/new/:festivalId": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateDate(auth))
-						.catch(forceLoginRoute)
-			},
-			"/dates/pregame/new": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateDate(auth))
-						.catch(forceLoginRoute)
-			},
-			"/dates/pregame/:id": {
-				onmatch: authorize(DateDetail, DateDetail)
-			},
-			"/days/pregame/:id": {
-				onmatch: authorize(DayDetail, DayDetail)
-			},
-			"/series/pregame/new": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateSeries(auth))
-						.catch(forceLoginRoute)
-			},
-			"/series/pregame/:id": {
-				onmatch: authorize(SeriesDetail, SeriesDetail)
-			},
-			"/sets/pregame/:id": {
-				onmatch: SetDetail
-			},
 			"/stages/pregame/:id": {
 				onmatch: () =>
 					auth.getAccessToken()						
@@ -411,7 +395,32 @@ const App = {
 			},
 			"/themer/schedule": {
 				onmatch: authorize(ScheduleThemer, ScheduleThemer)
-			}
+			},
+			"/users/account": {
+				onmatch: (routing) => {
+
+					//remoteData.Users.recent(10)
+
+					return authorize(Account, WelcomeView) (routing)
+				}
+			},
+			"/users/pregame": {
+				onmatch: (routing) => {
+
+					//remoteData.Users.recent(10)
+
+					return authorize(UserView, UserView) (routing)
+				}
+			},
+			"/users/pregame/:id": {
+				onmatch: authorize(UserDetail, UserDetail)
+			},
+			"/venues/pregame/new": {
+				onmatch: () =>
+					auth.getAccessToken()
+						.then(() => CreateVenue(auth))
+						.catch(forceLoginRoute)
+			},
 		});
 		
 		//m.mount(document.getElementById("DisplayBar"), {view: function () {return m(LauncherBanner, _.assign({}, lastUser, {}))}})

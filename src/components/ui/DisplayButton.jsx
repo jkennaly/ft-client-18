@@ -21,6 +21,11 @@ const validUserItem = {
 		}
 const menuList = (userRoles) => {
 	return [
+		(userRoles.includes('user') ? {
+			name: 'Account',
+			path: '/users/account',
+			icon: <FortyButton><i class="fas fa-user"></i></FortyButton>
+		} : ''),
 		(userRoles.includes('admin') ? {
 			name: 'Admin',
 			path: '/admin',

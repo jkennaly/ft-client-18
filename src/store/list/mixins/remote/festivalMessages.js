@@ -16,6 +16,7 @@ export default {
 			const dataFieldName = '/api/' + 'Messages'
 			const end = dataFieldName + '/forFestival/'
 			return this.acquireListSupplement('', end + festivalId)
+				.then(x => this.messageSenders())
 				.catch(err => {
 					console.log('this loadForFestival Promise.all')
 					console.log(err)
@@ -34,6 +35,7 @@ export default {
 			const end = '/api/' + dataFieldName + '/forArtist/'
 
 			return this.acquireListSupplement('', end + artistId)
+				.then(x => this.messageSenders())
 				//.then(() => false)
 				.catch(err => {
 					console.log('this loadForArtist Promise.all')

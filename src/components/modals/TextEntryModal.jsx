@@ -5,7 +5,7 @@ import m from 'mithril'
 import _ from 'lodash'
 
 // change selections
-import UIButton from '../ui/UIButton.jsx';
+import UIButton from '../ui/UIButton.jsx'
 
 const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
 var textValue = ''

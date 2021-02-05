@@ -7,11 +7,13 @@
   --selected-bg-color: gray;
   --already-read: palevioletred;
   --own-content: lightsteelblue;
+  --color-own-content: lightsteelblue;
   --gt-background-color: #000033;
   --festival-red: #ff2828;
   --color-disabled: #666666;
   --color-active: #ff2828;
   --background-color-active: #00d7d7;
+  --background-color-own-content: #917d56;
 }
 
 body {background: radial-gradient(black, #003300);height: 100%;margin: 0;overflow: scroll;padding: 0;width: 100%;}
@@ -48,17 +50,24 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .c44-cd {color: var(--color-disabled);}
 /* color: active */
 .c44-ca {color: var(--color-active);}
+/* color: own-content */
+.c44-coc {color: var(--color-own-content);}
 
 /* background color: active */
 .c44-bca {background-color: var(--background-color-active);}
+/* background color: own-content */
+.c44-bcoc {background-color: var(--background-color-own-content);}
 
 /* display */
 .c44-df {display: flex;}
 .c44-dn {display: none;}
 .c44-dib {display: inline-block;}
+.c44-dif {display: inline-flex;}
 
 /* flex */
 .c44-fais {align-items: flex-start;}
+.c44-faic {align-items: center;}
+.c44-fdc {flex-direction: column;}
 .c44-fg1 {flex-grow: 1;}
 .c44-fjcc {justify-content: center;}
 .c44-fjcs {justify-content: flex-start;}
@@ -72,13 +81,20 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .c44-fs-36px {font-size: 36px;}
 
 /* height */
+.c44-h-10vh {height: 10vh;}
+.c44-h-80vh {height: 80vh;}
 .c44-h-80px {height: 80px;}
 .c44-h-160px {height: 160px;}
 .c44-h-m160px {min-height: 160px;}
+.c44-h-ma50vh {max-height: 50vh;}
+.c44-h-ma25vh {max-height: 25vh;}
 
 /* margin */
 .c44-mla {margin-left: auto;}
 .c44-mra {margin-right: auto;}
+
+/* object fit */
+.c44-of-con{object-fit: contain;}
 
 /* offsets */
 .c44-l-0 {left: 0;}
@@ -104,10 +120,12 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .c44-tac {text-align: center;}
 
 /* width */
-.c44-w-100 {width: 100%;}
+.c44-w-10vh {width: 10vh;}
 .c44-w-60 {width: 60%;}
+.c44-w-100 {width: 100%;}
 .c44-w-480px {width: 480px;}
 .c44-w-600px {width: 600px;}
+.c44-w-ma6em {max-width: 6em;}
 
 
 /* tricks */

@@ -8,7 +8,14 @@ import  UserAvatarField from '../fields/UserAvatarField.jsx';
 import  NameField from '../fields/NameField.jsx';
 import {subjectData} from '../../store/subjectData';
 
-const defaultClick = ({contextObject, gametime}) => () => m.route.set(contextObject && gametime ? `/gametime/${contextObject.subjectType}/${contextObject.subject}` : '/users/pregame/' + (contextObject && contextObject.subject))
+const defaultClick = ({contextObject, gametime, data}) => evt => {
+  const baseRoute = contextObject && gametime ? `/gametime/${contextObject.subjectType}/` : '/users/pregame/'
+  const targetId = contextObject && contextObject.subject ? contextObject.subject :
+    data && data.id ? data.id : 0
+  if(!targetId) return false
+  evt.stopPropagation()
+  return m.route.set(baseRoute + targetId)
+} 
 
 
 const UserCard = {
@@ -18,7 +25,7 @@ const UserCard = {
       		//console.log('UserCard attrs.contextObject', attrs.contextObject)
   		}
         <div class="ft-vertical-fields">
-          <UserAvatarField data={attrs.data.id} />
+          {attrs.data ? <UserAvatarField data={attrs.data.id} /> : ''}
         </div>
           {attrs.contextObject && (attrs.contextObject.subject !== attrs.data.id || attrs.contextObject.subjectType !== USER) ? <NameField fieldValue={subjectData.name(attrs.contextObject)} /> : ''}
       </div>

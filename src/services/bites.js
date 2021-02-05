@@ -109,7 +109,7 @@ const recentFavoriteCount = (reviewerId, messages) => messages
 		_.set(biteCache, `users.recentFavorite[${reviewerId}]`, fav[0] ? fav[0] : 0)
 		return fav[0]
 	})
-	.then(fav => messages.subjectDetails({subjectType: MESSAGE, subject: fav.id}))
+	.then(fav => fav && messages.subjectDetails({subjectType: MESSAGE, subject: fav.id}))
 const recentFavorite = (reviewerId, messages) => {
 	const cacheTime = _.get(biteTimes, `users.recentFavorite[${reviewerId}]`, 0)
 	const cacheOk = cacheTime + 60000 > Date.now()
