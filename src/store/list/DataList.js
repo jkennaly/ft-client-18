@@ -96,7 +96,7 @@ DataList.prototype.backfilling = function() {
 	}
 }()
 
-DataList.prototype.backfillList = function(list, localEntry  = false) {
+DataList.prototype.backfillList = function(list, localEntry  = false, skipRedraw = false) {
 	if(!this) throw new Error("Invalid DataList call backfillList")
 	if(!_.isArray(list)) throw new Error("Invalid list backfill")
 	const changed = li => {
@@ -119,7 +119,7 @@ DataList.prototype.backfillList = function(list, localEntry  = false) {
 			return list
 		})
 		.then(list => {
-			m.redraw()
+			if(!skipRedraw) m.redraw()
 			return list
 		})
 		.catch(err => console.log(err))
@@ -180,7 +180,7 @@ DataList.prototype.acquireListUpdate = function(queryString, url, simResponse) {
 var supCache = {}
 var supCachePromises = {}
 
-DataList.prototype.acquireListSupplement = function(queryString, url, simResponse) {
+DataList.prototype.acquireListSupplement = function(queryString, url, simResponse, skipRedraw = false) {
 	//console.log('acquireListSupplement fieldName, queryString, url', this.fieldName, queryString, url)
 	if(!this) throw new Error("Invalid DataList call acquireListSupplement")
 		//check if we have run this query before and the cahce is still good
@@ -205,7 +205,7 @@ DataList.prototype.acquireListSupplement = function(queryString, url, simRespons
 		})
 		*/
 		.then(([upd, newData]) => {
-			if(_.isArray(newData)) this.backfillList(newData)
+			if(_.isArray(newData)) this.backfillList(newData, undefined, skipRedraw)
 			return upd
 		})
 		

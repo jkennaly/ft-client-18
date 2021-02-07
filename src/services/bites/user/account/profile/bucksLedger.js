@@ -51,7 +51,7 @@ export default  (remoteDataField) => {
 		m('tr', {}, 
 			m('th', {}, 'Time'), 
 			m('th', {}, 'Category'), 
-			m('th', {}, 'Details'), 
+			//m('th', {}, 'Details'), 
 			m('th', {}, 'Amount'), 
 			m('th', {}, 'Running Balance')
 		),
@@ -65,18 +65,19 @@ export default  (remoteDataField) => {
 			.map(row => m('tr', {}, 
 				m('td', {}, row.timestamp), 
 				m('td', {}, row.category), 
-				m('td', {}, ledgerItems(JSON.parse(row.description))), 
+		
+				//m('td', {}, ledgerItems(JSON.parse(row.description))), 
+
 				m('td', {}, row.bucks), 
 				m('td', {}, row.rb)
 			)),
 		m('tr', {}, 
 			m('td', {}, ''), 
 			m('td', {}, 'Initial'), 
-			m('td', {}, ''), 
+			//m('td', {}, ''), 
 			m('td', {}, 0), 
 			m('td', {}, 0)
 		),
-
 	)
 	return {
 		value: bucksLedger,

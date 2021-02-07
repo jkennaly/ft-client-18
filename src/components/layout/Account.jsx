@@ -36,10 +36,16 @@ const jsx = {
         tractStates.BucksHistory = !tractStates.BucksHistory
       }}
     >
-      {m(InlineTable, bucksLedger(users))}
-      {m(InlineTable, bucksForm(users))}
+      {
+        m(InlineTable, bucksLedger(users))
+
+      }
+      {
+        m(InlineTable, bucksForm(users))
+      }
     </Tract>
   </div>
+    
     
 };
 const Account = {
