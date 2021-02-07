@@ -106,6 +106,7 @@ import advanceFlag from './list/mixins/remote/advanceFlag'
 import batchCreate from './list/mixins/remote/batchCreate'
 import batchDelete from './list/mixins/remote/batchDelete'
 import batchUpdate from './list/mixins/remote/batchUpdate'
+import bucks from './list/mixins/remote/bucks'
 import create from './list/mixins/remote/create'
 import deletion from './list/mixins/remote/deletion'
 import dateWithDays from './list/mixins/remote/dateWithDays'
@@ -397,7 +398,8 @@ Object.assign(users,
 	userDetails(interactions),
 	updateInstance,
 	interactOptions(interactions),
-	recent(messages)
+	recent(messages),
+	bucks
 )
 Object.assign(flags,
 	getPromise,

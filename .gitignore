@@ -296,6 +296,6 @@ GitHub.sublime-settings
 
 /config/**/*
 
-/src/services/*variables*
+/src/services/**/*variables*
 /.firebaserc
 /firebase.json

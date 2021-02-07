@@ -7,7 +7,7 @@ const jsx = {
   //oninit: ({attrs}) => remoteData.Artists.getLocakPromise(attrs.data.id).catch(console.error),
   view: ({ attrs, children }) => <div   >
   	<h1 
-  		class={`c44-w-100 ${attrs.extracted ? 'c44-ca c44-bca' : 'c44-coc c44-bcoc'}`}
+  		class={`c44-w-100 c44-fvf ${attrs.extracted ? 'c44-ca c44-bca' : 'c44-coc c44-bcoc'}`}
   		onclick={attrs.tractToggle}
   	>{attrs.headline}</h1>
   	<div class={attrs.extracted ? '' : 'c44-dn'} >

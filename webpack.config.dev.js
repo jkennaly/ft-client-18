@@ -7,6 +7,8 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const webpack = require("webpack");
 
 const mode = 'development'
+const payOptionsDev = require('./src/services/payOptions/pay-variables-test.json')
+const payOptionsProd = require('./src/services/payOptions/pay-variables-live.json')
 const auth0Dev = require('./src/services/auth0-variables.dev.json')
 const auth0Prod = require('./src/services/auth0-variables.prod.json')
 const authLocalDev = require('./src/services/authLocal-variables.dev.json')
@@ -72,6 +74,9 @@ const env = {
 		}),
     	new webpack.DefinePlugin({
 			AUTH_CONFIG: JSON.stringify(composeConfig(env))
+		}),
+    	new webpack.DefinePlugin({
+			STRIPE_PUBLIC: JSON.stringify(env.mode === 'development' ? payOptionsDev : payOptionsProd)
 		})
 
 	],

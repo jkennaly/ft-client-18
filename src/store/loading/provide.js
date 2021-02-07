@@ -20,13 +20,8 @@ const auth = Auth
 const authOnly = [
 
 'MessagesMonitors',
-'Intentions'
-]
-
-const loggedOnly = [
-  /Intentions/,
-  /MessagesMonitors/
-
+'Intentions',
+'Interactions'
 ]
 export default function (data, modelName, queryString = '', url, method = 'POST', simResponse, options = {}) {
 	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`

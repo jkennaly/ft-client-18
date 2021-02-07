@@ -1,4 +1,4 @@
-// src/services/bites/user/account/profile/picFormjs
+// src/services/bites/user/account/profile/picForm.js
 
 //get the subjectCard for the three subjects the user has discussed most
 

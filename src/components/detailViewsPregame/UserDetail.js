@@ -115,6 +115,6 @@ const UserDetail = {
 		//console.log('UserDetail attrComp mapping', mapping)
 
 
-		return m('.main-stage', {}, m('.c44-oys.c44-h-80vh', {}, m(Profile, mapping)))
+		return m('.main-stage', {}, m('.c44-oys.c44-h-80vh.c44-w-100', {}, m(Profile, mapping)))
 }}
 export default UserDetail;
