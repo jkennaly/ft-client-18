@@ -4,6 +4,7 @@ import m from 'mithril'
 
 import bucksLedger from '../../services/bites/user/account/profile/bucksLedger'
 import bucksForm from '../../services/bites/user/account/profile/bucksForm'
+import bucksSpend from '../../services/bites/user/account/profile/bucksSpend'
 import picForm from '../../services/bites/user/account/profile/picForm'
 import Tract from '../tracts/Tract.jsx'
 import ContentItem from '../detailViewsPregame/profiles/ContentItem'
@@ -11,7 +12,12 @@ import InlineTable from '../fields/InlineTable'
 
 import {remoteData} from '../../store/data'
 
-const {Users: users} = remoteData
+const {
+  Users: users,
+  Days: days,
+  Dates: dates,
+  Festivals: festivals
+} = remoteData
 
 const tractStates = {
 	"EditProfile": false,
@@ -42,6 +48,9 @@ const jsx = {
       }
       {
         m(InlineTable, bucksForm(users))
+      }
+      {
+        m(InlineTable, bucksSpend(users, days, dates, festivals))
       }
     </Tract>
   </div>

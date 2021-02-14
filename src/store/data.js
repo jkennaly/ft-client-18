@@ -107,6 +107,8 @@ import batchCreate from './list/mixins/remote/batchCreate'
 import batchDelete from './list/mixins/remote/batchDelete'
 import batchUpdate from './list/mixins/remote/batchUpdate'
 import bucks from './list/mixins/remote/bucks'
+import cost from './list/mixins/remote/cost'
+import buy from './list/mixins/remote/buy'
 import create from './list/mixins/remote/create'
 import deletion from './list/mixins/remote/deletion'
 import dateWithDays from './list/mixins/remote/dateWithDays'
@@ -218,6 +220,8 @@ Object.assign(festivals,
 	create,
 	festivalIds(subjects),
 	getPromise,
+	cost,
+	buy,
 	festivalDetails(subjects, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities, intentions)
 
 )
@@ -235,6 +239,8 @@ Object.assign(dates,
 	dateWithDays(days),
 	dateFilters(festivals),
 	getPromise,
+	cost,
+	buy,
 	dateDetails(subjects, lineups, intentions),
 	intendedDate(intentions)
 )
@@ -248,6 +254,8 @@ Object.assign(days,
 	futureDate,
 	dayIds(subjects),
 	getPromise,
+	cost,
+	buy,
 	dayDetails(subjects)
 )
 Object.assign(sets,
@@ -399,7 +407,9 @@ Object.assign(users,
 	updateInstance,
 	interactOptions(interactions),
 	recent(messages),
-	bucks
+	bucks,
+	buy,
+	cost
 )
 Object.assign(flags,
 	getPromise,
