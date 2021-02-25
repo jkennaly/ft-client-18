@@ -1,66 +1,41 @@
 // fests.pregame.id.e2e.js
 
      
-const Nightmare = require('nightmare')
+const puppeteer = require('puppeteer')
 var o = require("ospec")
-let nightmare
+let browser = {}
+const baseUrl = 'http://localhost:8080'
 
 o.beforeEach(function() {
-        nightmare = new Nightmare()
+        browser = puppeteer.launch(
+          {
+            headless: false
+          }
+        )
     })
 
 
 o("FestiGram", function(done) {
 	o.timeout(30000)
-    nightmare
-      .goto('http://localhost:8080')
-      .wait(".ft-card")
-      .evaluate(() => window.location.href)
-      .end()
-      .then(link => {
-        o(link).equals("http://localhost:8080/#!/launcher")
-        done()
+    browser
+      .then(b => b.newPage())
+      .then(p => p.goto(baseUrl, {waitUntil: 'networkidle0'}).then(r => p))
+      .then(p => p.waitForSelector(".ft-card").then(r => p))
+      .then(p => p.evaluate(() => {
+        return document.querySelector('.ft-stage-title').textContent
+        //done()
+      }))
+      .then(r => {
+        o('FestiGram Launcher').equals(r)
       })
       .catch(err => {
       	o(err).equals('dead')
-      	done()
+      	//done()
       })
-})
-o("FestiGram festivals unlogged", function(done) {
-	o.timeout(30000)
-    nightmare
-      .goto('http://localhost:8080')
-      .wait(".festivals-upcoming")
-      .click(".festivals-upcoming")
-      .evaluate(() => window.location.href)
-      .end()
-      .then(link => {
-        o(/fests\/pregame\//.test(link)).equals(true)
-        done()
-      })
-      .catch(err => {
-      	o(err).equals('dead')
-      	done()
-      })
+      .finally(() => {
+        browser.then((b) => b.close())
 
+        done()
 
-    })
-o("FestiGram festivals unlogged not attending", function(done) {
-  o.timeout(30000)
-    nightmare
-      .goto('http://localhost:8080')
-      .wait(".festivals-upcoming")
-      .click(".festivals-upcoming")
-      .wait('.ft-toggle-control input[type=checkbox]')
-      .evaluate(() => document.querySelector('.ft-toggle-control input[type=checkbox]').checked)
-      .end()
-      .then(link => {
-        o(link).equals(false)
-        done()
       })
-      .catch(err => {
-        o(err).equals('dead')
-        done()
-      })
-      
 })
