@@ -27,11 +27,11 @@
     "jsdom": "^16.2.2",
     "mini-css-extract-plugin": "^0.9.0",
     "ncp": "^2.0.0",
-    "nightmare": "^2.8.0",
     "nyc": "^15.1.0",
     "onchange": "^7.0.2",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "ospec": "^4.1.1",
+    "puppeteer": "^7.1.0",
     "querystring": "^0.2.0",
     "rimraf": "^3.0.2",
     "script-loader": "^0.7.2",
@@ -60,7 +60,6 @@
     "moment": "^2.26.0",
     "moment-timezone": "^0.5.31",
     "npm-check-updates": "^6.0.1",
-    "puppeteer": "^7.1.0",
     "smart-search": "^0.2.0"
   },
   "scripts": {
