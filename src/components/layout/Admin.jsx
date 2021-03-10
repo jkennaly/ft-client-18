@@ -17,18 +17,27 @@ import NavCard from '../../components/cards/NavCard.jsx';
 
 import {remoteData} from '../../store/data';
 
-const series = remoteData.Series
-const festivals = remoteData.Festivals
-
+const {
+  Sets: sets,
+  Days: days,
+  Dates: dates,
+  Festivals: festivals,
+  Series: series,
+  Lineups: lineups,
+  Artists: artists,
+  ArtistAliases: artistAliases,
+  Venues: venues,
+  Places: places
+} = remoteData
 
 const DATE_ANNOUNCED = 180
 const LINEUP_ANNOUUNCED = 90
 const SCHEDULE_ANNNOUNCED = 14
 
-const upcomingFestivals = () => remoteData.Dates.upcomingDatedFestivals(LINEUP_ANNOUUNCED)
+const upcomingFestivals = () => dates.upcomingDatedFestivals(LINEUP_ANNOUUNCED)
 const upcomingLinedFestivals = () => {
 	const festivalIds = upcomingFestivals().map(x => x.id)
-	return festivals.getMany(_.uniq(remoteData.Lineups
+	return festivals.getMany(_.uniq(lineups
 		.getFiltered(l => festivalIds.includes(l.festival))
 		.map(x => x.festival)
 	))
@@ -42,16 +51,27 @@ const noLineup = () => {
 
 }
 
-const artistPrisNeeded = () => remoteData.Lineups.allPrioritiesDefaultFestivals(
-	remoteData.Dates.upcomingDatedFestivals(LINEUP_ANNOUUNCED)
+const artistPrisNeeded = () => lineups.allPrioritiesDefaultFestivals(
+	dates.upcomingDatedFestivals(LINEUP_ANNOUUNCED)
 		.map(f => f.id)
 	)
-const noFutureDates = () => series.noFutureDates(DATE_ANNOUNCED)
-const unscheduledLineupFestivals = () => remoteData.Sets.unscheduledLineupFestivals(SCHEDULE_ANNNOUNCED)
 
-const artistMissingDayFestivals = () => remoteData.Sets.artistMissingDayFestivals(SCHEDULE_ANNNOUNCED)
-const artistMissingStageFestivals = () => remoteData.Sets.artistMissingStageFestivals(SCHEDULE_ANNNOUNCED)
-const missingStageFestivals = () => remoteData.Places.missingStageFestivals(SCHEDULE_ANNNOUNCED)
+const noCurrentFestival = () => {
+	const yesFestival = _.uniq(festivals.getFiltered(f => parseInt(f.year, 10) - new Date().getFullYear() >= 0)
+		.map(f => f.series))
+	return series.getFiltered(s => !yesFestival.includes(s.id))
+
+}
+const noFutureDates = () => {
+	const fDates = dates.future()
+	return  _.uniq(festivals.getFiltered(f => parseInt(f.year, 10) - new Date().getFullYear() >= 0))
+		.filter(f => !fDates.some(d => d.festival === f.id))
+}
+const unscheduledLineupFestivals = () => sets.unscheduledLineupFestivals(SCHEDULE_ANNNOUNCED)
+
+const artistMissingDayFestivals = () => sets.artistMissingDayFestivals(SCHEDULE_ANNNOUNCED)
+const artistMissingStageFestivals = () => sets.artistMissingStageFestivals(SCHEDULE_ANNNOUNCED)
+const missingStageFestivals = () => places.missingStageFestivals(SCHEDULE_ANNNOUNCED)
 
 
 
@@ -64,14 +84,14 @@ const Admin = {
 			return Promise.all([
 			series.remoteCheck(true),
 			festivals.remoteCheck(true),
-			remoteData.Lineups.remoteCheck(true),
-			remoteData.Dates.acquireListUpdate(),
-			remoteData.Days.acquireListUpdate(),
-			remoteData.Sets.acquireListUpdate(),
-			remoteData.Artists.acquireListUpdate(),
-			remoteData.ArtistAliases.acquireListUpdate(),
-			remoteData.Venues.remoteCheck(true),
-			remoteData.Places.acquireListUpdate()
+			lineups.remoteCheck(true),
+			dates.acquireListUpdate(),
+			days.acquireListUpdate(),
+			sets.acquireListUpdate(),
+			artists.acquireListUpdate(),
+			artistAliases.acquireListUpdate(),
+			venues.remoteCheck(true),
+			places.acquireListUpdate()
 		])
 				.catch(console.error)
 			
@@ -105,12 +125,23 @@ const Admin = {
 					<NavCard fieldValue="Enter Set Times" action={() => m.route.set("/sets/pregame/assignTimes")}/>
 				</FixedCardWidget>
 			{
-				noFutureDates().length ? <FixedCardWidget header="No Dates">
+				noCurrentFestival().length ? <FixedCardWidget header="No Fest">
 			{
-				noFutureDates()
+				noCurrentFestival()
 					.map(series => <SeriesCard 
 						eventId={series.id} 
 					/>)
+			}
+			</FixedCardWidget> : '' }
+		
+{
+				noFutureDates().length ? <FixedCardWidget header="No Dates">
+			{
+				noFutureDates()
+					.map(data => <FestivalCard
+							eventId={data.id}
+							route={`/dates/pregame/new/${data.id}`}
+						/>)
 			}
 			</FixedCardWidget> : '' }
 		

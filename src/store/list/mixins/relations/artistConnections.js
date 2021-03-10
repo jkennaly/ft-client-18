@@ -64,7 +64,7 @@ export default (artistPriorities, artists, festivals) => { return  {
 		//artists have the same, default priority (i.e., headliners
 		//need to be entered) from amongst a supplied group of ids
 		//(or from all festivals if no ids supplied)
-		allPrioritiesDefaultFestivals (festIds) {return (festIds.length ? festivals.getMany(festIds) : festivals.list)
+		allPrioritiesDefaultFestivals (festIds) {return (festivals.getMany(festIds))
 			.filter(f => this.festHasLineup(f.id))
 			/*
 			.map(f => {

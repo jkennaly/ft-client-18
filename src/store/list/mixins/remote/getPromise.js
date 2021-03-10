@@ -42,10 +42,9 @@ export default {
 				return get ? get : undefined
 			})
 			.catch(err => {
-				console.error(err)
+				console.error('getPromise', this.fieldName, id, err)
 				m.route.set('/launcher')
 			})
-
 	},
 	getLocalPromise (id) {
 		if(!id) {

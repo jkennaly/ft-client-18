@@ -4,7 +4,7 @@
 
 import _ from 'lodash'
 
-export default ({artists, dates, messages}, lineups) => { return {
+export default ({artists, dates, days, sets, messages}, lineups) => { return {
 	subjectDetails (so) {
 		if(!so || !so.subjectType || !so.subject) {
 			return Promise.reject('No subject object for subjectDetails festival ' + JSON.stringify(so))
@@ -40,10 +40,32 @@ export default ({artists, dates, messages}, lineups) => { return {
 						)
 						.then(artistIds => artists.getManyPromise(artistIds)),
 					dates.acquireListSupplement(dateQuery, dateEnd)
-						.then(upd => updated = updated || upd),
-					messages.loadForFestival(so.subject)
 						.then(upd => updated = updated || upd)
+						.then(upd => {
+							const dateIds = this.getSubDateIds(so.subject)
+							//dates
+							const dayEnd = `/api/Days`
+							const dayQuery = `filter=` + JSON.stringify({where: { and: [
+								{date: {inq: dateIds}},
+								{deleted: false}
+							]}})
+							return days.acquireListSupplement(dayQuery, dayEnd)
+								.then(upd => updated = updated || upd)
+						})
+						.then(upd => {
+							const dayIds = this.getSubDayIds(so.subject)
+							//dates
+							const setEnd = `/api/Sets`
+							const setQuery = `filter=` + JSON.stringify({where: { and: [
+								{day: {inq: dayIds}},
+								{deleted: false}
+							]}})
+							return sets.acquireListSupplement(setQuery, setEnd)
+								.then(upd => updated = updated || upd)
+						}),
 				])
+					.then(() => messages.loadForFestival(so.subject))
+					.then(upd => updated = updated || upd)
 			})
 			.then(() => updated)
 			.catch(err => {

@@ -226,20 +226,14 @@ const App = {
 			"/confirm/logout": {
 				onmatch: ConfirmLogout
 			},
-			"/dates/pregame/:id": {
-				onmatch: authorize(DateDetail, DateDetail)
+			"/dates/pregame/new": {
+				onmatch: authorize(CreateDate, Launcher)
 			},
 			"/dates/pregame/new/:festivalId": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateDate(auth))
-						.catch(forceLoginRoute)
+				onmatch: authorize(CreateDate, Launcher)
 			},
-			"/dates/pregame/new": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateDate(auth))
-						.catch(forceLoginRoute)
+			"/dates/pregame/:id": {
+				onmatch: authorize(DateDetail, DateDetail)
 			},
 			"/days/pregame/:id": {
 				onmatch: authorize(DayDetail, DayDetail)
@@ -353,14 +347,11 @@ const App = {
 					return authorize(SeriesView, SeriesView) (routing)
 				}
 			},
+			"/series/pregame/new": {
+				onmatch: authorize(CreateSeries, Launcher)
+			},
 			"/series/pregame/:id": {
 				onmatch: authorize(SeriesDetail, SeriesDetail)
-			},
-			"/series/pregame/new": {
-				onmatch: () =>
-					auth.getAccessToken()
-						.then(() => CreateSeries(auth))
-						.catch(forceLoginRoute)
 			},
 			"/sets/pregame/assignDays": {
 				onmatch: authorize(AssignDays, Launcher)

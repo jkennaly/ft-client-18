@@ -41,6 +41,7 @@ export default ({artists, days, sets, messages, series, festivals, venues, place
 				return subjectData
 			})
 			.then(subjectData => {
+				if(!subjectData) throw new Error(`No subject found ${JSON.stringify(subjectData)}`)
 				series.remoteCheck(true)
 				festivals.remoteCheck(true)
 				venues.remoteCheck(true)

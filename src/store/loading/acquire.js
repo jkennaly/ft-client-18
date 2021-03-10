@@ -91,7 +91,6 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 				throw err
 			})
 			.then(authResult => _.isString(authResult) ? authResult : false)
-			//.then(x => console.log(modelName, 'authResult ', x) && x || x)
 			/*
 			.then(authResult => { 
 				console.log('updateModel reqUrl', reqUrl)
@@ -113,6 +112,7 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 			   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
 	   			)
 			})))
+			//.then(x => console.log(modelName, 'authResult ', x) && x || x)
 		.then(response => {
 		    if (!response.ok) {
 		      throw new Error('Network response was not ok')
@@ -129,11 +129,11 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 		})
 		*/
 		.then(response => response.id ? [response] : response)
-		
-		
 		.then(data => {updated = Boolean(data.length); return data})
-
-		//.catch(err => console.error(err))
+		.catch(err => {
+			if(!simResponse) console.trace('updateModel err', err)
+			throw err
+		})
 	const localChain = simResponse && simResponse.localData ? Promise[simResponse.localResult](simResponse.localData) : (localforage.getItem(localItem))
 
 		.then(item => _.isArray(item) ? item : [])

@@ -54,6 +54,7 @@ const DayDetail = {
 		const height = dom.clientHeight
 		//console.log('ArtistDetail DOM height', height)
 		const scroller = dom.querySelector('.ft-schedule')
+		if(!scroller) return
 		scroller.style['height'] = `${height - 270}px`
 		scroller.style['flex-grow'] = 0
 

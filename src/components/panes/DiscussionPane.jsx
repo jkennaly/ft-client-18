@@ -42,8 +42,7 @@ const DiscussionPane = {
 				//at least on message in each me must be unread
 				//.map(x => {console.log('DiscussionPane jsx', x);return x;})
 				,
-				me => <DiscussionWidget 
-					key={me[0].id}
+				mea => mea.filter(m => _.isInteger(m.subject) && _.isInteger(m.subjectYype)).map(me => <DiscussionWidget 
 					messageArray={me} 
 					supressModal={true}
 					headerCard={true}
@@ -56,7 +55,7 @@ const DiscussionPane = {
 					})}
 					popModal={attrs.popModal}
 				/>
-			)
+			))
 		}
 		{ attrs.messageArrays.length > count ? <UIButton action={e => {
             //attrs.hide()

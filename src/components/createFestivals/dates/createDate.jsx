@@ -73,11 +73,11 @@ const entryFormHandler = (formDOM) => {
 
 const consoleLog = str => console.log(str)
 const previousVenueIds = _.memoize(festivalId => remoteData.Series.getVenueIds(remoteData.Festivals.getSeriesId(festivalId)))
+let festivalId
 
-const CreateDate = (auth) => { 
-	let festivalId = parseInt(m.route.param('festivalId'), 10)
-	return {
+const CreateDate = {
 	oninit: ({attrs}) => {
+		console.log('initing CreateDate')
 		festivalId = parseInt(m.route.param('festivalId'), 10)
 		if (attrs.titleSet) attrs.titleSet(`Add Date`)
 		remoteData.Series.remoteCheck(true)
@@ -86,7 +86,7 @@ const CreateDate = (auth) => {
 	},
 	view: (vnode) => <div class="main-stage">
 				<div class="main-stage-content-scroll">
-					
+					{console.log('CreateDate')}
     
     <form name="entry-form" id="entry-form" >
       <label for="festival">
@@ -132,5 +132,5 @@ const CreateDate = (auth) => {
 	  </div>
 	  </div>
     
-}}
+}
 export default CreateDate;
