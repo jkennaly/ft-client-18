@@ -40,6 +40,8 @@ const FestivalDetail = {
 		oninit: ({attrs}) => {
 
 			if (attrs.titleSet) attrs.titleSet(festivals.getEventName(id()))
+				console.log('oninit', attrs.eventSet)
+			if (attrs.eventSet) attrs.eventSet('hasAccess')
 
 		},
 		view: ({attrs}) => (

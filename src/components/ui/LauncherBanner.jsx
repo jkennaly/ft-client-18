@@ -15,12 +15,23 @@ import SearchBar from './SearchBar.jsx';
 const {Flags: flags, Dates: dates} = remoteData
 
 var titleCache = {}
+var eventCache = {}
 const title = (attrs) => {
 	const key = m.route.get()
 	const cached = _.get(titleCache, key)
 	if(cached) return cached
-	if(attrs.titleGet()) return attrs.titleGet()
-	return `FestiGram`
+	const title = attrs.titleGet() ? attrs.titleGet() : `FestiGram`
+	_.set(titleCache, key, title)
+	return title
+}
+const event = (attrs) => {
+	//const key = m.route.get()
+	//const cached = _.get(eventCache, key)
+	//if(cached) return cached
+	const event = attrs.eventGet && attrs.eventGet() ? attrs.eventGet() : {}
+	console.log('event', event)
+	//_.set(eventCache, key, event)
+	return event
 }
 const LauncherBanner = () => {
 
@@ -34,7 +45,15 @@ const LauncherBanner = () => {
 				...dates.intended()
 				], 'id').map(d => <LiveButton date={d} />)
 			}
-				<StageTitle title={title(attrs)} />
+				{event(attrs) && event(attrs).src ? 
+					<BannerButton 
+						icon={<img src={event(attrs).src} />}
+						clickFunction={event(attrs).buyModal ? e => {} : e => {}}
+					/> 
+					: ''
+				}
+				<StageTitle title={title(attrs)} /> 
+
 				<SearchBar  />
 				{
 					/*

@@ -34,6 +34,7 @@ const stages = () => places.getMany(
 	.sort((a, b) => a.priority - b.priority)
 const festivalId = (yid = id()) => days.getFestivalId(yid)
 
+
 const DayDetail = { 
 	name: 'DayDetail',
 	preload: (rParams) => {

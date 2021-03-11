@@ -79,6 +79,7 @@ const rawUserData = status => status ? Promise.all([
 
 
 var titleCache = {}
+var eventCache = {}
 const title = (attrs) => {
 	const key = m.route.get()
 	const cached = _.get(titleCache, key)
@@ -90,6 +91,17 @@ const bannerTitle = (title, route = m.route.get()) => {
 	//console.log('bannerTitle', title, titleCache)
 	if(_.isString(title)) _.set(titleCache, route, title)
 	return _.get(titleCache, route, `FestiGram`)
+
+
+}
+const eventBadge = (selection) => {
+	const key = m.route.get()
+	if(!_.isString(selection)) return _.get(eventCache, key)
+	const badge = selection === `hasAccess` ? {src: `img/has-access.svg`} :
+		{src: `img/live-access.svg`, buyModal: true}
+	console.log('eventBadge', selection, badge)
+	_.set(eventCache, key, badge)
+	return _.get(eventCache, key)
 
 
 }
@@ -133,6 +145,7 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 				return passing
 			} , {
 				titleSet: bannerTitle, 
+				eventSet: eventBadge, 
 				userId: userDataRaw[0], 
 				userRoles: userDataRaw[1],
 				popModal: (...popRequestArgs) => {
@@ -147,6 +160,7 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 	.catch(err => {
 		console.error(err)
 		bannerTitle('')
+		eventBadge('')
 		return rejectComponent ? rejectComponent : Launcher
 	})
 
@@ -422,6 +436,7 @@ const App = {
 				userId={lastUser[0]}
 				userRoles={lastUser[1]}
 				titleGet={bannerTitle}
+				eventGet={eventBadge}
 			/>}
 			<div id="main-stage">
 				{children}

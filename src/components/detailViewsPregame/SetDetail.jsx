@@ -9,6 +9,7 @@ import {remoteData} from '../../store/data';
 const SetDetail = (auth) => { return {
 	oninit: ({attrs}) => {
 		if (attrs.titleSet) attrs.titleSet(remoteData.Sets.getEventName(parseInt(m.route.param('id'), 10)))
+		if (attrs.eventSet) attrs.eventSet(remoteData.Sets.getEventName(parseInt(m.route.param('id'), 10)))
 	},
 	view: () => <div class="main-stage">
 		<span>

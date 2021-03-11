@@ -124,6 +124,17 @@ const Admin = {
 					<NavCard fieldValue="Assign Artists to Stages" action={() => m.route.set("/sets/pregame/assignStages")}/>
 					<NavCard fieldValue="Enter Set Times" action={() => m.route.set("/sets/pregame/assignTimes")}/>
 				</FixedCardWidget>
+				{console.log(noLineup())}
+
+			{noLineup().length ? <FixedCardWidget header="No Lineup">
+				{
+					noLineup()
+						.map(data => <FestivalCard
+							eventId={data.id}
+							route={`/fests/pregame/assignLineup?seriesId=${data.series}&festivalId=${data.id}`}
+						/>)
+				}
+			</FixedCardWidget> : '' }
 			{
 				noCurrentFestival().length ? <FixedCardWidget header="No Fest">
 			{
@@ -146,15 +157,6 @@ const Admin = {
 			</FixedCardWidget> : '' }
 		
 
-			{noLineup().length ? <FixedCardWidget header="No Lineup">
-				{
-					noLineup()
-						.map(data => <FestivalCard
-							eventId={data.id}
-							route={`/fests/pregame/assignLineup?seriesId=${data.series}&festivalId=${data.id}`}
-						/>)
-				}
-			</FixedCardWidget> : '' }
 
 			{
 				artistPrisNeeded().length ? <FixedCardWidget header="Artist Priorities Unassigned">
