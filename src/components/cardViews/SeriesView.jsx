@@ -17,6 +17,7 @@ const SeriesView = {
 		remoteData.Series.remoteCheck()
 
 		if (attrs.titleSet) attrs.titleSet(`Festivals`)
+		if (attrs.eventSet) attrs.eventSet()
 	},
 	view: ({attrs}) => <div class="main-stage">
 		<CardContainer>

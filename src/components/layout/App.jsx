@@ -80,6 +80,7 @@ const rawUserData = status => status ? Promise.all([
 
 var titleCache = {}
 var eventCache = {}
+var focusCache = {}
 const title = (attrs) => {
 	const key = m.route.get()
 	const cached = _.get(titleCache, key)
@@ -99,14 +100,28 @@ const eventBadge = (selection) => {
 	if(!_.isString(selection)) return _.get(eventCache, key)
 	const badge = selection === `hasAccess` ? {src: `img/has-access.svg`} :
 		{src: `img/live-access.svg`, buyModal: true}
-	console.log('eventBadge', selection, badge)
+	//console.log('eventBadge', selection, badge)
 	_.set(eventCache, key, badge)
 	return _.get(eventCache, key)
 
 
 }
+const focusSubject = (so) => {
+	
+	if(_.isUndefined(so)) return focusCache
+	//console.log('focusSubject', so)
+	focusCache = so
+	return so
+
+
+}
 //console.log(`app here`)
 var lastUser = [0, []]
+var lastAttrs = {}
+const popModal = (...popRequestArgs) => {
+	if(!lastUser[1].includes('user')) return auth.login(m.route.get())
+	return ModalBox.popRequest(...popRequestArgs)
+}
 const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAuthenticated()		
 	.then(rawUserData)
 	.then(acb => {
@@ -122,18 +137,20 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 		}), undefined, true)
 		return acb
 	})
-	.catch(err => console.error('no authorize: ' + JSON.stringify(err)) || [0, []])
-	.then(user => lastUser = user)
-	.then(userDataRaw => {
+	.catch(err => [0, []])
+	.then(user => Promise.all([lastUser = user, user[0] && auth.getGttDecoded()]))
+	.then(([userDataRaw, gtt]) => {
 		//console.log(`route resolved`, rParams)
 		return {
 		oninit: () => {
 			//console.log(`component init`, userDataRaw, resolveComponent)
-			if(resolveComponent.preload) return Promise.all([resolveComponent.preload(rParams)])
+			if(resolveComponent.preload) return resolveComponent.preload(rParams)
+				/*
 				.catch(err => {
 					console.error('init fail', rParams)
 			
 				})
+				*/
 		},
 		view: ({attrs}) => {
 			//console.log(`component resolving`, attrs.filter, resolveComponent)
@@ -143,18 +160,21 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 				const useV = kOk && (_.isInteger(v) || /^\d+$/.test(v))
 				passing[k] = _.isInteger(v) ? v : _.toInteger(v)
 				return passing
-			} , {
+			} , {})
+			const baseAttrs = {
 				titleSet: bannerTitle, 
 				eventSet: eventBadge, 
+				focusSubject: focusSubject,
 				userId: userDataRaw[0], 
 				userRoles: userDataRaw[1],
-				popModal: (...popRequestArgs) => {
-					if(!userDataRaw[1].includes('user')) return auth.login(m.route.get())
-					return ModalBox.popRequest(...popRequestArgs)
-				},
+				gtt: gtt ? gtt : {},
+				auth: auth,
+				popModal: popModal,
 				filter: attrs.filter
-			})
-			return [m(ModalBox), m(resolveComponent, attrIds)]
+			}
+			const mainAttrs = Object.assign({}, attrIds, baseAttrs)
+			lastAttrs = attrIds
+			return [m(ModalBox), m(resolveComponent, mainAttrs)]
 		}
 	}})
 	.catch(err => {
@@ -224,16 +244,17 @@ const App = {
         			return x
         		})
 				*/						
-						.then(acb => {
-							//console.log(`callback new raw promise`)
-							rawUserPromise = auth.isAuthenticated()		
-								.then(rawUserData)
-								//.then(udr => [console.log(`callback new raw promise`, udr), udr][1])
-								.catch(err => [0, []] )
-								.then(user => lastUser = user)
-							return acb
-						})
-        				.then(acb => m.route.set(acb && acb.appState && acb.appState.route ? acb.appState.route : '/launcher', ))
+						.then(acb => auth.isAuthenticated()		
+							.then(rawUserData)
+							.catch(err => [0, []] )
+							.then(user => lastUser = user)
+							.then(() => acb)
+							//.then(udr => [console.log(`callback new raw promise udr/acb`, udr), udr][1])
+						)
+						//.then(r => console.log(`callback new raw promise acb`, r) || r)
+						.then(acb => acb && acb.appState && acb.appState.route ? acb.appState.route : '/launcher')
+        				.then(route => m.route.set(route))
+        				.catch(console.error)
         				//.then(() => m.redraw())
 				}
 			},
@@ -343,7 +364,6 @@ const App = {
 			},
 			"/research": {
 				onmatch: authorize(Research, Launcher)
-
 			},
 			"/research/:seriesId": {
 				onmatch: authorize(Research, Launcher)
@@ -437,6 +457,8 @@ const App = {
 				userRoles={lastUser[1]}
 				titleGet={bannerTitle}
 				eventGet={eventBadge}
+				popModal={popModal}
+				focusSubject={focusSubject}
 			/>}
 			<div id="main-stage">
 				{children}

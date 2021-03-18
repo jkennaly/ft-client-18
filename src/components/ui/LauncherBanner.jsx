@@ -16,20 +16,13 @@ const {Flags: flags, Dates: dates} = remoteData
 
 var titleCache = {}
 var eventCache = {}
-const title = (attrs) => {
-	const key = m.route.get()
-	const cached = _.get(titleCache, key)
-	if(cached) return cached
-	const title = attrs.titleGet() ? attrs.titleGet() : `FestiGram`
-	_.set(titleCache, key, title)
-	return title
-}
+const title = (attrs) => attrs.titleGet() ? attrs.titleGet() : `FestiGram`
 const event = (attrs) => {
 	//const key = m.route.get()
 	//const cached = _.get(eventCache, key)
 	//if(cached) return cached
 	const event = attrs.eventGet && attrs.eventGet() ? attrs.eventGet() : {}
-	console.log('event', event)
+	//console.log('event', event)
 	//_.set(eventCache, key, event)
 	return event
 }
@@ -45,10 +38,15 @@ const LauncherBanner = () => {
 				...dates.intended()
 				], 'id').map(d => <LiveButton date={d} />)
 			}
+			{
+				//console.log('LauncherBanner focusSubject', attrs.focusSubject())
+			}
 				{event(attrs) && event(attrs).src ? 
 					<BannerButton 
 						icon={<img src={event(attrs).src} />}
-						clickFunction={event(attrs).buyModal ? e => {} : e => {}}
+						clickFunction={event(attrs).buyModal ? e => {
+							attrs.popModal('access', attrs.focusSubject())
+						} : e => {}}
 					/> 
 					: ''
 				}
@@ -86,7 +84,10 @@ const LauncherBanner = () => {
 					clickFunction={e => m.route.set('/auth', {prev: m.route.get()})}
 				/>
 				}
-				<DisplayButton icon={<i class="fas fa-bars"/>} userRoles={attrs.userRoles} />
+				<DisplayButton 
+					icon={<i class="fas fa-bars"/>} 
+					userRoles={attrs.userRoles} 
+				/>
 			</div>
 			{children}
 		</div>

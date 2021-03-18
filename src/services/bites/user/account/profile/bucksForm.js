@@ -39,7 +39,16 @@ const extractToggle = () => {
 	extracted = !extracted
 	//console.log('extractToggle', extracted)
 }
-export default  (remoteDataField) => {
+// Create our number formatter.
+var formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+
+  // These options are needed to round to whole numbers if that's what you want.
+  //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+  //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+});
+export default  (remoteDataField, eventObject = {}) => {
 	const currentBucks = cachedBite(remoteDataField)
 	//console.log('bucksForm currentBucks', currentBucks)
 	const title = 'Order FestiBucks'
@@ -53,22 +62,25 @@ export default  (remoteDataField) => {
 	const ledgerItems = l => _.map(l, (v, k) => m(ContentItem, {name: k, value: v}))
 
 	let runningBalance = 0
-	const bucksForm = m(`form${extracted ? '' : '.c44-dn'}`, {}, 
+	const bucksForm = m(`form.c44-bcca${extracted ? '' : '.c44-dn'}`, {}, 
 		//form title
 		m('h2', {}, 'Buy FestiBucks'),
 		//current bucks
-		m('', {}, `Current FestiBucks: ${currentBucks}`),
+		m('', {}, `Current FestiBucks: `, 
+			m('i.fas.fa-coins'),
+			currentBucks
+		),
 		//selector: <10 or 10+
 		m('select', {onchange: e => {
 			buySmall = e.target.value === 'small' 
 			if(buySmall && buyCount > 6) buyCount = 6
 			if(!buySmall && buyCount < 10) buyCount = 10
 		}},
-			m('option', {value: 'small', selected: buySmall}, 'Buy 1-6 @ $1.50 ea'), 
-			m('option', {value: 'large', selected: !buySmall}, 'Buy 10+ @ $1.00 ea')
+			m('option', {value: 'small', selected: buySmall}, `Buy 1-6 @ $1.50 ea`), 
+			m('option', {value: 'large', selected: !buySmall}, `Buy 10+ @ $1.00 ea`)
 		),
 		//count input
-		m(`input[type=number][min=${buySmall ? 1 : 10}]${buySmall ? '[max=6]' : ''}[value=${buyCount}]`, {
+		m(`input.c44-w-ma90[type=number][min=${buySmall ? 1 : 10}]${buySmall ? '[max=6]' : ''}[value=${buyCount}]`, {
 			onchange: e => buyCount = parseInt(e.target.value, 10)
 		}),
 		m(`table`, {}, 
@@ -78,11 +90,10 @@ export default  (remoteDataField) => {
 				m('th', {}, 'Balance After Transaction')
 			),
 			m('tr', {}, 
-				m('td', {}, buyCount), 
-				m('td', {}, buyCount * (buySmall ? 1.5 : 1)), 
-				m('td', {}, buyCount + currentBucks)
+				m('td', {}, m('i.fas.fa-coins'), buyCount), 
+				m('td', {}, formatter.format(buyCount * (buySmall ? 1.5 : 1))), 
+				m('td', {}, m('i.fas.fa-coins'), (buyCount + currentBucks))
 			)
-
 		),
 		//alpha warning
 		m('', {}, 'This is alpha software under active development and there could be issues.'),
@@ -122,7 +133,11 @@ export default  (remoteDataField) => {
 		public: false,
 		name: title,
 		extractable: true,
-		extractToggle: extractToggle,
+		extractToggle: () => {
+			extractToggle()
+			eventObject.extraction && eventObject.extraction(extracted)
+
+		},
 		extracted: extracted
 	}
 }

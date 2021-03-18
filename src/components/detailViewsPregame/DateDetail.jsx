@@ -52,13 +52,32 @@ const DateDetail = {
 			//route may not be resolved; use rParams and not m.route.param
 			const dateId = parseInt(rParams.id, 10)
 			//messages.forArtist(dateId)
-			//console.log('Research preload', seriesId, festivalId, rParams)
+			//console.log('DateDetail preload', dateId, rParams)
 			
 			if(dateId) return dates.subjectDetails({subject: dateId, subjectType: DATE})
 
 		},
 		oninit: ({attrs}) => {
-			if (attrs.titleSet) attrs.titleSet(dates.getEventName(id()))
+			const dateId = id()
+			//if (attrs.titleSet) attrs.titleSet(dates.getEventName(dateId))
+			//const endMoment = 
+			return attrs.auth.hasGttAccess({subjectType: DATE, subject: dateId})
+				.then(baseAccess => Promise.all([
+					dates.getLocalPromise(dateId).then(() => dates.getEndMoment(dateId)), 
+					baseAccess
+				]))
+				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
+				.then(([endMoment, baseAccess]) => baseAccess || endMoment && endMoment.valueOf() < Date.now())
+				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
+				.then(attrs.eventSet)
+				.then(() => attrs.titleSet(dates.getEventName(dateId)))
+				.then(() => {
+
+					const so = {subjectType: DATE, subject: dateId}
+					attrs.focusSubject(so)
+				})
+				.catch(console.error)
+
 
 		},
 	view: ({attrs}) => <div class="main-stage">

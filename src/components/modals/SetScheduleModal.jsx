@@ -1,4 +1,4 @@
-// SetScheduleModal.jsx
+// src/components/modals/SetScheduleModal.jsx
 
 
 import m from 'mithril'

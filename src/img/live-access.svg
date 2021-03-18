@@ -33,9 +33,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="20.60102"
-     inkscape:cx="20.813875"
-     inkscape:cy="22.780659"
+     inkscape:zoom="14.290798"
+     inkscape:cx="18.373861"
+     inkscape:cy="32.473929"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -56,7 +56,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -84,42 +84,41 @@
        cx="6.2524891"
        cy="6.3560781"
        r="5.0270834" />
-    <g
-       id="g879"
-       transform="translate(-0.00269039,-0.39771195)">
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;fill:#ff2828;fill-opacity:1;stroke-width:0.264583"
-         x="2.3328862"
-         y="4.2431407"
-         id="text851"><tspan
-           sodipodi:role="line"
-           id="tspan849"
-           x="2.3328862"
-           y="4.2431407"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff2828;fill-opacity:1;stroke-width:0.264583">Get</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;line-height:1.25;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;fill:#ff2828;fill-opacity:1;stroke-width:0.264583"
-         x="0.17656836"
-         y="11.622642"
-         id="text859"><tspan
-           sodipodi:role="line"
-           id="tspan857"
-           x="0.17656836"
-           y="11.622642"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff2828;fill-opacity:1;stroke-width:0.264583">Access</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.88056px;line-height:1.25;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;fill:#ff2828;fill-opacity:1;stroke-width:0.264583"
-         x="1.4760233"
-         y="8.4893742"
-         id="text855"><tspan
-           sodipodi:role="line"
-           id="tspan853"
-           x="1.4760233"
-           y="8.4893742"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.88056px;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff2828;fill-opacity:1;stroke-width:0.264583">Live</tspan></text>
-    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.19197px;line-height:1.25;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;fill:#ff2828;fill-opacity:1;stroke-width:0.261998"
+       x="2.7303534"
+       y="3.3104551"
+       id="text851"
+       transform="scale(0.99022962,1.0098668)"><tspan
+         sodipodi:role="line"
+         id="tspan849"
+         x="2.7303534"
+         y="3.3104551"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.19197px;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff2828;fill-opacity:1;stroke-width:0.261998">Get</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.50616px;line-height:1.25;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;fill:#ff2828;fill-opacity:1;stroke-width:0.262962"
+       x="0.2028711"
+       y="12.028481"
+       id="text859"
+       transform="scale(0.99387158,1.0061662)"><tspan
+         sodipodi:role="line"
+         id="tspan857"
+         x="0.2028711"
+         y="12.028481"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.50616px;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff2828;fill-opacity:1;stroke-width:0.262962">Access</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.93546px;line-height:1.25;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;fill:#ff2828;fill-opacity:1;stroke-width:0.268326"
+       x="1.7933438"
+       y="7.5586524"
+       id="text855"
+       transform="scale(0.95929141,1.0424361)"><tspan
+         sodipodi:role="line"
+         id="tspan853"
+         x="1.7933438"
+         y="7.5586524"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.93546px;font-family:'Bitstream Vera Sans Mono';-inkscape-font-specification:'Bitstream Vera Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff2828;fill-opacity:1;stroke-width:0.268326">Live</tspan></text>
   </g>
 </svg>

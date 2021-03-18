@@ -1,4 +1,4 @@
-// ArtistEntryModal.jsx
+// src/components/modals/ArtistEntryModal.jsx
 
 
 import m from 'mithril'

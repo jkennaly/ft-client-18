@@ -41,7 +41,7 @@ const Research = {
 			const seriesId = parseInt(rParams.seriesId, 10)
 			const festivalId = parseInt(rParams.festivalId, 10)
 			//console.log('Research preload', seriesId, festivalId, rParams)
-			if(seriesId && !festivalId) series.subjectDetails({subject: seriesId, subjectType: SERIES})
+			if(seriesId && !festivalId) return series.subjectDetails({subject: seriesId, subjectType: SERIES})
 				.catch(console.error)
 			if(festivalId) return festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL})
 				.catch(console.error)

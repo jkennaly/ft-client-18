@@ -58,6 +58,8 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .c44-bca {background-color: var(--background-color-active);}
 /* background color: own-content */
 .c44-bcoc {background-color: var(--background-color-own-content);}
+.c44-bcca {background-color: var(--color-active);}
+.c44-bcg {background-color: gray;}
 
 /* display */
 .c44-df {display: flex;}
@@ -89,6 +91,9 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .c44-h-m160px {min-height: 160px;}
 .c44-h-ma50vh {max-height: 50vh;}
 .c44-h-ma25vh {max-height: 25vh;}
+
+/* hover */
+.c44-hov-cp {cursor: pointer;}
 
 /* margin */
 .c44-mla {margin-left: auto;}
@@ -123,10 +128,14 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 /* width */
 .c44-w-10vh {width: 10vh;}
 .c44-w-60 {width: 60%;}
+.c44-w-90 {width: 90%;}
 .c44-w-100 {width: 100%;}
 .c44-w-480px {width: 480px;}
 .c44-w-600px {width: 600px;}
 .c44-w-ma6em {max-width: 6em;}
+.c44-w-ma90 {max-width: 90%;}
+.c44-w-min {width: min-width;}
+.c44-w-max {width: max-width;}
 
 
 /* tricks */

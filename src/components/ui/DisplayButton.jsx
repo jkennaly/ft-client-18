@@ -70,7 +70,7 @@ const DisplayButton = vnode => {
 			document.body.removeEventListener('click', hideMenu(dom))
 		},
 		view: ({ attrs }) => <div>
-			<div class="ft-nav-button" onclick={() => menuHidden = !menuHidden}>
+			<div class="ft-nav-button ft-nav-menu-button" onclick={() => menuHidden = !menuHidden}>
 				{attrs.icon}
 			</div>
 			<CollapsibleMenu 

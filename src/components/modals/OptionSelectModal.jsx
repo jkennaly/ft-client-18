@@ -1,4 +1,4 @@
-// OptionSelectModal.jsx
+// src/components/modals/OptionSelectModal.jsx
 
 
 import m from 'mithril'

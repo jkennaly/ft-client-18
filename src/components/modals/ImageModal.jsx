@@ -1,4 +1,4 @@
-// ImageModal.jsx
+// src/components/modals/ImageModal.jsx
 // src/components/modals
 
 

@@ -7,7 +7,6 @@ localforage.config({
 	name: "FestiGram",
 	storeName: "FestiGram"
 })
-import {tokenFunction} from '../../services/requests.js'
 
 const headerBase = {
 	'Content-Type': 'application/json'
@@ -26,13 +25,17 @@ const authOnly = [
 export default function (data, modelName, queryString = '', url, method = 'POST', simResponse, options = {}) {
 	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
 	const usingFormData = simResponse || data instanceof FormData
-	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getAccessToken()
+	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getBothTokens()
 
-		.then(authResult =>  !_.isString(authResult) && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
+		.then(([authResult, gtt]) =>  !_.isString(authResult) && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
 
 		   	method: method, 
 		   	headers: new Headers(
-		   		_.isString(authResult) ? _.assign({}, (options.form ? formBase : headerBase), {Authorization: `Bearer ${authResult}`}) : (options.form ? formBase : headerBase)
+		   		_.isString(authResult) ? _.assign({}, (options.form ? formBase : headerBase), {
+		   			Authorization: `Bearer ${authResult}`,
+		   			"X-GT-Access-Token": gtt
+
+		   		}) : (options.form ? formBase : headerBase)
    			),
 			body: (options.form ? data : JSON.stringify(data)) 
 		}))
@@ -47,16 +50,6 @@ export default function (data, modelName, queryString = '', url, method = 'POST'
 
 		})
 	)
-/*
-		.then(authResult => m.request({
-			method: method,
-			//use the dataFieldName after the last dot to access api
-			url: reqUrl,
-			config: tokenFunction(authResult),
-			body: data,
-			background: true
-		})))
-		*/
 	return resultChain
 }
 

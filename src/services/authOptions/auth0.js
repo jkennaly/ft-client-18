@@ -4,10 +4,15 @@ import auth00 from '@auth0/auth0-spa-js';
 import m from 'mithril'
 import _ from 'lodash'
 import localforage from 'localforage'
+import jwt_decode from 'jwt-decode'
+import {subjectBought} from './gtt'
 localforage.config({
   name: "FestiGram",
   storeName: "FestiGram"
 })
+const headerBase = {
+  'Content-Type': 'application/json'
+}
 
 const AUTH0_DATA = typeof AUTH_CONFIG === 'undefined' ? {} : AUTH_CONFIG
 
@@ -49,12 +54,11 @@ var lastToken, lastUserData
 const clean = () => {
 
     localStorage.clear()
-    localforage.clear()
-      .then(() => dataReset())
-      //.then(() => console.log('data Reset'))
-      .catch(err => console.error('logout data reset failed', err))
     userIdCache = 0
     userRoleCache = []
+    return localforage.clear()
+      //.then(() => console.log('data Reset'))
+      .catch(err => console.error('logout data reset failed', err))
 }
 var authLoad
 export default class Auth {
@@ -98,10 +102,9 @@ export default class Auth {
     .catch(err => {
       if(err.error === 'login_required') {
         const lastId = localStorage.getItem('ft_user_id')
-        if(lastId) clean()
-        return
+        return lastId ? clean() : undefined
       } 
-      err !== 'mocked' && console.error('auth0 instantiantion failed', err)
+      err !== 'mocked' && err !== 0 && console.error('auth0 instantiantion failed', err)
 
     })
   )
@@ -242,8 +245,10 @@ export default class Auth {
 
   logout(skipRoute) {
     // Clear Access Token and ID Token from local storage
-    clean()
-    auth0.logout({client_id: AUTH0_DATA.CLIENTID, returnTo:AUTH0_DATA.CALLBACKURL})
+    return clean()
+      .finally(() => auth0.logout({client_id: AUTH0_DATA.CLIENTID, returnTo:AUTH0_DATA.CALLBACKURL}))
+
+    
     // navigate to the default route
     //if(!skipRoute) m.route.set('/')
   }
@@ -276,6 +281,107 @@ export default class Auth {
       .catch(err => accessTokenPromiseCache = {})
     return accessTokenPromiseCache
 
+  }
+
+  getGttRawRemote() {
+    return this.getAccessToken()
+      .then(authResult => _.isString(authResult) ? authResult : false)
+      .then(authResult => {
+        if(!_.isString(authResult) || !authResult) throw new Error('not authorized')
+        return authResult
+      })
+      /*
+      .then(authResult => { 
+        console.log('updateModel reqUrl', reqUrl)
+        const req = m.request({
+            method: 'GET',
+            url: reqUrl,
+          config: tokenFunction(authResult),
+          background: true
+        })
+        console.log('req', req)
+        req.then(x => console.log('updateModel response') && x || x)
+        req.catch(x => console.log('updateModel err', x))
+        return req
+      })
+      */
+      .then(authResult => fetch('/api/Profiles/gtt', { 
+          method: 'get', 
+          headers: new Headers(
+            authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
+          )
+      }))
+      .then(response => {
+        //console.log('gtt', response)
+        if(_.isArray(response)) return response
+        try {
+          return response.json()
+        } catch (err) {
+          console.error(err)
+          return []
+        }
+
+      })
+      .then(json => json.token)
+      .then(gtt => localforage.setItem('gtt.raw', gtt).then(() => gtt))
+      /*
+      .then(json => {
+        console.log(json)
+      })
+      */
+      .catch(err => {
+        if(err.message === 'not authorized') return ''
+        if(/JSON\.parse/.test(err.message)) {
+          return localforage.setItem('gtt.raw', '')
+        }
+        console.error(err)
+      })
+  }
+
+  getGttRawLocal() {
+    return localforage.getItem('gtt.raw')
+      .catch(err => {})
+  }
+
+  getGttRaw() {
+    return this.isAuthenticated()
+      .then(auth => {if(!auth) throw 'No auth'})
+      .then(this.getGttRawLocal)
+      .then(local => _.isString(local) ? local : this.getGttRawRemote())
+      .then(raw => raw ? raw : '')
+      .catch(err => '')
+  }
+
+  getGttDecoded() {
+    return this.getGttRaw()
+      .then(jwt_decode)
+      .then(raw => raw ? raw : {})
+      .catch(err => {})
+
+  }
+
+  //has gtt access will return false for past events that are accessible
+  hasGttAccess(so) {
+    return this.getGttDecoded()
+      //.then(baseAccess => console.log('hasGttAccess getGttDecoded', baseAccess) || baseAccess)
+        
+      .then(subjectBought(so))
+
+  }
+
+  getBothTokens() {
+    //if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
+    const access = authLoad
+      .then(() => this.getValidToken())
+      .then(raw => raw ? raw : '')
+      .catch(() => '')
+
+    const gtt = this.getGttRaw()
+      .catch(() => '')
+    return Promise.all([access, gtt])
+
+      //.then(x => console.log('getBothTokens', x) && x || x)
+  
   }
   getIdTokenClaims()  {
     return authLoad

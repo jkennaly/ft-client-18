@@ -11,6 +11,7 @@ import OptionSelect from './OptionSelectModal.jsx'
 import Review from './ReviewModal.jsx'
 import Schedule from './SetScheduleModal.jsx'
 import Text from './TextEntryModal.jsx'
+import Access from './AccessModal.jsx'
 
 const modals = {
 	artist: Artist,
@@ -20,7 +21,8 @@ const modals = {
 	option: OptionSelect,
 	review: Review,
 	schedule: Schedule,
-	text: Text
+	text: Text,
+	access: Access
 }
 
 var display = ''

@@ -3,6 +3,7 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
 
 import BuyAccessLine from '../../../../../components/fields/form/BuyAccessLine.jsx'
 import EventSelector from '../../../../../components/detailViewsPregame/fields/event/EventSelector.jsx'
@@ -16,6 +17,20 @@ const STRIPE_PK = typeof STRIPE_PUBLIC === 'undefined' ? {} : STRIPE_PUBLIC
 var stripe = Stripe(STRIPE_PK['STRIPE_PUBLIC'])
       
 
+const endPromise = (users) => users
+	.wouldend()
+	.then(fav => {
+		_.set(biteTimes, `endPromise[${0}]`, Date.now())
+		_.set(biteCache, `endPromise[${0}]`, fav)
+		return fav
+	})
+const cachedEndBite = (users) => {
+	const cacheTime = _.get(biteTimes, `endPromise[${0}]`, 0)
+	const cacheOk = cacheTime + cacheLife > Date.now()
+	if (!cacheOk) endPromise(users)
+		.catch(console.log)
+	return _.get(biteCache, `endPromise[${0}]`, [])
+}
 const dataPromise = (users) => users
 	.bucks({total: true})
 	.then(fav => {
@@ -100,10 +115,22 @@ const onchange = radix => e => {
 	return cacheId(radix, newId)
 
 }
-export default  (users, days, dates, festivals) => {
-	const currentBucks = cachedBite(users)
-	const currentId = dayIdCache || dateIdCache || festivalIdCache
+const extractEvent = eo => {
+	if(eo.subjectType === SERIES) return {
+		seriesId: eo.subject
+	}
 
+}
+export default  (users, days, dates, festivals, eventObject = {}) => {
+	const currentBucks = cachedBite(users)
+	const endTime = cachedEndBite(users)
+	const currentId = dayIdCache || dateIdCache || festivalIdCache
+	
+	if(eventObject.seriesId) seriesIdCache = eventObject.seriesId
+	if(eventObject.festivalId) festivalIdCache = eventObject.festivalId
+	if(eventObject.dateId) dateIdCache = eventObject.dateId
+	if(eventObject.dayId) dayIdCache = eventObject.dayId
+	
 	const rdf = dayIdCache ? days :
 		dateIdCache ? dates :
 		festivalIdCache ? festivals :
@@ -111,7 +138,7 @@ export default  (users, days, dates, festivals) => {
 	if(festivalIdCache && !dateIdCache) dates.acquireListSupplement((`filter=${JSON.stringify({where: {festival: festivalIdCache}})}`))
 	if(dateIdCache && !dayIdCache) days.acquireListSupplement((`filter=${JSON.stringify({where: {date: dateIdCache}})}`))
 	const costObject = cachedCostBite(rdf, currentId)
-	//console.log('bucksSpend currentBucks', currentBucks, costObject)
+	//console.log('bucksSpend currentBucks endTime', endTime, currentBucks, costObject)
 	const title = 'Festival Access'
 	if(!_.isNumber(currentBucks)) return {
 		value: 'Loading',
@@ -127,13 +154,16 @@ export default  (users, days, dates, festivals) => {
 		dayId: dayId()
 	})
 	*/
-	const bucksSpend = m(`form${extracted ? '' : '.c44-dn'}`, {}, 
+	const bucksSpend = m(`form.c44-bcca.c44-w-90.c44-fjcc${extracted ? '.c44-fvf' : '.c44-dn'}`, {}, 
 		//form title
-		m('h2', {}, 'Buy Live Festival Access'),
+		m('h2.c44-tac', {}, 'Buy Live Access'),
 		//current bucks
-		m('', {}, `Current FestiBucks: ${currentBucks}`),
+		m('span.c44-tac', {}, `Current FestiBucks: `, 
+			m('i.fas.fa-coins'),
+			currentBucks
+		),
 		//selector: event
-		m(EventSelector, {
+		eventObject.festivalId ? '' : m(EventSelector, {
 			seriesId: seriesIdCache,
 			festivalId: festivalIdCache,
 			dateId: dateIdCache,
@@ -145,7 +175,20 @@ export default  (users, days, dates, festivals) => {
 		}),
 		..._.map(costObject, 
 			(v, k, a) => /Id$/.test(k) ? '' : m(BuyAccessLine, {
-				name: k, 
+				name: k === 'day' ? festivals.getEventName(festivalIdCache) :
+						k === 'date' ? festivals.getEventName(festivalIdCache) :
+						k === 'festival' ? festivals.getEventName(festivalIdCache) :
+						k === 'full' ? 'Full Access' :
+						k, 
+				subtitle: k === 'day' ? days.getEventNameArray(dayIdCache).reduce((n, pn, i) => {
+					if(i === 2) n = pn
+					if(i === 3) n = `${n} ${pn}`
+					return n
+				}, '') :
+						k === 'date' ? dates.getPartName(dateIdCache) :
+						k === 'festival' ? 'All Dates' :
+						k === 'full' ? 'All events through ' + moment(endTime).format('ll') :
+						k, 
 				value: v, 
 				accessLevel: k,
 				clickFunction: e => {
@@ -161,9 +204,10 @@ export default  (users, days, dates, festivals) => {
 					let buyObject = {}
 					buyObject[k] = v
 					buyObject[`${k}Id`] = a[`${k}Id`]
-					console.log('bucksSpend buyObject', buyObject)
+					//console.log('bucksSpend buyObject', buyObject)
 					return rdf.buy(buyObject)
-				}
+				},
+				unaffordable: currentBucks < v
 			}))
 	)
 	return {
@@ -172,7 +216,11 @@ export default  (users, days, dates, festivals) => {
 		public: false,
 		name: title,
 		extractable: true,
-		extractToggle: extractToggle,
+		extractToggle: () => {
+			extractToggle()
+			eventObject.extraction && eventObject.extraction(extracted)
+
+		},
 		extracted: extracted
 	}
 }

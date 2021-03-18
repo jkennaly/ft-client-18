@@ -22,10 +22,52 @@ import { remoteData } from "../../store/data";
 
 const festivals = remoteData.Festivals
 
-const id = () => parseInt(m.route.param('id'), 10)
-const user = attrs => _.isInteger(attrs.user) ? attrs.user : 0
-const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
+const jsx = () => { 
+	return {
+		view: ({attrs}) => <div class="main-stage">
+			{attrs.festivalId ? <SeriesWebsiteField festivalId={attrs.festivalId} /> : ''}
+			{attrs.festivalId ? (
+				<IntentToggle
+					subjectObject={{
+						subject: attrs.festivalId, 
+						subjectType: FESTIVAL
+					}}
+					permission={attrs.userRoles.includes('user')}
+				/>
+			) : (
+				""
+			)}
 
+			<WidgetContainer>
+				<LineupWidget festivalId={attrs.festivalId} />
+				<ActivityWidget 
+					festivalId={attrs.festivalId} 
+					userId={attrs.userId} 
+					popModal={attrs.popModal} 
+				/>
+				<ResearchWidget list={[]} userId={attrs.userId} popModal={attrs.popModal} />
+				<FixedCardWidget header="Related Events">
+					{(remoteData.Dates.getMany(
+						festivals.getSubIds(attrs.festivalId))
+					)
+						.sort((a, b) => a.basedate - b.basedate)
+						.map(data => (
+							<DateCard eventId={data.id} />
+						))}
+					<SeriesCard
+						data={(remoteData.Series.get(
+							festivals.getSuperId(
+								attrs.festivalId))
+						)}
+						eventId={(
+							festivals.getSuperId(
+								attrs.festivalId)
+						)}
+					/>
+				</FixedCardWidget>
+			</WidgetContainer>
+		</div>
+	}}
 const FestivalDetail = {
 	name: 'FestivalDetail',
 	preload: (rParams) => {
@@ -35,59 +77,44 @@ const FestivalDetail = {
 		//messages.forArtist(festivalId)
 		///console.log('FestivalDetail preload', festivalId, rParams)
 		if(festivalId) return festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL})
+			.then(m.redraw)
+	},
+	oncreate: ({dom}) => {
+		const height = dom.clientHeight
+		//console.log('ArtistDetail DOM height', height)
+		const scroller = dom.querySelector('.ft-widget-container')
+		scroller.style['height'] = `${height - 270}px`
+		scroller.style['flex-grow'] = 0
 
 	},
-		oninit: ({attrs}) => {
+		view: ({attrs}) => {
+			const festivalId = parseInt(m.route.param('id'), 10)
+			attrs.titleSet(festivals.getEventName(festivalId))
+			const so = {subjectType: FESTIVAL, subject: festivalId}
+			attrs.focusSubject(so)
+			const endMoment = festivals.getEndMoment(festivalId)
+			attrs.auth.hasGttAccess(so)
+				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
+				.then(baseAccess => baseAccess || endMoment && endMoment.valueOf() < Date.now())
+				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
+				.then(attrs.eventSet)
+				.catch(console.error)
+				//console.log('oninit', attrs.eventSet)
+			//hasAccess if:
+				//event not restricted OR
+				//gtt token has access
+			//console.log('FestivalDetail', attrs.gtt)
+			
+			const mapping = {
+				userId: attrs.userId,
+				userRoles: attrs.userRoles,
+				popModal: attrs.popModal,
+				festivalId: festivalId,
 
-			if (attrs.titleSet) attrs.titleSet(festivals.getEventName(id()))
-				console.log('oninit', attrs.eventSet)
-			if (attrs.eventSet) attrs.eventSet('hasAccess')
-
-		},
-		view: ({attrs}) => (
-			<div class="main-stage">
-				{id() ? <SeriesWebsiteField festivalId={id()} /> : ''}
-				{id() ? (
-					<IntentToggle
-						subjectObject={{
-							subject: id(), 
-							subjectType: FESTIVAL
-						}}
-						permission={roles(attrs).includes('user')}
-					/>
-				) : (
-					""
-				)}
-
-				<WidgetContainer>
-					<LineupWidget festivalId={id()} />
-					<ActivityWidget 
-						festivalId={id()} 
-						userId={attrs.userId} 
-						popModal={attrs.popModal} 
-					/>
-					<ResearchWidget list={[]} userId={attrs.userId} popModal={attrs.popModal} />
-					<FixedCardWidget header="Related Events">
-						{(remoteData.Dates.getMany(
-							festivals.getSubIds(id()))
-						)
-							.sort((a, b) => a.basedate - b.basedate)
-							.map(data => (
-								<DateCard eventId={data.id} />
-							))}
-						<SeriesCard
-							data={(remoteData.Series.get(
-							festivals.getSuperId(
-								id()))
-						)}
-							eventId={(
-							festivals.getSuperId(
-								id()))}
-						/>
-					</FixedCardWidget>
-				</WidgetContainer>
-			</div>
-		)
+				//sets: activeDateSets
+			}
+			return m(jsx, mapping)
+		}
 
 };
 export default FestivalDetail;

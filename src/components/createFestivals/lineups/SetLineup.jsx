@@ -171,11 +171,30 @@ const SetLineup = {
 							type="radio" 
 							name={"radio-" + data.id}
 							value={'radio-' + data.id + '-' + h.id} 
+							onclick={e => {
+								//console.log('priChange artist:', data.id, data.name)
+								const l = remoteData.Lineups.getFiltered({
+									festival: festivalId(),
+									band: data.id,
+									deleted: 0
+								})[0]
+								remoteData.Lineups.updateInstance({
+									festival: festivalId(), 
+									timestamp: new Date(),
+									priority: h.id}, l.id
+								)
+									.catch(console.error)
+							}}
 							checked={h.id === remoteData.Lineups.getPriFromArtistFest(data.id, festivalId()) ? 'checked' : ''}/>
 				</td>)}<td><input 
-							type="radio" 
+							type="button" 
 							name={"radio-" + data.id}
-							value={'delete-' + data.id} />
+							value={'delete-' + data.name} 
+							onclick={e => {
+								//console.log('deleted artist:', data.id, data.name)
+								remoteData.Lineups.delete(data.id)
+									.catch(console.error)
+							}} />
 				</td></tr>)
 				    	}
 			    	</table></form>
@@ -185,7 +204,15 @@ const SetLineup = {
 						action={artistPromise => artistPromise}
 						festivalId={festivalId()}
 					/>
-			      <UIButton action={() => entryFormHandler(document.getElementById('entry-form'), festivalId())} buttonName="Update Artist Priorities" /></div>
+					
+			      {
+
+			      //<UIButton action={() => entryFormHandler(document.getElementById('entry-form'), festivalId())} buttonName="Update Artist Priorities" />
+			      }
+
+			      </div>
+					
+						
        		</div> : ''}
 		</div>
 }

@@ -8,7 +8,6 @@ localforage.config({
 	storeName: "FestiGram"
 })
 import archive from './archive'
-import {tokenFunction} from '../../services/requests.js'
 import Auth from '../../services/auth.js'
 const auth = Auth
 
@@ -85,31 +84,22 @@ export function updateModel(modelName, queryString = '', url, simResponse) {
 	const resultChain = coreChecked
 		.catch(err => {})
 		.then(() => simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : 
-		(auth.getAccessToken()
+		(auth.getBothTokens()
 			.catch(err => {
 				if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
 				throw err
 			})
-			.then(authResult => _.isString(authResult) ? authResult : false)
-			/*
-			.then(authResult => { 
-				console.log('updateModel reqUrl', reqUrl)
-				const req = m.request({
-	    			method: 'GET',
-	    			url: reqUrl,
-					config: tokenFunction(authResult),
-					background: true
-				})
-				console.log('req', req)
-				req.then(x => console.log('updateModel response') && x || x)
-				req.catch(x => console.log('updateModel err', x))
-				return req
-			})
-			*/
-			.then(authResult => !_.isString(authResult) && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
+
+      //.then(x => console.log('getBothTokens', x) && x || x)
+			//.then(([authResult, gtt]) => authResult ? [authResult, gtt] : [false])
+
+			.then(([authResult, gtt]) => !authResult && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
 			   	method: 'get', 
 			   	headers: new Headers(
-			   		authResult ? _.assign({}, headerBase, {Authorization: `Bearer ${authResult}`}) : headerBase
+			   		authResult ? _.assign({}, headerBase, {
+			   			Authorization: `Bearer ${authResult}`,
+			   			"X-GT-Access-Token": gtt
+			   		}) : headerBase
 	   			)
 			})))
 			//.then(x => console.log(modelName, 'authResult ', x) && x || x)

@@ -6,8 +6,15 @@ import m from 'mithril'
 
 const jsx = {
   view: ({ attrs }) =>
-    <div class="ft-buy-access-line c44-df c44-fjcc">
-    	<button onclick={attrs.clickFunction}>{`Buy ${attrs.name} Access for ${attrs.value} FestiBucks`}</button>
+    <div class={`ft-buy-access-line c44-df c44-fjcc`}>
+    	<button class={`c44-w-100${attrs.unaffordable ? ' c44-bcg' : ''}`} onclick={attrs.unaffordable ? e => {} : attrs.clickFunction}>
+	    	{attrs.name}
+	    	<br />
+	    	{attrs.subtitle}
+	    	<br />
+	    	<i class="fas fa-coins" />
+	    	{attrs.value}
+    	</button>
     </div>
 }
 
@@ -17,8 +24,10 @@ const BuyAccessLine = {
 		const mapping = {
 			accessLevel: attrs.accessLevel,
 			name: attrs.name,
+			subtitle: attrs.subtitle,
 			value: attrs.value,
-			clickFunction: attrs.clickFunction
+			clickFunction: attrs.clickFunction,
+			unaffordable: attrs.unaffordable
 		}
 
 		return m(jsx, mapping)

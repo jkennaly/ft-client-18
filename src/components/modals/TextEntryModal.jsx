@@ -1,4 +1,4 @@
-// TextEntryModal.jsx
+// src/components/modals/TextEntryModal.jsx
 
 
 import m from 'mithril'

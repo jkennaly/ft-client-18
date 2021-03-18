@@ -1,4 +1,4 @@
-// ReviewModal.jsx
+// src/components/modals/ReviewModal.jsx
 //review modals combine rating and comment messages into one modal
 
 

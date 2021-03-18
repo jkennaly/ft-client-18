@@ -4,7 +4,6 @@ import _ from 'lodash'
 
 import {remoteData} from './data.js'
 import {reviewArrays} from '../services/reviewArrays'
-import {reqOptionsCreate, tokenFunction} from '../services/requests.js'
 import {timeStampSort} from '../services/sorts.js'
 import {sameSubject} from '../services/subjectFunctions';
 import Auth from '../services/auth.js'
@@ -556,48 +555,6 @@ export const subjectData = {
 		const users = remoteData.Users.getMany(userIdsActive(subjectObject))
 		return users
 		
-	},
-	loadMessagesForSubject: subjectObject => {
-		//reject if invalid parameters
-		if(!subjectObject || !subjectObject.subject) return Promise.reject('invalid Subject Data for load')
-		const dataFieldName = 'Messages'
-		const baseUrl = dataFieldName
-		const secondarySubjects = secondarySubjectObjects(subjectObject.subjectType)(subjectObject)
-		const whereString = JSON.stringify({
-			or: [subjectObject, ...secondarySubjects]
-				.map(so => {return {and: [
-					{subject: so.subject},
-					{subjectType: so.subjectType}
-				]};})
-		})
-
-		const end = baseUrl + `?filter={"where":${whereString}}`
-
-
-		//return and resolve to empty array if 
-		const cachePath =  `${subjectObject.subjectType}.${subjectObject.subject}`
-
-		const alreadyLoaded = _.get(subjectLoaded, cachePath, false)
-		if(alreadyLoaded) return Promise.resolve([])
-		_.set(subjectLoaded, cachePath, true)
-
-
-		const dataField = remoteData[subjectDataField(subjectObject.subjectType)]
-		//get the raw data
-		const bulkUpdatePromise = Auth.getAccessToken()
-			.then(token => m.request(reqOptionsCreate(tokenFunction(token))(end, 'GET')()))
-			.then(result => result.data)
-			.then(dataField.backfillList)
-			.then(unionLocalList('remoteData.' + dataFieldName, {updateMeta: true}))
-			.catch(err => {
-				//set cache back to empty
-				_.set(subjectLoaded, cachePath, false)
-				console.error('subjectData loadFor bulkUpdatePromise catch')
-				console.dir(subjectObject)
-				console.error(err)
-			})
-
-		return bulkUpdatePromise
 	},
 	getReviews: (subjectObject, userId) => {
 		//console.log('subjectData getDetail', secondarySubjectObjects(subjectObject.subjectType)(subjectObject.subject))

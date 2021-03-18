@@ -15,6 +15,7 @@ const totalize = raw => {
 var buyInProgress = false
 export default {
 	cost (id) { 
+		if(!id) return Promise.resolve(true)
 		const end = `/api/${this.fieldName}/cost/${this.fieldName === 'Profiles' ? 'full' :  id}`
 		//console.log('cost ' + end)
 		const key = end

@@ -14,6 +14,26 @@ const totalize = raw => {
 }
 var buyInProgress = false
 export default {
+	wouldend (opts = {}) { 
+		const end = `/api/${this.fieldName}/access/wouldend`
+		//console.log('bucks ' + end)
+		const key = end
+		const updateTimeElapsed = Date.now() - _.get(lastUpdate, key, 0)
+		if((updateTimeElapsed < cacheLife) && _.get(lastPromise, key)) return _.get(lastPromise, key, (() => Promise.reject('cache inconsistent ' + key)())).then(p => opts.total ? totalize(p) : p)
+		if(updateTimeElapsed < cacheLife) return new Promise((resolve, reject) => {
+		    setTimeout(() => {
+		        resolve(this.wouldend(opts))
+		    }, 1 * 1000)
+		})
+		_.set(lastUpdate, key, Date.now())
+
+		const p = provide(undefined, this.fieldName, '', end, 'GET')
+			.then(x => x.data * 1000)
+			//.then(c => {console.log('bucks response', c); return c})
+		
+		_.set(lastPromise, key, p)
+		return opts.total ? p.then(totalize) : p
+	},
 	bucks (opts = {}) { 
 		const end = `/api/${this.fieldName}/bucks`
 		//console.log('bucks ' + end)

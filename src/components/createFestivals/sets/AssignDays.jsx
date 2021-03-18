@@ -103,7 +103,7 @@ const entryFormHandler = (formDOM, dateId) => {
 	//console.log(createSets);
 
 	sets.createForDays(createSets);
-	sets.batchDelete(deleteSets);
+	deleteSets.length && sets.batchDelete(deleteSets);
 
 	const festivalId = dates.getFestivalId(dateId)
 
@@ -153,8 +153,8 @@ const entryFormHandler = (formDOM, dateId) => {
 	//console.log(deleteLineupIds)
 	//console.log(updateLineups)
 
-	lineups.batchDelete({ids: deleteLineupIds})
-	lineups.batchUpdate(updateLineups)
+	deleteLineupIds.length && lineups.batchDelete({ids: deleteLineupIds})
+	updateLineups.length && lineups.batchUpdate(updateLineups)
 	m.route.set('/launcher')
 	//formDOM.reset();
 };
@@ -260,7 +260,7 @@ const AssignDays = {
 				dateChange={dateChange(seriesId(), festivalId())}
 			/>
 			{dateId() ? <div>
-				<AddSingleArtist festivalId={festivalId()} popModal={attrs.popModal} />
+				<AddSingleArtist festivalId={festivalId()} popModal={vnode.attrs.popModal} />
 		    <ToggleControl
 				offLabel={'Show All'}
 				onLabel={'Hide assigned'}
