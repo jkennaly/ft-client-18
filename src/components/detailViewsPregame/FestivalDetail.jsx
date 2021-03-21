@@ -92,10 +92,9 @@ const FestivalDetail = {
 			attrs.titleSet(festivals.getEventName(festivalId))
 			const so = {subjectType: FESTIVAL, subject: festivalId}
 			attrs.focusSubject(so)
-			const endMoment = festivals.getEndMoment(festivalId)
-			attrs.auth.hasGttAccess(so)
+			attrs.auth.getGttDecoded(so)
 				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
-				.then(baseAccess => baseAccess || endMoment && endMoment.valueOf() < Date.now())
+				.then(decoded => !festivals.sellAccess(festivalId, decoded))
 				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
 				.then(attrs.eventSet)
 				.catch(console.error)

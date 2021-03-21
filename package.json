@@ -63,7 +63,7 @@
     "smart-search": "^0.2.0"
   },
   "scripts": {
-    "e2e": "npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js'",
+    "e2e": "clear && npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js'",
     "entry": "npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js' './tests/**/**.entry.js'",
     "test": "NODE_ENV=test nyc --reporter=text-summary --reporter=html npx babel-node node_modules/ospec/bin/ospec './tests/**/**.test.js' --preload ./tests/test-setup.js",
     "start": "webpack-dev-server --open",
@@ -79,9 +79,9 @@
     "postbuild:local": "[ -f ./deploy.js ] && node deploy.js local",
     "postbuild:dev": "npm run postbuild:remote",
     "postbuild:prod": "npm run postbuild:remote",
-    "watch": "npm run build:dev && onchange -i 'src/**/*' 'tests/**/*.js' -- npm run build:dev",
-    "watch:local": "npm run build:local && onchange -i 'src/**/*' 'tests/**/*.js' -- npm run build:local",
-    "watch:prod": "npm run build:prod && onchange -i 'src/**/*' 'tests/**/*.js' -- npm run build:prod"
+    "watch": "npm run build:dev && onchange -i 'src/**/*' -- npm run build:dev",
+    "watch:local": "npm run build:local && onchange -i 'src/**/*' -- npm run build:local",
+    "watch:prod": "npm run build:prod && onchange -i 'src/**/*' -- npm run build:prod"
   },
   "nyc": {
     "require": [

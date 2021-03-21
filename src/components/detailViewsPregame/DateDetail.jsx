@@ -61,13 +61,10 @@ const DateDetail = {
 			const dateId = id()
 			//if (attrs.titleSet) attrs.titleSet(dates.getEventName(dateId))
 			//const endMoment = 
-			return attrs.auth.hasGttAccess({subjectType: DATE, subject: dateId})
-				.then(baseAccess => Promise.all([
-					dates.getLocalPromise(dateId).then(() => dates.getEndMoment(dateId)), 
-					baseAccess
-				]))
+			const so = {subject: dateId, subjectType: DATE}
+			return attrs.auth.getGttDecoded(so)
 				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
-				.then(([endMoment, baseAccess]) => baseAccess || endMoment && endMoment.valueOf() < Date.now())
+				.then(decoded => !dates.sellAccess(dateId, decoded))
 				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
 				.then(attrs.eventSet)
 				.then(() => attrs.titleSet(dates.getEventName(dateId)))

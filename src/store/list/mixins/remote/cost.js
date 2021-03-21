@@ -6,6 +6,7 @@ import provide from '../../../loading/provide'
 
 var lastUpdate = {}
 var lastPromise = {}
+var lastValue = {}
 const cacheLife = 30 * 1000
 const totalize = raw => {
 	const data = _.isArray(raw) ? raw : raw.data
@@ -13,6 +14,7 @@ const totalize = raw => {
 
 }
 var buyInProgress = false
+
 export default {
 	cost (id) { 
 		if(!id) return Promise.resolve(true)
@@ -29,9 +31,20 @@ export default {
 		_.set(lastUpdate, key, Date.now())
 
 		const p = provide(undefined, this.fieldName, '', end, 'GET')
+			.then(c => {lastValue[key] = _.get(c, 'data', {}); return c})
 			//.then(c => {console.log('cost response', c); return c})
 		
 		_.set(lastPromise, key, p)
 		return p
+	},
+	costCache (id) { 
+		if(!id) return Promise.resolve(true)
+		const end = `/api/${this.fieldName}/cost/${this.fieldName === 'Profiles' ? 'full' :  id}`
+		//console.log('cost ' + end)
+		const key = end
+		if(_.isUndefined(lastValue[key])) {
+			this.cost(id)
+		}
+		return lastValue[key]
 	}
 }

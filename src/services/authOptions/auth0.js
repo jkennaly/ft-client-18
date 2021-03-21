@@ -56,6 +56,10 @@ const clean = () => {
     localStorage.clear()
     userIdCache = 0
     userRoleCache = []
+
+    userIdPromiseCache = {}
+    nextIdRequestTime = 0
+    accessTokenPromiseCache = {}
     return localforage.clear()
       //.then(() => console.log('data Reset'))
       .catch(err => console.error('logout data reset failed', err))
@@ -284,7 +288,8 @@ export default class Auth {
   }
 
   getGttRawRemote() {
-    return this.getAccessToken()
+    return userIdPromiseCache
+      .then(() => this.getAccessToken())
       .then(authResult => _.isString(authResult) ? authResult : false)
       .then(authResult => {
         if(!_.isString(authResult) || !authResult) throw new Error('not authorized')
@@ -347,7 +352,7 @@ export default class Auth {
     return this.isAuthenticated()
       .then(auth => {if(!auth) throw 'No auth'})
       .then(this.getGttRawLocal)
-      .then(local => _.isString(local) ? local : this.getGttRawRemote())
+      .then(local => _.isString(local) && local ? local : this.getGttRawRemote())
       .then(raw => raw ? raw : '')
       .catch(err => '')
   }

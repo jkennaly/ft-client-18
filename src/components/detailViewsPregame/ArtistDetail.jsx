@@ -14,6 +14,7 @@ import SpotifyCard from '../../components/cards/SpotifyCard.jsx';
 
 import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
+import WikiWidget from '../../components/widgets/canned/WikiWidget.jsx';
 import DiscussionWidget from '../../components/widgets/canned/DiscussionWidget.jsx';
 import AdminWidget from '../../components/widgets/Admin.jsx';
 import UIButton from '../../components/ui/UIButton.jsx';
@@ -68,7 +69,7 @@ const jsx = () => {
 					
 					
 				}
-		
+				{attrs.wiki.length && attrs.wiki[0].length ? <WikiWidget text={attrs.wiki[0]} link={attrs.wiki[1]} /> : ''}
 				{attrs.artist ? <FixedCardWidget header="Listen & Review" >
 					<SpotifyCard fieldValue={attrs.artist.name} />
 					<ReviewCard type="artist" data={attrs.artist} popModal={attrs.popModal} />
@@ -146,6 +147,7 @@ const ArtistDetail = {
 				popModal: attrs.popModal,
 				artistId: artistId,
 				artist: artist,
+				wiki: artists.getWiki(artistId)
 				//sets: activeDateSets
 			}
 			return m(jsx, mapping)

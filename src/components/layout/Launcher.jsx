@@ -91,7 +91,7 @@ const Launcher = {
 					//.filter(x => console.log('Launcher Upcoming Festivals', x) || true)
 					.map(data => <FestivalCard 
 						eventId={data.id}
-						uiClass="festivals-upcoming"
+						uiClass="ft-festivals-upcoming"
 					/>)
 			}
 			</FixedCardWidget>

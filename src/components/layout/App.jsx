@@ -99,6 +99,7 @@ const eventBadge = (selection) => {
 	const key = m.route.get()
 	if(!_.isString(selection)) return _.get(eventCache, key)
 	const badge = selection === `hasAccess` ? {src: `img/has-access.svg`} :
+		selection === '' ? undefined :
 		{src: `img/live-access.svg`, buyModal: true}
 	//console.log('eventBadge', selection, badge)
 	_.set(eventCache, key, badge)

@@ -49,16 +49,12 @@ const DayDetail = {
 	oninit: ({attrs}) => {
 		//console.log('dayDetails init')
 		const dayId = id()
-		return attrs.auth.hasGttAccess({subjectType: DAY, subject: dayId})
-			//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
-			.then(baseAccess => Promise.all([
-				days.getLocalPromise(dayId).then(() => days.getEndMoment(dayId)), 
-				baseAccess
-			]))
-			//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
-			.then(([endMoment, baseAccess]) => baseAccess || endMoment && endMoment.valueOf() < Date.now())
-			.then(accessible => accessible ? 'hasAccess' : 'noAccess')
-			.then(attrs.eventSet)
+		const so = {subject: dayId, subjectType: DAY}
+		return attrs.auth.getGttDecoded(so)
+				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
+				.then(decoded => !days.sellAccess(dayId, decoded))
+				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
+				.then(attrs.eventSet)
 			.then(() => attrs.titleSet(days.getPartName(dayId)))
 			.then(() => {
 				const so = {subjectType: DAY, subject: dayId}

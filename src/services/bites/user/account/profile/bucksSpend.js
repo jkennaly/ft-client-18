@@ -138,6 +138,8 @@ export default  (users, days, dates, festivals, eventObject = {}) => {
 	if(festivalIdCache && !dateIdCache) dates.acquireListSupplement((`filter=${JSON.stringify({where: {festival: festivalIdCache}})}`))
 	if(dateIdCache && !dayIdCache) days.acquireListSupplement((`filter=${JSON.stringify({where: {date: dateIdCache}})}`))
 	const costObject = cachedCostBite(rdf, currentId)
+	if(dateIdCache) costObject.dateId = dateIdCache
+	if(festivalIdCache) costObject.festivalId = festivalIdCache
 	//console.log('bucksSpend currentBucks endTime', endTime, currentBucks, costObject)
 	const title = 'Festival Access'
 	if(!_.isNumber(currentBucks)) return {

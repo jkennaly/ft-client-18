@@ -7,6 +7,6 @@ const BannerButton = {
 		<div class="ft-nav-button" onclick={attrs.clickFunction}>
 			{attrs.icon}
 		</div>
-};
+}
 
-export default BannerButton;
+export default BannerButton

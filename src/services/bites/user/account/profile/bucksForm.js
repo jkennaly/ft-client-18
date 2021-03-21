@@ -100,14 +100,20 @@ export default  (remoteDataField, eventObject = {}) => {
 		//redirection warning
 		m('', {}, 'Clicking the buy button will transfer you to our seecure checkout site.'),
 		//buy button
-		m('button', {
+		m('button[name="BuyBucks"]', {
 			onclick: e => {
+				e.stopPropagation()
+				e.preventDefault()
+				const su = window.location.href
+				const cu = window.location.href
+				console.log('bucksForm BuyBucks onclick', buyCount, cu, su, e)
 				return remoteDataField.buyBucks({
 					quantity: buyCount,
-					successUrl: window.location.href,
-					cancelUrl: window.location.href
+					successUrl: su,
+					cancelUrl: cu
 				})
 				.then(res => {
+					console.log('bucksForm', res)
 					const data = res.data
 					if(!data || !data.id) throw new Error('No session created')
 					return stripe.redirectToCheckout({sessionId: data.id})

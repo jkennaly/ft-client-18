@@ -6,6 +6,7 @@ import provide from '../../../loading/provide'
 
 var lastUpdate = {}
 var lastPromise = {}
+var lastValue = {}
 const cacheLife = 30 * 1000
 const totalize = raw => {
 	const data = _.isArray(raw) ? raw : raw.data
@@ -29,6 +30,13 @@ export default {
 
 		const p = provide(undefined, this.fieldName, '', end, 'GET')
 			.then(x => x.data * 1000)
+			.then(c => {
+				lastValue[key] = c
+					//.reduce((total, entry) => total + entry.bucks, 0)
+
+				return c
+
+			})
 			//.then(c => {console.log('bucks response', c); return c})
 		
 		_.set(lastPromise, key, p)
@@ -48,20 +56,62 @@ export default {
 		_.set(lastUpdate, key, Date.now())
 
 		const p = provide(undefined, this.fieldName, '', end, 'GET')
+			.then(c => {
+				lastValue[key] = _.get(c, 'data', [])
+					.reduce((total, entry) => total + entry.bucks, 0)
+
+				return c
+
+			})
 			//.then(c => {console.log('bucks response', c); return c})
 		
 		_.set(lastPromise, key, p)
 		return opts.total ? p.then(totalize) : p
 	},
 	buyBucks (data) {
+		console.log('buyBucks', buyInProgress, data, this.fieldName)
 		if(buyInProgress) return Promise.reject(false)
 		buyInProgress = true
 		const end = `/api/${this.fieldName}/bucks`
 		const checkout = provide(data, this.fieldName, '', end, 'POST')
+			.then(x => console.log('bucksBought', x) || x)
 			.finally(x => {
 				buyInProgress = false
+				lastUpdate = {}
+				lastPromise = {}
+				lastValue = {}
 				return x
 			})
 		return checkout
+	},
+	endCache (id) { 
+		if(!id) return Promise.resolve(true)
+		const end = `/api/${this.fieldName}/access/wouldend`
+		//console.log('cost ' + end)
+		const key = end
+		if(_.isUndefined(lastValue[key])) {
+			this.wouldend(id)
+		}
+		return lastValue[key]
+	},
+	bucksCache (id) { 
+		if(!id) return Promise.resolve(true)
+		const end = `/api/${this.fieldName}/bucks`
+		//console.log('cost ' + end)
+		const key = end
+		if(_.isUndefined(lastValue[key])) {
+			this.bucks(id)
+		}
+		return lastValue[key]
+	},
+	accessCache (id) { 
+		if(!id) return Promise.resolve(true)
+		const end = `/api/${this.fieldName}/bucks`
+		//console.log('cost ' + end)
+		const key = end
+		if(_.isUndefined(lastValue[key])) {
+			this.bucks(id)
+		}
+		return lastValue[key]
 	}
 }

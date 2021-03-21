@@ -25,8 +25,9 @@ const authOnly = [
 export default function (data, modelName, queryString = '', url, method = 'POST', simResponse, options = {}) {
 	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
 	const usingFormData = simResponse || data instanceof FormData
+	//console.log('providing', reqUrl, method, data, modelName, queryString, simResponse)
 	const resultChain = simResponse && simResponse.remoteData ? Promise[simResponse.remoteResult](simResponse.remoteData) : (auth.getBothTokens()
-
+		//.then(x => console.log('provide result', x) || x)
 		.then(([authResult, gtt]) =>  !_.isString(authResult) && authOnly.includes(modelName) ? {ok: true, json: () => []} : fetch(reqUrl, { 
 
 		   	method: method, 
@@ -40,6 +41,7 @@ export default function (data, modelName, queryString = '', url, method = 'POST'
 			body: (options.form ? data : JSON.stringify(data)) 
 		}))
 		.then(response => {
+			//console.log('provide', response)
 			if(_.isArray(response)) return response
 			try {
 				return response.json()
@@ -48,6 +50,10 @@ export default function (data, modelName, queryString = '', url, method = 'POST'
 				return []
 			}
 
+		})
+		.catch(err => {
+			console.error(err)
+			throw err
 		})
 	)
 	return resultChain

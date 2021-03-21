@@ -6,16 +6,19 @@ var o = require("ospec")
 let browser = {}
 const baseUrl = 'http://localhost:8080'
 
+
+o.spec("Test Festival Screens", function() {
+
 o.beforeEach(function() {
         browser = puppeteer.launch(
           {
-            headless: false
+            headless: false,
+            args:[
+               '--start-maximized' // you can also use '--start-fullscreen'
+            ]
           }
         )
     })
-
-
-o.spec("Test Festival Screens", function() {
   o("FestiGram Launcher", function(done) {
     o.timeout(30000)
     browser
@@ -47,13 +50,10 @@ o.spec("Test Festival Screens", function() {
       .then(p => p.goto(baseUrl, {waitUntil: 'networkidle0'})
         .then(() => p.waitForSelector(".fa-bars"))
         .then(() => p.click(".ft-nav-menu-button"))
-        .then(() => {
-          p.$x("//span[contains(., 'Festivals')]")
-            //.then(els => console.log('Festivals', els) || els)
-            .then(els => els[0].click())
-        })
-        
-        .then(() => p.waitForNavigation({waitUntil: 'networkidle0'}))
+        .then(() => p.waitForTimeout(100))
+        .then(() => p.$x("//span[contains(., 'Festivals')]"))
+        .then(els => els[0].click())
+        .then(() => p.waitForTimeout(100))
         .then(() => p.evaluate(() => {
           return document.querySelector('.ft-stage-title').textContent
           //done()

@@ -75,6 +75,7 @@ const headerBase = {
 
 export function updateModel(modelName, queryString = '', url, simResponse) {
 	let updated = false
+	if(!modelName) return Promise.reject('missing model name')
 
 	const reqUrl = url ? url + (queryString ? '?' : '') + (queryString) : `/api/${modelName}${queryString ? '?' : ''}${(queryString ? queryString : '')}`
 	const localItem = `Model.${modelName}`

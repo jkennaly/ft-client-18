@@ -1,4 +1,4 @@
-// src/components/tracts/EditProfile.jsx
+// src/components/tracts/account/EditProfile.jsx
 
 import m from 'mithril'
 

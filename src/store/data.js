@@ -69,6 +69,7 @@ import momentsSet from './list/mixins/event/momentsSet'
 import event from './list/mixins/event/event'
 import eventSuper from './list/mixins/event/eventSuper'
 import eventSub from './list/mixins/event/eventSub'
+import sellAccess from './list/mixins/event/sellAccess'
 import placeName from './list/mixins/subjects/place'
 import setName from './list/mixins/event/setName'
 import research from './list/mixins/event/research'
@@ -102,6 +103,7 @@ import setDetails from './list/mixins/remote/details/set'
 import festivalDetails from './list/mixins/remote/details/festival'
 import messageDetails from './list/mixins/remote/details/message'
 import userDetails from './list/mixins/remote/details/user'
+import wiki from './list/mixins/remote/www/getWikiPromise'
 import advanceFlag from './list/mixins/remote/advanceFlag'
 import batchCreate from './list/mixins/remote/batchCreate'
 import batchDelete from './list/mixins/remote/batchDelete'
@@ -180,6 +182,7 @@ Object.assign(artists,
 	merge,
 	update,
 	getPromise,
+	wiki,
 	nameSearch,
 	artistDetails(subjects, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities)
 )
@@ -198,6 +201,7 @@ Object.assign(series,
 	subjective,
 	event,
 	eventSub(festivals),
+	sellAccess(festivals),
 	messageEventConnections,
 	seriesIds(subjects),
 	nameMatch,
@@ -205,6 +209,7 @@ Object.assign(series,
 	create,
 	updateInstance,
 	getPromise,
+	wiki,
 	subjectDetails
 )
 Object.assign(festivals,
@@ -212,6 +217,7 @@ Object.assign(festivals,
 	subjective,
 	event,
 	eventSub(dates),
+	sellAccess(dates),
 	eventSuper(series),
 	messageFestivalConnections(messages, lineups),
 	research(artists, messages, lineups, artistPriorities),
@@ -220,6 +226,7 @@ Object.assign(festivals,
 	create,
 	festivalIds(subjects),
 	getPromise,
+	wiki,
 	cost,
 	buy,
 	festivalDetails(subjects, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities, intentions)
@@ -232,6 +239,7 @@ Object.assign(dates,
 	futureDate,
 	event,
 	eventSub(days),
+	sellAccess(days),
 	eventSuper(festivals),
 	messageEventConnections,
 	dateIds(subjects, lineups),
@@ -239,6 +247,7 @@ Object.assign(dates,
 	dateWithDays(days),
 	dateFilters(festivals),
 	getPromise,
+	wiki,
 	cost,
 	buy,
 	dateDetails(subjects, lineups, intentions),
@@ -248,12 +257,14 @@ Object.assign(days,
 	filterable,
 	event,
 	eventSub(sets),
+	sellAccess(),
 	eventSuper(dates),
 	momentsDay(dates),
 	messageEventConnections,
 	futureDate,
 	dayIds(subjects),
 	getPromise,
+	wiki,
 	cost,
 	buy,
 	dayDetails(subjects)
@@ -300,6 +311,7 @@ Object.assign(venues,
 	placeName,
 	create,
 	getPromise,
+	wiki,
 	subjectDetails
 )
 Object.assign(organizers,

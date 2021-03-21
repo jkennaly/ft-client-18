@@ -181,7 +181,7 @@ th {border-left: 1px solid white;border-right: 1px solid white;padding: 0 0.25em
 .ft-horizontal-fields {display: flex;flex-direction: row;position: relative;}
 .ft-icon-stack.ft-icon-stack {height: auto;vertical-align: baseline;}
 .ft-image-attribution a {color: lightskyblue;font-size: 75%;}
-.ft-menu-field {color: black;display: inline-block;font-size: 150%;padding: 0.25em;width: 100%;}
+.ft-menu-field {color: black;cursor: pointer;display: inline-block;font-size: 150%;padding: 0.25em;width: 100%;}
 .ft-menu-item {border: 1px solid var(--festival-red); border-width: 1px 0 1px 0; display: inline-block;text-decoration: none;width: 10em;}
 .ft-menu-item-disabled {display: inline-block;font-weight: bold;width: 10em;}
 .ft-menu-item-header {background-color: var(--selected-bg-color);font-size: 110%;text-decoration: none;}
