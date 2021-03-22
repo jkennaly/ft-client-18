@@ -3,7 +3,7 @@
 
 import m from 'mithril'
 import _ from 'lodash'
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+import moment from 'dayjs'
 
 import BuyAccessLine from '../../../../../components/fields/form/BuyAccessLine.jsx'
 import EventSelector from '../../../../../components/detailViewsPregame/fields/event/EventSelector.jsx'
@@ -14,7 +14,7 @@ const cacheLife = 1000
 
 const STRIPE_PK = typeof STRIPE_PUBLIC === 'undefined' ? {} : STRIPE_PUBLIC
 //console.log('bucksSpend PK', STRIPE_PK)
-var stripe = Stripe(STRIPE_PK['STRIPE_PUBLIC'])
+var stripe = Stripe ? Stripe(STRIPE_PK['STRIPE_PUBLIC']) : undefined
       
 
 const endPromise = (users) => users

@@ -1,7 +1,10 @@
 // src/store/list/mixins/event/momentsDate.js
 import _ from 'lodash'
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
-
+import moment from 'dayjs'
+var utc = require('dayjs/plugin/utc') // dependent on utc plugin
+var timezone = require('dayjs/plugin/timezone')
+moment.extend(utc)
+moment.extend(timezone)
 var dateBaseCache = {}
 export default (days, venues) => { return  {
 	getBaseMoment (id) {

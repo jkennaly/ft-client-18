@@ -38,7 +38,7 @@ export default {
 				const musicians = possibles.filter(x => /musician\)$/i.test(x.title))
 				const choice = [...bands, ...musicians, ...possibles][0]
 
-				console.log('getWikiId', possibles, bands, musicians)
+				//console.log('getWikiId', possibles, bands, musicians)
 				_.set(stash, key, choice.id)
 				return choice.id
 			})

@@ -2,7 +2,7 @@
 
 import _ from 'lodash'
 import m from 'mithril'
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+import moment from 'dayjs'
 import Tract from '../Tract.jsx'
 import BuyAccessLine from '../../fields/form/BuyAccessLine.jsx'
 

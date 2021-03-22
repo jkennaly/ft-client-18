@@ -1,6 +1,8 @@
 // src/store/list/mixins/event/momentsDay.js
 import _ from 'lodash'
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+import moment from 'dayjs'
+var isBetween = require('dayjs/plugin/isBetween')
+moment.extend(isBetween)
 
 var dateBaseCache = {}
 export default (dates) => { return  {

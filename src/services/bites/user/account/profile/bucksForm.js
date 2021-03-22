@@ -12,7 +12,7 @@ const cacheLife = 1000
 
 const STRIPE_PK = typeof STRIPE_PUBLIC === 'undefined' ? {} : STRIPE_PUBLIC
 //console.log('bucksForm PK', STRIPE_PK)
-var stripe = Stripe(STRIPE_PK['STRIPE_PUBLIC'])
+var stripe = Stripe ? Stripe(STRIPE_PK['STRIPE_PUBLIC']) : undefined
       
 
 const dataPromise = (remoteDataField) => remoteDataField
@@ -49,6 +49,7 @@ var formatter = new Intl.NumberFormat('en-US', {
   //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 export default  (remoteDataField, eventObject = {}) => {
+	if(!stripe) return ''
 	const currentBucks = cachedBite(remoteDataField)
 	//console.log('bucksForm currentBucks', currentBucks)
 	const title = 'Order FestiBucks'

@@ -1,6 +1,6 @@
 // series.js
 import _ from 'lodash'
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+import moment from 'dayjs'
 
 export default (dates) => { return  {
 	noFutureDates (waitDays = 180) {return  this.list

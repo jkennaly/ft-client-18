@@ -6,7 +6,7 @@ localforage.config({
 	name: "FestiGram",
 	storeName: "FestiGram"
 })
-import moment from 'moment'
+import moment from 'dayjs'
 
 export const defaultMeta = () => {return {calcTime: Date.now(), timestamps: [Infinity, 0], ids: [Infinity, 0]}} 
 

@@ -3,7 +3,7 @@
 
 import _ from 'lodash'
 import m from 'mithril'
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+import moment from 'dayjs'
 
 
 import {unionLocalList, calcMeta, defaultMeta, combineMetas, metaQuivalent} from '../../services/localData.js'
@@ -157,7 +157,7 @@ DataList.prototype.remoteCheck = function(force = false, simResponse) {
 		  		or: [
 		  			
 		  				{id: {gt: this.getMeta().ids[1]}},
-		  				{timestamp: {gt: moment(this.getMeta().timestamps[1]).milliseconds(0).toISOString().replace(/\.\d+Z/,'Z')}}
+		  				{timestamp: {gt: moment(this.getMeta().timestamps[1]).format()}}
 		  			
 		  		]
 		  	}

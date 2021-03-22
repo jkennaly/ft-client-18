@@ -1,0 +1,31 @@
+{
+  "name": "FestiGram",
+  "short_name": "Fests",
+  "start_url": "index.html",
+  "display": "standalone",
+  "theme_color": "#003300",
+  "background_color": "#000033",
+  "icons": [
+    {
+      "src": "fav/favicon-64.png", 
+      "sizes": "64x64", 
+      "type": "image/png" 
+    },
+    {
+      "src": "fav/favicon-192.png", 
+      "sizes": "192x192", 
+      "type": "image/png" 
+    },
+    {
+      "src": "fav/favicon-310.png", 
+      "sizes": "310x310", 
+      "type": "image/png" 
+    },
+    {
+      "src": "img/insignia lighter 512x512.png", 
+      "sizes": "512x512", 
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

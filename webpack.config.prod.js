@@ -3,9 +3,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const webpack = require("webpack");
-
+const WorkboxPlugin = require('workbox-webpack-plugin')
+const CopyPlugin = require("copy-webpack-plugin")
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const {InjectManifest} = require('workbox-webpack-plugin')
 const mode = 'production'
 
 const payOptionsDev = require('./src/services/payOptions/pay-variables-test.json')
@@ -44,10 +46,6 @@ const env = {
 	mode: mode,
 	entry: './src/index.jsx',
 	devtool: "source-map",
-	node: {
-	    Buffer: false,
-	    process: false
-	},
 	optimization: {
     	minimizer: [
 		    new TerserPlugin({
@@ -55,11 +53,16 @@ const env = {
 			    terserOptions: {
 			      ecma: 6,
 			    },
-		  	}),
-	      	new OptimizeCSSAssetsPlugin({})
+		  	})
     	]
   	},
 	plugins: [
+	new InjectManifest({
+	      swSrc: './src/www/src-sw.js',
+	      swDest: 'service-worker.js',
+	      maximumFileSizeToCacheInBytes: 10 * 1024 * 1024
+	      // Any other config if needed.
+	    }),
 		new CleanWebpackPlugin(),
 		new HtmlWebpackPlugin({
 			template: "./index.html",
@@ -82,7 +85,16 @@ const env = {
 		}),
     	new webpack.DefinePlugin({
 			STRIPE_PUBLIC: JSON.stringify(env.mode === 'development' ? payOptionsDev : payOptionsProd)
-		})
+		}),
+		new CopyPlugin({
+      patterns: [
+        { from: "./src/fav/", to: "./fav/" },
+        { from: "./src/www/manifest.json", to: "." },
+        { from: "./src/www/robots.txt", to: "." },
+      ],
+    }),
+		new MiniCssExtractPlugin(),
+		new BundleAnalyzerPlugin()
 	],
 	output: {
 		path: path.resolve(__dirname, './dist'),
@@ -112,19 +124,15 @@ const env = {
 			}
 		}, {
 			test: /\.css$/,
-			use: [MiniCssExtractPlugin.loader,
-          'css-loader']
+			use: [MiniCssExtractPlugin.loader, 'css-loader']
 		},
         {
             test: /\.(png|jp(e*)g|svg)$/,  
 			exclude: [/(node_modules)\//, /fav\//],
-            use: [{
-                loader: 'url-loader',
-                options: { 
-                    limit: 8000, // Convert images < 8kb to base64 strings
-                    name: 'img/[name].[ext]'
-                } 
-            }]
+            type: 'asset/resource',
+            generator: {
+            	filename: 'img/[name][ext]'
+            }
 		}, 
         {
             test: /fav\/(.*)\.(png|ico|xml)$/,  

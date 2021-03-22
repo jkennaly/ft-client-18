@@ -7,7 +7,9 @@ import validData from '../../apiData/festival.json'
 import venueData from '../../apiData/venue.json'
 import coreData from '../../apiData/core.json'
 import {timeStampSort} from '../../../src/services/sorts.js'
-import moment from 'moment'
+import moment from 'dayjs'
+var isBetween = require('dayjs/plugin/isBetween')
+moment.extend(isBetween)
 
 const festData = [{
 			  "id": 72,
@@ -191,9 +193,11 @@ o.spec("store/data Festival Mixin methods", function() {
 
 	    	dates.replaceList(splitActiveDates)
 	    	//console.log('splitActiveDates', testId, splitActiveDates)
+	    	//console.log('dateData', testId, dateData)
+	    	//console.log('date list', dates.list)
 
-			//const s = festivals.getStartMoment(testId)
-			//const e = festivals.getEndMoment(testId)
+			const s = festivals.getStartMoment(testId)
+			const e = festivals.getEndMoment(testId)
 			//console.log('start to end:', s.format(), e.format())
 			//console.log('active:', moment().isBetween(s, e, 'day'))
 

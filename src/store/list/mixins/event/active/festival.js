@@ -1,11 +1,14 @@
 // src/store/list/mixins/event/active/festival.js
 
 import _ from 'lodash'
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+import moment from 'dayjs'
 
+var isBetween = require('dayjs/plugin/isBetween')
+moment.extend(isBetween)
 export default (dates) => { return  {
 	getStartMoment (id) {
 		const dateIds = this.getSubDateIds(id)
+		//console.log('festival getStartMoment dateIds', id, dateIds)
 		if(!dateIds.length) {
 			const fest = this.get(id)
 			if(!fest) return undefined
@@ -39,6 +42,7 @@ export default (dates) => { return  {
 		try {
 			const s = this.getStartMoment(id)
 			const e = this.getEndMoment(id)
+			//console.log('festival active', id, s, e)
 			return  moment().isBetween(s, e, 'day')
 		}
 		catch {

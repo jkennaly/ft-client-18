@@ -1,7 +1,9 @@
 // reviewArrays.js
 
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'dayjs'
+var isBetween = require('dayjs/plugin/isBetween')
+moment.extend(isBetween)
 import {sameSubject} from './subjectFunctions'
 
 //compose an array of review messages (ratings/comments) into an array of reviewArrays

@@ -2,7 +2,7 @@
 
      
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'dayjs'
 var o = require("ospec")
 
 import {metaQuivalent, calcMeta} from '../../../src/services/localData'

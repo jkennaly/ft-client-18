@@ -17,6 +17,7 @@
   --background-color-own-content: #917d56;
 }
 
+
 body {background: radial-gradient(black, #003300);height: 100%;margin: 0;overflow: scroll;padding: 0;width: 100%;}
 html {height: 100%;margin: 0;padding: 0;width: 100%;}
 input { font-family: 'Font Awesome 5 Free'; font-weight: 900; max-width: 100%;}

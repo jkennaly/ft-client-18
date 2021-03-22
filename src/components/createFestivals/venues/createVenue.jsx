@@ -4,7 +4,7 @@
 import m from 'mithril'
 import _ from 'lodash'
 
-import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2022.min'
+import moment from 'dayjs'
 
 
 import {remoteData} from '../../../store/data';
