@@ -5,18 +5,19 @@ import _ from 'lodash'
 
 import CollapsibleMenu from './CollapsibleMenu.jsx';
 import FortyButton from '../fields/buttons/FortyButton.jsx'
+import Icon from '../fields/Icon.jsx'
 
 // Services
 const validUserItem = {
 			name: 'Logout',
 			path: '/confirm/logout',
-			icon: <FortyButton><i class="fas fa-sign-out-alt"></i></FortyButton>
+			icon: <FortyButton><Icon name="exit" /></FortyButton>
 		}
 	const invalidUserItem = {
 			name: 'Login',
 			path: '/auth',
 			params: () => {return{prev: m.route.get()}},
-			icon: <FortyButton><i class="fas fa-sign-in-alt"></i></FortyButton>
+			icon: <FortyButton><Icon name="enter" /></FortyButton>
 		
 		}
 const menuList = (userRoles) => {
@@ -24,12 +25,12 @@ const menuList = (userRoles) => {
 		(userRoles.includes('user') ? {
 			name: 'Account',
 			path: '/users/account',
-			icon: <FortyButton><i class="fas fa-user"></i></FortyButton>
+			icon: <FortyButton><Icon name="user" /></FortyButton>
 		} : ''),
 		(userRoles.includes('admin') ? {
 			name: 'Admin',
 			path: '/admin',
-			icon: <FortyButton><i class="fas fa-tools"></i></FortyButton>
+			icon: <FortyButton><Icon name="hammer" /></FortyButton>
 		} : ''),
 		{
 			name: 'Launcher',
@@ -39,17 +40,17 @@ const menuList = (userRoles) => {
 		{
 			name: 'Festivals',
 			path: '/series/pregame',
-			icon: <FortyButton><i class="fas fa-icons"></i></FortyButton>
+			icon: <FortyButton><Icon name="music" /></FortyButton>
 		},
 		(userRoles.includes('user') ? {
 			name: 'Research',
 			path: '/research',
-			icon: <FortyButton><i class="fas fa-clipboard-check"></i></FortyButton>
+			icon: <FortyButton><Icon name="science" /></FortyButton>
 		} : ''),
 		(userRoles.includes('user') ? {
 			name: 'Theme',
 			path: '/themer/schedule',
-			icon: <FortyButton><i class="fas fa-palette"></i></FortyButton>
+			icon: <FortyButton><Icon name="paint-format" /></FortyButton>
 		} : ''),
 	].filter(x => x)
 	

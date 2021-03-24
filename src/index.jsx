@@ -13,6 +13,7 @@ import "./index.css"
 import "./img/has-access.svg"
 import "./img/live-access.svg"
 import "./img/insignia lighter 512x512.png"
+import "./img/symbol-defs.svg"
 // other
 //import "./www/robots.txt"
 //import "./www/manifest.json"

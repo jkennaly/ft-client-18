@@ -3,6 +3,7 @@
 //a form field for updating a string value
 
 import m from 'mithril'
+import Icon from '../Icon.jsx'
 
 const jsx = {
   view: ({ attrs }) =>
@@ -12,7 +13,7 @@ const jsx = {
 	    	<br />
 	    	{attrs.subtitle}
 	    	<br />
-	    	<i class="fas fa-coins" />
+	    	<Icon name="festibucks" />
 	    	{attrs.value}
     	</button>
     </div>

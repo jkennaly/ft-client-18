@@ -4,6 +4,7 @@ import m from 'mithril'
 // Services
 
 import {subjectData} from '../../../store/subjectData.js'
+import Icon from '../../fields/Icon.jsx'
 
 const getSubject = attrs => {
 	console.log('ListenButton subject ' + attrs.subject )
@@ -23,7 +24,7 @@ const ListenButton = vnode => {
 	    	e.stopPropagation()
 	    }} >
 	      
-	      <i class="fas fa-headphones"/>
+	      <Icon name="spotify"/>
 	    </div>
 }};
 

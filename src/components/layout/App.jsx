@@ -3,12 +3,13 @@
 import m from 'mithril'
 import _ from 'lodash'
 
+/*
 import { dom, config, library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 config.autoReplaceSvg = true
 config.observeMutations = true
 library.add(fas)
-
+*/
 
 import { remoteData } from "../../store/data";
 
@@ -191,7 +192,7 @@ const App = {
 	oncreate: (vnode) => {
 		const mainStage = vnode.dom.querySelector("#main-stage");
 		//font awesome watching for icons to rpelace
-		dom.watch({autoReplaceSvgRoot: vnode.dom, observeMutationsRoot:vnode.dom})
+		//dom.watch({autoReplaceSvgRoot: vnode.dom, observeMutationsRoot:vnode.dom})
 /*
         var hashStr = window.location.hash;
         hashStr = hashStr.replace(/^#?\/?/, '');
@@ -448,7 +449,8 @@ const App = {
 						.catch(forceLoginRoute)
 			},
 		});
-		
+	
+	
 		//m.mount(document.getElementById("DisplayBar"), {view: function () {return m(LauncherBanner, _.assign({}, lastUser, {}))}})
 	},
 	view: ({ children }) =>
@@ -464,7 +466,6 @@ const App = {
 			<div id="main-stage">
 				{children}
 			</div>
-			<div id="upgrade-notice" class="hidden">upgrade</div>
 		</div>
 };
 

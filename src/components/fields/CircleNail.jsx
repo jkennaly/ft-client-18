@@ -9,7 +9,7 @@ import {remoteData} from '../../store/data.js'
 
 
 
-const cl = cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
+const cl = typeof cloudy !== 'undefined' && cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
 const CircleNail = {
     view: ({attrs}) => {
         const mapping = {
@@ -29,7 +29,7 @@ const CircleNail = {
                 {
                     //console.log(`CircleNail init`, vnode.attrs.subjectType, vnode.attrs.subject)
                 }
-                {attrs.img ? 
+                {attrs.img && cl ? 
                     m.trust(cl.imageTag(attrs.img
                         .url.substring(attrs.img.url.indexOf('artists/')), {
                             alt: "artist image", 

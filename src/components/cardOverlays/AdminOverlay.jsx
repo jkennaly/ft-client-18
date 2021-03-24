@@ -5,16 +5,17 @@ import m from 'mithril'
 import {remoteData} from '../../store/data';
 import DiscussButton from './fifty/DiscussButton.jsx'
 import FiftyButton from './fifty/FiftyButton.jsx'
+import Icon from '../fields/Icon.jsx'
 
 
 const opened = {
   prompt: 'Initial Response',
   icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
-    <i class="fas fa-flag"/>
-    <i 
-      class="fas fa-eye" 
-      //style="color:white;" 
-      data-fa-transform="shrink-8 down-6 right-4"
+    <Icon name="flag" />
+    <Icon name="eye"
+      classes="ft-icon-stack-lower-right" 
+      
+      
     />
   </span>
 
@@ -22,22 +23,22 @@ const opened = {
 const review = {
   prompt: 'Report Action',
   icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
-    <i class="fas fa-flag"/>
-    <i 
-      class="fas fa-comment-alt" 
-      //style="color:white;" 
-      data-fa-transform="shrink-8 down-6 right-4"
+    <Icon name="flag" />
+    <Icon name="comment"
+      classes="ft-icon-stack-lower-right" 
+      
+      
     />
   </span>
 }
 const responded = (popModal, flag, discussFlag) => {return {
   prompt: 'Accept Response',
   icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
-    <i class="fas fa-flag"/>
-    <i 
-      class="fas fa-check" 
-      //style="color:white;" 
-      data-fa-transform="shrink-8 down-6 right-4"
+    <Icon name="flag" />
+    <Icon name="checkmark"
+      classes="ft-icon-stack-lower-right" 
+      
+      
     />
   </span>,
   actionText: 'Accept this response',
@@ -57,33 +58,33 @@ const responded = (popModal, flag, discussFlag) => {return {
 const responseUpdate = {
   prompt: 'Update Response',
   icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
-    <i class="fas fa-flag"/>
-    <i 
-      class="fas fa-check-double" 
-      //style="color:white;" 
-      data-fa-transform="shrink-8 down-6 right-4"
+    <Icon name="flag" />
+    <Icon name="checkbox-checked"
+      classes="ft-icon-stack-lower-right" 
+      
+      
     />
   </span>
 }
 const close = {
   prompt: 'Close',
   icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
-    <i class="fas fa-flag"/>
-    <i 
-      class="fas fa-flag-checkered" 
-      //style="color:white;" 
-      data-fa-transform="shrink-8 down-6 right-4 rotate-30"
+    <Icon name="flag" />
+    <Icon name="exit"
+      classes="ft-icon-stack-lower-right" 
+      
+      
     />
   </span>
 }
 const objectedClose = {
   prompt: 'Close',
   icon: <span class="fa-layers fa-2x fa-fw ft-icon-stack">
-    <i class="fas fa-flag"/>
-    <i 
-      class="fas fa-flag-checkered" 
-      //style="color:white;" 
-      data-fa-transform="shrink-8 down-6 right-4 rotate-30"
+    <Icon name="flag" />
+    <Icon name="exit"
+      classes="ft-icon-stack-lower-right" 
+      
+      
     />
   </span>
 }

@@ -6,11 +6,12 @@ import StageTitle from './StageTitle.jsx';
 import LogoutButton from './LogoutButton.jsx';
 
 import BannerButton from '../ui/BannerButton.jsx';
+import Icon from '../fields/Icon.jsx'
 
 const StageBanner = {
 	view: ({ attrs }) =>
 		<div class="ft-stage-banner">
-			<DisplayButton icon={<i class="fas fa-bars"/>} />
+			<DisplayButton icon={<Icon name="menu"/>} />
 		</div>
 };
 

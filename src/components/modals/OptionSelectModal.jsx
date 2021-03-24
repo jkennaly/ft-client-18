@@ -19,7 +19,7 @@ const OptionSelectModal = {
             e.stopPropagation()
             attrs.hide()
           }}>
-            <i class="fas fa-times"/>
+            <Icon name="cancel-circle" />
         </div>            {attrs.headerCard ? attrs.headerCard : ''}
             {attrs.options.map(opt => <MenuItem 
                 data={opt}

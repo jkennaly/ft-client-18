@@ -4,6 +4,7 @@ import m from 'mithril'
 // Services
 
 import  ComposedNameField from '../../fields/ComposedNameField.jsx';
+import Icon from '../../fields/Icon.jsx'
 import  ReviewModal from '../../modals/ReviewModal.jsx';
 
 const getSubject = attrs => {
@@ -24,7 +25,7 @@ const DiscussButton = vnode => {
 	    	e.stopPropagation()
 	    }} >
 	      
-	      <i class="fas fa-reply"/>
+	      <Icon name="reply"/>
 	    </div>
 }};
 

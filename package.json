@@ -51,8 +51,6 @@
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.9.0",
-    "@fortawesome/fontawesome-svg-core": "^1.2.28",
-    "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "blueimp-file-upload": "^9.11.2",
     "caniuse-lite": "^1.0.30001163",
     "cloudinary-core": "^2.8.2",
@@ -88,7 +86,7 @@
     "watch": "npm run build:dev && onchange -i 'src/**/*' -- npm run build:dev",
     "watch:local": "npm run build:local && onchange -i 'src/**/*' -- npm run build:local",
     "watch:prod": "npm run build:prod && onchange -i 'src/**/*' -- npm run build:prod",
-    "bundle-report": "webpack-bundle-analyzer --port 4200 compilation-stats.json"
+    "bundle-report": "webpack-bundle-analyzer --port 4200 compilation-stats-210322.json"
   },
   "nyc": {
     "require": [

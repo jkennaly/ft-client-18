@@ -1,11 +1,12 @@
 // src/components/ui/LogoutButton.jsx
 
 import m from 'mithril'
+import Icon from '../fields/Icon.jsx'
 
 const LogoutButton = {
 	view: ({ attrs }) =>
 		<div onclick={attrs.action}>
-			<i class="fas fa-sign-out-alt"/>
+			<Icon class="exit"/>
 		</div>
 };
 

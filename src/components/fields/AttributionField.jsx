@@ -2,6 +2,7 @@
 
 import m from 'mithril'
 import QuarterButton from './buttons/QuarterButton.jsx'
+import Icon from './Icon.jsx'
 
 import {remoteData} from '../../store/data'
 
@@ -21,7 +22,7 @@ const AttributionField = vnode => {
 					subject: attrs.imageId,
 					subjectType: IMAGE
 				})
-			}} ><i class="fas fa-flag" /></QuarterButton> }
+			}} ><Icon name="flag" /></QuarterButton> }
 		</span>
 }};
 

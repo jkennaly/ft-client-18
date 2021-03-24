@@ -11,6 +11,7 @@ import LiveButton from './LiveButton.jsx';
 import BannerButton from './BannerButton.jsx';
 import CollapsibleMenu from './CollapsibleMenu.jsx';
 import SearchBar from './SearchBar.jsx';
+import Icon from '../fields/Icon.jsx'
 
 const {Flags: flags, Dates: dates} = remoteData
 
@@ -61,35 +62,39 @@ const LauncherBanner = () => {
 				itemClicked={() => menuHidden = true}
 			/>
 
-
+<i 
+								class="fas fa-flag" 
+								style="color:white;" 
+								data-fa-transform="shrink-8 up-3.8 left-4"
+							/>
 					*/
 				}
 
 				{attrs.userRoles.includes('user') ? 
 					<BannerButton 
 						icon={<span class="fa-layers fa-fw ft-icon-stack">
-						    <i class="fas fa-envelope"/>
-						    {flags.pending([attrs.userId, attrs.userRoles]).length ? <i 
-								class="fas fa-flag" 
-								style="color:white;" 
-								data-fa-transform="shrink-8 up-3.8 left-4"
-							/> : ''}
+						    <Icon name="envelop" />
+						    {flags.pending([attrs.userId, attrs.userRoles]).length ? 
+						    	<Icon name="flag" classes="ft-icon-stack-upper-left c44-c-fw" />
+						     : ''}
   					</span>}
 						clickFunction={e => m.route.set('/messages')}
 					/> 
 					: ''
 				}
 				{ attrs.userRoles.length ? '' : <BannerButton 
-					icon={<i class="fas fa-sign-in-alt"/>} 
+					icon={<Icon name="enter" />} 
 					clickFunction={e => m.route.set('/auth', {prev: m.route.get()})}
 				/>
 				}
 				<DisplayButton 
-					icon={<i class="fas fa-bars"/>} 
+					icon={<Icon name="menu" />} 
 					userRoles={attrs.userRoles} 
 				/>
 			</div>
 			{children}
+
+			
 		</div>
 }}
 

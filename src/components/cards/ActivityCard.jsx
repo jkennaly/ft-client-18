@@ -10,6 +10,7 @@ import ComposedNameField from "../fields/ComposedNameField.jsx";
 import NameField from "../fields/NameField.jsx";
 import AverageRatingField from "../fields/AverageRatingField.jsx";
 import UserAvatarField from "../fields/UserAvatarField.jsx";
+import Icon from '../fields/Icon.jsx'
 import DiscussOverlay from "../cardOverlays/DiscussOverlay.jsx";
 import UserCard from "../cards/UserCard.jsx";
 import { remoteData } from "../../store/data";
@@ -107,7 +108,7 @@ const ActivityCard = (vnode) => {
                   e.stopPropagation();
                 }}
               >
-                <i class="fas fa-times" />
+                <Icon class="cancel-circle" />
               </div>
             )}
           </div>

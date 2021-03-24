@@ -11,6 +11,7 @@ import Tract from '../tracts/Tract.jsx'
 import ContentItem from '../detailViewsPregame/profiles/ContentItem'
 import InlineTable from '../fields/InlineTable'
 import UIButton from '../ui/UIButton.jsx'
+import Icon from '../fields/Icon.jsx'
 
 import {remoteData} from '../../store/data'
 
@@ -87,8 +88,8 @@ const jsx = {
             //console.log('AccessModal', attrs.eventObject)
         }
             <header class={`ft-modal-info-plate ${extraction()() ? 'c44-dn' : ''}`}>
-                <p>Current FestiBucks:  <i class="fas fa-coins" />{attrs.bucks}</p>
-                <p>Date Access: <i class="fas fa-coins" />3</p>
+                <p>Current FestiBucks:  <Icon name="festibucks" />{attrs.bucks}</p>
+                <p>Date Access: <Icon name="festibucks" />3</p>
             </header>
           {
             m(InlineTable, _.assign({} , bucksSpend(users, days, dates, festivals, attrs.eventObject(1))))

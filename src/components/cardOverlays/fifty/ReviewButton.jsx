@@ -1,6 +1,7 @@
 // ReviewButton.jsx
 
 import m from 'mithril'
+import Icon from '../../fields/Icon.jsx'
 // Services
 
 import  ComposedNameField from '../../fields/ComposedNameField.jsx';
@@ -22,8 +23,8 @@ const ReviewButton = vnode => {
 	    	e.stopPropagation()
 	    }} >
 	      
-	      <i class="fas fa-comment"/>
-	      <i class="fas fa-star"/>
+	      <Icon name="bubble2"/>
+	      <Icon name="star-full"/>
 	    </div>
 }};
 

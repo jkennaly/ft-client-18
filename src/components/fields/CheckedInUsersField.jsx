@@ -7,6 +7,7 @@ import _ from 'lodash'
 import {subjectData} from '../../store/subjectData';
 
 import {so} from '../../services/subjectFunctions';
+import Icon from '../fields/Icon.jsx'
 const makeUserSo = so('USER')
 
 const allUsers = subjectObject => subjectData.users(subjectObject)
@@ -26,12 +27,12 @@ const CheckedInUsersField = vnode => {
 			{/* checked in users on left */
 				currentUsers(attrs.subjectObject)
 					//.filter(x => console.log('CheckedInUsersField currentUsers', x) || true)
-			.map(u => <i class="fas fa-user ft-als-l"/>)
+			.map(u => <Icon name="user" class="ft-als-l"/>)
 			}
 			{/* checked out users on right */
 				formerUsers(attrs.subjectObject)
 					//.filter(x => console.log('CheckedInUsersField formerUsers', x) || true)
-			.map(u => <i class="far fa-user ft-als-r"/>)
+			.map(u => <Icon name="user" class="ft-als-r"/>)
 			}
         </div>
 }} ;

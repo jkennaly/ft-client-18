@@ -12,7 +12,7 @@ const cacheLife = 1000
 
 const STRIPE_PK = typeof STRIPE_PUBLIC === 'undefined' ? {} : STRIPE_PUBLIC
 //console.log('bucksForm PK', STRIPE_PK)
-var stripe = Stripe ? Stripe(STRIPE_PK['STRIPE_PUBLIC']) : undefined
+var stripe = typeof Stripe !== 'undefined' ? Stripe(STRIPE_PK['STRIPE_PUBLIC']) : undefined
       
 
 const dataPromise = (remoteDataField) => remoteDataField

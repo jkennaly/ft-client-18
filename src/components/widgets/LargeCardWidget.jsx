@@ -1,5 +1,6 @@
 // src/components/widgets/LargeCardWidget.jsx
 
+import Icon from '../fields/Icon.jsx'
 
 import m from 'mithril'
 const classes = ({display}) => {return (display ? '' : 'hidden');}
@@ -11,7 +12,7 @@ const LargeCardWidget = {
   <header>
   {vnode.attrs.header}
   {vnode.attrs.closeClick ? 
-     <span class="ft-quarter ft-close-click" onclick={vnode.attrs.closeClick}><i class="fas fa-times"/></span> :
+     <span class="ft-quarter ft-close-click" onclick={vnode.attrs.closeClick}><Icon name="cancel-circle" /></span> :
       ''}
   {vnode.attrs.headerCard}
   </header>

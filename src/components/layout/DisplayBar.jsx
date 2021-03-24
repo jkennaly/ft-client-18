@@ -3,11 +3,12 @@
 import m from 'mithril'
 
 import DisplayButton from '../ui/DisplayButton.jsx';
+import Icon from '../fields/Icon.jsx'
 
 const DisplayBar = {
 	view: () =>
 		<div class="nav-bar">
-			<DisplayButton icon={<i class="fas fa-bars"/>} />
+			<DisplayButton icon={<Icon name="menu" />} />
 		</div>
 };
 

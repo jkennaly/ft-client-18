@@ -7,6 +7,7 @@ import _ from 'lodash'
 import  ComposedNameField from '../fields/ComposedNameField.jsx';
 import  NameField from '../fields/NameField.jsx';
 import  AverageRatingField from '../fields/AverageRatingField.jsx';
+import Icon from '../fields/Icon.jsx'
 import  UserAvatarField from '../fields/UserAvatarField.jsx';
 import  DiscussOverlay from '../cardOverlays/DiscussOverlay.jsx'
 import {remoteData} from '../../store/data';
@@ -56,7 +57,7 @@ const markRead = attrs => <div class="ft-quarter ft-close-click" onclick={e => {
     if(attrs.userId && attrs.reviewer !== attrs.userId && _.get(comment(attrs), 'id')) remoteData.MessagesMonitors.markRead(_.get(comment(attrs), 'id'))
     e.stopPropagation()
   }}>
-  <i class="fas fa-times"/>
+  <Icon name="cancel-circle" />
 </div>
 const deleteOwn = attrs => <div class="ft-fifty-button ft-close-click" onclick={e => {
     //console.log('ft-quarter click', attrs.reviewer, attrs.userId, _.get(comment(attrs), 'id')) 
@@ -64,7 +65,7 @@ const deleteOwn = attrs => <div class="ft-fifty-button ft-close-click" onclick={
     remoteData.Messages.delete(_.get(comment(attrs), 'id'))
     e.stopPropagation()
   }}>
-  <i class="fas fa-trash-alt"/>
+  <Icon name="bin2"/>
 </div>
 const SubjectReviewCard = vnode => {
   var showLong = false

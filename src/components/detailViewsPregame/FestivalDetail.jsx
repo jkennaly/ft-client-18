@@ -77,6 +77,7 @@ const FestivalDetail = {
 		//messages.forArtist(festivalId)
 		///console.log('FestivalDetail preload', festivalId, rParams)
 		if(festivalId) return festivals.subjectDetails({subject: festivalId, subjectType: FESTIVAL})
+			.catch(err => console.error('FestivalDetail load incomplete'))
 			.then(m.redraw)
 	},
 	oncreate: ({dom}) => {

@@ -16,6 +16,7 @@ import SearchCard from '../../../components/cards/SearchCard.jsx';
 import FixedCardWidget from '../FixedCard.jsx';
 import BannerButton from '../../ui/BannerButton.jsx';
 import {remoteData} from '../../../store/data';
+import Icon from '../../fields/Icon.jsx'
 
 const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
 	const baseData = remoteData.Festivals.getResearchList(festivalId, userId)
@@ -38,7 +39,7 @@ const ResearchWidget = vnode => {
 		view: (vnode) => <FixedCardWidget 
 			header="Festival Research" 
 			button={/research/.test(m.route.get()) || !/fests/.test(m.route.get()) || !parseInt(m.route.param("id"), 10) ? '' : <BannerButton 
-				icon={<i class="fas fa-clipboard-check"></i>}
+				icon={<Icon name="science" />}
 				clickFunction={e => m.route.set(`/research?seriesId=${remoteData.Festivals.getSeriesId(parseInt(m.route.param("id"), 10))}&festivalId=${parseInt(m.route.param("id"), 10)}`)} 
 
 

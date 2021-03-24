@@ -27,7 +27,7 @@ const GametimeBanner = {
 				{attrs.dateId ?
 				//go to locations
 				<BannerButton 
-					icon={<i class="fas fa-map-marker-alt"/>} 
+					icon={<Icon name="location"/>} 
 					clickFunction={e => m.route.set(`/gametime/locations/8/${attrs.dateId}`)}
 				/>
 				: ''}
@@ -35,20 +35,20 @@ const GametimeBanner = {
 				{attrs.dateId ?
 				//go to now playing
 				<BannerButton 
-					icon={<i class="fas fa-clock"/>} 
+					icon={<Icon name="clock"/>} 
 					clickFunction={e => m.route.set(`/gametime/8/${attrs.dateId}`)}
 				/>
 				: ''}
 				{attrs.dayId ?
 				//go to schedule view
 				<BannerButton 
-					icon={<i class="fas fa-calendar-alt"/>} 
+					icon={<Icon name="calendar"/>} 
 					clickFunction={e => m.route.set(`/gametime/9/${attrs.dayId}`)}
 				/>
 				: ''}
 				{//exit back to launcher
 				<BannerButton 
-					icon={<i class="fas fa-external-link-alt"/>} 
+					icon={<Icon name="share"/>} 
 					clickFunction={e => m.route.set('/launcher')}
 				/>
 			}
