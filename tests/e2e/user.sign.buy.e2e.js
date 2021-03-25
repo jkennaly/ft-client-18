@@ -29,7 +29,7 @@ o.beforeEach(function() {
     browser
       .then(b => b.newPage())
       .then(p => p.goto(baseUrl, {waitUntil: 'networkidle0'})
-        .then(() => p.waitForSelector(".fa-sign-in-alt"))
+        .then(() => p.waitForSelector(".icon-enter"))
         .then(el => el.click())
         .then(() => p.waitForSelector(".ft-ui-button"))
         .then(el => el.click())
@@ -68,7 +68,7 @@ o.beforeEach(function() {
         .then(() => p.$("button[name='BuyBucks']"))
         .then(el => el.click())
         .then(() => p.waitForNavigation({waitUntil: 'networkidle0'}))
-        .then(() => console.log('clciked Buy bucks'))
+        .then(() => console.log('clicked Buy bucks'))
         .then(() => p.waitForSelector("input[name=email]"))
         .then(() => p.$("input[name=email]"))
         .then(el => el.type(email))

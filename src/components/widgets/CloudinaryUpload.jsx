@@ -10,16 +10,21 @@ const CloudinaryUploadWidget = vnode => {
 	return {
 		oncreate: vnode => {
 		    myUploadWidget = cloudinary.openUploadWidget({ 
-		      cloud_name: 'dbezrymmc', 
-		      upload_preset: subjectData.imagePreset(vnode.attrs.subjectType),
+		      cloudName: 'dbezrymmc', 
+		      uploadPreset: subjectData.imagePreset(vnode.attrs.subjectType),
 		      sources: vnode.attrs.sources
 		  }, (err, result) => {
 		      	//console.log('Cloudinary Upload')
 		      	if(err) console.log(err)
-		      	if(vnode.attrs.resultFunction) vnode.attrs.resultFunction(result)
+		      	if(vnode.attrs.resultFunction) 
+		      	if (result.event === "success") {
+                    //Step 2.4:  Call the .close() method in order to close the widget
+                    vnode.attrs.resultFunction(result)
+                    myUploadWidget.close();
+                }
 		       })
 		    if(vnode.attrs.widgetHandle) vnode.attrs.widgetHandle(myUploadWidget)
-
+		    
 		  },
 		view: (vnode) => <input type="button" />
 }};

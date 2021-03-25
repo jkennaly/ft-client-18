@@ -2,18 +2,20 @@
 
 import m from 'mithril'
 import _ from 'lodash'
-import jQuery from 'jquery'
+//import jQuery from 'jquery'
 //import cloudinary from 'cloudinary'
 
 import {remoteData} from '../../store/data.js'
 
+const {Images: images} = remoteData
 
 
-const cl = typeof cloudy !== 'undefined' && cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
+
+//const cl = typeof cloudy !== 'undefined' && cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
 const CircleNail = {
     view: ({attrs}) => {
         const mapping = {
-            img: remoteData.Images.find(i => i.url && i.subjectType === attrs.subjectType && i.subject === attrs.subject)
+            img: images.find(i => i.url && i.subjectType === attrs.subjectType && i.subject === attrs.subject)
         }
         return m({
             view: ({attrs}) => <div 
@@ -29,15 +31,11 @@ const CircleNail = {
                 {
                     //console.log(`CircleNail init`, vnode.attrs.subjectType, vnode.attrs.subject)
                 }
-                {attrs.img && cl ? 
-                    m.trust(cl.imageTag(attrs.img
-                        .url.substring(attrs.img.url.indexOf('artists/')), {
-                            alt: "artist image", 
-                            width: 50, 
-                            height: 50,
-                            crop: "thumb", 
-                            radius: 'max'}).toHtml()) : 
-                ''}
+                {attrs.img ? 
+                    <img 
+                        alt="artist image" 
+                        src={images.src(attrs.img.id, {thumbnail: {width: 50, height: 50}})} 
+                /> : ''}
             </div>
         }, mapping)
     }

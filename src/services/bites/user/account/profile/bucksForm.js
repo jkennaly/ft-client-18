@@ -5,6 +5,7 @@ import m from 'mithril'
 import _ from 'lodash'
 
 import ContentItem from '../../../../../components/detailViewsPregame/profiles/ContentItem.js'
+import IconText from '../../../../../components/fields/IconText.jsx'
 
 const biteCache = {}
 const biteTimes = {}
@@ -68,7 +69,7 @@ export default  (remoteDataField, eventObject = {}) => {
 		m('h2', {}, 'Buy FestiBucks'),
 		//current bucks
 		m('', {}, `Current FestiBucks: `, 
-			m('i.fas.fa-coins'),
+			m(IconText, {name: 'festibucks'}),
 			currentBucks
 		),
 		//selector: <10 or 10+
@@ -91,9 +92,9 @@ export default  (remoteDataField, eventObject = {}) => {
 				m('th', {}, 'Balance After Transaction')
 			),
 			m('tr', {}, 
-				m('td', {}, m('i.fas.fa-coins'), buyCount), 
+				m('td', {}, m(IconText, {name: 'festibucks'}), buyCount), 
 				m('td', {}, formatter.format(buyCount * (buySmall ? 1.5 : 1))), 
-				m('td', {}, m('i.fas.fa-coins'), (buyCount + currentBucks))
+				m('td', {}, m(IconText, {name: 'festibucks'}), (buyCount + currentBucks))
 			)
 		),
 		//alpha warning

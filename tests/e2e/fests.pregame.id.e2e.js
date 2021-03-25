@@ -48,7 +48,7 @@ o.beforeEach(function() {
     browser
       .then(b => b.newPage())
       .then(p => p.goto(baseUrl, {waitUntil: 'networkidle0'})
-        .then(() => p.waitForSelector(".fa-bars"))
+        .then(() => p.waitForSelector(".icon-menu"))
         .then(() => p.click(".ft-nav-menu-button"))
         .then(() => p.waitForTimeout(100))
         .then(() => p.$x("//span[contains(., 'Festivals')]"))

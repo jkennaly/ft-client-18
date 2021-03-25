@@ -109,6 +109,7 @@ import batchCreate from './list/mixins/remote/batchCreate'
 import batchDelete from './list/mixins/remote/batchDelete'
 import batchUpdate from './list/mixins/remote/batchUpdate'
 import bucks from './list/mixins/remote/bucks'
+import cloudy from './list/mixins/remote/cloudy'
 import cost from './list/mixins/remote/cost'
 import buy from './list/mixins/remote/buy'
 import create from './list/mixins/remote/create'
@@ -194,7 +195,8 @@ Object.assign(images,
 	subjectDetails,
 	create,
 	messageName(subjects),
-	imgEvent(subjects, lineups)
+	imgEvent(subjects, lineups),
+	cloudy
 )
 Object.assign(series,
 	filterable,

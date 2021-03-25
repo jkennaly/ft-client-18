@@ -3,7 +3,7 @@
 
 import m from 'mithril'
 import _ from 'lodash'
-import jQuery from 'jquery'
+//import jQuery from 'jquery'
 //import cloudinary from 'cloudinary'
 
 import AttributionField from './AttributionField.jsx'
@@ -16,12 +16,12 @@ import {subjectData} from '../../store/subjectData'
 
 const {Images: images} = remoteData
 
-const cl = typeof cloudy !== 'undefined' && cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
+//const cl = typeof cloudy !== 'undefined' && cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
     var addingImage = false
 const jsx = {
     //oninit: () => console.log('CloudImageField jsx init'),
     view: ({attrs}) => <div class="ft-full-image">
-        {attrs.imagePath && cl ? m.trust(cl.imageTag(attrs.imagePath, {alt: "artist image", width: 288, height: 250, crop: "fit"}).toHtml()) : ''}
+        {attrs.image ? <img alt="artist image" src={images.src(attrs.image.id, {fill: {width: 288, height: 250}})} /> : ''}
         {attrs.image ? <AttributionField imageId={attrs.image.id} popModal={attrs.popModal} hideFlag={attrs.hideFlag} /> : ''}
         {!attrs.addDisabled && !attrs.image && attrs.userRoles.includes('admin') ? <NavButton fieldValue="Add image" action={e => addingImage = true} /> : ''}
         {!attrs.image && !attrs.addDisabled && attrs.subjectType === 2 && attrs.userRoles.includes('admin') ? <a 
@@ -61,7 +61,7 @@ const CloudImageField = {
         //console.log('CloudImageField specImage', specImageId, specImage)
         const mapping = {
             image: image,
-            imagePath: image ? image.url.substring(image.url.indexOf('artists/')) : '',
+            //imagePath: image ? image.url.substring(image.url.indexOf('artists/')) : '',
             usePlaceholders: Boolean(attrs.camera && attrs.userId),
             userId: attrs.userId,
             userRoles: attrs.userRoles,

@@ -7,6 +7,7 @@ import moment from 'dayjs'
 
 import BuyAccessLine from '../../../../../components/fields/form/BuyAccessLine.jsx'
 import EventSelector from '../../../../../components/detailViewsPregame/fields/event/EventSelector.jsx'
+import IconText from '../../../../../components/fields/IconText.jsx'
 
 const biteCache = {}
 const biteTimes = {}
@@ -161,7 +162,7 @@ export default  (users, days, dates, festivals, eventObject = {}) => {
 		m('h2.c44-tac', {}, 'Buy Live Access'),
 		//current bucks
 		m('span.c44-tac', {}, `Current FestiBucks: `, 
-			m('i.fas.fa-coins'),
+			m('IconText', {name: 'festibucks'}),
 			currentBucks
 		),
 		//selector: event

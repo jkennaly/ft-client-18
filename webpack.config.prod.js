@@ -56,6 +56,9 @@ const env = {
 		  	})
     	]
   	},
+	resolve: {
+		root: [path.resolve("./")],
+	},
 	plugins: [
 	new InjectManifest({
 	      swSrc: './src/www/src-sw.js',

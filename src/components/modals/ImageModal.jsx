@@ -92,12 +92,12 @@ const jsx = function({attrs}) {
                 resultFunction={result => {
                     //fail silently
                     if(!result) return
-                    //console.log(result)
-                    if(result[0].secure_url.indexOf('image' > 0)) {
+                    console.log(result)
+                    if(result.info.secure_url.indexOf('image' > 0)) {
                         attrs.action({
                             subject: attrs.subject,
                             subjectType: attrs.subjectType,
-                            url: result[0].secure_url,
+                            url: result.info.secure_url,
                             title: title(),
                             sourceUrl: sourceUrl(),
                             author: author(),

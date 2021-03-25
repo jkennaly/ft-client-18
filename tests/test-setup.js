@@ -16,6 +16,7 @@ global.window = dom.window
 global.document = dom.window.document
 global.requestAnimationFrame = dom.window.requestAnimationFrame
 global.window.mockery = true
+global._ = require('lodash')
 
 // Require Mithril to make sure it loads properly.
 require("mithril")

@@ -1,7 +1,7 @@
 // src/components/cards/ActivityCard.jsx
 
 import m from "mithril";
-import _ from "lodash";
+import _ from 'lodash';
 import moment from "dayjs";
 var relativeTime = require('dayjs/plugin/relativeTime')
 moment.extend(relativeTime)

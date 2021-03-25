@@ -3,7 +3,7 @@
 //a form field for updating a string value
 
 import m from 'mithril'
-import Icon from '../Icon.jsx'
+import IconText from '../IconText.jsx'
 
 const jsx = {
   view: ({ attrs }) =>
@@ -13,7 +13,7 @@ const jsx = {
 	    	<br />
 	    	{attrs.subtitle}
 	    	<br />
-	    	<Icon name="festibucks" />
+	    	<IconText name="festibucks" />
 	    	{attrs.value}
     	</button>
     </div>

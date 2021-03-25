@@ -9,9 +9,9 @@ import App from "../../../src/components/layout/App.jsx"
 
 o.spec("App", function() {
 	var out = mq(App)
-	console.log('App out', out)
+	//console.log('App out', out)
     o("attrs.fieldValue display", function() {
-        o(out.rootNode.text).equals(undefined) `No text in root node`
+        o(out.rootNode.attrs.className).equals('App') `App class is App`
     	//o(1).equals(1) (`failed math`)
     })
 })

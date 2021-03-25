@@ -1,7 +1,7 @@
 // src/components/layout/Messages.jsx
 
 import m from "mithril";
-import _ from "lodash";
+import _ from 'lodash';
 
 import MessageCategoryPane from "../../components/panes/MessageCategoryPane.jsx"
 import DiscussionPane from "../../components/panes/DiscussionPane.jsx"

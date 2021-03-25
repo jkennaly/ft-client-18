@@ -1,7 +1,7 @@
 // src/components/detailViewsPregame/FestivalDetail.jsx
 
 import m from "mithril";
-import _ from "lodash";
+import _ from 'lodash';
 
 import CardContainer from "../../components/layout/CardContainer.jsx";
 import SeriesCard from "../../components/cards/SeriesCard.jsx";

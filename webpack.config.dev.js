@@ -1,38 +1,39 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
+const path = require("path")
+const HtmlWebpackPlugin = require("html-webpack-plugin")
+const { CleanWebpackPlugin } = require("clean-webpack-plugin")
+const TerserPlugin = require("terser-webpack-plugin")
+const CopyPlugin = require("copy-webpack-plugin")
 //const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const webpack = require("webpack");
-const { InjectManifest } = require("workbox-webpack-plugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const webpack = require("webpack")
+const { InjectManifest } = require("workbox-webpack-plugin")
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+	.BundleAnalyzerPlugin
 
-const mode = "development";
-const payOptionsDev = require("./src/services/payOptions/pay-variables-test.json");
-const payOptionsProd = require("./src/services/payOptions/pay-variables-live.json");
-const auth0Dev = require("./src/services/auth0-variables.dev.json");
-const auth0Prod = require("./src/services/auth0-variables.prod.json");
-const authLocalDev = require("./src/services/authLocal-variables.dev.json");
-const authLocalProd = require("./src/services/authLocal-variables.prod.json");
+const mode = "development"
+const payOptionsDev = require("./src/services/payOptions/pay-variables-test.json")
+const payOptionsProd = require("./src/services/payOptions/pay-variables-live.json")
+const auth0Dev = require("./src/services/auth0-variables.dev.json")
+const auth0Prod = require("./src/services/auth0-variables.prod.json")
+const authLocalDev = require("./src/services/authLocal-variables.dev.json")
+const authLocalProd = require("./src/services/authLocal-variables.prod.json")
 
-const params = process.argv.slice(2);
-const authSource = params.includes("local") ? "local" : "auth0";
+const params = process.argv.slice(2)
+const authSource = params.includes("local") ? "local" : "auth0"
 
 const env = {
 	mode: mode,
 	authSource: authSource,
-};
+}
 
 function composeConfig(env) {
 	/* Helper function to dynamically set runtime config */
 	if (env.mode === "development") {
-		return env.authSource === "auth0" ? auth0Dev : authLocalDev;
+		return env.authSource === "auth0" ? auth0Dev : authLocalDev
 	}
 
 	if (env.mode === "production") {
-		return env.authSource === "auth0" ? auth0Prod : authLocalProd;
+		return env.authSource === "auth0" ? auth0Prod : authLocalProd
 	}
 }
 
@@ -40,13 +41,18 @@ module.exports = (config) => {
 	const env = {
 		mode: mode,
 		authSource: config && config.auth === "local" ? "local" : "auth0",
-	};
+	}
 	return {
 		mode: env.mode,
 		entry: "./src/index.jsx",
 		devtool: "inline-source-map",
 		devServer: {
 			contentBase: "./dist",
+		},
+		resolve: {
+			alias: {
+				//lodash: path.resolve('./vendor/lodash/')
+			}
 		},
 		plugins: [
 			new InjectManifest({
@@ -64,10 +70,10 @@ module.exports = (config) => {
 			new webpack.ProvidePlugin({
 				//$: "jquery",
 				//jQuery: "jquery",
-				//_: "lodash",
+				_: "lodash",
 				cloudy: "cloudinary-core",
 			}),
-			new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+			//new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 			//new OptimizeCSSAssetsPlugin({}),
 			new webpack.DefinePlugin({
 				ENV: env.mode,
@@ -133,5 +139,5 @@ module.exports = (config) => {
 				},
 			],
 		},
-	};
-};
+	}
+}

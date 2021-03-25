@@ -2,7 +2,6 @@
 
 import m from 'mithril'
 import _ from 'lodash'
-
 /*
 import { dom, config, library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
