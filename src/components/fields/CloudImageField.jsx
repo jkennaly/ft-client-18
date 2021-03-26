@@ -16,7 +16,6 @@ import {subjectData} from '../../store/subjectData'
 
 const {Images: images} = remoteData
 
-//const cl = typeof cloudy !== 'undefined' && cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
     var addingImage = false
 const jsx = {
     //oninit: () => console.log('CloudImageField jsx init'),

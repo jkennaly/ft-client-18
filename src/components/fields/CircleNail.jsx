@@ -11,7 +11,6 @@ const {Images: images} = remoteData
 
 
 
-//const cl = typeof cloudy !== 'undefined' && cloudy.Cloudinary.new( { cloud_name: "dbezrymmc"})
 const CircleNail = {
     view: ({attrs}) => {
         const mapping = {

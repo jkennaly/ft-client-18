@@ -56,9 +56,6 @@ const env = {
 		  	})
     	]
   	},
-	resolve: {
-		root: [path.resolve("./")],
-	},
 	plugins: [
 	new InjectManifest({
 	      swSrc: './src/www/src-sw.js',
@@ -80,7 +77,7 @@ const env = {
 	        //$: "jquery",
 	        //jQuery: "jquery",
 	        //_: "lodash",
-	        cloudy: "cloudinary-core"
+	        //cloudy: "cloudinary-core"
     	}),
     	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     	new webpack.DefinePlugin({

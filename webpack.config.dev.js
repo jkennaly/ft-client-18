@@ -49,11 +49,6 @@ module.exports = (config) => {
 		devServer: {
 			contentBase: "./dist",
 		},
-		resolve: {
-			alias: {
-				//lodash: path.resolve('./vendor/lodash/')
-			}
-		},
 		plugins: [
 			new InjectManifest({
 				swSrc: "./src/www/src-sw.js",
@@ -70,8 +65,8 @@ module.exports = (config) => {
 			new webpack.ProvidePlugin({
 				//$: "jquery",
 				//jQuery: "jquery",
-				_: "lodash",
-				cloudy: "cloudinary-core",
+				//_: "lodash",
+				//cloudy: "cloudinary-core",
 			}),
 			//new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 			//new OptimizeCSSAssetsPlugin({}),
