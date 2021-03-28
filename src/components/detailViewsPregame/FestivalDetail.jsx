@@ -93,13 +93,11 @@ const FestivalDetail = {
 			attrs.titleSet(festivals.getEventName(festivalId))
 			const so = {subjectType: FESTIVAL, subject: festivalId}
 			attrs.focusSubject(so)
-			attrs.auth.getGttDecoded(so)
-				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
-				.then(decoded => !festivals.sellAccess(festivalId, decoded))
-				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
-				.then(attrs.eventSet)
-				.catch(console.error)
-				//console.log('oninit', attrs.eventSet)
+			const decoded = attrs.auth.gtt()
+			const accessible = decoded && !festivals.sellAccess(festivalId, decoded)
+			const evtString = accessible ? 'hasAccess' : 'noAccess'
+			attrs.eventSet(evtString)
+			//console.log('FestivalDetail ciew evtString, decoded', evtString, decoded)
 			//hasAccess if:
 				//event not restricted OR
 				//gtt token has access

@@ -40,9 +40,9 @@ const ModalBox = {
 		display = modalType
 		m.redraw()
 	},
-	view: () =>
+	view: ({attrs}) =>
 		<div class="ft-modal-box">
-			{!modals[display] ? '' : m(modals[display], modalAttrs)}
+			{!modals[display] ? '' : m(modals[display], Object.assign({}, {auth: attrs.auth, bucksUpdate: attrs.bucksUpdate}, modalAttrs))}
 		</div>
 }
 

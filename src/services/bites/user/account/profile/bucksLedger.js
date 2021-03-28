@@ -8,7 +8,7 @@ import ContentItem from '../../../../../components/detailViewsPregame/profiles/C
 
 const biteCache = {}
 const biteTimes = {}
-const cacheLife = 1000
+const cacheLife = 10
 
 
 const dataPromise = (remoteDataField) => remoteDataField

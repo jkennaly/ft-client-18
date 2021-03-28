@@ -18,6 +18,7 @@ import "./img/symbol-defs.svg"
 //import "./www/robots.txt"
 //import "./www/manifest.json"
 
+
 import App from './components/layout/App.jsx';
 if ('serviceWorker' in navigator) {
   // Use the window load event to keep the page load performant

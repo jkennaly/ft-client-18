@@ -42,6 +42,7 @@ var userIdPromiseCache = {}
 var nextIdRequestTime = 0
 let accessTokenPromiseCache = {}
 let userData = {}
+let gttCache
 var accessTokenPending = false
 var userIdCache = 0
 var userRoleCache = []
@@ -229,6 +230,11 @@ export default class Auth {
       */
 	}
 
+	gtt() {
+		//console.log('auth gtt')
+		//console.log(gttCache)
+		return gttCache
+	}
 	userId() {
 		//console.log('auth userId')
 		//console.log(userIdCache)
@@ -327,7 +333,8 @@ export default class Auth {
 
 	getGttRawRemote() {
 		return (
-			userIdPromiseCache
+			localforage.removeItem("gtt.raw")
+				.then(() => this.getFtUserId())
 				.then(() => this.getAccessToken())
 				.then(authResult =>
 					_.isString(authResult) ? authResult : false
@@ -367,6 +374,7 @@ export default class Auth {
 				.then(response => {
 					//console.log('gtt', response)
 					if (_.isArray(response)) return response
+					if(!response.ok) throw new Error('not authorized')
 					try {
 						return response.json()
 					} catch (err) {
@@ -375,6 +383,7 @@ export default class Auth {
 					}
 				})
 				.then(json => json.token)
+				.then(gtt => gttCache = jwt_decode(gtt))
 				.then(gtt =>
 					localforage.setItem("gtt.raw", gtt).then(() => gtt)
 				)
@@ -402,7 +411,7 @@ export default class Auth {
 			.then(auth => {
 				if (!auth) throw "No auth"
 			})
-			.then(this.getGttRawLocal)
+			.then(() => this.getGttRawLocal())
 			.then(local =>
 				_.isString(local) && local ? local : this.getGttRawRemote()
 			)

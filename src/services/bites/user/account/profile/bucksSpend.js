@@ -11,7 +11,7 @@ import IconText from '../../../../../components/fields/IconText.jsx'
 
 const biteCache = {}
 const biteTimes = {}
-const cacheLife = 1000
+const cacheLife = 10
 
 const STRIPE_PK = typeof STRIPE_PUBLIC === 'undefined' ? {} : STRIPE_PUBLIC
 //console.log('bucksSpend PK', STRIPE_PK)
@@ -162,7 +162,7 @@ export default  (users, days, dates, festivals, eventObject = {}) => {
 		m('h2.c44-tac', {}, 'Buy Live Access'),
 		//current bucks
 		m('span.c44-tac', {}, `Current FestiBucks: `, 
-			m('IconText', {name: 'festibucks'}),
+			m(IconText, {name: 'festibucks'}),
 			currentBucks
 		),
 		//selector: event
@@ -209,6 +209,8 @@ export default  (users, days, dates, festivals, eventObject = {}) => {
 					buyObject[`${k}Id`] = a[`${k}Id`]
 					//console.log('bucksSpend buyObject', buyObject)
 					return rdf.buy(buyObject)
+						.then(eventObject.bucksUpdate)
+						.then(eventObject.closeModal)
 				},
 				unaffordable: currentBucks < v
 			}))

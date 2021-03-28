@@ -84,9 +84,9 @@
     "postbuild:local": "[ -f ./deploy.js ] && node deploy.js local",
     "postbuild:dev": "npm run postbuild:remote",
     "postbuild:prod": "npm run postbuild:remote",
-    "watch": "npm run build:dev && onchange -i 'src/**/*' -- npm run build:dev",
-    "watch:local": "npm run build:local && onchange -i 'src/**/*' -- npm run build:local",
-    "watch:prod": "npm run build:prod && onchange -i 'src/**/*' -- npm run build:prod",
+    "watch": "npm run build:dev && onchange --await-write-finish 1500 -i 'src/**/*' -- npm run build:dev",
+    "watch:local": "npm run build:local && onchange --await-write-finish 1500 -i 'src/**/*' -- npm run build:local",
+    "watch:prod": "npm run build:prod && onchange --await-write-finish 1500 -i 'src/**/*' -- npm run build:prod",
     "bundle-report": "webpack-bundle-analyzer --port 4200 compilation-stats-210322.json"
   },
   "nyc": {

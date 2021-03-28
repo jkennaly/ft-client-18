@@ -8,7 +8,11 @@ import IconText from '../IconText.jsx'
 const jsx = {
   view: ({ attrs }) =>
     <div class={`ft-buy-access-line c44-df c44-fjcc`}>
-    	<button class={`c44-w-100${attrs.unaffordable ? ' c44-bcg' : ''}`} onclick={attrs.unaffordable ? e => {} : attrs.clickFunction}>
+    	<button 
+    		class={`c44-w-100${attrs.unaffordable ? ' c44-bcg' : ''}`} 
+    		onclick={attrs.unaffordable ? e => {} : attrs.clickFunction}
+    		data-access-level={attrs.accessLevel}
+    	>
 	    	{attrs.name}
 	    	<br />
 	    	{attrs.subtitle}

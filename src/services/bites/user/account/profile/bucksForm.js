@@ -9,7 +9,7 @@ import IconText from '../../../../../components/fields/IconText.jsx'
 
 const biteCache = {}
 const biteTimes = {}
-const cacheLife = 1000
+const cacheLife = 10
 
 const STRIPE_PK = typeof STRIPE_PUBLIC === 'undefined' ? {} : STRIPE_PUBLIC
 //console.log('bucksForm PK', STRIPE_PK)
@@ -128,6 +128,7 @@ export default  (remoteDataField, eventObject = {}) => {
 		            alert(result.error.message);
 		          }
 		        })
+				.then(eventObject.bucksUpdate)
 		        .catch(function(error) {
 		          console.error('Error:', error);
 		        });

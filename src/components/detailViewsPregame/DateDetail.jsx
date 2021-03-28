@@ -62,18 +62,11 @@ const DateDetail = {
 			//if (attrs.titleSet) attrs.titleSet(dates.getEventName(dateId))
 			//const endMoment = 
 			const so = {subject: dateId, subjectType: DATE}
-			return attrs.auth.getGttDecoded(so)
-				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
-				.then(decoded => !dates.sellAccess(dateId, decoded))
-				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
-				.then(attrs.eventSet)
-				.then(() => attrs.titleSet(dates.getEventName(dateId)))
-				.then(() => {
-
-					const so = {subjectType: DATE, subject: dateId}
-					attrs.focusSubject(so)
-				})
-				.catch(console.error)
+			attrs.focusSubject(so)
+			const decoded = attrs.auth.gtt()
+			const accessible = decoded && !dates.sellAccess(dateId, decoded)
+			const evtString = accessible ? 'hasAccess' : 'noAccess'
+			attrs.eventSet(evtString)
 
 
 		},

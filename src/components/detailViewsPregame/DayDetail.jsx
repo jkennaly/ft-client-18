@@ -50,17 +50,11 @@ const DayDetail = {
 		//console.log('dayDetails init')
 		const dayId = id()
 		const so = {subject: dayId, subjectType: DAY}
-		return attrs.auth.getGttDecoded(so)
-				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
-				.then(decoded => !days.sellAccess(dayId, decoded))
-				.then(accessible => accessible ? 'hasAccess' : 'noAccess')
-				.then(attrs.eventSet)
-			.then(() => attrs.titleSet(days.getPartName(dayId)))
-			.then(() => {
-				const so = {subjectType: DAY, subject: dayId}
-				attrs.focusSubject(so)
-			})
-			.catch(console.error)
+		attrs.focusSubject(so)
+			const decoded = attrs.auth.gtt()
+			const accessible = decoded && !days.sellAccess(dayId, decoded)
+			const evtString = accessible ? 'hasAccess' : 'noAccess'
+			attrs.eventSet(evtString)
 
 	},
 	oncreate: ({dom}) => {

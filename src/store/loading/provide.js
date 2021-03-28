@@ -44,16 +44,21 @@ export default function (data, modelName, queryString = '', url, method = 'POST'
 			//console.log('provide', response)
 			if(_.isArray(response)) return response
 			try {
-				return response.json()
+				const resp = response.json()
+				return resp
 			} catch (err) {
-				console.error(err)
+				console.log('JSON err', err)
+				if(!/JSON\.parse/.test(err.message)) console.error(err)
 				return []
 			}
 
 		})
 		.catch(err => {
-			console.error(err)
-			throw err
+			if(!/JSON\.parse/.test(err.message)) {
+				
+				console.error(err)
+				throw err
+			}
 		})
 	)
 	return resultChain

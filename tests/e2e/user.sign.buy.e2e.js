@@ -25,7 +25,7 @@ o.beforeEach(function() {
         )
     })
   o("FestiGram Sign up", function(done) {
-    o.timeout(60000)
+    o.timeout(120000)
     browser
       .then(b => b.newPage())
       .then(p => p.goto(baseUrl, {waitUntil: 'networkidle0'})
@@ -91,7 +91,28 @@ o.beforeEach(function() {
         .then(() => p.waitForTimeout(1000))
         .then(() => p.$("h3[name='Access']"))
         .then(el => el.click())
-        .then(() => p.waitForTimeout(10000))
+        .then(() => p.waitForSelector("span.c44-tac"))
+        .then(() => p.evaluate(() => {
+          return document.querySelector('span.c44-tac').textContent
+          //done()
+        }))
+        .then(r => {
+        	//console.log('span.c44-tac.textContent', r)
+          o(/\s10$/.test(r)).equals(true)
+        })
+        .then(() => p.waitForSelector("button[data-access-level=date]"))
+        .then(el => el.click())
+        .then(() => p.waitForTimeout(1000))
+        .then(() => p.evaluate(() => {
+          return Array.from(document.querySelectorAll('div.ft-nav-button img'))
+          	.length > 0
+          //done()
+        }))
+        .then(r => {
+        	//console.log('div.ft-nav-button img.src', r)
+          o(r).equals(true)
+        })
+        .then(() => p.waitForTimeout(3000))
         /*
         .then(() => {
           p.$x("//span[contains(., 'Festivals')]")
@@ -109,9 +130,9 @@ o.beforeEach(function() {
         })
         */
         .then(() => {
-          //browser.then((b) => b.close())
+          browser.then((b) => b.close())
 
-          //done()
+          done()
 
         })
         .catch(err => {

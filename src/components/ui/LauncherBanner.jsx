@@ -15,15 +15,13 @@ import Icon from '../fields/Icon.jsx'
 
 const {Flags: flags, Dates: dates} = remoteData
 
-var titleCache = {}
-var eventCache = {}
 const title = (attrs) => attrs.titleGet() ? attrs.titleGet() : `FestiGram`
 const event = (attrs) => {
 	//const key = m.route.get()
 	//const cached = _.get(eventCache, key)
 	//if(cached) return cached
 	const event = attrs.eventGet && attrs.eventGet() ? attrs.eventGet() : {}
-	//console.log('event', event)
+	//console.log('LauncherBanner event', event)
 	//_.set(eventCache, key, event)
 	return event
 }

@@ -116,6 +116,16 @@ const focusSubject = (so) => {
 
 
 }
+const bucksUpdate = () => {
+	
+	eventCache = {}
+
+	return auth.getGttRawRemote()
+		//.then(t => console.log('bucksUpdate token', t))
+		.then(m.redraw)
+
+
+}
 //console.log(`app here`)
 var lastUser = [0, []]
 var lastAttrs = {}
@@ -175,7 +185,7 @@ const authorize = (resolveComponent, rejectComponent) => (rParams) => auth.isAut
 			}
 			const mainAttrs = Object.assign({}, attrIds, baseAttrs)
 			lastAttrs = attrIds
-			return [m(ModalBox), m(resolveComponent, mainAttrs)]
+			return [m(ModalBox, {auth: auth, bucksUpdate: bucksUpdate}), m(resolveComponent, mainAttrs)]
 		}
 	}})
 	.catch(err => {
@@ -249,6 +259,7 @@ const App = {
 							.then(rawUserData)
 							.catch(err => [0, []] )
 							.then(user => lastUser = user)
+							.then(auth.getGttRawRemote)
 							.then(() => acb)
 							//.then(udr => [console.log(`callback new raw promise udr/acb`, udr), udr][1])
 						)
@@ -461,6 +472,7 @@ const App = {
 				eventGet={eventBadge}
 				popModal={popModal}
 				focusSubject={focusSubject}
+				bucksUpdate={bucksUpdate}
 			/>}
 			<div id="main-stage">
 				{children}

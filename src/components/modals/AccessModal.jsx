@@ -121,7 +121,10 @@ const AccessModal = {
             festivalId: festivalId(so),
             dateId: dateId(so),
             dayId: dayId(so),
-            extraction: extraction(i)
+            extraction: extraction(i),
+            closeModal: attrs.hide,
+            auth: attrs.auth,
+            bucksUpdate: attrs.bucksUpdate
         }}
         const mapping = {
             display: attrs.display,
