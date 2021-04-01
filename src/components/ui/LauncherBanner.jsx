@@ -10,7 +10,7 @@ import DisplayButton from './DisplayButton.jsx';
 import LiveButton from './LiveButton.jsx';
 import BannerButton from './BannerButton.jsx';
 import CollapsibleMenu from './CollapsibleMenu.jsx';
-import SearchBar from './SearchBar.jsx';
+import SearchExpanse from './SearchExpanse.jsx';
 import Icon from '../fields/Icon.jsx'
 
 const {Flags: flags, Dates: dates} = remoteData
@@ -51,7 +51,7 @@ const LauncherBanner = () => {
 				}
 				<StageTitle title={title(attrs)} /> 
 
-				<SearchBar  />
+				<SearchExpanse  />
 				{
 					/*
 			<CollapsibleMenu 

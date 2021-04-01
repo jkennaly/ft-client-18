@@ -6,6 +6,7 @@ import _ from "lodash"
 import localforage from "localforage"
 import jwt_decode from "jwt-decode"
 import { subjectBought } from "./gtt"
+import fetchT from "../fetchT"
 localforage.config({
 	name: "FestiGram",
 	storeName: "FestiGram",
@@ -41,6 +42,8 @@ const userIdFromToken = userData => token =>
 var userIdPromiseCache = {}
 var nextIdRequestTime = 0
 let accessTokenPromiseCache = {}
+let gttPromiseCache = {}
+let decodedPromiseCache = {}
 let userData = {}
 let gttCache
 var accessTokenPending = false
@@ -60,24 +63,31 @@ const clean = () => {
 	userIdPromiseCache = {}
 	nextIdRequestTime = 0
 	accessTokenPromiseCache = {}
+	gttPromiseCache = {}
+	decodedPromiseCache = {}
 	return (
 		localforage
 			.clear()
 			//.then(() => console.log('data Reset'))
 			.catch(err => console.error("logout data reset failed", err))
+			.then(() => {
+				if ("serviceWorker" in navigator) {
+					//console.log("auth.logout: sw found", swCacheClear)
+					return swCacheClear()
+				}
+			})
 	)
 }
 const swCacheClear = () => {
 	//console.log("auth.logout: clearing sw caches")
 	var cacheWhitelist = []
-	return caches.keys()
-		.then(cacheName => {
-			const precache = /precache/.test(cacheName)
-			const font = precache || /fonts/.test(cacheName)
-			const img = font || /cloud-image/.test(cacheName)
-			const save = img || cacheWhitelist.indexOf(cacheName) > -1
-			return save ? caches.delete(cacheName) : Promise.resolve(true)
-		})
+	return caches.keys().then(cacheName => {
+		const precache = /precache/.test(cacheName)
+		const font = precache || /fonts/.test(cacheName)
+		const img = font || /cloud-image/.test(cacheName)
+		const save = img || cacheWhitelist.indexOf(cacheName) > -1
+		return save ? caches.delete(cacheName) : Promise.resolve(true)
+	})
 }
 var authLoad
 export default class Auth {
@@ -94,18 +104,24 @@ export default class Auth {
 					scope: scopeAr,
 					cacheLocation: "localstorage",
 			  })
+					.then(x => {
+						//console.log("authload construct auth0", x)
+						return x
+					})
 					.then(o => (auth0 = o))
 					.then(o => o.getTokenSilently())
 					.then(status => {
+						//console.log("authload status status", status)
 						if (!status) {
 							localStorage.setItem("ft_user_id", 0)
 							throw "auth fail"
 						}
 						return status
 					})
-					.then(() => this.getFtUserId())
+					.then(x => auth0.getUser())
+					.then(x => this.getFtUserId(x))
 					.then(id => {
-						//console.log('setting id')
+						//console.log("setting id", id)
 						localStorage.setItem("ft_user_id", id)
 					})
 					.then(() => auth0.getIdTokenClaims())
@@ -117,7 +133,7 @@ export default class Auth {
     */
 					.then(roles => (userRoleCache = roles))
 					.then(roles => {
-						//console.log('setting roles')
+						//console.log("setting roles", roles)
 						localStorage.setItem(
 							"ft_user_roles",
 							JSON.stringify(roles)
@@ -154,11 +170,11 @@ export default class Auth {
 	}
 
 	handleAuthentication() {
-		//console.log('handleAuthentication')
+		//console.log("handleAuthentication")
 		return (
 			authLoad
 				.then(hrcb => {
-					//console.log('authLoad for handleAuthentication', hrcb)
+					//console.log("authLoad for handleAuthentication", hrcb)
 					return hrcb
 				})
 				.then(() => {
@@ -170,7 +186,7 @@ export default class Auth {
 				//.catch(err => {if(err === 'not handling') return; console.error(err)})
 				.then(() => auth0.handleRedirectCallback())
 				.then(x => {
-					//console.log('handleRedirectCallback', x)
+					//console.log("handleRedirectCallback", x)
 					return x
 				})
 				.then(redirect => {
@@ -250,6 +266,7 @@ export default class Auth {
 	//returns a promise that resolves to a userIdCache
 	getFtUserId(userDataSupplied) {
 		const userData = userDataSupplied ? userDataSupplied : lastUserData
+		//console.log("getFtUserId intro", userData)
 		lastUserData = userData
 		const onAuthRoute = /auth/.test(window.location)
 		if (onAuthRoute) return Promise.resolve(0)
@@ -257,14 +274,30 @@ export default class Auth {
 		if (localUser) return Promise.resolve(localUser)
 		if (userIdPromiseCache.then) return userIdPromiseCache
 		if (!localUser && !userData) return Promise.reject(0)
-		//console.log('getFtUserId', userData)
+		//console.log("getFtUserId", userData)
 		//console.trace()
-		userIdPromiseCache = authLoad
-			.then(() => this.getValidToken())
-			//.then(accessToken => [console.log('userIdPromiseCache userData', userData, console.trace()), accessToken][1])
+		userIdPromiseCache = (userDataSupplied
+			? Promise.resolve(true)
+			: authLoad
+		)
+			.then(() => auth0.getTokenSilently())
+
+			.then(
+				accessToken =>
+					[
+						console.log(
+							"userIdPromiseCache accessToken",
+							accessToken
+						),
+						accessToken,
+					][1]
+			)
+
 			.then(userIdFromToken(userData))
 			.then(id => {
-				this.cacheCleaner()
+				console.log("getFtUserId id", id)
+				localStorage.setItem("ft_user_id", id)
+				//this.cacheCleaner()
 				return id
 			})
 			//.then(userId => [console.log('userIdPromiseCache userId', userId), userId][1])
@@ -279,27 +312,20 @@ export default class Auth {
 	recore(coreCheck) {
 		dataReset = coreCheck
 	}
-	cacheCleaner(cleanCaches) {
-		cacheReset = cleanCaches
+	cacheCleaner() {
+		clean()
 	}
 
 	logout(skipRoute) {
 		// Clear Access Token and ID Token from local storage
 		return clean()
-			.then(() => {
-				if ("serviceWorker" in navigator) {
-					//console.log("auth.logout: sw found", swCacheClear)
-					return swCacheClear()
-				}
-			})
-			.then(ccp => console.log('caches clean'))
+			.then(ccp => console.log("caches clean"))
 			.finally(() =>
 				auth0.logout({
 					client_id: AUTH0_DATA.CLIENTID,
 					returnTo: AUTH0_DATA.CALLBACKURL,
 				})
 			)
-
 
 		// navigate to the default route
 		//if(!skipRoute) m.route.set('/')
@@ -331,20 +357,19 @@ export default class Auth {
 		return accessTokenPromiseCache
 	}
 
-	getGttRawRemote() {
-		return (
-			localforage.removeItem("gtt.raw")
-				.then(() => this.getFtUserId())
-				.then(() => this.getAccessToken())
-				.then(authResult =>
-					_.isString(authResult) ? authResult : false
-				)
-				.then(authResult => {
-					if (!_.isString(authResult) || !authResult)
-						throw new Error("not authorized")
-					return authResult
-				})
-				/*
+	getGttRawRemote(force = false) {
+		if (!force && gttPromiseCache.then) return gttPromiseCache
+		gttPromiseCache = localforage
+			.removeItem("gtt.raw")
+			.then(() => this.getFtUserId())
+			.then(() => this.getAccessToken())
+			.then(authResult => (_.isString(authResult) ? authResult : false))
+			.then(authResult => {
+				if (!_.isString(authResult) || !authResult)
+					throw new Error("not authorized")
+				return authResult
+			})
+			/*
       .then(authResult => { 
         console.log('updateModel reqUrl', reqUrl)
         const req = m.request({
@@ -359,47 +384,49 @@ export default class Auth {
         return req
       })
       */
-				.then(authResult =>
-					fetch("/api/Profiles/gtt", {
-						method: "get",
-						headers: new Headers(
-							authResult
-								? _.assign({}, headerBase, {
-										Authorization: `Bearer ${authResult}`,
-								  })
-								: headerBase
-						),
-					})
-				)
-				.then(response => {
-					//console.log('gtt', response)
-					if (_.isArray(response)) return response
-					if(!response.ok) throw new Error('not authorized')
-					try {
-						return response.json()
-					} catch (err) {
-						console.error(err)
-						return []
-					}
+			.then(authResult =>
+				fetchT("/api/Profiles/gtt", {
+					method: "get",
+					headers: new Headers(
+						authResult
+							? _.assign({}, headerBase, {
+									Authorization: `Bearer ${authResult}`,
+							  })
+							: headerBase
+					),
 				})
-				.then(json => json.token)
-				.then(gtt => gttCache = jwt_decode(gtt))
-				.then(gtt =>
-					localforage.setItem("gtt.raw", gtt).then(() => gtt)
-				)
-				/*
-      .then(json => {
-        console.log(json)
-      })
-      */
-				.catch(err => {
-					if (err.message === "not authorized") return ""
-					if (/JSON\.parse/.test(err.message)) {
-						return localforage.setItem("gtt.raw", "")
-					}
+			)
+			.then(response => {
+				//console.log('gtt', response)
+				if (_.isArray(response)) return response
+				if (!response.ok) throw new Error("not authorized")
+				try {
+					return response.json()
+				} catch (err) {
 					console.error(err)
-				})
-		)
+					return []
+				}
+			})
+			.then(json => json.token)
+			.then(gtt => (gttCache = jwt_decode(gtt)))
+			.then(gtt => localforage.setItem("gtt.raw", gtt).then(() => gtt))
+			.then(gtt => {
+				decodedPromiseCache = {}
+				return gtt
+			})
+			.then(json => {
+				//console.log("getGttRawRemote gtt", json)
+				return json
+			})
+
+			.catch(err => {
+				if (err.message === "not authorized") return ""
+				if (/JSON\.parse/.test(err.message)) {
+					return localforage.setItem("gtt.raw", "")
+				}
+				console.error(err)
+			})
+		return gttPromiseCache
 	}
 
 	getGttRawLocal() {
@@ -416,14 +443,18 @@ export default class Auth {
 				_.isString(local) && local ? local : this.getGttRawRemote()
 			)
 			.then(raw => (raw ? raw : ""))
-			.catch(err => "")
+			.catch(err => {
+				throw err
+			})
 	}
 
 	getGttDecoded() {
-		return this.getGttRaw()
+		if (decodedPromiseCache.then) return decodedPromiseCache
+		decodedPromiseCache = this.getGttRaw()
 			.then(jwt_decode)
 			.then(raw => (raw ? raw : {}))
 			.catch(err => {})
+		return decodedPromiseCache
 	}
 
 	//has gtt access will return false for past events that are accessible
