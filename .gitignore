@@ -8,6 +8,10 @@
 /.nyc_output
 /tests/apiData/*.json
 /tests/entry
+*.report.html
+stats.json
+compilation-stats*
+
 
 # production
 /dist

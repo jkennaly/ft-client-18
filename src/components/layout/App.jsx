@@ -61,7 +61,7 @@ const WelcomeView = ({ attrs }) => [
 	<span class="app-description">A Festival App For The Rest Of Us</span>,
 	<div class="login-button">
 		<UIButton action={() => auth.login(attrs.prev)} buttonName="LOGIN" />
-	</div>,
+	</div>
 ]
 
 const forceLoginRoute = err => {
@@ -73,7 +73,7 @@ const rawUserData = status =>
 	status
 		? Promise.all([auth.getFtUserId(), auth.getRoles()]).then(([u, r]) => [
 				_.isNumber(u) ? u : 0,
-				_.isArray(r) ? r : [],
+				_.isArray(r) ? r : []
 		  ])
 		: [0, []]
 
@@ -87,10 +87,12 @@ const title = attrs => {
 	if (attrs.titleGet()) return attrs.titleGet()
 	return `FestiGram`
 }
-const bannerTitle = (title, route = m.route.get()) => {
-	//console.log('bannerTitle', title, titleCache)
-	if (_.isString(title)) _.set(titleCache, route, title)
-	return _.get(titleCache, route, `FestiGram`)
+const bannerTitle = title => {
+	const key = "banner"
+	if (_.isString(title)) _.set(titleCache, key, title)
+	const cached = _.get(titleCache, key, `FestiGram Launcher`)
+	//console.log("bannerTitle", title, cached)
+	return cached
 }
 const eventBadge = selection => {
 	const key = m.route.get()
@@ -114,10 +116,12 @@ const focusSubject = so => {
 const bucksUpdate = () => {
 	eventCache = {}
 
-	return auth
-		.getGttRawRemote(true)
-		.then(t => console.log("bucksUpdate token", t))
-		.then(m.redraw)
+	return (
+		auth
+			.getGttRawRemote(true)
+			//.then(t => console.log("bucksUpdate token", t))
+			.then(m.redraw)
+	)
 }
 //console.log(`app here`)
 var lastUser = [0, []]
@@ -126,93 +130,103 @@ const popModal = (...popRequestArgs) => {
 	if (!lastUser[1].includes("user")) return auth.login(m.route.get())
 	return ModalBox.popRequest(...popRequestArgs)
 }
-const authorize = (resolveComponent, rejectComponent) => rParams =>
-	auth
-		.getValidToken()
-		.then(t => console.log("authorize isAuthenticated", t) || t)
-		.then(rawUserData)
-		.then(t => console.log("authorize rawUserData", t) || t)
-		.then(acb => {
-			acb[0] && remoteData.Flags.remoteCheck()
-			acb[0] && remoteData.Intentions.remoteCheck()
-			acb[0] && remoteData.Interactions.remoteCheck()
-			acb[0] && remoteData.MessagesMonitors.remoteCheck()
-			acb[0] &&
-				remoteData.Messages.acquireListSupplement(
-					"filter=" +
-						JSON.stringify({
-							where: {
-								fromuser: acb[0],
-								messageType: CHECKIN,
-							},
-						}),
-					undefined,
-					true
-				)
-			return acb
-		})
-		.catch(err => [0, []])
-		.then(t => console.log("authorize userSet", t) || t)
-		.then(user =>
-			Promise.all([(lastUser = user), user[0] && auth.getGttDecoded()])
-		)
-		.then(([userDataRaw, gtt]) => {
-			console.log(`route resolved`, rParams, userDataRaw, gtt)
-			return {
-				oninit: () => {
-					//console.log(`component init`, userDataRaw, resolveComponent)
-					if (resolveComponent.preload)
-						return resolveComponent.preload(rParams)
-					/*
+const authorize = (resolveComponent, rejectComponent) => rParams => {
+	const params = { titleSet: bannerTitle }
+	return (
+		Promise.all([
+			auth.getValidToken(),
+			resolveComponent.preload
+				? resolveComponent.preload(Object.assign({}, rParams, params))
+				: undefined
+		])
+			.then(([token, ...rest]) => token)
+
+			//.then(t => console.log("authorize isAuthenticated", t) || t)
+			.then(rawUserData)
+			//.then(t => console.log("authorize rawUserData", t) || t)
+			.then(acb => {
+				acb[0] && remoteData.Flags.remoteCheck()
+				acb[0] && remoteData.Intentions.remoteCheck()
+				acb[0] && remoteData.Interactions.remoteCheck()
+				acb[0] && remoteData.MessagesMonitors.remoteCheck()
+				acb[0] &&
+					remoteData.Messages.acquireListSupplement(
+						"filter=" +
+							JSON.stringify({
+								where: {
+									fromuser: acb[0],
+									messageType: CHECKIN
+								}
+							}),
+						undefined,
+						true
+					)
+				return acb
+			})
+			.catch(err => [0, []])
+			//.then(t => console.log("authorize userSet", t) || t)
+			.then(user =>
+				Promise.all([(lastUser = user), user[0] && auth.getGttDecoded()])
+			)
+			.then(([userDataRaw, gtt]) => {
+				//console.log(`route resolved`, rParams, userDataRaw, gtt)
+				return {
+					oninit: () => {
+						//console.log(`component init`, userDataRaw, resolveComponent)
+						/*
 				.catch(err => {
 					console.error('init fail', rParams)
 			
 				})
 				*/
-				},
-				view: ({ attrs }) => {
-					//console.log(`component resolving`, attrs.filter, resolveComponent)
-					const attrIds = _.reduce(
-						attrs,
-						(passing, v, k) => {
-							if (passing[k]) return passing
-							const kOk =
-								/^id$/.test(k) ||
-								/Id$/.test(k) ||
-								/^subject/.test(k)
-							const useV =
-								kOk && (_.isInteger(v) || /^\d+$/.test(v))
-							passing[k] = _.isInteger(v) ? v : _.toInteger(v)
-							return passing
-						},
-						{}
-					)
-					const baseAttrs = {
-						titleSet: bannerTitle,
-						eventSet: eventBadge,
-						focusSubject: focusSubject,
-						userId: userDataRaw[0],
-						userRoles: userDataRaw[1],
-						gtt: gtt ? gtt : {},
-						auth: auth,
-						popModal: popModal,
-						filter: attrs.filter,
+					},
+					view: ({ attrs }) => {
+						//console.log(`component resolving`, attrs.filter, resolveComponent)
+						const attrIds = _.reduce(
+							attrs,
+							(passing, v, k) => {
+								if (passing[k]) return passing
+								const kOk =
+									/^id$/.test(k) || /Id$/.test(k) || /^subject/.test(k)
+								const useV = kOk && (_.isInteger(v) || /^\d+$/.test(v))
+								passing[k] = _.isInteger(v) ? v : _.toInteger(v)
+								return passing
+							},
+							{}
+						)
+						const baseAttrs = {
+							titleSet: bannerTitle,
+							eventSet: eventBadge,
+							focusSubject: focusSubject,
+							userId: userDataRaw[0],
+							userRoles: userDataRaw[1],
+							gtt: gtt ? gtt : {},
+							auth: auth,
+							popModal: popModal,
+							filter: attrs.filter,
+							appStartTime: appStartTime
+						}
+						const mainAttrs = Object.assign({}, attrIds, baseAttrs)
+						lastAttrs = attrIds
+						return [
+							m(ModalBox, {
+								auth: auth,
+								bucksUpdate: bucksUpdate
+							}),
+							m(resolveComponent, mainAttrs)
+						]
 					}
-					const mainAttrs = Object.assign({}, attrIds, baseAttrs)
-					lastAttrs = attrIds
-					return [
-						m(ModalBox, { auth: auth, bucksUpdate: bucksUpdate }),
-						m(resolveComponent, mainAttrs),
-					]
-				},
-			}
-		})
-		.catch(err => {
-			console.error(err)
-			bannerTitle("")
-			eventBadge("")
-			return rejectComponent ? rejectComponent : Launcher
-		})
+				}
+			})
+			.catch(err => {
+				console.error(err)
+				bannerTitle("")
+				eventBadge("")
+				return rejectComponent ? rejectComponent : Launcher
+			})
+	)
+}
+const appStartTime = Date.now()
 
 const App = {
 	name: "App",
@@ -226,38 +240,38 @@ const App = {
         localStorage.setItem('raw_token', hashStr);
 */
 		//console.log('app running 1')
-		//console.log('app running 2')
+		//console.log("app oncreate elapsed", Date.now() - appStartTime)
 
 		m.route(mainStage, "/launcher", {
 			"/admin": {
-				onmatch: authorize(Admin, Launcher),
+				onmatch: authorize(Admin, Launcher)
 			},
 			"/artists/pregame/fix": {
 				onmatch: () =>
 					auth
 						.getAccessToken()
 						.then(FixArtist)
-						.catch(forceLoginRoute),
+						.catch(forceLoginRoute)
 			},
 			"/artists/pregame/fix/:id": {
 				onmatch: () =>
 					auth
 						.getAccessToken()
 						.then(FixArtist)
-						.catch(forceLoginRoute),
+						.catch(forceLoginRoute)
 			},
 			"/artists/pregame/:id": {
 				onmatch: routing => {
 					//remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
 
 					return authorize(ArtistDetail, ArtistDetail)(routing)
-				},
+				}
 			},
 			"/auth": {
-				render: WelcomeView,
+				render: WelcomeView
 			},
 			"/auth/:prev": {
-				render: WelcomeView,
+				render: WelcomeView
 			},
 			"/callback": {
 				onmatch: () => {
@@ -265,14 +279,8 @@ const App = {
 						window.location.href.indexOf("?")
 					)
 					const handling =
-						(/code/.test(query) && /state/.test(query)) ||
-						/token/.test(query)
-					console.log(
-						"callback query",
-						handling,
-						query,
-						window.location.href
-					)
+						(/code/.test(query) && /state/.test(query)) || /token/.test(query)
+					console.log("callback query", handling, query, window.location.href)
 					if (!handling) return m.route.set("/launcher")
 					localStorage.clear()
 					return (
@@ -306,47 +314,47 @@ const App = {
 							.catch(console.error)
 					)
 					//.then(() => m.redraw())
-				},
+				}
 			},
 			"/confirm/logout": {
-				onmatch: ConfirmLogout,
+				onmatch: ConfirmLogout
 			},
 			"/dates/pregame/new": {
-				onmatch: authorize(CreateDate, Launcher),
+				onmatch: authorize(CreateDate, Launcher)
 			},
 			"/dates/pregame/new/:festivalId": {
-				onmatch: authorize(CreateDate, Launcher),
+				onmatch: authorize(CreateDate, Launcher)
 			},
 			"/dates/pregame/:id": {
-				onmatch: authorize(DateDetail, DateDetail),
+				onmatch: authorize(DateDetail, DateDetail)
 			},
 			"/days/pregame/:id": {
-				onmatch: authorize(DayDetail, DayDetail),
+				onmatch: authorize(DayDetail, DayDetail)
 			},
 			"/discussion/:messageId": {
 				onmatch: () =>
 					auth
 						.getAccessToken()
 						.then(Discussion)
-						.catch(forceLoginRoute),
+						.catch(forceLoginRoute)
 			},
 			"/fests/pregame/assignLineup": {
-				onmatch: authorize(SetLineup, Launcher),
+				onmatch: authorize(SetLineup, Launcher)
 			},
 			"/fests/pregame/assignStages": {
 				onmatch: () =>
 					auth
 						.getAccessToken()
 						.then(SetStages)
-						.catch(forceLoginRoute),
+						.catch(forceLoginRoute)
 			},
 			"/fests/pregame/:id": {
-				onmatch: authorize(FestivalDetail, FestivalDetail),
+				onmatch: authorize(FestivalDetail, FestivalDetail)
 			},
 			"/fests/pregame/new": {
 				onmatch: routing => {
 					return authorize(CreateFestival, Launcher)(routing)
-				},
+				}
 			},
 			"/fests/pregame/new/:seriesId": {
 				onmatch: routing => {
@@ -354,24 +362,22 @@ const App = {
 					remoteData.Series.remoteCheck(true)
 
 					return authorize(CreateFestival, Launcher)(routing)
-				},
+				}
 			},
 			"/gametime/locations/:subjectType/:subject": {
-				onmatch: authorize(Gametime, Launcher),
+				onmatch: authorize(Gametime, Launcher)
 			},
 			"/gametime/:subjectType/:subject": {
-				onmatch: authorize(Gametime, Launcher),
+				onmatch: authorize(Gametime, Launcher)
 			},
 			"/launcher": {
-				onmatch: authorize(Launcher, Launcher),
+				onmatch: authorize(Launcher, Launcher)
 			},
 			"/manage/pregame": {
 				onmatch: () =>
 					auth
 						.getAccessToken()
-						.then(() =>
-							Promise.all([auth.getFtUserId(), auth.getRoles()])
-						)
+						.then(() => Promise.all([auth.getFtUserId(), auth.getRoles()]))
 						.then(userDataRaw => (
 							<Launcher
 								userId={userDataRaw[0]}
@@ -383,22 +389,18 @@ const App = {
 							if (err.error === "login_required")
 								return <Launcher userId={0} userRoles={[]} />
 							console.error(err)
-						}),
+						})
 			},
 			"/messages": {
-				onmatch: authorize(Messages, Launcher),
+				onmatch: authorize(Messages, Launcher)
 			},
 			"/messages/:filter": {
-				onmatch: authorize(Messages, Launcher),
+				onmatch: authorize(Messages, Launcher)
 			},
 			"/:mode/subject/:subjectType/:subject": {
 				onmatch: rParams => {
 					//console.log('pregame subject', rParams)
-					const nextParams = _.omit(rParams, [
-						"mode",
-						"subjectType",
-						"subject",
-					])
+					const nextParams = _.omit(rParams, ["mode", "subjectType", "subject"])
 					if (rParams.subjectType === `${ARTIST}`)
 						return m.route.set(
 							`/artists/${rParams.mode}/${rParams.subject}`,
@@ -419,78 +421,64 @@ const App = {
 							`/dates/${rParams.mode}/${rParams.subject}`,
 							nextParams
 						)
-					if (
-						rParams.subjectType === `${DAY}` &&
-						rParams.mode === `pregame`
-					)
+					if (rParams.subjectType === `${DAY}` && rParams.mode === `pregame`)
 						return m.route.set(
 							`/days/${rParams.mode}/${rParams.subject}`,
 							nextParams
 						)
-					if (
-						rParams.subjectType === `${DAY}` &&
-						rParams.mode === `gametime`
-					)
+					if (rParams.subjectType === `${DAY}` && rParams.mode === `gametime`)
 						return m.route.set(
 							`/gametime/${subjectType}/${subject}`,
 							nextParams
 						)
-					if (
-						rParams.subjectType === `${SET}` &&
-						rParams.mode === `pregame`
-					)
+					if (rParams.subjectType === `${SET}` && rParams.mode === `pregame`)
 						return m.route.set(
 							`/artists/pregame/${_.get(
-								remoteData.Sets.get(
-									_.toInteger(rParams.subject)
-								),
+								remoteData.Sets.get(_.toInteger(rParams.subject)),
 								"band"
 							)}`,
 							nextParams
 						)
-					if (
-						rParams.subjectType === `${SET}` &&
-						rParams.mode === `gametime`
-					)
+					if (rParams.subjectType === `${SET}` && rParams.mode === `gametime`)
 						return m.route.set(
 							`/gametime/${subjectType}/${subject}`,
 							nextParams
 						)
-				},
+				}
 			},
 			"/research": {
-				onmatch: authorize(Research, Launcher),
+				onmatch: authorize(Research, Launcher)
 			},
 			"/research/:seriesId": {
-				onmatch: authorize(Research, Launcher),
+				onmatch: authorize(Research, Launcher)
 			},
 			"/research/:seriesId/:festivalId": {
-				onmatch: authorize(Research, Launcher),
+				onmatch: authorize(Research, Launcher)
 			},
 			"/series/pregame": {
 				onmatch: routing => {
 					remoteData.Series.remoteCheck()
 
 					return authorize(SeriesView, SeriesView)(routing)
-				},
+				}
 			},
 			"/series/pregame/new": {
-				onmatch: authorize(CreateSeries, Launcher),
+				onmatch: authorize(CreateSeries, Launcher)
 			},
 			"/series/pregame/:id": {
-				onmatch: authorize(SeriesDetail, SeriesDetail),
+				onmatch: authorize(SeriesDetail, SeriesDetail)
 			},
 			"/sets/pregame/assignDays": {
-				onmatch: authorize(AssignDays, Launcher),
+				onmatch: authorize(AssignDays, Launcher)
 			},
 			"/sets/pregame/assignStages": {
-				onmatch: authorize(AssignSetStages, Launcher),
+				onmatch: authorize(AssignSetStages, Launcher)
 			},
 			"/sets/pregame/assignTimes": {
-				onmatch: authorize(AssignTimes, Launcher),
+				onmatch: authorize(AssignTimes, Launcher)
 			},
 			"/sets/pregame/:id": {
-				onmatch: SetDetail,
+				onmatch: SetDetail
 			},
 			"/stages/pregame": {
 				onmatch: () =>
@@ -502,56 +490,59 @@ const App = {
 								view: () => {
 									return m(FestivalView, {
 										userId: userDataRaw[0],
-										userRoles: userDataRaw[1],
+										userRoles: userDataRaw[1]
 									})
-								},
+								}
 							}
 						})
 						.catch(err => {
 							console.error(err)
 							return m(FestivalView)
-						}),
+						})
 			},
 			"/stages/pregame/:id": {
 				onmatch: () =>
 					auth
 						.getAccessToken()
 						.then(() => SeriesDetail(auth))
-						.catch(forceLoginRoute),
+						.catch(forceLoginRoute)
 			},
 			"/themer/schedule": {
-				onmatch: authorize(ScheduleThemer, ScheduleThemer),
+				onmatch: authorize(ScheduleThemer, ScheduleThemer)
 			},
 			"/users/account": {
 				onmatch: routing => {
 					//remoteData.Users.recent(10)
 
 					return authorize(Account, WelcomeView)(routing)
-				},
+				}
 			},
 			"/users/pregame": {
 				onmatch: routing => {
 					//remoteData.Users.recent(10)
 
 					return authorize(UserView, UserView)(routing)
-				},
+				}
 			},
 			"/users/pregame/:id": {
-				onmatch: authorize(UserDetail, UserDetail),
+				onmatch: authorize(UserDetail, UserDetail)
 			},
 			"/venues/pregame/new": {
 				onmatch: () =>
 					auth
 						.getAccessToken()
 						.then(() => CreateVenue(auth))
-						.catch(forceLoginRoute),
-			},
+						.catch(forceLoginRoute)
+			}
 		})
 
 		//m.mount(document.getElementById("DisplayBar"), {view: function () {return m(LauncherBanner, _.assign({}, lastUser, {}))}})
 	},
 	view: ({ children }) => (
 		<div class="App">
+			{
+				//console.log("app view elapsed", Date.now() - appStartTime)
+			}
 			{/gametime/.test(m.route.get()) ? (
 				""
 			) : (
@@ -567,7 +558,7 @@ const App = {
 			)}
 			<div id="main-stage">{children}</div>
 		</div>
-	),
+	)
 }
 
 export default App

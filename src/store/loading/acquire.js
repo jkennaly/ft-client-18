@@ -53,21 +53,23 @@ export const coreCheck = () =>
 		.then(coreData => coreData || window.mockery === true)
 		.then(
 			coreData =>
-				coreData ||
+				(coreData &&
+					coreData.timestamp &&
+					coreData.timestamp + 7 * 24 * 3600 * 1000 < Date.now()) ||
 				fetchT("/api/Core/all/data", {
 					method: "get",
 					headers: new Headers(headerBase),
 				})
 		)
-		.then(data => data.data)
+		//.then(data => (console.dir("coreCheck data", data) && false) || data)
+		.then(response => (response.json ? response.json() : response))
+		.then(data => (data.data ? data.data : data))
 		.then(coreData => archive("core", coreData))
-		//.then(data => console.dir('coreCheck data', data) && false || data)
 		.then(coreData =>
 			Promise.all(
 				_.map(coreData, (list, modelName) => archive(modelName, list))
-			)
+			).then(() => coreData)
 		)
-		.then(() => true)
 		.catch(err => {
 			console.error("acquire core error", err)
 		})

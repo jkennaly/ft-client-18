@@ -7,7 +7,7 @@ import Auth from "../services/auth.js"
 const auth = Auth
 
 import { getList } from "./loading/enlist"
-import { coreCheck } from "./loading/acquire"
+import { coreCheck, coreChecked } from "./loading/acquire"
 
 import ArtistList from "./list/models/ArtistList"
 import ImageList from "./list/models/ImageList"
@@ -495,6 +495,7 @@ export const remoteData = {
 	Interactions: interactions,
 	Users: users,
 	Flags: flags,
+	/*
 	dataLoad: window.mockery
 		? Promise.resolve(true)
 		: Promise.all(
@@ -506,24 +507,41 @@ export const remoteData = {
 				//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
 				.catch(console.error)
 				.then(() => true),
+	*/
 }
 
 global.festigram = _.assign({}, remoteData)
 festigram.auth = auth
+const coreKeys = _.keys(remoteData).filter(k => remoteData[k].core)
+//console.log("coreKeys", coreKeys)
+coreChecked
+	.then(coreData =>
+		//console.log("coreData", coreData) ||
+		Promise.all(
+			_.map(coreData, (l, k) => {
+				//console.log("code data list", k, l)
+				return remoteData[k] && remoteData[k].replaceList(l)
+			})
+		)
+	)
+	.then(() => m.redraw())
+	.catch(console.error)
 
 export const clearData = () => {
 	_.each(remoteData, dataField => dataField.clear && dataField.clear())
 	//init the lists with core data
-	const keys = _.keys(remoteData).filter(k => remoteData[k].core)
+
 	coreCheck()
-		.then(() =>
+		.then(coreData =>
 			Promise.all(
-				_.map(keys, k =>
-					getList(k).then(l => remoteData[k].replaceList(l))
-				)
+				_.map(coreData, (l, k) => {
+					console.log("code data list", k, l)
+					return remoteData[k].replaceList(l)
+				})
 			)
 		)
 		.then(() => m.redraw())
+		.catch(console.error)
 
 	//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
 }
@@ -542,8 +560,13 @@ auth.cacheCleaner(clearCaches)
 
 if (!window.mockery) {
 	//init the lists with core data
-	remoteData.dataLoad
-		//.then(() => console.log('data loaded', remoteData.Artists.list.length))
+	//remoteData.dataLoad
+	//.then(() => console.log('data loaded', remoteData.Artists.list.length))
+	new Promise((resolve, reject) => {
+		let wait = setTimeout(() => {
+			//clearTimout(wait)
+		}, 10000)
+	})
 		.then(() => {
 			const interval = 5000
 			const updateInterval = setTimeout(function run() {
@@ -558,6 +581,7 @@ if (!window.mockery) {
 					.then(() => setTimeout(run, interval))
 			}, interval)
 		})
+		.catch(console.error)
 } else {
 	dataLoad = Promise.resolve(true)
 }

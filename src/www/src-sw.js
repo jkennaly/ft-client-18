@@ -10,6 +10,7 @@ import { NavigationRoute } from "workbox-routing/NavigationRoute"
 import { precacheAndRoute } from "workbox-precaching/precacheAndRoute"
 import { registerRoute } from "workbox-routing/registerRoute"
 
+self.__WB_DISABLE_DEV_LOGS = true
 const caching = self.__WB_MANIFEST
 //console.log("caching stuff", caching)
 precacheAndRoute(caching)

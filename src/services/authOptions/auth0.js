@@ -9,16 +9,15 @@ import { subjectBought } from "./gtt"
 import fetchT from "../fetchT"
 localforage.config({
 	name: "FestiGram",
-	storeName: "FestiGram",
+	storeName: "FestiGram"
 })
 const headerBase = {
-	"Content-Type": "application/json",
+	"Content-Type": "application/json"
 }
 
 const AUTH0_DATA = typeof AUTH_CONFIG === "undefined" ? {} : AUTH_CONFIG
 
-const scopeAr =
-	"openid profile email admin create:messages verify:festivals create:festivals"
+const scopeAr = "openid profile email create:messages verify:festivals create:festivals"
 
 const tokenFunction = token =>
 	function(xhr) {
@@ -31,7 +30,7 @@ const userIdFromToken = userData => token =>
 			method: "POST",
 			url: "/api/Profiles/getUserId/",
 			config: tokenFunction(token),
-			body: userData,
+			body: userData
 		})
 		.then(result => {
 			const id = result.id
@@ -71,7 +70,7 @@ const clean = () => {
 			//.then(() => console.log('data Reset'))
 			.catch(err => console.error("logout data reset failed", err))
 			.then(() => {
-				if ("serviceWorker" in navigator) {
+				if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
 					//console.log("auth.logout: sw found", swCacheClear)
 					return swCacheClear()
 				}
@@ -102,7 +101,7 @@ export default class Auth {
 					redirect_uri: AUTH0_DATA.CALLBACKURL,
 					audience: AUTH0_DATA.AUDIENCE,
 					scope: scopeAr,
-					cacheLocation: "localstorage",
+					cacheLocation: "localstorage"
 			  })
 					.then(x => {
 						//console.log("authload construct auth0", x)
@@ -125,19 +124,14 @@ export default class Auth {
 						localStorage.setItem("ft_user_id", id)
 					})
 					.then(() => auth0.getIdTokenClaims())
-					.then(claims =>
-						claims ? claims["https://festigram/roles"] : []
-					)
+					.then(claims => (claims ? claims["https://festigram/roles"] : []))
 					/*
     .then(() => this.getRoles())
     */
 					.then(roles => (userRoleCache = roles))
 					.then(roles => {
 						//console.log("setting roles", roles)
-						localStorage.setItem(
-							"ft_user_roles",
-							JSON.stringify(roles)
-						)
+						localStorage.setItem("ft_user_roles", JSON.stringify(roles))
 					})
 					.then(() => "authLoaded")
 					.catch(err => {
@@ -162,8 +156,8 @@ export default class Auth {
 			.then(() =>
 				auth0.loginWithRedirect({
 					appState: {
-						route: prev,
-					},
+						route: prev
+					}
 				})
 			)
 			.catch(err => console.error("login error", err))
@@ -276,12 +270,9 @@ export default class Auth {
 		if (!localUser && !userData) return Promise.reject(0)
 		//console.log("getFtUserId", userData)
 		//console.trace()
-		userIdPromiseCache = (userDataSupplied
-			? Promise.resolve(true)
-			: authLoad
-		)
+		userIdPromiseCache = (userDataSupplied ? Promise.resolve(true) : authLoad)
 			.then(() => auth0.getTokenSilently())
-
+			/*
 			.then(
 				accessToken =>
 					[
@@ -292,10 +283,10 @@ export default class Auth {
 						accessToken,
 					][1]
 			)
-
+*/
 			.then(userIdFromToken(userData))
 			.then(id => {
-				console.log("getFtUserId id", id)
+				//console.log("getFtUserId id", id)
 				localStorage.setItem("ft_user_id", id)
 				//this.cacheCleaner()
 				return id
@@ -315,7 +306,6 @@ export default class Auth {
 	cacheCleaner() {
 		clean()
 	}
-
 	logout(skipRoute) {
 		// Clear Access Token and ID Token from local storage
 		return clean()
@@ -323,7 +313,7 @@ export default class Auth {
 			.finally(() =>
 				auth0.logout({
 					client_id: AUTH0_DATA.CLIENTID,
-					returnTo: AUTH0_DATA.CALLBACKURL,
+					returnTo: AUTH0_DATA.CALLBACKURL
 				})
 			)
 
@@ -332,8 +322,7 @@ export default class Auth {
 	}
 
 	isAuthenticated() {
-		if (!localStorage.getItem("ft_user_id"))
-			return Promise.reject("login required")
+		if (!localStorage.getItem("ft_user_id")) return Promise.reject("login required")
 
 		return authLoad.then(() => auth0.isAuthenticated())
 	}
@@ -390,10 +379,10 @@ export default class Auth {
 					headers: new Headers(
 						authResult
 							? _.assign({}, headerBase, {
-									Authorization: `Bearer ${authResult}`,
+									Authorization: `Bearer ${authResult}`
 							  })
 							: headerBase
-					),
+					)
 				})
 			)
 			.then(response => {
@@ -439,21 +428,32 @@ export default class Auth {
 				if (!auth) throw "No auth"
 			})
 			.then(() => this.getGttRawLocal())
-			.then(local =>
-				_.isString(local) && local ? local : this.getGttRawRemote()
-			)
+			.then(json => {
+				//console.log("getGttRaw local gtt", json)
+				return json
+			})
+			.then(local => (_.isString(local) && local ? local : this.getGttRawRemote()))
 			.then(raw => (raw ? raw : ""))
+			.then(json => {
+				//console.log("getGttRaw final gtt", json)
+				return json
+			})
 			.catch(err => {
 				throw err
 			})
 	}
 
 	getGttDecoded() {
+		//console.log("decodedPromiseCache", Boolean(decodedPromiseCache.then))
 		if (decodedPromiseCache.then) return decodedPromiseCache
 		decodedPromiseCache = this.getGttRaw()
-			.then(jwt_decode)
+			.then(raw => (_.isString(raw) ? jwt_decode(raw) : raw))
 			.then(raw => (raw ? raw : {}))
 			.catch(err => {})
+			.then(json => {
+				//console.log("getGttDecoded final gtt", json)
+				return json
+			})
 		return decodedPromiseCache
 	}
 
