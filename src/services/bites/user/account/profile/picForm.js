@@ -9,8 +9,8 @@ import StringUpdate from "../../../../../components/fields/form/StringUpdate.jsx
 import UIButton from "../../../../../components/ui/UIButton.jsx"
 import CloudinaryUploadWidget from "../../../../../components/widgets/CloudinaryUpload.jsx"
 
-const biteCache = {}
-const biteTimes = {}
+var biteCache = {}
+var biteTimes = {}
 const cacheLife = 1000
 var _widgetExists = false
 function widgetExists(state) {
@@ -43,7 +43,7 @@ const cachedBite = (userId, remoteDataField) => {
 	if (!cacheOk) dataPromise(userId, remoteDataField).catch(console.log)
 	return _.get(biteCache, `dataPromise[${userId}]`, [])
 }
-const formCache = {}
+var formCache = {}
 const formStringValue = fieldIndex => newStringValue => {
 	if (!_.isString(newStringValue)) return _.get(formCache, fieldIndex)
 	return _.set(formCache, fieldIndex, newStringValue)
@@ -116,6 +116,8 @@ export default (userId, remoteDataField, images) => {
 										newData.id
 									)
 								})
+								.then(() => (formCache = biteCache = biteTimes = {}))
+								.then(m.redraw)
 								.catch(console.log)
 							widgetExists(false)
 						}
