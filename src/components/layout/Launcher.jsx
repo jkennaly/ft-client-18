@@ -60,11 +60,6 @@ const Launcher = {
 	name: "Launcher",
 	view: ({ attrs }) => (
 		<div class="main-stage">
-			{/*console.log(
-				"Launcher view",
-				Date.now() - attrs.appStartTime,
-				"ms elapsed since app start"
-			)*/}
 			<WidgetContainer>
 				<FixedCardWidget header="My Festivals">
 					{remoteData.Dates.checkedIn(attrs.userId).map(data => (
