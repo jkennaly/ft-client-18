@@ -24,7 +24,7 @@ const artistData = ({
 	userId,
 	search,
 	recordCount,
-	prefilter = x => x,
+	prefilter = x => x
 }) => {
 	const searchMatches = search
 		? smartSearch(
@@ -58,17 +58,6 @@ const patternChange = e => {
 let discoveryArtists = []
 const Launcher = {
 	name: "Launcher",
-	preload: params => {
-		if (params.titleSet) params.titleSet(`FestiGram Launcher`)
-	},
-	oninit: ({ attrs }) => {
-		//if (attrs.titleSet) attrs.titleSet(`FestiGram Launcher`)
-		console.log(
-			"Launcher init",
-			Date.now() - attrs.appStartTime,
-			"ms elapsed since app start"
-		)
-	},
 	view: ({ attrs }) => (
 		<div class="main-stage">
 			{/*console.log(
@@ -99,9 +88,7 @@ const Launcher = {
 				</FixedCardWidget>
 				<FixedCardWidget header="Upcoming Festivals">
 					{remoteData.Festivals.future()
-						.filter(f =>
-							remoteData.Lineups.find(l => l.festival === f.id)
-						)
+						.filter(f => remoteData.Lineups.find(l => l.festival === f.id))
 						//.filter(x => console.log('Launcher Upcoming Festivals', x) || true)
 						.map(data => (
 							<FestivalCard
@@ -125,13 +112,13 @@ const Launcher = {
 						fallback: artistSorter(remoteData)(
 							["future", "siteActivity", "peakPriority"],
 							["siteActivity"]
-						),
+						)
 					}).map(data => (
 						<ArtistCard data={data} />
 					))}
 				</FixedCardWidget>
 			</WidgetContainer>
 		</div>
-	),
+	)
 }
 export default Launcher

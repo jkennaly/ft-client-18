@@ -20,10 +20,10 @@ const festivalIntentions = (goerId, intentions, festivals) =>
 				and: [
 					{ user: goerId },
 					{ subjectType: FESTIVAL },
-					{ subject: { inq: festivals.future().map(x => x.id) } },
-				],
+					{ subject: { inq: festivals.future().map(x => x.id) } }
+				]
 			},
-			fields: { subject: true },
+			fields: { subject: true }
 		})
 		.then(intendedFestivalIds =>
 			intendedFestivalIds
@@ -33,10 +33,7 @@ const festivalIntentions = (goerId, intentions, festivals) =>
 		.then(
 			intendedFestivalIds =>
 				(intendedFestivalIds[0] &&
-					festivals.getLocalPromise(intendedFestivalIds[0])) || [
-					false,
-					false,
-				]
+					festivals.getLocalPromise(intendedFestivalIds[0])) || [false, false]
 		)
 		.then(([fest, upd]) => fest)
 		.then(fav => {
@@ -47,19 +44,19 @@ const festivalIntentions = (goerId, intentions, festivals) =>
 const intendedFestival = (goerId, intentions, festivals) => {
 	const cacheTime = _.get(biteTimes, `users.festivalIntentions[${goerId}]`, 0)
 	const cacheOk = cacheTime + 60000 > Date.now()
-	if (!cacheOk)
-		festivalIntentions(goerId, intentions, festivals).catch(console.log)
+	if (!cacheOk) festivalIntentions(goerId, intentions, festivals).catch(console.log)
 	return _.get(biteCache, `users.festivalIntentions[${goerId}]`, 0)
 }
 export default (goerId, intentions, festivals) => {
 	const baseValue = intendedFestival(goerId, intentions, festivals)
-	console.log("recentFavoriteBite", goerId, baseValue)
+	//console.log("recentFavoriteBite", goerId, baseValue)
 	const value = baseValue
 		? subjectCard(
 				{ subject: baseValue.id, subjectType: FESTIVAL },
 				{
 					userId: goerId,
 					uiClass: "",
+					eventId: baseValue.id
 				}
 		  )
 		: ""
@@ -69,6 +66,6 @@ export default (goerId, intentions, festivals) => {
 		value: value,
 		title: title,
 		public: true,
-		name: title,
+		name: title
 	}
 }

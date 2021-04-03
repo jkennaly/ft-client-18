@@ -85,7 +85,7 @@ const Research = {
 		//route may not be resolved; use rParams and not m.route.param
 		const seriesId = parseInt(rParams.seriesId, 10)
 		const festivalId = parseInt(rParams.festivalId, 10)
-		console.log("Research preload", seriesId, festivalId, rParams)
+		//console.log("Research preload", seriesId, festivalId, rParams)
 		const id = festivalId ? festivalId : seriesId
 		const type = festivalId ? FESTIVAL : SERIES
 		const so = { subjectType: type, subject: id }
