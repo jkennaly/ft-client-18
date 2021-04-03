@@ -31,7 +31,7 @@ const CloudinaryUploadWidget = vnode => {
 						result.event !== "close" &&
 						result.event !== "abort"
 					) {
-						console.log("Cloudinary Upload nonsuccess event", result.event)
+						//console.log("Cloudinary Upload nonsuccess event", result.event)
 					}
 				}
 			)

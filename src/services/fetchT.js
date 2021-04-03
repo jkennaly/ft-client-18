@@ -1,6 +1,6 @@
 // src/services/fetchT.js
 
-export default async function fetchWithTimeout(resource, options) {
+export default async function fetchWithTimeout(resource, options = {}) {
 	const { timeout = 8000 } = options
 
 	const controller = new AbortController()
@@ -8,7 +8,7 @@ export default async function fetchWithTimeout(resource, options) {
 
 	const response = await fetch(resource, {
 		...options,
-		signal: controller.signal,
+		signal: controller.signal
 	})
 	clearTimeout(id)
 

@@ -10,8 +10,7 @@ import SearchField from "../fields/SearchField.jsx"
 
 import { remoteData } from "../../store/data.js"
 
-const rawSeries = pattern =>
-	pattern ? remoteData.Series.patternMatch(pattern, 2) : []
+const rawSeries = pattern => (pattern ? remoteData.Series.patternMatch(pattern, 2) : [])
 const rawArtists = pattern =>
 	pattern ? remoteData.Artists.remoteSearch(pattern, 3) : Promise.resolve([])
 const rawUsers = pattern =>
@@ -35,8 +34,7 @@ const SearchExapnse = vnode => {
 		//console.log("SearchExapnse dom e", menuHidden, dom.contains(e.target))
 		const contained = dom.contains(e.target)
 		const excepted =
-			e.target.name === "search-input" ||
-			(contained && isHeader(dom, e.target))
+			e.target.name === "search-input" || (contained && isHeader(dom, e.target))
 		//console.log("hideMenu call", excepted, e.target)
 		if (excepted) {
 			e.stopPropagation()
@@ -52,44 +50,40 @@ const SearchExapnse = vnode => {
 	const searchObject = {
 		setResults: function(pattern) {
 			Promise.all([rawArtists(pattern), rawUsers(pattern)])
-				//.then(artists => console.log('setResults artists', pattern, artists) || artists)
 				.then(([artists, users]) => {
 					const series = rawSeries(pattern)
 					const seriesItems = series.map(s => {
 						return {
 							name: s.name,
 							path: "/series/pregame/" + s.id,
-							group: "Festivals",
+							group: "Festivals"
 						}
 					})
 					const artistItems = _.take(artists, 3).map(a => {
 						return {
 							name: a.name,
 							path: "/artists/pregame/" + a.id,
-							group: "Artists",
+							group: "Artists"
 						}
 					})
 					const userItems = _.take(users, 3).map(a => {
 						return {
 							name: a.username,
 							path: "/users/pregame/" + a.id,
-							group: "People",
+							group: "People"
 						}
 					})
 					const seriesGroup = seriesItems.length
-						? [{ name: "Festivals", header: true }].concat(
-								seriesItems
-						  )
+						? [{ name: "Festivals", header: true }].concat(seriesItems)
 						: []
 					const artistGroup = artistItems.length
-						? [{ name: "Artists", header: true }].concat(
-								artistItems
-						  )
+						? [{ name: "Artists", header: true }].concat(artistItems)
 						: []
 					const userGroup = userItems.length
 						? [{ name: "People", header: true }].concat(userItems)
 						: []
 					menuItems = [...seriesGroup, ...artistGroup, ...userGroup]
+					//console.log("setResults menuItems", pattern, menuItems) || menuItems
 				})
 				.then(() => m.redraw())
 				.catch(console.error)
@@ -97,7 +91,7 @@ const SearchExapnse = vnode => {
 		getResults: function() {
 			if (menuItems.length) menuHidden = false
 			return menuItems
-		},
+		}
 	}
 	return {
 		oninit: vnode => (lastRoute = m.route.get()),
@@ -140,9 +134,7 @@ const SearchExapnse = vnode => {
 					collapsed={menuLock || menuHidden}
 					left={true}
 					itemClicked={() => {
-						vnode.dom.querySelector(
-							'input[name="search-input"]'
-						).value = ``
+						vnode.dom.querySelector('input[name="search-input"]').value = ``
 						searchObject.setResults(``)
 						//menuHidden = true
 					}}
@@ -157,7 +149,7 @@ const SearchExapnse = vnode => {
 					}
 				/>
 			</div>
-		),
+		)
 	}
 }
 

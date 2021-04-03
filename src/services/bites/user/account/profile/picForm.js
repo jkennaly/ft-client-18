@@ -93,7 +93,7 @@ export default (userId, remoteDataField, images) => {
 					resultFunction: result => {
 						//fail silently
 						if (!result) return
-						console.log(result)
+						//console.log(result)
 						if (result.info.secure_url.indexOf("image" > 0)) {
 							images
 								.create({

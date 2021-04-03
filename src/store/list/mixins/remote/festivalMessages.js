@@ -6,7 +6,7 @@ var bulkUpdateSubjectCache = {}
 export default (festivals, lineups) => {
 	return {
 		loadForFestival(festivalId) {
-			console.log("loadForFestival", festivalId)
+			//console.log("loadForFestival", festivalId)
 			if (!festivalId) {
 				return Promise.reject("No festivalId")
 			}
