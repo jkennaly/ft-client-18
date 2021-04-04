@@ -17,6 +17,7 @@ global.requestAnimationFrame = dom.window.requestAnimationFrame
 global.window.mockery = true
 global._ = require("lodash")
 global.Headers = function() {}
+global.fetch = () => Promise.resolve({ json: () => [] })
 
 // Require Mithril to make sure it loads properly.
 require("mithril")

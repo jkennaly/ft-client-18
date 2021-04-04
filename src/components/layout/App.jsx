@@ -96,16 +96,20 @@ const bannerTitle = title => {
 }
 const eventBadge = selection => {
 	const key = m.route.get()
-	if (!_.isString(selection)) return _.get(eventCache, key)
+	const eventRoute = /(fests|dates|days|sets)\/pregame/.test(key)
+	//console.log("eventBadge", selection, key, eventRoute, _.get(eventCache, key, "nada"))
+	if (!eventRoute) return
+	const cached = _.get(eventCache, key)
+	if (!_.isString(selection) && cached) return cached
 	const badge =
 		selection === `hasAccess`
 			? { src: `img/has-access.svg` }
 			: selection === ""
 			? undefined
 			: { src: `img/live-access.svg`, buyModal: true }
-	//console.log('eventBadge', selection, badge)
-	_.set(eventCache, key, badge)
-	return _.get(eventCache, key)
+	//console.log("eventBadge", key, selection, badge)
+	if (_.isString(selection)) _.set(eventCache, key, badge)
+	return badge
 }
 const focusSubject = so => {
 	if (_.isUndefined(so)) return focusCache
@@ -116,12 +120,10 @@ const focusSubject = so => {
 const bucksUpdate = () => {
 	eventCache = {}
 
-	return (
-		auth
-			.getGttRawRemote(true)
-			//.then(t => console.log("bucksUpdate token", t))
-			.then(m.redraw)
-	)
+	return auth
+		.getGttRawRemote(true)
+		.then(t => console.log("bucksUpdate token", t))
+		.then(m.redraw)
 }
 //console.log(`app here`)
 var lastUser = [0, []]
@@ -131,7 +133,7 @@ const popModal = (...popRequestArgs) => {
 	return ModalBox.popRequest(...popRequestArgs)
 }
 const authorize = (resolveComponent, rejectComponent) => rParams => {
-	const params = { titleSet: bannerTitle }
+	const params = { titleSet: bannerTitle, eventSet: eventBadge, gtt: auth.gtt() }
 	return (
 		Promise.all([
 			auth.getValidToken(),
@@ -280,7 +282,7 @@ const App = {
 					)
 					const handling =
 						(/code/.test(query) && /state/.test(query)) || /token/.test(query)
-					console.log("callback query", handling, query, window.location.href)
+					//console.log("callback query", handling, query, window.location.href)
 					if (!handling) return m.route.set("/launcher")
 					localStorage.clear()
 					return (

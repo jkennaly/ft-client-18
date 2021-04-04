@@ -18,8 +18,8 @@ o.spec("Sign up and buy access", function() {
 		browser = puppeteer.launch({
 			headless: false,
 			args: [
-				"--start-maximized", // you can also use '--start-fullscreen'
-			],
+				"--start-maximized" // you can also use '--start-fullscreen'
+			]
 		})
 	})
 	o("FestiGram Sign up", function(done) {
@@ -43,14 +43,11 @@ o.spec("Sign up and buy access", function() {
 					//.then(() => p.waitForNavigation())
 					.then(() => p.waitForSelector("input[name=email]"))
 					.then(() => p.$("input[name=email]"))
-					.then(el =>
-						el.type((email = Date.now() + createdUserLogin.email))
-					)
+					.then(el => el.type((email = Date.now() + createdUserLogin.email)))
 					.then(() => p.$("input[name=username]"))
 					.then(el =>
 						el.type(
-							(username =
-								createdUserLogin.username + Date.now()).slice(
+							(username = createdUserLogin.username + Date.now()).slice(
 								-12,
 								-1
 							)
@@ -64,19 +61,13 @@ o.spec("Sign up and buy access", function() {
 					.then(() => p.waitForTimeout(1000))
 					.then(() => p.$("button#allow"))
 					.then(el => el.click())
+					.then(() => p.waitForNavigation({ waitUntil: "networkidle0" }))
 					.then(() =>
-						p.waitForNavigation({ waitUntil: "networkidle0" })
-					)
-					.then(() =>
-						p.waitForSelector(
-							".ft-card-festival.ft-festivals-upcoming"
-						)
+						p.waitForSelector(".ft-card-festival.ft-festivals-upcoming")
 					)
 					.then(() => p.$(".ft-card-festival.ft-festivals-upcoming"))
 					.then(el => el.click())
-					.then(() =>
-						p.waitForSelector("img[src='img/live-access.svg']")
-					)
+					.then(() => p.waitForSelector("img[src='img/live-access.svg']"))
 					.then(() => p.$("img[src='img/live-access.svg']"))
 					.then(el => el.click())
 					.then(() => p.waitForTimeout(1000))
@@ -85,9 +76,7 @@ o.spec("Sign up and buy access", function() {
 					.then(() => p.waitForTimeout(100))
 					.then(() => p.$("button[name='BuyBucks']"))
 					.then(el => el.click())
-					.then(() =>
-						p.waitForNavigation({ waitUntil: "networkidle0" })
-					)
+					.then(() => p.waitForNavigation({ waitUntil: "networkidle0" }))
 					.then(() => console.log("clicked Buy bucks"))
 					.then(() => p.waitForSelector("input[name=email]"))
 					.then(() => p.$("input[name=email]"))
@@ -95,7 +84,7 @@ o.spec("Sign up and buy access", function() {
 					.then(() => p.$("input[name=cardNumber]"))
 					.then(el =>
 						el.type("4242" + "4242" + "4242" + "4242", {
-							delay: 10,
+							delay: 10
 						})
 					)
 					.then(() => p.$("input[name=cardExpiry]"))
@@ -109,19 +98,16 @@ o.spec("Sign up and buy access", function() {
 					.then(() => p.waitForTimeout(100))
 					.then(() => p.keyboard.press("Enter"))
 					.then(() => p.waitForNavigation())
-					.then(() =>
-						p.waitForSelector("img[src='img/live-access.svg']")
-					)
+					.then(() => p.waitForSelector("img[src='img/live-access.svg']"))
 					.then(() => p.$("img[src='img/live-access.svg']"))
 					.then(el => el.click())
-					.then(() => p.waitForTimeout(1000))
+					.then(() => p.waitForTimeout(3000))
 					.then(() => p.$("h3[name='Access']"))
 					.then(el => el.click())
 					.then(() => p.waitForSelector("span.c44-tac"))
 					.then(() =>
 						p.evaluate(() => {
-							return document.querySelector("span.c44-tac")
-								.textContent
+							return document.querySelector("span.c44-tac").textContent
 							//done()
 						})
 					)
@@ -129,18 +115,14 @@ o.spec("Sign up and buy access", function() {
 						//console.log('span.c44-tac.textContent', r)
 						o(/\s10$/.test(r)).equals(true)
 					})
-					.then(() =>
-						p.waitForSelector("button[data-access-level=date]")
-					)
+					.then(() => p.waitForSelector("button[data-access-level=date]"))
 					.then(el => el.click())
 					.then(() => p.waitForTimeout(1000))
 					.then(() =>
 						p.evaluate(() => {
 							return (
 								Array.from(
-									document.querySelectorAll(
-										"div.ft-nav-button img"
-									)
+									document.querySelectorAll("div.ft-nav-button img")
 								).length > 0
 							)
 							//done()

@@ -84,7 +84,14 @@ const FestivalDetail = {
 		return festivals
 			.subjectDetails({ subject: festivalId, subjectType: FESTIVAL })
 			.then(() => rParams.titleSet(festivals.getEventName(festivalId)))
-			.then(m.redraw)
+			.then(() => {
+				const decoded = rParams.gtt
+				const accessible = decoded && !festivals.sellAccess(festivalId, decoded)
+				const evtString = accessible ? "hasAccess" : "noAccess"
+				//console.log("FestivalDetail", evtString)
+				rParams.eventSet(evtString)
+			})
+			.then(() => m.redraw())
 			.catch(err => console.error("FestivalDetail load incomplete"))
 	},
 	oncreate: ({ dom }) => {
@@ -103,7 +110,7 @@ const FestivalDetail = {
 		const accessible = decoded && !festivals.sellAccess(festivalId, decoded)
 		const evtString = accessible ? "hasAccess" : "noAccess"
 		attrs.eventSet(evtString)
-		//console.log('FestivalDetail ciew evtString, decoded', evtString, decoded)
+		//console.log("FestivalDetail ciew evtString, decoded", evtString, decoded)
 		//hasAccess if:
 		//event not restricted OR
 		//gtt token has access

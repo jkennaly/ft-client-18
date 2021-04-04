@@ -80,11 +80,7 @@ const jsx = {
 		<div class={classes(attrs)}>
 			<div class="ft-modal-content">
 				{console.log("AccessModal", attrs.eventObject)}
-				<header
-					class={`ft-modal-info-plate ${
-						extraction()() ? "c44-dn" : ""
-					}`}
-				>
+				<header class={`ft-modal-info-plate ${extraction()() ? "c44-dn" : ""}`}>
 					<p>
 						Current FestiBucks: <IconText name="festibucks" />
 						{attrs.bucks}
@@ -97,19 +93,10 @@ const jsx = {
 					InlineTable,
 					_.assign(
 						{},
-						bucksSpend(
-							users,
-							days,
-							dates,
-							festivals,
-							attrs.eventObject(1)
-						)
+						bucksSpend(users, days, dates, festivals, attrs.eventObject(1))
 					)
 				)}
-				{m(
-					InlineTable,
-					_.assign({}, bucksForm(users, attrs.eventObject(0)))
-				)}
+				{m(InlineTable, _.assign({}, bucksForm(users, attrs.eventObject(0))))}
 				<UIButton
 					action={e => {
 						attrs.hide()

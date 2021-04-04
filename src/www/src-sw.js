@@ -17,27 +17,34 @@ precacheAndRoute(caching)
 
 registerRoute(
 	new NavigationRoute(createHandlerBoundToURL("/index.html"), {
-		blacklist: [/\/activate\b/],
+		blacklist: [/\/activate\b/]
 	})
 )
 
+const exclude = [/bucks/, /\/gtt/]
+
 registerRoute(
-	/\/api\/.*/,
+	({ url, sameOrigin }) => {
+		if (!sameOrigin) return false
+		const routeIn = /\/api\/.*/.test(url)
+		const routeOut = routeIn && exclude.some(e => e.test(url))
+		return routeIn && !routeOut
+	},
 	new CacheFirst({
 		cacheName: "short-cache",
 		matchOptions: {
-			ignoreVary: true,
+			ignoreVary: true
 		},
 		plugins: [
 			new ExpirationPlugin({
 				maxEntries: 500,
 				maxAgeSeconds: 300,
-				purgeOnQuotaError: true,
+				purgeOnQuotaError: true
 			}),
 			new CacheableResponsePlugin({
-				statuses: [0, 200],
-			}),
-		],
+				statuses: [0, 200]
+			})
+		]
 	})
 )
 
