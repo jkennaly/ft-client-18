@@ -147,6 +147,7 @@ const authorize = (resolveComponent, rejectComponent) => rParams => {
 			.then(rawUserData)
 			//.then(t => console.log("authorize rawUserData", t) || t)
 			.then(acb => {
+				acb[0] && remoteData.Users.getLocalPromise(acb[0])
 				acb[0] && remoteData.Flags.remoteCheck()
 				acb[0] && remoteData.Intentions.remoteCheck()
 				acb[0] && remoteData.Interactions.remoteCheck()

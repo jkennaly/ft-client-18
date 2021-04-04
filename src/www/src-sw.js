@@ -21,7 +21,7 @@ registerRoute(
 	})
 )
 
-const exclude = [/bucks/, /\/gtt/]
+const exclude = [/bucks/, /\/gtt/, /\/Profiles/]
 
 registerRoute(
 	({ url, sameOrigin }) => {
