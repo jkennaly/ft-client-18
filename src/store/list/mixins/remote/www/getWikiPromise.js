@@ -24,23 +24,16 @@ export default {
 		if (_.isNumber(cached)) return Promise.resolve(cached)
 		return this.getLocalPromise(id)
 			.then(() => this.getName(id))
-			.then(
-				n =>
-					`https://en.wikipedia.org/w/rest.php/v1/search/title?q=${n}`
-			)
+			.then(n => `https://en.wikipedia.org/w/rest.php/v1/search/title?q=${n}`)
 			.then(foreign)
 			.then(wiki => {
 				const noResult = !wiki || !wiki.pages || !wiki.pages.filter
 				if (noResult) return
 				const artistName = this.getName(id)
-				const matches = wiki.pages.filter(
-					x => x.title.indexOf(artistName) > -1
-				)
+				const matches = wiki.pages.filter(x => x.title.indexOf(artistName) > -1)
 				const possibles = matches.length ? matches : wiki.pages
 				const bands = possibles.filter(x => /band\)$/i.test(x.title))
-				const musicians = possibles.filter(x =>
-					/musician\)$/i.test(x.title)
-				)
+				const musicians = possibles.filter(x => /musician\)$/i.test(x.title))
 				const choice = [...bands, ...musicians, ...possibles][0]
 
 				//console.log('getWikiId', possibles, bands, musicians)
@@ -70,7 +63,7 @@ export default {
 		return this.getWikiId(id)
 			.then(
 				n =>
-					`http://en.wikipedia.org/w/api.php?action=query&origin=*&prop=extracts&format=json&exintro=&pageids=${n}`
+					`https://en.wikipedia.org/w/api.php?action=query&origin=*&prop=extracts&format=json&exintro=&pageids=${n}`
 			)
 			.then(foreign)
 			.then(wiki => {
@@ -85,10 +78,7 @@ export default {
 				)
 				const wikiGraphStart = wikiExtract.indexOf("<p")
 				const wikiGraphEnd = wikiExtract.lastIndexOf("</p>") + 4
-				const wikiGraph = wikiExtract.slice(
-					wikiGraphStart,
-					wikiGraphEnd
-				)
+				const wikiGraph = wikiExtract.slice(wikiGraphStart, wikiGraphEnd)
 				const wikiLink = `https://en.wikipedia.org/?curid=${wikiPage}`
 				//console.log('getWikiPromise', wiki)
 				_.set(stash, key, [wikiGraph, wikiLink])
@@ -105,5 +95,5 @@ export default {
 		if (!cached) this.getWikiPromise(id)
 		if (!cached) return ["", ""]
 		return cached
-	},
+	}
 }
