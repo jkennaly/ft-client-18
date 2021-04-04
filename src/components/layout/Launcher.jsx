@@ -58,6 +58,10 @@ const patternChange = e => {
 let discoveryArtists = []
 const Launcher = {
 	name: "Launcher",
+	preload: params => {
+		if (params.titleSet) params.titleSet(`FestiGram Launcher`, m.route.get())
+		//console.log('Launcher init')
+	},
 	view: ({ attrs }) => (
 		<div class="main-stage">
 			<WidgetContainer>

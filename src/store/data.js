@@ -92,6 +92,7 @@ import interact from "./list/mixins/relations/interact"
 import interactOptions from "./list/mixins/relations/interactOptions"
 import recent from "./list/mixins/relations/recent"
 import messageSenders from "./list/mixins/relations/messageSenders"
+import senderPurge from "./list/mixins/relations/senderPurge"
 import merge from "./list/mixins/remote/merge"
 import subjectDetails from "./list/mixins/remote/details/subject"
 import artistDetails from "./list/mixins/remote/details/artist"
@@ -165,7 +166,7 @@ const subjects = {
 	messages: messages,
 	profiles: users,
 	images: images,
-	flags: flags,
+	flags: flags
 }
 
 Object.assign(
@@ -356,14 +357,7 @@ Object.assign(artistPriorities, filterable, leveled, getPromise, named)
 Object.assign(stagePriorities, getPromise, filterable)
 Object.assign(stageLayouts, getPromise, filterable)
 Object.assign(placeTypes, getPromise, filterable)
-Object.assign(
-	artistAliases,
-	filterable,
-	batchCreate,
-	batchDelete,
-	getPromise,
-	forArtist
-)
+Object.assign(artistAliases, filterable, batchCreate, batchDelete, getPromise, forArtist)
 Object.assign(parentGenres, getPromise, filterable)
 Object.assign(genres, getPromise, filterable)
 Object.assign(artistGenres, getPromise, filterable)
@@ -382,6 +376,7 @@ Object.assign(
 	upsert,
 	updateInstance,
 	deletion,
+	senderPurge,
 	messageDetails(subjects),
 	messageCheckin(subjects),
 	messageSenders(users)
@@ -414,7 +409,7 @@ Object.assign(
 	create,
 	updateInstance,
 	deletion,
-	interact
+	interact(messages)
 )
 Object.assign(
 	users,
@@ -465,7 +460,7 @@ const baseKeys = [
 	"ArtistGenres",
 	"MessageTypes",
 	"SubjectTypes",
-	"Intentions",
+	"Intentions"
 ]
 export const remoteData = {
 	Artists: artists,
@@ -494,7 +489,7 @@ export const remoteData = {
 	Intentions: intentions,
 	Interactions: interactions,
 	Users: users,
-	Flags: flags,
+	Flags: flags
 	/*
 	dataLoad: window.mockery
 		? Promise.resolve(true)
@@ -547,10 +542,7 @@ export const clearData = () => {
 }
 
 export const clearCaches = () => {
-	_.each(
-		remoteData,
-		dataField => dataField.clearCaches && dataField.clearCaches()
-	)
+	_.each(remoteData, dataField => dataField.clearCaches && dataField.clearCaches())
 	//init the lists with core data
 	//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
 }
@@ -572,10 +564,7 @@ if (!window.mockery) {
 			const updateInterval = setTimeout(function run() {
 				//console.log('update')
 				Promise.all(
-					_.map(
-						remoteData,
-						v => v.core && v.remoteCheck && v.remoteCheck()
-					)
+					_.map(remoteData, v => v.core && v.remoteCheck && v.remoteCheck())
 				)
 					.catch(console.error)
 					.then(() => setTimeout(run, interval))
