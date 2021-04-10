@@ -162,6 +162,9 @@ th {
 .c44-bcg {
 	background-color: gray;
 }
+.c44-cp {
+	cursor: pointer;
+}
 
 /* display */
 .c44-df {
