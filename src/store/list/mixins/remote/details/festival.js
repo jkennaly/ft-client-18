@@ -63,7 +63,7 @@ export default ({ artists, dates, days, sets, messages }, lineups) => {
 							.then(upd => (updated = updated || upd))
 							.then(upd => {
 								const dateIds = this.getSubDateIds(so.subject)
-								//dates
+								//days
 								const dayEnd = `/api/Days`
 								const dayQuery =
 									`filter=` +
@@ -81,7 +81,7 @@ export default ({ artists, dates, days, sets, messages }, lineups) => {
 							})
 							.then(upd => {
 								const dayIds = this.getSubDayIds(so.subject)
-								//dates
+								//sets
 								const setEnd = `/api/Sets`
 								const setQuery =
 									`filter=` +

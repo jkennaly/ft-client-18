@@ -1,10 +1,8 @@
 // index.jsx
 
-import m from 'mithril'
+import m from "mithril"
 //const Promise = require('promise-polyfill').default
-const root = document.getElementById("app");
-
-
+const root = document.getElementById("app")
 
 //console.log('app running index.jsx')
 // Styles
@@ -18,14 +16,14 @@ import "./img/symbol-defs.svg"
 //import "./www/robots.txt"
 //import "./www/manifest.json"
 
-
-import App from './components/layout/App.jsx';
-if ('serviceWorker' in navigator) {
-  // Use the window load event to keep the page load performant
-  window.addEventListener('load', () => {
-  	console.log('index.js: registering sw')
-    navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
-  });
+import App from "./components/layout/App.jsx"
+if ("serviceWorker" in navigator) {
+	// Use the window load event to keep the page load performant
+	window.addEventListener("load", () => {
+		console.log("index.js: registering sw")
+		navigator.serviceWorker.register("/service-worker.js", { scope: "/" })
+	})
 }
-
-m.mount(root, App);
+const parsedUrl = new URL(window.location.href)
+console.log("creating app:", parsedUrl.pathname)
+if (parsedUrl.pathname === "/") m.mount(root, App)

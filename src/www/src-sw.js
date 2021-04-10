@@ -15,12 +15,13 @@ const caching = self.__WB_MANIFEST
 //console.log("caching stuff", caching)
 precacheAndRoute(caching)
 
+/*
 registerRoute(
 	new NavigationRoute(createHandlerBoundToURL("/index.html"), {
-		blacklist: [/\/activate\b/]
+		blacklist: [/\/activate\b/, /\/site/]
 	})
 )
-
+*/
 const exclude = [/bucks/, /\/gtt/, /\/Profiles/]
 
 registerRoute(
