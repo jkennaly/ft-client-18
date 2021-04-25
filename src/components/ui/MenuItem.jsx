@@ -38,6 +38,7 @@ const MenuItem = {
 				if (attrs.data.path && attrs.data.params)
 					m.route.set(attrs.data.path, attrs.data.params())
 				if (attrs.data.path) m.route.set(attrs.data.path)
+				if (attrs.data.href) window.location.assign(attrs.data.href)
 				if (attrs.clickFunction) attrs.clickFunction()
 			}}
 			data-group={attrs.data.group}

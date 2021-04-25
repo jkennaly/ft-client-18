@@ -22,6 +22,11 @@ const validUserItem = {
 		}
 const menuList = (userRoles) => {
 	return [
+		{
+			name: 'Help',
+			href: '/site/support',
+			icon: <FortyButton><Icon name="live_help" /></FortyButton>
+		},
 		(userRoles.includes('user') ? {
 			name: 'Account',
 			path: '/users/account',

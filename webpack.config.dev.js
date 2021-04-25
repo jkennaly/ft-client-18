@@ -85,7 +85,6 @@ module.exports = (config) => {
 				patterns: [
 					{ from: "./src/fav/", to: "./fav/" },
 					{ from: "./src/www/manifest.json", to: "." },
-					{ from: "./src/www/robots.txt", to: "." },
 				],
 			}),
 			new MiniCssExtractPlugin(),
