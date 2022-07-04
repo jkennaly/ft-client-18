@@ -82,56 +82,56 @@ export function updateModel(modelName, queryString = "", url, simResponse) {
 
 	const reqUrl = url
 		? url + (queryString ? "?" : "") + queryString
-		: `/api/${modelName}${queryString ? "?" : ""}${
-				queryString ? queryString : ""
-		  }`
+		: `/api/${modelName}${queryString ? "?" : ""}${queryString ? queryString : ""
+		}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)
 
 	//console.log(modelName, queryString = '', url, simResponse)
 	const resultChain = coreChecked
-		.catch(err => {})
+		.catch(err => { })
 		.then(() =>
 			simResponse && simResponse.remoteData
 				? Promise[simResponse.remoteResult](simResponse.remoteData)
 				: auth
-						.getBothTokens()
-						.catch(err => {
-							if (
-								err.error === "login_required" ||
-								err === "login required" ||
-								err === "auth fail"
-							)
-								return
-							throw err
-						})
-
-						//.then(x => console.log('getBothTokens', x) && x || x)
-						//.then(([authResult, gtt]) => authResult ? [authResult, gtt] : [false])
-
-						.then(([authResult, gtt]) =>
-							!authResult && authOnly.includes(modelName)
-								? { ok: true, json: () => [] }
-								: fetchT(reqUrl, {
-										method: "get",
-										headers: new Headers(
-											authResult
-												? _.assign({}, headerBase, {
-														Authorization: `Bearer ${authResult}`,
-														"X-GT-Access-Token": gtt,
-												  })
-												: headerBase
-										),
-								  })
+					.getBothTokens()
+					.catch(err => {
+						if (
+							err.error === "login_required" ||
+							err === "login required" ||
+							err.message === "login required" ||
+							err === "auth fail"
 						)
-						//.then(x => console.log(modelName, 'authResult ', x) && x || x)
-						.then(response => {
-							if (!response.ok) {
-								throw new Error("Network response was not ok")
-							}
-							return response
-						})
-						.then(response => response.json())
+							return []
+						throw err
+					})
+
+					//.then(x => console.log('getBothTokens', x) && x || x)
+					//.then(([authResult, gtt]) => authResult ? [authResult, gtt] : [false])
+
+					.then(([authResult, gtt]) =>
+						!authResult && authOnly.includes(modelName)
+							? { ok: true, json: () => [] }
+							: fetchT(reqUrl, {
+								method: "get",
+								headers: new Headers(
+									authResult
+										? _.assign({}, headerBase, {
+											Authorization: `Bearer ${authResult}`,
+											"X-GT-Access-Token": gtt,
+										})
+										: headerBase
+								),
+							})
+					)
+					//.then(x => console.log(modelName, 'authResult ', x) && x || x)
+					.then(response => {
+						if (!response || !response.ok) {
+							throw new Error("NetworkError: response was not ok")
+						}
+						return response
+					})
+					.then(response => response.json())
 		)
 
 		.then(response =>
@@ -151,16 +151,22 @@ export function updateModel(modelName, queryString = "", url, simResponse) {
 			return data
 		})
 		.catch(err => {
+			if (err.message === 'login required') return
+			if (/NetworkError/.test(err)) return []
+
+			console.log(err)
+
 			if (!simResponse) console.trace("updateModel err", err)
 			throw err
+
 		})
 	const localChain =
 		simResponse && simResponse.localData
 			? Promise[simResponse.localResult](simResponse.localData)
 			: localforage
-					.getItem(localItem)
+				.getItem(localItem)
 
-					.then(item => (_.isArray(item) ? item : []))
+				.then(item => (_.isArray(item) ? item : []))
 	return Promise.all([resultChain, localChain])
 		.then(([newData, oldData]) => [
 			_.unionBy(newData, oldData, "id"),

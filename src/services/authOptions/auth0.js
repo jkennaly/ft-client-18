@@ -20,7 +20,7 @@ const AUTH0_DATA = typeof AUTH_CONFIG === "undefined" ? {} : AUTH_CONFIG
 const scopeAr = "openid profile email create:messages verify:festivals create:festivals"
 
 const tokenFunction = token =>
-	function(xhr) {
+	function (xhr) {
 		xhr.setRequestHeader("Authorization", "Bearer " + token)
 	}
 
@@ -96,63 +96,63 @@ export default class Auth {
 		authLoad = window.mockery
 			? Promise.reject("mocked")
 			: auth00({
-					domain: AUTH0_DATA.DOMAIN,
-					client_id: AUTH0_DATA.CLIENTID,
-					redirect_uri: AUTH0_DATA.CALLBACKURL,
-					audience: AUTH0_DATA.AUDIENCE,
-					scope: scopeAr,
-					cacheLocation: "localstorage"
-			  })
-					.then(x => {
-						//console.log("authload construct auth0", x)
-						return x
-					})
-					.then(o => (auth0 = o))
-					.then(o => o.getTokenSilently())
-					.then(status => {
-						//console.log("authload status status", status)
-						if (!status) {
-							localStorage.setItem("ft_user_id", 0)
-							throw "auth fail"
-						}
-						return status
-					})
-					.then(x => auth0.getUser())
-					.then(x => this.getFtUserId(x))
-					.then(id => {
-						//console.log("setting id", id)
-						localStorage.setItem("ft_user_id", id)
-					})
-					.then(() => auth0.getIdTokenClaims())
-					.then(claims => (claims ? claims["https://festigram/roles"] : []))
-					/*
-    .then(() => this.getRoles())
-    */
-					.then(roles => (userRoleCache = roles))
-					.then(roles => {
-						//console.log("setting roles", roles)
-						localStorage.setItem("ft_user_roles", JSON.stringify(roles))
-					})
-					.then(() => "authLoaded")
-					.catch(err => {
-						if (err.error === "login_required") {
-							const lastId = localStorage.getItem("ft_user_id")
-							return lastId ? clean() : undefined
-						}
-						err !== "mocked" &&
-							err !== 0 &&
-							console.error("auth0 instantiantion failed", err)
-					})
+				domain: AUTH0_DATA.DOMAIN,
+				client_id: AUTH0_DATA.CLIENTID,
+				redirect_uri: AUTH0_DATA.CALLBACKURL,
+				audience: AUTH0_DATA.AUDIENCE,
+				scope: scopeAr,
+				cacheLocation: "localstorage"
+			})
+				.then(x => {
+					//console.log("authload construct auth0", x)
+					return x
+				})
+				.then(o => (auth0 = o))
+				.then(o => o.getTokenSilently())
+				.then(status => {
+					//console.log("authload status status", status)
+					if (!status) {
+						localStorage.setItem("ft_user_id", 0)
+						throw "auth fail"
+					}
+					return status
+				})
+				.then(x => auth0.getUser())
+				.then(x => this.getFtUserId(x))
+				.then(id => {
+					//console.log("setting id", id)
+					localStorage.setItem("ft_user_id", id)
+				})
+				.then(() => auth0.getIdTokenClaims())
+				.then(claims => (claims ? claims["https://festigram/roles"] : []))
+				/*
+.then(() => this.getRoles())
+*/
+				.then(roles => (userRoleCache = roles))
+				.then(roles => {
+					//console.log("setting roles", roles)
+					localStorage.setItem("ft_user_roles", JSON.stringify(roles))
+				})
+				.then(() => "authLoaded")
+				.catch(err => {
+					if (err.error === "login_required") {
+						const lastId = localStorage.getItem("ft_user_id")
+						return lastId ? clean() : undefined
+					}
+					err !== "mocked" &&
+						err !== 0 &&
+						console.error("auth0 instantiantion failed", err)
+				})
 	}
 
 	login(prev) {
 		authLoad
 			/*
-      .then(hrcb => {
-          console.log('authLoad', hrcb)
-          return hrcb
-      })
-      */
+	  .then(hrcb => {
+		  console.log('authLoad', hrcb)
+		  return hrcb
+	  })
+	  */
 			.then(() =>
 				auth0.loginWithRedirect({
 					appState: {
@@ -229,15 +229,15 @@ export default class Auth {
 		//.then(({appState}) => m.route.set(appState && appState.route ? appState.route : '/launcher'))
 		//.then(() => window.history.replaceState({}, document.title, "/#!/launcher"))
 		/*
-      .then(hrcb => {
-          console.log('redirected', hrcb)
-          return hrcb
-      })
-      */
+	  .then(hrcb => {
+		  console.log('redirected', hrcb)
+		  return hrcb
+	  })
+	  */
 		//.then(() => this.getFtUserId('handleAuthentication'))
 		/*
-      .then(() => {})
-      */
+	  .then(() => {})
+	  */
 	}
 
 	gtt() {
@@ -327,11 +327,6 @@ export default class Auth {
 		return authLoad.then(() => auth0.isAuthenticated())
 	}
 
-	getValidToken() {
-		//if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
-		return authLoad.then(() => auth0.getTokenSilently())
-	}
-
 	getAccessToken(opts) {
 		//this returns a promise that resolves to a valid token
 
@@ -341,7 +336,7 @@ export default class Auth {
 			.then(authd => {
 				if (!authd) throw new Error("no auth, no token")
 			})
-			.then(() => this.getValidToken())
+			.then(() => auth0.getTokenSilently())
 			.catch(err => (accessTokenPromiseCache = {}))
 		return accessTokenPromiseCache
 	}
@@ -359,28 +354,28 @@ export default class Auth {
 				return authResult
 			})
 			/*
-      .then(authResult => { 
-        console.log('updateModel reqUrl', reqUrl)
-        const req = m.request({
-            method: 'GET',
-            url: reqUrl,
-          config: tokenFunction(authResult),
-          background: true
-        })
-        console.log('req', req)
-        req.then(x => console.log('updateModel response') && x || x)
-        req.catch(x => console.log('updateModel err', x))
-        return req
-      })
-      */
+	  .then(authResult => { 
+		console.log('updateModel reqUrl', reqUrl)
+		const req = m.request({
+			method: 'GET',
+			url: reqUrl,
+		  config: tokenFunction(authResult),
+		  background: true
+		})
+		console.log('req', req)
+		req.then(x => console.log('updateModel response') && x || x)
+		req.catch(x => console.log('updateModel err', x))
+		return req
+	  })
+	  */
 			.then(authResult =>
 				fetchT("/api/Profiles/gtt", {
 					method: "get",
 					headers: new Headers(
 						authResult
 							? _.assign({}, headerBase, {
-									Authorization: `Bearer ${authResult}`
-							  })
+								Authorization: `Bearer ${authResult}`
+							})
 							: headerBase
 					)
 				})
@@ -419,7 +414,7 @@ export default class Auth {
 	}
 
 	getGttRawLocal() {
-		return localforage.getItem("gtt.raw").catch(err => {})
+		return localforage.getItem("gtt.raw").catch(err => { })
 	}
 
 	getGttRaw() {
@@ -449,7 +444,7 @@ export default class Auth {
 		decodedPromiseCache = this.getGttRaw()
 			.then(raw => (_.isString(raw) ? jwt_decode(raw) : raw))
 			.then(raw => (raw ? raw : {}))
-			.catch(err => {})
+			.catch(err => { })
 			.then(json => {
 				//console.log("getGttDecoded final gtt", json)
 				return json
@@ -470,7 +465,7 @@ export default class Auth {
 	getBothTokens() {
 		//if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
 		const access = authLoad
-			.then(() => this.getValidToken())
+			.then(() => this.getAccessToken())
 			.then(raw => (raw ? raw : ""))
 			.catch(() => "")
 

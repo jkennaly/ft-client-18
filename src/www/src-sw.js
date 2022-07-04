@@ -50,17 +50,18 @@ registerRoute(
 )
 
 self.addEventListener("message", event => {
-	if (event.data && event.data.type === "SKIP_WAITING") {
+	if (event.data === "skipWaiting") {
+		console.log('new sw running')
 		self.skipWaiting()
 	}
 })
-
+/*
 self.addEventListener("install", event => {
 	//console.log("[Service Worker] Installing Service Worker ...", event)
 
 	event.waitUntil(self.skipWaiting())
 })
-
+*/
 self.addEventListener("activate", event => {
 	//console.log("[Service Worker] Activating Service Worker ...", event)
 

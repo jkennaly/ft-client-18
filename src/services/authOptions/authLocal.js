@@ -8,6 +8,9 @@ localforage.config({
 	name: "FestiGram",
 	storeName: "FestiGram",
 })
+const headerBase = {
+	"Content-Type": "application/json"
+}
 import fetchT from "../fetchT"
 
 const AUTH_DATA = typeof AUTH_CONFIG === "undefined" ? {} : AUTH_CONFIG
@@ -20,13 +23,22 @@ var nextIdRequestTime = 0
 let accessTokenPromiseCache = {}
 let userData = {}
 var accessTokenPending = false
-var userIdCache = 0
-var userRoleCache = []
 var dataReset = () => true
 var cacheReset = () => true
 var auth0 = {}
 var authHandler = {}
+var gttCache = ''
 var lastToken, lastUserData
+
+const tokenIsValid = token => {
+	if (!token) return false
+	const decoded = jwt_decode(token)
+	const expiration = decoded.exp * 1000
+	const now = Date.now()
+	const expired = expiration - now < 0
+	//console.log(expiration, now, expired)
+	return !expired
+}
 
 const clean = () => {
 	localStorage.clear()
@@ -35,8 +47,7 @@ const clean = () => {
 		.then(() => dataReset())
 		//.then(() => console.log('data Reset'))
 		.catch(err => console.error("logout data reset failed", err))
-	userIdCache = 0
-	userRoleCache = []
+
 }
 const authLoad = window.mockery
 	? Promise.reject("mocked")
@@ -49,23 +60,28 @@ start used in local logins
 var lastState = {}
 
 const tokenFunction = token =>
-	function(xhr) {
+	function (xhr) {
 		xhr.setRequestHeader("Authorization", "Bearer " + token)
 	}
 
-const userIdFromToken = userData => token =>
-	m
-		.request({
+const userIdFromToken = userData => async (token) => {
+	const localId = JSON.parse(localStorage.getItem("ft_user_id"))
+	if (localId) return localId
+	try {
+		const result = await m.request({
 			method: "POST",
 			url: "/api/Profiles/getUserId/",
 			config: tokenFunction(token),
-			body: userData,
 		})
-		.then(result => {
-			const id = result.id
-			if (!id) throw "invalid id received from getFtUserId() " + id
-			return id
-		})
+		//console.log('result w/id', result)
+		const id = result.id
+		if (!id) throw "invalid id received from getFtUserId() " + id
+		localStorage.setItem("ft_user_id", id)
+		return id
+	} catch (err) {
+		console.error(err)
+	}
+}
 /********************
 end used in local logins
 
@@ -96,33 +112,43 @@ export default class Auth {
 		//get the ftUserId
 		return this.getFtUserId()
 			.then(id => localStorage.setItem("ft_user_id", id))
-			.then(() => this, getRoles())
+			.then(() => this.getRoles())
 			.then(roles =>
 				localStorage.setItem("ft_user_roles", JSON.stringify(roles))
 			)
 	}
 
+	gtt() {
+		//console.log('auth gtt')
+		//console.log(gttCache)
+		return gttCache
+	}
+
 	userId() {
 		//console.log('auth userId')
 		//console.log(userIdCache)
-		return JSON.parse(localStorage.getItem("ft_user_id"))
+		const local = JSON.parse(localStorage.getItem("ft_user_id"))
+		if (local) return local
+		return 0
 	}
 
 	userRoles() {
 		//console.log('auth userId')
 		//console.log(userIdCache)
-		return JSON.parse(localStorage.getItem("ft_user_roles"))
+		const local = JSON.parse(localStorage.getItem("ft_user_roles"))
+		if (local) return local
+		return []
 	}
 
 	//returns a promise that resolves to a userIdCache
 	getFtUserId() {
 		return Promise.all([
-			this.getValidToken(),
+			this.getAccessToken(),
 			this.getIdTokenClaims(),
 		]).then(([token, claims]) => userIdFromToken(claims)(token))
 	}
-	recore(coreCheck) {}
-	cacheCleaner(cleanCaches) {}
+	recore(coreCheck) { }
+	cacheCleaner(cleanCaches) { }
 
 	logout(skipRoute) {
 		// Clear Access Token and ID Token from local storage
@@ -136,15 +162,32 @@ export default class Auth {
 		)
 	}
 
-	getValidToken() {
-		//if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
-		return Promise.resolve(localStorage.getItem("local_token"))
-	}
-
-	getAccessToken(opts) {
-		//this returns a promise that resolves to a valid token
-
-		return this.getValidToken()
+	async getAccessToken() {
+		//console.log('trying to retrieve token')
+		const localToken = localStorage.getItem("local_token")
+		const localValid = tokenIsValid(localToken)
+		if (localValid) return localToken
+		//try for refresh
+		if (localToken) {
+			try {
+				const { token } = await m.request({
+					method: "GET",
+					url: "/authorize/refresh",
+					timeout: 1000
+				})
+				if (token) {
+					localStorage.setItem("local_token", token)
+					return token
+				}
+			} catch (err) {
+				//console.error('token refresh attempt failed')
+				//console.log(err)
+				if (err && err.code) {
+					clean()
+				}
+			}
+		}
+		throw new Error('login required')
 	}
 
 	getGttRawRemote() {
@@ -159,28 +202,28 @@ export default class Auth {
 					return authResult
 				})
 				/*
-      .then(authResult => { 
-        console.log('updateModel reqUrl', reqUrl)
-        const req = m.request({
-            method: 'GET',
-            url: reqUrl,
-          config: tokenFunction(authResult),
-          background: true
-        })
-        console.log('req', req)
-        req.then(x => console.log('updateModel response') && x || x)
-        req.catch(x => console.log('updateModel err', x))
-        return req
-      })
-      */
+	  .then(authResult => { 
+		console.log('updateModel reqUrl', reqUrl)
+		const req = m.request({
+			method: 'GET',
+			url: reqUrl,
+		  config: tokenFunction(authResult),
+		  background: true
+		})
+		console.log('req', req)
+		req.then(x => console.log('updateModel response') && x || x)
+		req.catch(x => console.log('updateModel err', x))
+		return req
+	  })
+	  */
 				.then(authResult =>
 					fetchT("/api/Profiles/gtt", {
 						method: "get",
 						headers: new Headers(
 							authResult
 								? _.assign({}, headerBase, {
-										Authorization: `Bearer ${authResult}`,
-								  })
+									Authorization: `Bearer ${authResult}`,
+								})
 								: headerBase
 						),
 					})
@@ -196,16 +239,17 @@ export default class Auth {
 					}
 				})
 				.then(json => json.token)
-				.then(gtt =>
-					localforage.setItem("gtt.raw", gtt).then(() => gtt)
-				)
+				.then(gtt => {
+					gttCache = gtt
+					return localforage.setItem("gtt.raw", gtt).then(() => gtt)
+				})
 				/*
-      .then(json => {
-        console.log(json)
-      })
-      */
+	  .then(json => {
+		console.log(json)
+	  })
+	  */
 				.catch(err => {
-					//if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
+					if (err.error === 'login_required' || err === 'login required' || err.message === 'login required' || err === 'auth fail') return
 					console.error(err)
 				})
 		)
@@ -227,12 +271,12 @@ export default class Auth {
 
 	getBothTokens() {
 		//if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
-		const access = authLoad.then(() => auth0.getTokenSilently())
+		const access = this.getAccessToken()
 		const gtt = this.getGttRaw()
 		return Promise.all([access, gtt])
 	}
 	getIdTokenClaims() {
-		return this.getValidToken().then(jwt_decode)
+		return this.getAccessToken().then(jwt_decode)
 	}
 	getRoles() {
 		return this.getIdTokenClaims().then(

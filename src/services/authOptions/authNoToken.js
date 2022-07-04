@@ -10,7 +10,7 @@ localforage.config({
 import fetchT from "../fetchT"
 
 export default class Auth {
-	login(prev) {}
+	login(prev) { }
 
 	handleAuthentication() {
 		//console.log('handleAuthentication')
@@ -33,8 +33,8 @@ export default class Auth {
 	getFtUserId(userDataSupplied) {
 		return Promise.resolve(1)
 	}
-	recore(coreCheck) {}
-	cacheCleaner(cleanCaches) {}
+	recore(coreCheck) { }
+	cacheCleaner(cleanCaches) { }
 
 	logout(skipRoute) {
 		// Clear Access Token and ID Token from local storage
@@ -45,14 +45,8 @@ export default class Auth {
 		return Promise.resolve(false)
 	}
 
-	getValidToken() {
+	getAccessToken() {
 		//if(!auth0.getTokenSilently) throw new Error('Auth Service Bootstrapping')
-		return Promise.resolve("abc")
-	}
-
-	getAccessToken(opts) {
-		//this returns a promise that resolves to a valid token
-
 		return Promise.resolve("abc")
 	}
 
@@ -73,8 +67,8 @@ export default class Auth {
 						headers: new Headers(
 							authResult
 								? _.assign({}, headerBase, {
-										Authorization: `Bearer ${authResult}`,
-								  })
+									Authorization: `Bearer ${authResult}`,
+								})
 								: headerBase
 						),
 					})
@@ -94,10 +88,10 @@ export default class Auth {
 					localforage.setItem("gtt.raw", gtt).then(() => gtt)
 				)
 				/*
-      .then(json => {
-        console.log(json)
-      })
-      */
+	  .then(json => {
+		console.log(json)
+	  })
+	  */
 				.catch(err => {
 					//if(err.error === 'login_required' || err === 'login required' || err === 'auth fail') return
 					console.error(err)

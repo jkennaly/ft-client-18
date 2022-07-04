@@ -8,9 +8,9 @@ export default {
 		return (
 			fetchT(`/api/${this.fieldName}/search/${pattern}`)
 				//.then(response => console.log('remoteSearch', pattern, response) || response)
-				.then(response => response.json())
+				.then(response => response && response.json())
 				.then(response =>
-					_.isArray(response.data) ? response.data : response
+					response && _.isArray(response.data) ? response.data : response
 				)
 		)
 	},

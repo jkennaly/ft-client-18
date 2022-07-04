@@ -18,7 +18,7 @@ import fetchT from "../../services/fetchT"
 import Auth from "../../services/auth"
 const auth = Auth
 const authOnly = ["MessagesMonitors", "Intentions", "Interactions"]
-export default function(
+export default function (
 	data,
 	modelName,
 	queryString = "",
@@ -34,52 +34,53 @@ export default function(
 		simResponse && simResponse.remoteData
 			? Promise[simResponse.remoteResult](simResponse.remoteData)
 			: auth
-					.getBothTokens()
-					//.then(x => console.log('provide result', x) || x)
-					.then(([authResult, gtt]) =>
-						!_.isString(authResult) && authOnly.includes(modelName)
-							? { ok: true, json: () => [] }
-							: fetchT(reqUrl, {
-									method: method,
-									headers: new Headers(
-										_.isString(authResult)
-											? _.assign(
-													{},
-													options.form
-														? formBase
-														: headerBase,
-													{
-														Authorization: `Bearer ${authResult}`,
-														"X-GT-Access-Token": gtt,
-													}
-											  )
-											: options.form
+				.getBothTokens()
+				//.then(x => console.log('provide result', x) || x)
+				.then(([authResult, gtt]) =>
+					!_.isString(authResult) && authOnly.includes(modelName)
+						? { ok: true, json: () => [] }
+						: fetchT(reqUrl, {
+							method: method,
+							headers: new Headers(
+								_.isString(authResult)
+									? _.assign(
+										{},
+										options.form
 											? formBase
-											: headerBase
-									),
-									body: options.form
-										? data
-										: JSON.stringify(data),
-							  })
-					)
-					.then(response => {
-						//console.log('provide', response)
-						if (_.isArray(response)) return response
-						try {
-							const resp = response.json()
-							return resp
-						} catch (err) {
-							console.log("JSON err", err)
-							if (!/JSON\.parse/.test(err.message))
-								console.error(err)
-							return []
-						}
-					})
-					.catch(err => {
-						if (!/JSON\.parse/.test(err.message)) {
+											: headerBase,
+										{
+											Authorization: `Bearer ${authResult}`,
+											"X-GT-Access-Token": gtt,
+										}
+									)
+									: options.form
+										? formBase
+										: headerBase
+							),
+							body: options.form
+								? data
+								: JSON.stringify(data),
+						})
+				)
+				.then(response => {
+					//console.log('provide', response)
+					if (!response) return []
+					if (_.isArray(response)) return response
+					try {
+						const resp = response.json()
+						return resp
+					} catch (err) {
+						console.log("JSON err", err)
+						if (!/JSON\.parse/.test(err.message))
 							console.error(err)
-							throw err
-						}
-					})
+						return []
+					}
+				})
+				.catch(err => {
+					if (!/JSON\.parse/.test(err.message)) {
+						console.error(err)
+						throw err
+					}
+				})
 	return resultChain
 }

@@ -52,7 +52,8 @@ import SetLineup from "../../components/createFestivals/lineups/SetLineup.jsx"
 import FixArtist from "../../components/createFestivals/lineups/FixArtist.jsx"
 
 // Services
-import Auth from "../../services/auth.js"
+import Auth, { authwrapper } from "../../services/auth.js"
+import batchCreate from "../../store/list/mixins/remote/batchCreate"
 const auth = Auth
 
 const WelcomeView = ({ attrs }) => [
@@ -72,9 +73,9 @@ const forceLoginRoute = err => {
 const rawUserData = status =>
 	status
 		? Promise.all([auth.getFtUserId(), auth.getRoles()]).then(([u, r]) => [
-				_.isNumber(u) ? u : 0,
-				_.isArray(r) ? r : []
-		  ])
+			_.isNumber(u) ? u : 0,
+			_.isArray(r) ? r : []
+		])
 		: [0, []]
 
 var titleCache = {}
@@ -88,6 +89,7 @@ const title = attrs => {
 	return `FestiGram`
 }
 const bannerTitle = title => {
+	//console.log('bannerTitle...')
 	const key = "banner"
 	if (_.isString(title)) _.set(titleCache, key, title)
 	const cached = _.get(titleCache, key, `FestiGram Launcher`)
@@ -95,6 +97,7 @@ const bannerTitle = title => {
 	return cached
 }
 const eventBadge = selection => {
+	//console.log('eventBadge...')
 	const key = m.route.get()
 	const eventRoute = /(fests|dates|days|sets)\/pregame/.test(key)
 	//console.log("eventBadge", selection, key, eventRoute, _.get(eventCache, key, "nada"))
@@ -105,8 +108,8 @@ const eventBadge = selection => {
 		selection === `hasAccess`
 			? { src: `img/has-access.svg` }
 			: selection === ""
-			? undefined
-			: { src: `img/live-access.svg`, buyModal: true }
+				? undefined
+				: { src: `img/live-access.svg`, buyModal: true }
 	//console.log("eventBadge", key, selection, badge)
 	if (_.isString(selection)) _.set(eventCache, key, badge)
 	return badge
@@ -132,104 +135,9 @@ const popModal = (...popRequestArgs) => {
 	if (!lastUser[1].includes("user")) return auth.login(m.route.get())
 	return ModalBox.popRequest(...popRequestArgs)
 }
-const authorize = (resolveComponent, rejectComponent) => rParams => {
-	const params = { titleSet: bannerTitle, eventSet: eventBadge, gtt: auth.gtt() }
-	return (
-		Promise.all([
-			auth.getValidToken(),
-			resolveComponent.preload
-				? resolveComponent.preload(Object.assign({}, rParams, params))
-				: undefined
-		])
-			.then(([token, ...rest]) => token)
-
-			//.then(t => console.log("authorize isAuthenticated", t) || t)
-			.then(rawUserData)
-			//.then(t => console.log("authorize rawUserData", t) || t)
-			.then(acb => {
-				acb[0] && remoteData.Users.getLocalPromise(acb[0])
-				acb[0] && remoteData.Flags.remoteCheck()
-				acb[0] && remoteData.Intentions.remoteCheck()
-				acb[0] && remoteData.Interactions.remoteCheck()
-				acb[0] && remoteData.MessagesMonitors.remoteCheck()
-				acb[0] &&
-					remoteData.Messages.acquireListSupplement(
-						"filter=" +
-							JSON.stringify({
-								where: {
-									fromuser: acb[0],
-									messageType: CHECKIN
-								}
-							}),
-						undefined,
-						true
-					)
-				return acb
-			})
-			.catch(err => [0, []])
-			//.then(t => console.log("authorize userSet", t) || t)
-			.then(user =>
-				Promise.all([(lastUser = user), user[0] && auth.getGttDecoded()])
-			)
-			.then(([userDataRaw, gtt]) => {
-				//console.log(`route resolved`, rParams, userDataRaw, gtt)
-				return {
-					oninit: () => {
-						//console.log(`component init`, userDataRaw, resolveComponent)
-						/*
-				.catch(err => {
-					console.error('init fail', rParams)
-			
-				})
-				*/
-					},
-					view: ({ attrs }) => {
-						//console.log(`component resolving`, attrs.filter, resolveComponent)
-						const attrIds = _.reduce(
-							attrs,
-							(passing, v, k) => {
-								if (passing[k]) return passing
-								const kOk =
-									/^id$/.test(k) || /Id$/.test(k) || /^subject/.test(k)
-								const useV = kOk && (_.isInteger(v) || /^\d+$/.test(v))
-								passing[k] = _.isInteger(v) ? v : _.toInteger(v)
-								return passing
-							},
-							{}
-						)
-						const baseAttrs = {
-							titleSet: bannerTitle,
-							eventSet: eventBadge,
-							focusSubject: focusSubject,
-							userId: userDataRaw[0],
-							userRoles: userDataRaw[1],
-							gtt: gtt ? gtt : {},
-							auth: auth,
-							popModal: popModal,
-							filter: attrs.filter,
-							appStartTime: appStartTime
-						}
-						const mainAttrs = Object.assign({}, attrIds, baseAttrs)
-						lastAttrs = attrIds
-						return [
-							m(ModalBox, {
-								auth: auth,
-								bucksUpdate: bucksUpdate
-							}),
-							m(resolveComponent, mainAttrs)
-						]
-					}
-				}
-			})
-			.catch(err => {
-				console.error(err)
-				bannerTitle("")
-				eventBadge("")
-				return rejectComponent ? rejectComponent : Launcher
-			})
-	)
-}
 const appStartTime = Date.now()
+const authorize = authwrapper(auth, ModalBox, Launcher, bannerTitle, eventBadge, focusSubject, bucksUpdate, popModal, appStartTime)
+
 
 const App = {
 	name: "App",
@@ -238,9 +146,9 @@ const App = {
 		//font awesome watching for icons to rpelace
 		//dom.watch({autoReplaceSvgRoot: vnode.dom, observeMutationsRoot:vnode.dom})
 		/*
-        var hashStr = window.location.hash;
-        hashStr = hashStr.replace(/^#?\/?/, '');
-        localStorage.setItem('raw_token', hashStr);
+		var hashStr = window.location.hash;
+		hashStr = hashStr.replace(/^#?\/?/, '');
+		localStorage.setItem('raw_token', hashStr);
 */
 		//console.log('app running 1')
 		//console.log("app oncreate elapsed", Date.now() - appStartTime)
@@ -265,7 +173,6 @@ const App = {
 			},
 			"/artists/pregame/:id": {
 				onmatch: routing => {
-					//remoteData.Artists.subjectDetails({subject: routing.id, subjectType: ARTIST})
 
 					return authorize(ArtistDetail, ArtistDetail)(routing)
 				}
@@ -290,10 +197,10 @@ const App = {
 						auth
 							.handleAuthentication()
 							/*
-        		.then(x => {
-        			console.log('auth callback', x)
-        			return x
-        		})
+				.then(x => {
+					console.log('auth callback', x)
+					return x
+				})
 				*/
 
 							.then(
@@ -516,6 +423,7 @@ const App = {
 			"/users/account": {
 				onmatch: routing => {
 					//remoteData.Users.recent(10)
+					console.log('this is the shit')
 
 					return authorize(Account, WelcomeView)(routing)
 				}
@@ -550,8 +458,8 @@ const App = {
 				""
 			) : (
 				<LauncherBanner
-					userId={lastUser[0]}
-					userRoles={lastUser[1]}
+					userId={auth.userId()}
+					userRoles={auth.userRoles()}
 					titleGet={bannerTitle}
 					eventGet={eventBadge}
 					popModal={popModal}

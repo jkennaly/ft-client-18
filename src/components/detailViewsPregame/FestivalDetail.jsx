@@ -37,7 +37,7 @@ const jsx = () => {
 							subject: attrs.festivalId,
 							subjectType: FESTIVAL
 						}}
-						permission={attrs.userRoles.includes("user")}
+						permission={attrs.userRoles && attrs.userRoles.includes("user")}
 					/>
 				) : (
 					""
@@ -103,13 +103,14 @@ const FestivalDetail = {
 	},
 	view: ({ attrs }) => {
 		const festivalId = parseInt(m.route.param("id"), 10)
+		//console.log('FestivalDetail attrs', attrs)
 
 		const so = { subjectType: FESTIVAL, subject: festivalId }
-		attrs.focusSubject(so)
-		const decoded = attrs.auth.gtt()
+		if (attrs.focusSubject) attrs.focusSubject(so)
+		const decoded = attrs.auth && attrs.auth.gtt()
 		const accessible = decoded && !festivals.sellAccess(festivalId, decoded)
 		const evtString = accessible ? "hasAccess" : "noAccess"
-		attrs.eventSet(evtString)
+		if (attrs.eventSet) attrs.eventSet(evtString)
 		//console.log("FestivalDetail ciew evtString, decoded", evtString, decoded)
 		//hasAccess if:
 		//event not restricted OR
