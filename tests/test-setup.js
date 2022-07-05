@@ -16,13 +16,14 @@ global.document = dom.window.document
 global.requestAnimationFrame = dom.window.requestAnimationFrame
 global.window.mockery = true
 global._ = require("lodash")
-global.Headers = function() {}
+global.Headers = function () { }
 global.fetch = () => Promise.resolve({ json: () => [] })
+global.API_URL = ''
 
 // Require Mithril to make sure it loads properly.
 require("mithril")
 
 // And now, make sure JSDOM ends when the tests end.
-o.after(function() {
+o.after(function () {
 	dom.window.close()
 })

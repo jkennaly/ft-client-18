@@ -15,6 +15,8 @@ import fetchT from "../fetchT"
 
 const AUTH_DATA = typeof AUTH_CONFIG === "undefined" ? {} : AUTH_CONFIG
 
+const apiUrl = API_URL
+
 const scopeAr =
 	"openid profile email admin create:messages verify:festivals create:festivals"
 
@@ -78,7 +80,7 @@ const userIdFromToken = userData => async (token) => {
 	try {
 		const result = await m.request({
 			method: "POST",
-			url: "/api/Profiles/getUserId/",
+			url: apiUrl + "/api/Profiles/getUserId/",
 			config: tokenFunction(token),
 		})
 		//console.log('result w/id', result)
@@ -187,7 +189,7 @@ export default class Auth {
 			try {
 				const { token } = await m.request({
 					method: "GET",
-					url: "/authorize/refresh",
+					url: apiUrl + "/authorize/refresh",
 					timeout: 1000
 				})
 				if (token) {

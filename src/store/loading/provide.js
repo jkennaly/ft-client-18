@@ -18,6 +18,7 @@ import fetchT from "../../services/fetchT"
 import Auth from "../../services/auth"
 const auth = Auth
 const authOnly = ["MessagesMonitors", "Intentions", "Interactions"]
+const apiUrl = API_URL
 export default function (
 	data,
 	modelName,
@@ -27,7 +28,7 @@ export default function (
 	simResponse,
 	options = {}
 ) {
-	const reqUrl = url ? url + queryString : `/api/${modelName}${queryString}`
+	const reqUrl = url ? apiUrl + url + queryString : `${apiUrl}/api/${modelName}${queryString}`
 	const usingFormData = simResponse || data instanceof FormData
 	//console.log('providing', reqUrl, method, data, modelName, queryString, simResponse)
 	const resultChain =

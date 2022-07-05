@@ -66,6 +66,7 @@
 		"smart-search": "^0.2.0"
 	},
 	"scripts": {
+		"deploy": "aws s3 sync ./dist s3://festigram.app",
 		"e2e": "clear && npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js'",
 		"entry": "npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js' './tests/**/**.entry.js'",
 		"test": "NODE_ENV=test nyc --reporter=text-summary --reporter=html npx babel-node node_modules/ospec/bin/ospec './tests/**/**.test.js' --preload ./tests/test-setup.js",
@@ -77,6 +78,7 @@
 		"build": "webpack --config webpack.config.prod.js --env auth='local'",
 		"build:dev": "webpack --config webpack.config.dev.js --env auth='local'",
 		"build:prod": "webpack --config webpack.config.prod.js --env auth='local'",
+		"postbuild": "npm run deploy",
 		"watch": "npm run build:dev && onchange --await-write-finish 1500 -i 'src/**/*' -- npm run build:dev",
 		"watch:prod": "npm run build:prod && onchange --await-write-finish 1500 -i 'src/**/*' -- npm run build:prod",
 		"bundle-report": "webpack-bundle-analyzer --port 4200 compilation-stats-210322.json"

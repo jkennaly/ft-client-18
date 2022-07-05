@@ -47,6 +47,7 @@ const loggedOnly = [/Intentions/, /MessagesMonitors/]
 const headerBase = {
 	"Content-Type": "application/json",
 }
+const apiUrl = API_URL
 export const coreCheck = () =>
 	localforage
 		.getItem("Model.core")
@@ -56,7 +57,7 @@ export const coreCheck = () =>
 				(coreData &&
 					coreData.timestamp &&
 					coreData.timestamp + 7 * 24 * 3600 * 1000 < Date.now()) ||
-				fetchT("/api/Core/all/data", {
+				fetchT(apiUrl + "/api/Core/all/data", {
 					method: "get",
 					headers: new Headers(headerBase),
 				})
@@ -82,7 +83,7 @@ export function updateModel(modelName, queryString = "", url, simResponse) {
 
 	const reqUrl = url
 		? url + (queryString ? "?" : "") + queryString
-		: `/api/${modelName}${queryString ? "?" : ""}${queryString ? queryString : ""
+		: `${apiUrl}/api/${modelName}${queryString ? "?" : ""}${queryString ? queryString : ""
 		}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)

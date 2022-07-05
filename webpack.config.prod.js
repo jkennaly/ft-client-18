@@ -12,13 +12,11 @@ const mode = "production"
 
 const payOptionsDev = require("./src/services/payOptions/pay-variables-test.json")
 const payOptionsProd = require("./src/services/payOptions/pay-variables-live.json")
-const auth0Dev = require("./src/services/auth0-variables.dev.json")
-const auth0Prod = require("./src/services/auth0-variables.prod.json")
 const authLocalDev = require("./src/services/authLocal-variables.dev.json")
 const authLocalProd = require("./src/services/authLocal-variables.prod.json")
 
 const params = process.argv.slice(2)
-const authSource = params.includes("local") ? "local" : "auth0"
+const authSource = "local"
 
 const env = {
 	mode: mode,
@@ -28,18 +26,18 @@ const env = {
 function composeConfig(env) {
 	/* Helper function to dynamically set runtime config */
 	if (env.mode === "development") {
-		return env.authSource === "auth0" ? auth0Dev : authLocalDev
+		return authLocalDev
 	}
 
 	if (env.mode === "production") {
-		return env.authSource === "auth0" ? auth0Prod : authLocalProd
+		return authLocalProd
 	}
 }
 
 module.exports = config => {
 	const env = {
 		mode: mode,
-		authSource: config && config.auth === "local" ? "local" : "auth0"
+		authSource: "local"
 	}
 	return {
 		mode: mode,
@@ -85,6 +83,11 @@ module.exports = config => {
 			new webpack.DefinePlugin({
 				STRIPE_PUBLIC: JSON.stringify(
 					env.mode === "development" ? payOptionsDev : payOptionsProd
+				)
+			}),
+			new webpack.DefinePlugin({
+				API_URL: JSON.stringify(
+					env.mode === "development" ? 'http://localhost:8080' : 'https://api.festigram.app'
 				)
 			}),
 			new CopyPlugin({

@@ -9,17 +9,17 @@ import Icon from '../fields/Icon.jsx'
 
 // Services
 const validUserItem = {
-			name: 'Logout',
-			path: '/confirm/logout',
-			icon: <FortyButton><Icon name="exit" /></FortyButton>
-		}
-	const invalidUserItem = {
-			name: 'Login',
-			path: '/auth',
-			params: () => {return{prev: m.route.get()}},
-			icon: <FortyButton><Icon name="enter" /></FortyButton>
-		
-		}
+	name: 'Logout',
+	path: '/confirm/logout',
+	icon: <FortyButton><Icon name="exit" /></FortyButton>
+}
+const invalidUserItem = {
+	name: 'Login',
+	path: '/auth',
+	params: () => { return { prev: m.route.get() } },
+	icon: <FortyButton><Icon name="enter" /></FortyButton>
+
+}
 const menuList = (userRoles) => {
 	return [
 		{
@@ -40,7 +40,7 @@ const menuList = (userRoles) => {
 		{
 			name: 'Launcher',
 			path: '/launcher',
-			icon: <FortyButton><img src="/favicon.ico" /></FortyButton>
+			icon: <FortyButton><img src="/fav/favicon.ico" /></FortyButton>
 		},
 		{
 			name: 'Festivals',
@@ -58,29 +58,29 @@ const menuList = (userRoles) => {
 			icon: <FortyButton><Icon name="paint-format" /></FortyButton>
 		} : ''),
 	].filter(x => x)
-	
-} 
+
+}
 const DisplayButton = vnode => {
 	var menuHidden = true
 	const hideMenu = dom => (e) => {
 		//console.log('DisplayButton dom e', dom.contains(e.target))
-		if(!dom.contains(e.target)) menuHidden = true
-			m.redraw()
+		if (!dom.contains(e.target)) menuHidden = true
+		m.redraw()
 
 	}
 	return {
-		oncreate: ({attrs, dom}) => {
+		oncreate: ({ attrs, dom }) => {
 			document.body.addEventListener('click', hideMenu(dom))
 		},
-		onremove: ({attrs, dom}) => {
+		onremove: ({ attrs, dom }) => {
 			document.body.removeEventListener('click', hideMenu(dom))
 		},
 		view: ({ attrs }) => <div>
 			<div class="ft-nav-button ft-nav-menu-button" onclick={() => menuHidden = !menuHidden}>
 				{attrs.icon}
 			</div>
-			<CollapsibleMenu 
-				menu={menuList(attrs.userRoles).concat([attrs.userRoles.includes('user') ? validUserItem : invalidUserItem])} 
+			<CollapsibleMenu
+				menu={menuList(attrs.userRoles).concat([attrs.userRoles.includes('user') ? validUserItem : invalidUserItem])}
 				collapsed={menuHidden}
 				itemClicked={() => menuHidden = true}
 			/>
