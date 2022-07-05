@@ -1,6 +1,7 @@
 // src/store/list/mixins/remote/details/festival.js
 
 import _ from "lodash"
+const apiUrl = API_URL
 
 export default ({ artists, dates, days, sets, messages }, lineups) => {
 	return {
@@ -8,13 +9,12 @@ export default ({ artists, dates, days, sets, messages }, lineups) => {
 			if (!so || !so.subjectType || !so.subject) {
 				return Promise.reject(
 					"No subject object for subjectDetails festival " +
-						JSON.stringify(so)
+					JSON.stringify(so)
 				)
 			}
 			if (so.subjectType !== this.subjectType)
 				return Promise.reject(
-					`No festival subjectType mismatch ${so.subjectType} !== ${
-						this.subjectType
+					`No festival subjectType mismatch ${so.subjectType} !== ${this.subjectType
 					}`
 				)
 
@@ -27,7 +27,7 @@ export default ({ artists, dates, days, sets, messages }, lineups) => {
 			return this.getLocalPromise(so.subject)
 				.then(subjectData => {
 					//lineups
-					const lineEnd = `/api/Lineups`
+					const lineEnd = `${apiUrl}/api/Lineups`
 					const lineQuery =
 						`filter=` +
 						JSON.stringify({
@@ -37,7 +37,7 @@ export default ({ artists, dates, days, sets, messages }, lineups) => {
 						})
 
 					//dates
-					const dateEnd = `/api/Dates`
+					const dateEnd = `${apiUrl}/api/Dates`
 					const dateQuery =
 						`filter=` +
 						JSON.stringify({
@@ -64,7 +64,7 @@ export default ({ artists, dates, days, sets, messages }, lineups) => {
 							.then(upd => {
 								const dateIds = this.getSubDateIds(so.subject)
 								//days
-								const dayEnd = `/api/Days`
+								const dayEnd = `${apiUrl}/api/Days`
 								const dayQuery =
 									`filter=` +
 									JSON.stringify({
@@ -82,7 +82,7 @@ export default ({ artists, dates, days, sets, messages }, lineups) => {
 							.then(upd => {
 								const dayIds = this.getSubDayIds(so.subject)
 								//sets
-								const setEnd = `/api/Sets`
+								const setEnd = `${apiUrl}/api/Sets`
 								const setQuery =
 									`filter=` +
 									JSON.stringify({
