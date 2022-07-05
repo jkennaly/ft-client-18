@@ -522,8 +522,10 @@ coreChecked
 	.then(() => m.redraw())
 	.catch(console.error)
 
+
 export const clearData = () => {
 	_.each(remoteData, dataField => dataField.clear && dataField.clear())
+	_.each(remoteData, dataField => dataField.clearCaches && dataField.clearCaches())
 	//init the lists with core data
 
 	coreCheck()
@@ -542,13 +544,11 @@ export const clearData = () => {
 }
 
 export const clearCaches = () => {
-	_.each(remoteData, dataField => dataField.clearCaches && dataField.clearCaches())
 	//init the lists with core data
 	//.then(() => console.log('artist list length ' + remoteData.Artists.list.length))
 }
 
-auth.recore(clearData)
-auth.cacheCleaner(clearCaches)
+auth.cacheCleaner(clearData)
 
 if (!window.mockery) {
 	//init the lists with core data

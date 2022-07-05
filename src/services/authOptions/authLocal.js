@@ -18,17 +18,7 @@ const AUTH_DATA = typeof AUTH_CONFIG === "undefined" ? {} : AUTH_CONFIG
 const scopeAr =
 	"openid profile email admin create:messages verify:festivals create:festivals"
 
-var userIdPromiseCache = {}
-var nextIdRequestTime = 0
-let accessTokenPromiseCache = {}
-let userData = {}
-var accessTokenPending = false
 var dataReset = () => true
-var cacheReset = () => true
-var auth0 = {}
-var authHandler = {}
-var gttCache = ''
-var lastToken, lastUserData
 
 const tokenIsValid = token => {
 	if (!token) return false
@@ -42,12 +32,30 @@ const tokenIsValid = token => {
 
 const clean = () => {
 	localStorage.clear()
-	localforage
-		.clear()
-		.then(() => dataReset())
-		//.then(() => console.log('data Reset'))
-		.catch(err => console.error("logout data reset failed", err))
-
+	dataReset()
+	return (
+		localforage
+			.clear()
+			//.then(() => console.log('data Reset'))
+			.catch(err => console.error("logout data reset failed", err))
+			.then(() => {
+				if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+					//console.log("auth.logout: sw found", swCacheClear)
+					return swCacheClear()
+				}
+			})
+	)
+}
+const swCacheClear = () => {
+	//console.log("auth.logout: clearing sw caches")
+	var cacheWhitelist = []
+	return caches.keys().then(cacheName => {
+		const precache = /precache/.test(cacheName)
+		const font = precache || /fonts/.test(cacheName)
+		const img = font || /cloud-image/.test(cacheName)
+		const save = img || cacheWhitelist.indexOf(cacheName) > -1
+		return save ? caches.delete(cacheName) : Promise.resolve(true)
+	})
 }
 const authLoad = window.mockery
 	? Promise.reject("mocked")
@@ -121,7 +129,16 @@ export default class Auth {
 	gtt() {
 		//console.log('auth gtt')
 		//console.log(gttCache)
-		return gttCache
+		const local = localStorage.getItem("gtt")
+		return local
+	}
+
+	userGtt() {
+		//console.log('auth gtt')
+		//console.log(gttCache)
+		const local = this.gtt()
+		if (local) return jwt_decode(local)
+		return {}
 	}
 
 	userId() {
@@ -147,8 +164,6 @@ export default class Auth {
 			this.getIdTokenClaims(),
 		]).then(([token, claims]) => userIdFromToken(claims)(token))
 	}
-	recore(coreCheck) { }
-	cacheCleaner(cleanCaches) { }
 
 	logout(skipRoute) {
 		// Clear Access Token and ID Token from local storage
@@ -184,7 +199,10 @@ export default class Auth {
 				//console.log(err)
 				if (err && err.code) {
 					clean()
+				} else {
+					return ''
 				}
+
 			}
 		}
 		throw new Error('login required')
@@ -201,21 +219,6 @@ export default class Auth {
 						throw new Error("not authorized")
 					return authResult
 				})
-				/*
-	  .then(authResult => { 
-		console.log('updateModel reqUrl', reqUrl)
-		const req = m.request({
-			method: 'GET',
-			url: reqUrl,
-		  config: tokenFunction(authResult),
-		  background: true
-		})
-		console.log('req', req)
-		req.then(x => console.log('updateModel response') && x || x)
-		req.catch(x => console.log('updateModel err', x))
-		return req
-	  })
-	  */
 				.then(authResult =>
 					fetchT("/api/Profiles/gtt", {
 						method: "get",
@@ -240,8 +243,8 @@ export default class Auth {
 				})
 				.then(json => json.token)
 				.then(gtt => {
-					gttCache = gtt
-					return localforage.setItem("gtt.raw", gtt).then(() => gtt)
+					localStorage.setItem("gtt", gtt)
+					return gtt
 				})
 				/*
 	  .then(json => {
@@ -255,17 +258,13 @@ export default class Auth {
 		)
 	}
 
-	getGttRawLocal() {
-		return localforage.getItem("gtt.raw")
+	async getGttRaw() {
+		const local = this.gtt()
+		return local ?? this.getGttRawRemote()
 	}
 
-	getGttRaw() {
-		return this.getGttRawLocal().then(local =>
-			local ? local : this.getGttRawRemote()
-		)
-	}
+	async getGttDecoded() {
 
-	getGttDecoded() {
 		return this.getGttRaw().then(jwt_decode)
 	}
 
@@ -282,5 +281,8 @@ export default class Auth {
 		return this.getIdTokenClaims().then(
 			claims => claims["https://festigram/roles"]
 		)
+	}
+	cacheCleaner(dataClear) {
+		dataReset = dataClear
 	}
 }

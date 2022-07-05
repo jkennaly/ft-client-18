@@ -42,18 +42,18 @@ const jsx = {
 				eventId={attrs.festivalId}
 			/>
 			{//hide buy buttons if
-			//user has event access to any subeventattrs.focusSubject(so)
+				//user has event access to any subeventattrs.focusSubject(so)
 
-			attrs.access ? (
-				""
-			) : (
-				<BuyButtons
-					eventObject={{
-						seriesId: attrs.seriesId,
-						festivalId: attrs.festivalId
-					}}
-				/>
-			)}
+				attrs.access ? (
+					""
+				) : (
+					<BuyButtons
+						eventObject={{
+							seriesId: attrs.seriesId,
+							festivalId: attrs.festivalId
+						}}
+					/>
+				)}
 			<WidgetContainer>
 				<ResearchWidget
 					festivalId={attrs.festivalId}
@@ -92,8 +92,8 @@ const Research = {
 		return (festivalId
 			? festivals.subjectDetails(so)
 			: seriesId && !festivalId
-			? series.subjectDetails(so)
-			: Promise.resolve(true)
+				? series.subjectDetails(so)
+				: Promise.resolve(true)
 		).catch(console.error)
 	},
 	oninit: ({ attrs }) => {
@@ -109,8 +109,7 @@ const Research = {
 		const key = JSON.stringify(so)
 		return (
 			type === FESTIVAL &&
-			attrs.auth
-				.getGttDecoded(so)
+			attrs.auth.getGttDecoded()
 				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
 				.then(decoded => !festivals.sellAccess(festivalId, decoded))
 				//.then(accessible => accessible ? 'hasAccess' : 'noAccess')
