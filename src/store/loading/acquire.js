@@ -82,7 +82,7 @@ export function updateModel(modelName, queryString = "", url, simResponse) {
 	if (!modelName) return Promise.reject("missing model name")
 
 	const reqUrl = url
-		? url + (queryString ? "?" : "") + queryString
+		? apiUrl + url + (queryString ? "?" : "") + queryString
 		: `${apiUrl}/api/${modelName}${queryString ? "?" : ""}${queryString ? queryString : ""
 		}`
 	const localItem = `Model.${modelName}`
