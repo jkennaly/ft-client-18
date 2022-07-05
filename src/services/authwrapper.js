@@ -25,9 +25,9 @@ export default (auth, ModalBox, Launcher, bannerTitle, eventBadge, focusSubject,
         //const token = await auth.getAccessToken()
         //if (!token) throw 'no token'
         if (resolveComponent.preload) resolveComponent.preload(Object.assign({}, rParams, params, security))
-        console.log('resolve component', resolveComponent)
+        //console.log('resolve component', resolveComponent)
     } catch (err) {
-        console.log('reject component', rejectComponent)
+        //console.log('reject component', rejectComponent)
         bannerTitle("")
         eventBadge("")
         return rejectComponent && rejectComponent.length ? rejectComponent :
@@ -58,7 +58,7 @@ export default (auth, ModalBox, Launcher, bannerTitle, eventBadge, focusSubject,
         console.error('status update error')
         console.error(err)
     }
-    console.log('resolving')
+    //console.log('resolving')
     return {
         oninit: () => {
             //console.log(`component init`, acb, resolveComponent)
