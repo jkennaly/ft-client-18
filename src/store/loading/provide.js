@@ -18,7 +18,7 @@ import fetchT from "../../services/fetchT"
 import Auth from "../../services/auth"
 const auth = Auth
 const authOnly = ["MessagesMonitors", "Intentions", "Interactions"]
-const apiUrl = API_URL
+const apiUrl = API_URL || 'https://api.festigram.app'
 export default function (
 	data,
 	modelName,

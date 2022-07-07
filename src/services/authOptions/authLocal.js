@@ -15,10 +15,11 @@ import fetchT from "../fetchT"
 
 const AUTH_DATA = typeof AUTH_CONFIG === "undefined" ? {} : AUTH_CONFIG
 
-const apiUrl = API_URL
+const apiUrl = API_URL || 'https://api.festigram.app'
 
 const scopeAr =
 	"openid profile email admin create:messages verify:festivals create:festivals"
+
 
 var dataReset = () => true
 
@@ -104,7 +105,10 @@ export default class Auth {
 				lastState = {
 					route: prev,
 				}
-				window.location.assign(AUTH_DATA.LOGINURL)
+				window.location.assign(
+					AUTH_DATA.LOGINURL +
+					`?cb=${encodeURIComponent(AUTH_DATA.CALLBACKURL)}`
+				)
 			})
 			.catch(err => console.error("login error", err))
 	}
@@ -222,7 +226,7 @@ export default class Auth {
 					return authResult
 				})
 				.then(authResult =>
-					fetchT("/api/Profiles/gtt", {
+					fetchT(apiUrl + "/api/Profiles/gtt", {
 						method: "get",
 						headers: new Headers(
 							authResult

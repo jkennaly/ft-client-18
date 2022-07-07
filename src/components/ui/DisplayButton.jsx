@@ -7,6 +7,8 @@ import CollapsibleMenu from './CollapsibleMenu.jsx';
 import FortyButton from '../fields/buttons/FortyButton.jsx'
 import Icon from '../fields/Icon.jsx'
 
+const apiUrl = API_URL || 'https://api.festigram.app'
+
 // Services
 const validUserItem = {
 	name: 'Logout',
@@ -24,7 +26,7 @@ const menuList = (userRoles) => {
 	return [
 		{
 			name: 'Help',
-			href: '/site/support',
+			href: `${apiUrl}/site/support`,
 			icon: <FortyButton><Icon name="live_help" /></FortyButton>
 		},
 		(userRoles.includes('user') ? {

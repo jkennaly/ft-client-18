@@ -3,7 +3,6 @@
 
 
 import _ from 'lodash'
-const apiUrl = API_URL
 
 export default (messages) => {
 	return {
@@ -32,7 +31,7 @@ export default (messages) => {
 					const skipIds = messages
 						.getFiltered({ subjectType: FLAG, subject: subjectData.id })
 						.map(x => x.id)
-					const messEnd = `${apiUrl}/api/Messages`
+					const messEnd = `/api/Messages`
 					const messQuery = `filter=` + JSON.stringify({
 						where: {
 							and: [

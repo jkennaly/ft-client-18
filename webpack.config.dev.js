@@ -7,53 +7,37 @@ const CopyPlugin = require("copy-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const webpack = require("webpack")
 const { InjectManifest } = require("workbox-webpack-plugin")
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-	.BundleAnalyzerPlugin
 
-const mode = "development"
 const payOptionsDev = require("./src/services/payOptions/pay-variables-test.json")
 const payOptionsProd = require("./src/services/payOptions/pay-variables-live.json")
-const authLocalDev = require("./src/services/authLocal-variables.dev.json")
-const authLocalProd = require("./src/services/authLocal-variables.prod.json")
+const authLocal = require("./src/services/authLocal-variables.local.json")
+const authRemote = require("./src/services/authLocal-variables.remote.json")
 
-const params = process.argv.slice(2)
-const authSource = "local"
-
-const env = {
-	mode: mode,
-	authSource: authSource,
-}
-
-function composeConfig(env) {
-	/* Helper function to dynamically set runtime config */
-	if (env.mode === "development") {
-		return authLocalDev
-	}
-
-	if (env.mode === "production") {
-		return authLocalProd
-	}
-}
+const mode = "development"
 
 module.exports = (config) => {
+	const apiUrl = config.LOCAL_API ? "'http://localhost:8080'" : "'https://api.festigram.app'"
 	const env = {
-		mode: mode,
-		authSource: "local",
+		mode,
+		authConfig: config.LOCAL_API ? authLocal : authRemote
 	}
 	return {
-		mode: env.mode,
+		mode,
 		entry: "./src/index.jsx",
 		devtool: "inline-source-map",
 		devServer: {
-			contentBase: "./dist",
+			port: 8181
 		},
 		plugins: [
+			/*
+			goes a little insane when run with devServer
 			new InjectManifest({
 				swSrc: "./src/www/src-sw.js",
 				swDest: "service-worker.js",
 				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
 				// Any other config if needed.
 			}),
+			*/
 			new CleanWebpackPlugin(),
 			new HtmlWebpackPlugin({
 				template: "./index.html",
@@ -66,13 +50,10 @@ module.exports = (config) => {
 				//_: "lodash",
 				//cloudy: "cloudinary-core",
 			}),
-			//new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+			new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 			//new OptimizeCSSAssetsPlugin({}),
 			new webpack.DefinePlugin({
-				ENV: env.mode,
-			}),
-			new webpack.DefinePlugin({
-				AUTH_CONFIG: JSON.stringify(composeConfig(env)),
+				AUTH_CONFIG: JSON.stringify(env.authConfig)
 			}),
 			new webpack.DefinePlugin({
 				STRIPE_PUBLIC: JSON.stringify(
@@ -80,9 +61,8 @@ module.exports = (config) => {
 				),
 			}),
 			new webpack.DefinePlugin({
-				API_URL: JSON.stringify(
-					env.mode === "development" ? 'http://localhost:8080' : 'https://api.festigram.app'
-				)
+				API_URL: apiUrl
+
 			}),
 			new CopyPlugin({
 				patterns: [
@@ -107,7 +87,7 @@ module.exports = (config) => {
 						loader: "babel-loader",
 						options: {
 							plugins: ["lodash"],
-							presets: [["@babel/env", { targets: { node: 6 } }]],
+							presets: [["@babel/env", { "targets": { "browsers": "> 1%" } }]],
 						},
 					},
 				},
@@ -118,7 +98,7 @@ module.exports = (config) => {
 						loader: "babel-loader",
 						options: {
 							plugins: ["lodash"],
-							presets: [["@babel/env", { targets: { node: 6 } }]],
+							presets: [["@babel/env", { "targets": { "browsers": "> 1%" } }]],
 						},
 					},
 				},

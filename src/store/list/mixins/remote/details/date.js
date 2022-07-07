@@ -4,7 +4,6 @@
 
 import _ from 'lodash'
 
-const apiUrl = API_URL
 var lastUpdate = {}
 var lastPromise = {}
 export default ({ artists, days, sets, messages, series, festivals, venues, places }, lineups, intentions) => {
@@ -50,7 +49,7 @@ export default ({ artists, days, sets, messages, series, festivals, venues, plac
 					intentions.remoteCheck(true)
 
 					//lineups
-					const lineEnd = `${apiUrl}/api/Lineups`
+					const lineEnd = `/api/Lineups`
 					const lineQuery = `filter=` + JSON.stringify({
 						where: {
 							festival: subjectData.festival
@@ -58,7 +57,7 @@ export default ({ artists, days, sets, messages, series, festivals, venues, plac
 					})
 
 					//days
-					const dayEnd = `${apiUrl}/api/Days`
+					const dayEnd = `/api/Days`
 					const dayQuery = `filter=` + JSON.stringify({
 						where: {
 							date: subjectData.id

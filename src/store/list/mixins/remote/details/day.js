@@ -5,7 +5,6 @@
 import _ from 'lodash'
 var bulkUpdateSubjectCache = {}
 
-const apiUrl = API_URL
 var lastUpdate = {}
 var lastPromise = {}
 export default ({ sets, series, festivals, dates, places }) => {

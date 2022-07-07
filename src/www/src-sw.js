@@ -12,7 +12,7 @@ import { registerRoute } from "workbox-routing/registerRoute"
 
 self.__WB_DISABLE_DEV_LOGS = true
 const caching = self.__WB_MANIFEST
-//console.log("caching stuff", caching)
+console.log('sw 0')
 precacheAndRoute(caching)
 
 /*

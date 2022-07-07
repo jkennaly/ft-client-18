@@ -57,7 +57,7 @@ const jsx = () => {
 							subject={attrs.artistId}
 							sources={["url"]}
 							popModal={attrs.popModal}
-							addDisabled={!attrs.userRoles.includes("admin")}
+							addDisabled={attrs.userRoles && !attrs.userRoles.includes("admin")}
 						/>
 					</FixedCardWidget>
 					{
@@ -100,26 +100,26 @@ const jsx = () => {
 							))}
 					</FixedCardWidget>
 					{//find each message about this attrs.artist and order by user
-					_.map(
-						_.take(
-							messageSorter(attrs.userId)(comments(attrs.artistId)),
-							count
-						),
-						me => (
-							<DiscussionWidget
-								messageArray={[me]}
-								userId={attrs.userId}
-								popModal={attrs.popModal}
-								discussSubject={(so, me) =>
-									attrs.popModal("discuss", {
-										messageArray: me,
-										subjectObject: so,
-										reviewer: me[0].fromuser
-									})
-								}
-							/>
-						)
-					)}
+						_.map(
+							_.take(
+								messageSorter(attrs.userId)(comments(attrs.artistId)),
+								count
+							),
+							me => (
+								<DiscussionWidget
+									messageArray={[me]}
+									userId={attrs.userId}
+									popModal={attrs.popModal}
+									discussSubject={(so, me) =>
+										attrs.popModal("discuss", {
+											messageArray: me,
+											subjectObject: so,
+											reviewer: me[0].fromuser
+										})
+									}
+								/>
+							)
+						)}
 					{comments(attrs.artistId).length > count ? (
 						<UIButton
 							action={e => {

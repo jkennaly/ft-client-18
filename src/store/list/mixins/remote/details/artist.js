@@ -7,7 +7,6 @@ import _ from 'lodash'
 const cacheLife = 1000 * 3600 // 1 hour
 
 var lastLoad = {}
-const apiUrl = API_URL
 
 export default ({ artists, dates, sets, messages }, lineups, images, artistAliases, genres, artistGenres, parentGenres, artistPriorities) => {
 	return {
@@ -41,10 +40,10 @@ export default ({ artists, dates, sets, messages }, lineups, images, artistAlias
 				})
 				.then(subjectData => {
 					//lineups
-					const lineEnd = `${apiUrl}/api/Lineups`
+					const lineEnd = `/api/Lineups`
 					const lineQuery = `filter[where][band]=${so.subject}`
 					//images
-					const imgEnd = `${apiUrl}/api/Images`
+					const imgEnd = `/api/Images`
 					const imgQuery = `filter=` + JSON.stringify({
 						where: {
 							and: [
@@ -54,7 +53,7 @@ export default ({ artists, dates, sets, messages }, lineups, images, artistAlias
 						}
 					})
 					//sets
-					const setEnd = `${apiUrl}/api/Sets`
+					const setEnd = `/api/Sets`
 					const setQuery = `filter=` + JSON.stringify({
 						where: {
 							and: [
@@ -64,7 +63,7 @@ export default ({ artists, dates, sets, messages }, lineups, images, artistAlias
 						}
 					})
 					//direct messages
-					const messEnd = `${apiUrl}/api/Messages`
+					const messEnd = `/api/Messages`
 					const messQuery = `filter=` + JSON.stringify({
 						where: {
 							and: [

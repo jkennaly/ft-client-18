@@ -5,7 +5,7 @@
 import _ from 'lodash'
 
 import { subjectDataField } from '../../../../../services/subjectFunctions'
-const apiUrl = API_URL
+
 
 export default (subjects) => {
 	return {

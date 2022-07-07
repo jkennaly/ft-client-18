@@ -47,7 +47,7 @@ const loggedOnly = [/Intentions/, /MessagesMonitors/]
 const headerBase = {
 	"Content-Type": "application/json",
 }
-const apiUrl = API_URL
+const apiUrl = API_URL || 'https://api.festigram.app'
 export const coreCheck = () =>
 	localforage
 		.getItem("Model.core")
@@ -87,6 +87,7 @@ export function updateModel(modelName, queryString = "", url, simResponse) {
 		}`
 	const localItem = `Model.${modelName}`
 	const setModel = _.curry(archive)(modelName)
+	//console.log('reqUrl')
 
 	//console.log(modelName, queryString = '', url, simResponse)
 	const resultChain = coreChecked

@@ -36,18 +36,15 @@ const LauncherBanner = () => {
 					).map(d => (
 						<LiveButton date={d} />
 					))}
-					{
-						//console.log('LauncherBanner focusSubject', attrs.focusSubject())
-					}
 					{event(attrs) && event(attrs).src ? (
 						<BannerButton
 							icon={<img src={event(attrs).src} />}
 							clickFunction={
 								event(attrs).buyModal
 									? e => {
-											attrs.popModal("access", attrs.focusSubject())
-									  }
-									: e => {}
+										attrs.popModal("access", attrs.focusSubject())
+									}
+									: e => { }
 							}
 						/>
 					) : (
