@@ -22,7 +22,7 @@ const invalidUserItem = {
 	icon: <FortyButton><Icon name="enter" /></FortyButton>
 
 }
-const menuList = (userRoles) => {
+const menuList = (userRoles = []) => {
 	return [
 		{
 			name: 'Help',
@@ -82,7 +82,7 @@ const DisplayButton = vnode => {
 				{attrs.icon}
 			</div>
 			<CollapsibleMenu
-				menu={menuList(attrs.userRoles).concat([attrs.userRoles.includes('user') ? validUserItem : invalidUserItem])}
+				menu={menuList(attrs.userRoles).concat([attrs.userRoles && attrs.userRoles.includes('user') ? validUserItem : invalidUserItem])}
 				collapsed={menuHidden}
 				itemClicked={() => menuHidden = true}
 			/>

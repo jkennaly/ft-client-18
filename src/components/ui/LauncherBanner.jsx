@@ -67,7 +67,7 @@ const LauncherBanner = () => {
 							/>
 					*/}
 
-					{attrs.userRoles.includes("user") ? (
+					{attrs.userRoles && attrs.userRoles.includes("user") ? (
 						<BannerButton
 							icon={
 								<span class="fa-layers fa-fw ft-icon-stack">
@@ -88,7 +88,7 @@ const LauncherBanner = () => {
 					) : (
 						""
 					)}
-					{attrs.userRoles.length ? (
+					{attrs.userRoles && attrs.userRoles.length ? (
 						""
 					) : (
 						<BannerButton

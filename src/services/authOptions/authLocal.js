@@ -158,9 +158,12 @@ export default class Auth {
 	userRoles() {
 		//console.log('auth userId')
 		//console.log(userIdCache)
-		const local = JSON.parse(localStorage.getItem("ft_user_roles"))
-		if (local) return local
-		return []
+		try {
+			const local = JSON.parse(localStorage.getItem("ft_user_roles"))
+			if (local) return local
+		} catch (err) {
+			return []
+		}
 	}
 
 	//returns a promise that resolves to a userIdCache
@@ -189,7 +192,8 @@ export default class Auth {
 		const localValid = tokenIsValid(localToken)
 		if (localValid) return localToken
 		//try for refresh
-		if (localToken) {
+		if (localToken && !this.refreshing) {
+			this.refreshing = true
 			try {
 				const { token } = await m.request({
 					method: "GET",
@@ -209,6 +213,8 @@ export default class Auth {
 					return ''
 				}
 
+			} finally {
+				this.refreshing = false
 			}
 		}
 		throw new Error('login required')
@@ -285,7 +291,7 @@ export default class Auth {
 	}
 	getRoles() {
 		return this.getIdTokenClaims().then(
-			claims => claims["https://festigram/roles"]
+			claims => claims["https://festigram.app/roles"]
 		)
 	}
 	cacheCleaner(dataClear) {
