@@ -87,7 +87,7 @@ const userIdFromToken = userData => async (token) => {
 		//console.log('result w/id', result)
 		const id = result.id
 		if (!id) throw "invalid id received from getFtUserId() " + id
-		localStorage.setItem("ft_user_id", id)
+		if (_.isInteger(id)) localStorage.setItem("ft_user_id", id)
 		return id
 	} catch (err) {
 		console.error(err)
@@ -150,8 +150,9 @@ export default class Auth {
 	userId() {
 		//console.log('auth userId')
 		//console.log(userIdCache)
-		const local = JSON.parse(localStorage.getItem("ft_user_id"))
+		const local = parseInt(localStorage.getItem("ft_user_id"), 10)
 		if (local) return local
+		if (local === NaN) localStorage.clearItem("ft_user_id")
 		return 0
 	}
 
@@ -198,7 +199,8 @@ export default class Auth {
 				const { token } = await m.request({
 					method: "GET",
 					url: apiUrl + "/authorize/refresh",
-					timeout: 1000
+					timeout: 1000,
+					withCredentials: true
 				})
 				if (token) {
 					localStorage.setItem("local_token", token)
@@ -221,6 +223,8 @@ export default class Auth {
 	}
 
 	getGttRawRemote() {
+		if (this.gettinGtt) return Promise.resolve('')
+		this.gettinGtt = true
 		return (
 			this.getAccessToken()
 				.then(authResult =>
@@ -256,13 +260,9 @@ export default class Auth {
 				.then(json => json.token)
 				.then(gtt => {
 					localStorage.setItem("gtt", gtt)
+					this.gettinGtt = false
 					return gtt
 				})
-				/*
-	  .then(json => {
-		console.log(json)
-	  })
-	  */
 				.catch(err => {
 					if (err.error === 'login_required' || err === 'login required' || err.message === 'login required' || err === 'auth fail') return
 					console.error(err)

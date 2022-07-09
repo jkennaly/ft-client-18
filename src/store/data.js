@@ -533,6 +533,7 @@ export const clearData = () => {
 			Promise.all(
 				_.map(coreData, (l, k) => {
 					console.log("code data list", k, l)
+					if (!remoteData[k]) return []
 					return remoteData[k].replaceList(l)
 				})
 			)

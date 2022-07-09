@@ -40,7 +40,7 @@ const auth = Auth
 */
 //core acquisition is done on app start if there is no core already present
 
-const authOnly = ["MessagesMonitors", "Intentions"]
+const authOnly = ["MessagesMonitors", "Intentions", "Flags"]
 
 const loggedOnly = [/Intentions/, /MessagesMonitors/]
 
