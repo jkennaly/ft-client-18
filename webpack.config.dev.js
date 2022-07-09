@@ -53,16 +53,12 @@ module.exports = (config) => {
 			new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 			//new OptimizeCSSAssetsPlugin({}),
 			new webpack.DefinePlugin({
-				AUTH_CONFIG: JSON.stringify(env.authConfig)
-			}),
-			new webpack.DefinePlugin({
 				STRIPE_PUBLIC: JSON.stringify(
 					env.mode === "development" ? payOptionsDev : payOptionsProd
 				),
-			}),
-			new webpack.DefinePlugin({
-				API_URL: apiUrl
-
+				BUILD_TIME: Date.now(),
+				API_URL: apiUrl,
+				AUTH_CONFIG: JSON.stringify(env.authConfig)
 			}),
 			new CopyPlugin({
 				patterns: [

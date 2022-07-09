@@ -19,6 +19,7 @@ global._ = require("lodash")
 global.Headers = function () { }
 global.fetch = () => Promise.resolve({ json: () => [] })
 global.API_URL = ''
+global.BUILD_TIME = ''
 
 // Require Mithril to make sure it loads properly.
 require("mithril")
