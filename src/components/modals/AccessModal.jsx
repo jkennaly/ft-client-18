@@ -9,6 +9,7 @@ import Tract from "../tracts/Tract.jsx"
 import InlineTable from "../fields/InlineTable"
 import UIButton from "../ui/UIButton.jsx"
 import IconText from "../fields/IconText.jsx"
+import globals from "../../services/globals"
 
 import { remoteData } from "../../store/data"
 
@@ -39,41 +40,41 @@ const classes = attrs => "ft-modal " + (attrs.display ? "" : "hidden")
 var textValue = ""
 var bucks = 0
 const seriesId = so => {
-	if (so.subjectType === FESTIVAL) return festivals.getSeriesId(so.subject)
-	if (so.subjectType === DATE) return dates.getSeriesId(so.subject)
-	if (so.subjectType === DAY) return days.getSeriesId(so.subject)
-	if (so.subjectType === SET) return sets.getSeriesId(so.subject)
+	if (so.subjectType === globals.FESTIVAL) return festivals.getSeriesId(so.subject)
+	if (so.subjectType === globals.DATE) return dates.getSeriesId(so.subject)
+	if (so.subjectType === globals.DAY) return days.getSeriesId(so.subject)
+	if (so.subjectType === globals.SET) return sets.getSeriesId(so.subject)
 }
 const festivalId = so => {
 	//console.log('AccessModal festivalId days', days, days.getFestivalId)
-	if (so.subjectType === FESTIVAL) return so.subject
-	if (so.subjectType === DATE) return dates.getFestivalId(so.subject)
-	if (so.subjectType === DAY) return days.getFestivalId(so.subject)
-	if (so.subjectType === SET) return sets.getFestivalId(so.subject)
+	if (so.subjectType === globals.FESTIVAL) return so.subject
+	if (so.subjectType === globals.DATE) return dates.getFestivalId(so.subject)
+	if (so.subjectType === globals.DAY) return days.getFestivalId(so.subject)
+	if (so.subjectType === globals.SET) return sets.getFestivalId(so.subject)
 }
 const dateId = so => {
-	if (so.subjectType === FESTIVAL) {
+	if (so.subjectType === globals.FESTIVAL) {
 		const dateIds = festivals.getSubDateIds(so.subject)
 		if (dateIds.length === 1) return dateIds[0]
 		return
 	}
-	if (so.subjectType === DATE) return so.subject
-	if (so.subjectType === DAY) return days.getDateId(so.subject)
-	if (so.subjectType === SET) return sets.getDateId(so.subject)
+	if (so.subjectType === globals.DATE) return so.subject
+	if (so.subjectType === globals.DAY) return days.getDateId(so.subject)
+	if (so.subjectType === globals.SET) return sets.getDateId(so.subject)
 }
 const dayId = so => {
-	if (so.subjectType === FESTIVAL) {
+	if (so.subjectType === globals.FESTIVAL) {
 		const dateIds = festivals.getSubDayIds(so.subject)
 		if (dateIds.length === 1) return dateIds[0]
 		return
 	}
-	if (so.subjectType === DATE) {
+	if (so.subjectType === globals.DATE) {
 		const dayIds = dates.getSubDayIds(so.subject)
 		if (dayIds.length === 1) return dayIds[0]
 		return
 	}
-	if (so.subjectType === DAY) return so.subject
-	if (so.subjectType === SET) return sets.getDayId(so.subject)
+	if (so.subjectType === globals.DAY) return so.subject
+	if (so.subjectType === globals.SET) return sets.getDayId(so.subject)
 }
 const jsx = {
 	view: ({ attrs }) => (

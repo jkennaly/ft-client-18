@@ -6,6 +6,7 @@ import m from "mithril"
 import _ from "lodash"
 import { subjectCard } from "../../../../components/cards/subjectCard"
 import { festivalIdsByEndTimeSort } from "../../../sorts.js"
+import globals from "../../../globals"
 
 const biteCache = {}
 const biteTimes = {}
@@ -19,7 +20,7 @@ const festivalIntentions = (goerId, intentions, festivals) =>
 			where: {
 				and: [
 					{ user: goerId },
-					{ subjectType: FESTIVAL },
+					{ subjectType: globals.FESTIVAL },
 					{ subject: { inq: festivals.future().map(x => x.id) } }
 				]
 			},
@@ -52,13 +53,13 @@ export default (goerId, intentions, festivals) => {
 	//console.log("recentFavoriteBite", goerId, baseValue)
 	const value = baseValue
 		? subjectCard(
-				{ subject: baseValue.id, subjectType: FESTIVAL },
-				{
-					userId: goerId,
-					uiClass: "",
-					eventId: baseValue.id
-				}
-		  )
+			{ subject: baseValue.id, subjectType: globals.FESTIVAL },
+			{
+				userId: goerId,
+				uiClass: "",
+				eventId: baseValue.id
+			}
+		)
 		: ""
 
 	const title = "Next Festival"

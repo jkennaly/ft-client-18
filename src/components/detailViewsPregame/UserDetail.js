@@ -1,4 +1,5 @@
 import m from "mithril"
+import globals from "../../services/globals"
 import Profile from "./profiles/Profile"
 import Tract from "../tracts/Tract.jsx"
 import { subjectCard } from "../cards/subjectCard"
@@ -35,7 +36,7 @@ const UserDetail = {
 		const userId = parseInt(rParams.id, 10)
 		//messages.forArtist(userId)
 		//console.log('Research preload', seriesId, festivalId, rParams)
-		if (userId) return users.subjectDetails({ subject: userId, subjectType: USER })
+		if (userId) return users.subjectDetails({ subject: userId, subjectType: globals.USER })
 	},
 	oninit: ({ attrs }) => {
 		//console.log('UserDetail init', _.keys(attrs))
@@ -74,7 +75,7 @@ const UserDetail = {
 					}
 				},
 				bites: bites(
-					{ subject: attrs.id, subjectType: USER },
+					{ subject: attrs.id, subjectType: globals.USER },
 					remoteData,
 					subjectData
 				)
@@ -82,7 +83,7 @@ const UserDetail = {
 			interactive: !attrs.userId
 				? ""
 				: attrs.id === attrs.userId
-				? m(
+					? m(
 						Tract,
 						{
 							extracted: tractStates.FollowingDetails,
@@ -101,13 +102,13 @@ const UserDetail = {
 								}
 							},
 							interactions
-								.getFiltered({ user: attrs.id, type: FOLLOW })
+								.getFiltered({ user: attrs.id, type: globals.FOLLOW })
 								.map(i =>
 									users.get(i.subject)
 										? subjectCard(i, {
-												userId: attrs.id,
-												data: users.get(i.subject)
-										  })
+											userId: attrs.id,
+											data: users.get(i.subject)
+										})
 										: ""
 								)
 						),
@@ -123,16 +124,16 @@ const UserDetail = {
 							interactions
 								.getFiltered({
 									subject: attrs.id,
-									subjectType: USER,
-									type: FOLLOW
+									subjectType: globals.USER,
+									type: globals.FOLLOW
 								})
 								//.map(x => console.log("Follower interaction", x) || x)
 								.map(i =>
 									users.get(i.user)
 										? subjectCard(i, {
-												userId: attrs.id,
-												data: users.get(i.user)
-										  })
+											userId: attrs.id,
+											data: users.get(i.user)
+										})
 										: ""
 								)
 						),
@@ -146,20 +147,20 @@ const UserDetail = {
 								}
 							},
 							interactions
-								.getFiltered({ user: attrs.id, type: BLOCK })
+								.getFiltered({ user: attrs.id, type: globals.BLOCK })
 								.map(i =>
 									users.get(i.subject)
 										? subjectCard(i, {
-												userId: attrs.id,
-												data: users.get(i.subject)
-										  })
+											userId: attrs.id,
+											data: users.get(i.subject)
+										})
 										: ""
 								)
 						)
-				  )
-				: m(InteractionBar, {
+					)
+					: m(InteractionBar, {
 						targetId: user.id
-				  })
+					})
 		}
 		//console.log('UserDetail attrComp mapping', mapping)
 

@@ -9,8 +9,9 @@ import _ from 'lodash'
 import CardContainer from '../../components/layout/CardContainer.jsx';
 import FestivalCard from '../../components/cards/FestivalCard.jsx';
 import ToggleControl from '../../components/ui/ToggleControl.jsx';
+import globals from '../../services/globals.js';
 
-import {remoteData} from '../../store/data';
+import { remoteData } from '../../store/data';
 
 
 import SeriesDescriptionField from './fields/series/SeriesDescriptionField.jsx'
@@ -21,7 +22,7 @@ const roles = attrs => _.isArray(attrs.userRoles) ? attrs.userRoles : []
 const id = () => parseInt(m.route.param('id'), 10)
 const series = () => remoteData.Series.get(id())
 
-const SeriesDetail = { 
+const SeriesDetail = {
 	name: 'SeriesDetail',
 	preload: (rParams) => {
 		//if a promise returned, instantiation of component held for completion
@@ -30,32 +31,32 @@ const SeriesDetail = {
 		//messages.forArtist(seriesId)
 		//console.log('Research preload', seriesId, festivalId, rParams)
 		remoteData.Festivals.remoteCheck(true)
-		if(seriesId) return remoteData.Series.subjectDetails({subject: seriesId, subjectType: SERIES})
+		if (seriesId) return remoteData.Series.subjectDetails({ subject: seriesId, subjectType: globals.SERIES })
 	},
-	oninit: ({attrs}) => {
+	oninit: ({ attrs }) => {
 		if (attrs.titleSet) attrs.titleSet(remoteData.Series.getEventName(id()))
 
 	},
-	view: ({attrs}) => <div class="main-stage">
+	view: ({ attrs }) => <div class="main-stage">
 		{series() ? <ToggleControl
 			offLabel={'Active'}
 			onLabel={'On hiatus'}
 			getter={() => _.get(series(), 'hiatus')}
 			setter={newState => {
-				remoteData.Series.updateInstance({hiatus: newState}, id())
+				remoteData.Series.updateInstance({ hiatus: newState }, id())
 			}}
 			permission={roles(attrs) && roles(attrs).includes('admin')}
 		/> : ''}
 		{series() ? <SeriesDescriptionField id={id()} /> : ''}
 		{series() ? <SeriesWebsiteField id={id()} /> : ''}
 		<CardContainer>
-			{roles(attrs) && roles(attrs).includes('admin') ? <FestivalCard  seriesId={id()} eventId={'new'}/> : ''}
+			{roles(attrs) && roles(attrs).includes('admin') ? <FestivalCard seriesId={id()} eventId={'new'} /> : ''}
 			{
 				(remoteData.Festivals.getMany(
-						remoteData.Series.getSubIds(id()))
-					)
+					remoteData.Series.getSubIds(id()))
+				)
 					.sort((a, b) => parseInt(b.year, 10) - parseInt(a.year, 10))
-					.map(data => <FestivalCard  
+					.map(data => <FestivalCard
 						seriesId={data.series}
 						festivalId={data.id}
 						eventId={data.id}

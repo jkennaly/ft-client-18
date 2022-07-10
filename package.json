@@ -21,7 +21,7 @@
 		"copy-webpack-plugin": "^8.0.0",
 		"cross-env": "^7.0.2",
 		"css-loader": "^3.5.3",
-		"fake-indexeddb": "^3.0.1",
+		"fake-indexeddb": "^4.0.0",
 		"fake-local-storage": "^1.1.0",
 		"file-loader": "^6.0.0",
 		"html-webpack-plugin": "^5.0.0",
@@ -31,7 +31,7 @@
 		"npm-check-updates": "^15.2.6",
 		"nyc": "^15.1.0",
 		"onchange": "^7.0.2",
-		"ospec": "^4.1.1",
+		"ospec": "^4.1.6",
 		"puppeteer": "^7.1.0",
 		"querystring": "^0.2.0",
 		"rimraf": "^3.0.2",
@@ -50,7 +50,7 @@
 		"workbox-webpack-plugin": "^6.5.3"
 	},
 	"dependencies": {
-		"@0441design/auth-fg-browser": "^1.0.3",
+		"@0441design/auth-fg-browser": "^1.0.4",
 		"@cloudinary/base": "^1.0.0-beta.1",
 		"blueimp-file-upload": "^9.11.2",
 		"cloudinary-core": "^2.8.2",
@@ -69,7 +69,7 @@
 		"deploy": "aws s3 sync ./dist s3://festigram.app",
 		"e2e": "clear && npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js'",
 		"entry": "npx babel-node node_modules/ospec/bin/ospec './tests/**/**.e2e.js' './tests/**/**.entry.js'",
-		"test": "NODE_ENV=test nyc --reporter=text-summary --reporter=html npx babel-node node_modules/ospec/bin/ospec './tests/**/**.test.js' --preload ./tests/test-setup.js",
+		"test": "NODE_ENV=test nyc --reporter=text-summary --reporter=html npx ospec './tests/**/**.test.js' --preload ./tests/test-setup.js",
 		"start": "webpack-dev-server --open",
 		"prebuild": "clear && npm run test",
 		"prebuild:local": "npm run prebuild",
@@ -101,5 +101,6 @@
 		"minimist": "1.2.3",
 		"mkdirp": "1.0.4",
 		"kind-of": "6.0.3"
-	}
+	},
+	"type": "module"
 }

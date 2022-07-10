@@ -13,6 +13,7 @@ import ImageModal from '../modals/ImageModal.jsx'
 
 import { remoteData } from '../../store/data';
 import { subjectData } from '../../store/subjectData'
+import globals from '../../services/globals.js'
 
 const { Images: images } = remoteData
 
@@ -42,7 +43,7 @@ const jsx = {
             }) : undefined}
             phCreator={attrs.usePlaceholders ? subjectData.name({
                 subject: attrs.userId,
-                subjectType: USER
+                subjectType: globals.USER
             }) : undefined}
             phSourceUrl={attrs.usePlaceholders ? String(window.location).replace(/(gametime)/, 'image') + '/' + attrs.userId : undefined}
             existingLicense={attrs.usePlaceholders}

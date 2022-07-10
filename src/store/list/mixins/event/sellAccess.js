@@ -1,22 +1,24 @@
 // src/store/list/mixins/event/sellAccess.js
 
 
+import globals from '../../../../services/globals'
+
 const alwaysAccessibleSubjects = [
-	FLAG,
-	IMAGE,
-	FESTIGRAM,
-	SERIES,
-	VENUE,
-	PLACE,
-	ARTIST,
-	USER,
-	MESSAGE
+	globals.FLAG,
+	globals.IMAGE,
+	globals.FESTIGRAM,
+	globals.SERIES,
+	globals.VENUE,
+	globals.PLACE,
+	globals.ARTIST,
+	globals.USER,
+	globals.MESSAGE
 ]
 var gttFields = {}
-gttFields[SET] = 'sets'
-gttFields[DAY] = 'days'
-gttFields[DATE] = 'dates'
-gttFields[FESTIVAL] = 'festivals'
+gttFields[globals.SET] = 'sets'
+gttFields[globals.DAY] = 'days'
+gttFields[globals.DATE] = 'dates'
+gttFields[globals.FESTIVAL] = 'festivals'
 export const subjectBought = (subjectObject) => (gtt) => {
 	//if the subject is not restricted by gtt, retrun true
 	if (alwaysAccessibleSubjects.includes(subjectObject.subjectType)) return true

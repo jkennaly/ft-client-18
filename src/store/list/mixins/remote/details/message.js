@@ -5,6 +5,7 @@
 import _ from 'lodash'
 
 import { subjectDataField } from '../../../../../services/subjectFunctions'
+import globals from "../../../../../services/globals"
 
 
 export default (subjects) => {
@@ -33,7 +34,7 @@ export default (subjects) => {
 					//get to the baseMessage
 					//console.log('message subjectDetails', so, subjectData)
 					const userP = subjects.profiles.getLocalPromise(subjectData.fromuser)
-					if (subjectData.subjectType !== MESSAGE) return subjectData
+					if (subjectData.subjectType !== globals.MESSAGE) return subjectData
 					if (!subjectData.baseMessage) throw new Error(`expected baseMessage: ${subjectData}`)
 					return this.getLocalPromise(subjectData.baseMessage)
 						.then(([subjectData, upd]) => subjectData)

@@ -1,21 +1,23 @@
-const path = require("path")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
-const { CleanWebpackPlugin } = require("clean-webpack-plugin")
-const TerserPlugin = require("terser-webpack-plugin")
-const CopyPlugin = require("copy-webpack-plugin")
-//const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-const webpack = require("webpack")
-const { InjectManifest } = require("workbox-webpack-plugin")
+import path from "path"
+import HtmlWebpackPlugin from "html-webpack-plugin"
+import { CleanWebpackPlugin } from "clean-webpack-plugin"
+import TerserPlugin from "terser-webpack-plugin"
+import CopyPlugin from "copy-webpack-plugin"
+import MiniCssExtractPlugin from "mini-css-extract-plugin"
+import webpack from "webpack"
+import { InjectManifest } from "workbox-webpack-plugin"
+import fs from "fs"
 
-const payOptionsDev = require("./src/services/payOptions/pay-variables-test.json")
-const payOptionsProd = require("./src/services/payOptions/pay-variables-live.json")
-const authLocal = require("./src/services/authLocal-variables.local.json")
-const authRemote = require("./src/services/authLocal-variables.remote.json")
+
+
+const payOptionsDev = JSON.parse(fs.readFileSync("./src/services/payOptions/pay-variables-test.json", 'utf8'))
+const payOptionsProd = JSON.parse(fs.readFileSync("./src/services/payOptions/pay-variables-live.json", 'utf8'))
+const authLocal = JSON.parse(fs.readFileSync("./src/services/authLocal-variables.local.json", 'utf8'))
+const authRemote = JSON.parse(fs.readFileSync("./src/services/authLocal-variables.remote.json", 'utf8'))
 
 const mode = "development"
 
-module.exports = (config) => {
+const f = (config) => {
 	const apiUrl = config.LOCAL_API ? "'http://localhost:8080'" : "'https://api.festigram.app'"
 	const env = {
 		mode,
@@ -70,7 +72,7 @@ module.exports = (config) => {
 			//new BundleAnalyzerPlugin(),
 		],
 		output: {
-			path: path.resolve(__dirname, "./dist"),
+			path: path.resolve("./dist"),
 			filename: "bundle.js",
 		},
 
@@ -97,6 +99,9 @@ module.exports = (config) => {
 							presets: [["@babel/env", { "targets": { "browsers": "> 1%" } }]],
 						},
 					},
+					resolve: {
+						fullySpecified: false,
+					}
 				},
 				{
 					test: /\.css$/,
@@ -114,3 +119,4 @@ module.exports = (config) => {
 		},
 	}
 }
+export default f

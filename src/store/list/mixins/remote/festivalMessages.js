@@ -1,6 +1,7 @@
 // src/store/list/mixins/remote/festivalMessages.js
 
 import _ from "lodash"
+import globals from "../../../../services/globals"
 var bulkUpdateSubjectCache = {}
 
 export default (festivals, lineups) => {
@@ -21,12 +22,12 @@ export default (festivals, lineups) => {
 				.getFiltered(l => l.festival === festivalId)
 				.map(l => l.band)
 			const subjects = [
-				{ subjectType: SET, subject: { inq: setIds } },
-				{ subjectType: DAY, subject: { inq: dayIds } },
-				{ subjectType: DATE, subject: { inq: dateIds } },
-				{ subjectType: FESTIVAL, subject: festivalId },
-				{ subjectType: SERIES, subject: fest.series },
-				{ subjectType: ARTIST, subject: { inq: artistIds } }
+				{ subjectType: globals.SET, subject: { inq: setIds } },
+				{ subjectType: globals.DAY, subject: { inq: dayIds } },
+				{ subjectType: globals.DATE, subject: { inq: dateIds } },
+				{ subjectType: globals.FESTIVAL, subject: festivalId },
+				{ subjectType: globals.SERIES, subject: fest.series },
+				{ subjectType: globals.ARTIST, subject: { inq: artistIds } }
 			]
 			const filters = subjects.map(s => {
 				return {
@@ -41,16 +42,16 @@ export default (festivals, lineups) => {
 			return Promise.all(ends.map(end => this.acquireListSupplement("", end)))
 				.then(() =>
 					this.getFiltered(m => {
-						const okSet = m.subjectType !== SET || setIds.includes(m.subject)
-						const okDay = m.subjectType !== DAY || dayIds.includes(m.subject)
+						const okSet = m.subjectType !== globals.SET || setIds.includes(m.subject)
+						const okDay = m.subjectType !== globals.DAY || dayIds.includes(m.subject)
 						const okDate =
-							m.subjectType !== DATE || dateIds.includes(m.subject)
+							m.subjectType !== globals.DATE || dateIds.includes(m.subject)
 						const okFestival =
-							m.subjectType !== FESTIVAL || m.subject === festivalId
+							m.subjectType !== globals.FESTIVAL || m.subject === festivalId
 						const okSeries =
-							m.subjectType !== SERIES || m.subject === fest.series
+							m.subjectType !== globals.SERIES || m.subject === fest.series
 						const okArtist =
-							m.subjectType !== ARTIST || artistIds.includes(m.subject)
+							m.subjectType !== globals.ARTIST || artistIds.includes(m.subject)
 						return (
 							okSeries &&
 							okDay &&
@@ -85,7 +86,7 @@ export default (festivals, lineups) => {
 			}
 			//console.log('loadForFestival')
 			//console.log(artistId)
-			const eventSubjectObject = { subjectType: ARTIST, subject: artistId }
+			const eventSubjectObject = { subjectType: globals.ARTIST, subject: artistId }
 			//check if the festival has already been loaded
 			const dataFieldName = "Messages"
 			const end = "/api/" + dataFieldName + "/forArtist/"

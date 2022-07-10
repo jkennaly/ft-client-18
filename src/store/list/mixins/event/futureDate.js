@@ -1,31 +1,33 @@
 // src/store/list/mixins/event/futureDate.js
 import _ from 'lodash'
 import moment from 'dayjs'
-var isBetween = require('dayjs/plugin/isBetween')
+import isBetween from 'dayjs/plugin/isBetween'
 moment.extend(isBetween)
 
 var dateBaseCache = {}
 export default {
-	active (id) {
+	active(id) {
 		//console.log(this, id)
 		try {
 			const s = this.getStartMoment(id)
 			const e = this.getEndMoment(id)
-			return  moment().isBetween(s, e)
+			return moment().isBetween(s, e)
 		}
 		catch {
 			return false
 		}
 	},
-	ended (id) {return  moment().isAfter(this.getEndMoment(id))},
-	current () {return this.list.filter(d => {
-		//now is greater than the start moment but less than the end moment
-		var now = moment()
-		var start = this.getStartMoment(d.id)
-		var end = this.getEndMoment(d.id)
-		return now.isBetween(start, end, 'day')
-	})},
-	future () {
+	ended(id) { return moment().isAfter(this.getEndMoment(id)) },
+	current() {
+		return this.list.filter(d => {
+			//now is greater than the start moment but less than the end moment
+			var now = moment()
+			var start = this.getStartMoment(d.id)
+			var end = this.getEndMoment(d.id)
+			return now.isBetween(start, end, 'day')
+		})
+	},
+	future() {
 		const current = this.current()
 			.map(d => d.id)
 		return this.list
@@ -37,7 +39,7 @@ export default {
 				return start.isAfter(now, 'day')
 			})
 	},
-	soon (daysAhead = 30) {
+	soon(daysAhead = 30) {
 		//console.log('this soon ' + daysAhead)
 		const current = this.current()
 			.map(d => d.id)

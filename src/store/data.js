@@ -506,7 +506,7 @@ export const remoteData = {
 	*/
 }
 
-global.festigram = _.assign({}, remoteData)
+window.festigram = _.assign({}, remoteData)
 festigram.auth = auth
 festigram.build = new Date(BUILD_TIME)
 const coreKeys = _.keys(remoteData).filter(k => remoteData[k].core)

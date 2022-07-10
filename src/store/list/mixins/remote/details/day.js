@@ -4,6 +4,7 @@
 
 import _ from 'lodash'
 var bulkUpdateSubjectCache = {}
+import globals from '../../../../../services/globals'
 
 var lastUpdate = {}
 var lastPromise = {}
@@ -38,7 +39,7 @@ export default ({ sets, series, festivals, dates, places }) => {
 					//console.log('day subjectDetails getLocalPromise resolved', subjectData, upd)
 					return subjectData
 				})
-				.then(subjectData => dates.subjectDetails({ subject: subjectData.date, subjectType: DATE }))
+				.then(subjectData => dates.subjectDetails({ subject: subjectData.date, subjectType: globals.DATE }))
 				.then(upd => updated = updated || upd)
 				.then(upd => {
 					//console.log('day reply', upd)

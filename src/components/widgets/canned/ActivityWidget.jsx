@@ -17,35 +17,36 @@ const auth = Auth;
 import ActivityCard from '../../../components/cards/ActivityCard.jsx';
 import SearchCard from '../../../components/cards/SearchCard.jsx';
 import FixedCardWidget from '../FixedCard.jsx';
-import  DiscussModal from '../../modals/DiscussModal.jsx';
-import {remoteData} from '../../../store/data';
-import {subjectData} from '../../../store/subjectData'
+import DiscussModal from '../../modals/DiscussModal.jsx';
+import { remoteData } from '../../../store/data';
+import { subjectData } from '../../../store/subjectData'
+import globals from '../../../services/globals';
 
-const {Messages: messages} = remoteData
+const { Messages: messages } = remoteData
 
-const artistData = ({festivalId, userId, search, recordCount, prefilter}) => {
+const artistData = ({ festivalId, userId, search, recordCount, prefilter }) => {
 	const baseData = remoteData.Festivals.getResearchList(festivalId, userId)
 		.filter(prefilter ? prefilter : x => true)
-	const searchMatches = search ? 
+	const searchMatches = search ?
 		smartSearch(baseData, search.pattern, search.fields)
 			.map(x => x.entry)
-	 : baseData
+		: baseData
 	return _.take(searchMatches, recordCount)
 }
 
 const getRecentActivity = (userId, festivalId) => _.take(
 	_.uniqBy(remoteData.Messages.recentDiscussionEvent(userId,
-		{subject: festivalId, subjectType: FESTIVAL}), 
-		v => '' + v.fromuser + '.' + v.messageType  + '.' + v.subjectType + '.' + v.subject)
+		{ subject: festivalId, subjectType: globals.FESTIVAL }),
+		v => '' + v.fromuser + '.' + v.messageType + '.' + v.subjectType + '.' + v.subject)
 		.sort((a, b) => {
 			const am = moment(a.timestamp).utc()
 			const bm = moment(b.timestamp).utc()
 			return bm.diff(am)
 		}
-	), 5)
+		), 5)
 const baseMessage = me => {
-	if(!me || !me.id || !me.subject || !me.subjectType) return undefined
-	if(me.subjectType !== remoteData.Messages.subjectType) return me
+	if (!me || !me.id || !me.subject || !me.subjectType) return undefined
+	if (me.subjectType !== remoteData.Messages.subjectType) return me
 	return baseMessage(remoteData.Messages.get(me.subject))
 }
 const ActivityWidget = vnode => {
@@ -60,28 +61,28 @@ const ActivityWidget = vnode => {
 
 			{
 				getRecentActivity(vnode.attrs.userId, vnode.attrs.festivalId)
-				/*
-					.filter(x => {
-						console.log('recent pre', vnode.attrs.userId, vnode.attrs.festivalId, x.id)
-						return x
-					})
-					*/
-					.filter(_.isArray(vnode.attrs.artistIds) ? 
-					 	me => vnode.attrs.artistIds.find(aid => {
-					 		const base = baseMessage(me)
-					 		if(!base) return false
-					 		//console.log('recent', aid, me, base)
-					 		return base.subject === aid && base.subjectType === remoteData.Artists.subjectType
-					 	}) : 
-					 x => true)
+					/*
+						.filter(x => {
+							console.log('recent pre', vnode.attrs.userId, vnode.attrs.festivalId, x.id)
+							return x
+						})
+						*/
+					.filter(_.isArray(vnode.attrs.artistIds) ?
+						me => vnode.attrs.artistIds.find(aid => {
+							const base = baseMessage(me)
+							if (!base) return false
+							//console.log('recent', aid, me, base)
+							return base.subject === aid && base.subjectType === remoteData.Artists.subjectType
+						}) :
+						x => true)
 					/*
 					.filter(x => {
 						console.log('recent post', x)
 						return x
 					})
 					*/
-					.map(data => <ActivityCard 
-						messageArray={[data]} 
+					.map(data => <ActivityCard
+						messageArray={[data]}
 						discusser={data.fromuser}
 						userId={vnode.attrs.userId}
 						rating={remoteData.Artists.getRating(data.subject, data.fromuser)}
@@ -89,7 +90,7 @@ const ActivityWidget = vnode => {
 						shortDefault={true}
 						headline={subjectData.name(data.subject, data.subjectType)}
 						headact={e => {
-							if(messages.baseSubjectType(data.id) === 2) m.route.set("/artists" + "/pregame" + '/' + messages.baseSubject(data.id))
+							if (messages.baseSubjectType(data.id) === 2) m.route.set("/artists" + "/pregame" + '/' + messages.baseSubject(data.id))
 						}}
 						popModal={vnode.attrs.popModal}
 						discussSubject={(so, me) => vnode.attrs.popModal('discuss', {
@@ -99,7 +100,8 @@ const ActivityWidget = vnode => {
 						})}
 					/>)
 			}
-			</FixedCardWidget>	
-}};
+		</FixedCardWidget>
+	}
+};
 
 export default ActivityWidget;

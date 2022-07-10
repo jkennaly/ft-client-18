@@ -4,7 +4,8 @@ import _ from 'lodash'
 import ActivityCard from '../components/cards/ActivityCard.jsx';
 import SetCard from '../components/cards/SetCard.jsx';
 import ArtistCard from '../components/cards/ArtistCard.jsx';
-import {subjectCard} from '../components/cards/subjectCard.js';
+import { subjectCard } from '../components/cards/subjectCard.js';
+import globals from "./globals"
 
 const biteCache = {}
 const biteTimes = {}
@@ -18,16 +19,20 @@ const artistsResearchedPostProcess = ms => _.uniqBy(ms, 'subject')
 
 const artistsResearchedCount = (researcherId, messages) => messages
 	.lbfilter({
-	fields: {id: true, subject: true, subjectType: true},
-	where: { and: [
-		{fromuser: researcherId},
-		{subjectType: ARTIST},
-		{or: [
-					{messageType: RATING},
-					{messageType: COMMENT}
-				]}
-	]}
-})
+		fields: { id: true, subject: true, subjectType: true },
+		where: {
+			and: [
+				{ fromuser: researcherId },
+				{ subjectType: globals.ARTIST },
+				{
+					or: [
+						{ messageType: globals.RATING },
+						{ messageType: globals.COMMENT }
+					]
+				}
+			]
+		}
+	})
 	.then(artistsResearchedPostProcess)
 	.then(ar => ar.length)
 	.then(count => {
@@ -54,17 +59,21 @@ const setsWatchedPostProcess = ms => _.uniqBy(ms, 'subject')
 
 const setsWatchedCount = (watcherId, messages) => messages
 	.lbfilter({
-	fields: {id: true, subject: true, subjectType: true},
-	where: { and: [
-		{fromuser: watcherId},
-		{subjectType: SET},
-		{or: [
-					{messageType: RATING},
-					{messageType: COMMENT},
-					{messageType: CHECKIN}
-				]}
-	]}
-})
+		fields: { id: true, subject: true, subjectType: true },
+		where: {
+			and: [
+				{ fromuser: watcherId },
+				{ subjectType: globals.SET },
+				{
+					or: [
+						{ messageType: globals.RATING },
+						{ messageType: globals.COMMENT },
+						{ messageType: globals.CHECKIN }
+					]
+				}
+			]
+		}
+	})
 	.then(setsWatchedPostProcess)
 	.then(ar => ar.length)
 	.then(count => {
@@ -89,27 +98,31 @@ const setsWatchedBite = (watcherId, messages) => {
 //recent favorite
 const recentFavoriteCount = (reviewerId, messages) => messages
 	.lbfilter({
-	where: { and: [
-		{fromuser: reviewerId},
-		{messageType: RATING},
-		{or: [
-					{subjectType: SET},
-					{subjectType: ARTIST}
-				]},
-		{content: '5'}
-	]},
+		where: {
+			and: [
+				{ fromuser: reviewerId },
+				{ messageType: globals.RATING },
+				{
+					or: [
+						{ subjectType: globals.SET },
+						{ subjectType: globals.ARTIST }
+					]
+				},
+				{ content: '5' }
+			]
+		},
 		order: [
 			'subjectType DESC',
 			'id DESC'
 		],
 		limit: 1
-})
+	})
 	.then(fav => {
 		_.set(biteTimes, `users.recentFavorite[${reviewerId}]`, Date.now())
 		_.set(biteCache, `users.recentFavorite[${reviewerId}]`, fav[0] ? fav[0] : 0)
 		return fav[0]
 	})
-	.then(fav => fav && messages.subjectDetails({subjectType: MESSAGE, subject: fav.id}))
+	.then(fav => fav && messages.subjectDetails({ subjectType: globals.MESSAGE, subject: fav.id }))
 const recentFavorite = (reviewerId, messages) => {
 	const cacheTime = _.get(biteTimes, `users.recentFavorite[${reviewerId}]`, 0)
 	const cacheOk = cacheTime + 60000 > Date.now()
@@ -122,33 +135,12 @@ const recentFavoriteBite = (reviewerId, messages, artists, subjectData) => {
 	//console.log('recentFavoriteBite', baseValue)
 	const value = baseValue ? subjectCard(baseValue, {
 		userId: reviewerId,
-		uiClass:''
+		uiClass: ''
 
 
 	}) : ''
-	/*
-	const value = m(subjectCard, baseValue)
-	const value = m(ActivityCard ,{
-		messageArray: [baseValue],
-		discusser: baseValue.fromuser,
-		//userId: vnode.attrs.userId,
-		rating: artists.getRating(baseValue.subject, baseValue.fromuser),
-		//overlay: 'discuss',
-		shortDefault: true,
-		headline: subjectData.name(baseValue.subject, baseValue.subjectType),
-		headact: e => {
-			if(messages.baseSubjectType(baseValue.id) === 2) m.route.set("/artists" + "/pregame" + '/' + messages.baseSubject(baseValue.id))
-		},
-		//popModal: vnode.attrs.popModal,
-		/*
-		discussSubject: (so, me) => vnode.attrs.popModal('discuss', {
-			messageArray: me,
-			subjectObject: so,
-			reviewer: me[0].fromuser
-		})
-	})
-		
-*/
+
+
 	const title = 'Recent Favorite'
 	return {
 		value: value,
@@ -158,7 +150,7 @@ const recentFavoriteBite = (reviewerId, messages, artists, subjectData) => {
 
 // returns given number of random bites about the subject in an array
 
-export default function (so, {Messages: messages, Artists: artists}, subjectData, count = 3) {
+export default function (so, { Messages: messages, Artists: artists }, subjectData, count = 3) {
 	return [
 		artistsResearchedBite(so.subject, messages),
 		setsWatchedBite(so.subject, messages),

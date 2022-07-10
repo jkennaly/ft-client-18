@@ -19,7 +19,7 @@ import AdminWidget from "../../components/widgets/Admin.jsx"
 import UIButton from "../../components/ui/UIButton.jsx"
 
 import CloudImageField from "../../components/fields/CloudImageField.jsx"
-
+import globals from "../../services/globals"
 import { remoteData } from "../../store/data"
 
 const {
@@ -35,9 +35,9 @@ const artist = id => artists.get(id)
 const comments = id =>
 	messages
 		.getFiltered({
-			subjectType: ARTIST,
+			subjectType: globals.ARTIST,
 			subject: id,
-			messageType: COMMENT
+			messageType: globals.COMMENT
 		})
 		.filter(m => users.get(m.fromuser))
 
@@ -150,7 +150,7 @@ const ArtistDetail = {
 		//console.log("Artist Detail preload", artistId)
 		return Promise.all([
 			artists
-				.subjectDetails({ subject: artistId, subjectType: ARTIST })
+				.subjectDetails({ subject: artistId, subjectType: globals.ARTIST })
 				.then(() => {
 					const artist = artists.get(artistId)
 					if (artist) rParams.titleSet(artist.name)

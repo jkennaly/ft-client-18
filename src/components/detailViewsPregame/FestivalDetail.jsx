@@ -2,6 +2,7 @@
 
 import m from "mithril"
 import _ from "lodash"
+import globals from "../../services/globals.js"
 
 import CardContainer from "../../components/layout/CardContainer.jsx"
 import SeriesCard from "../../components/cards/SeriesCard.jsx"
@@ -35,7 +36,7 @@ const jsx = () => {
 					<IntentToggle
 						subjectObject={{
 							subject: attrs.festivalId,
-							subjectType: FESTIVAL
+							subjectType: globals.FESTIVAL
 						}}
 						permission={attrs.userRoles && attrs.userRoles.includes("user")}
 					/>
@@ -82,7 +83,7 @@ const FestivalDetail = {
 		//messages.forArtist(festivalId)
 		///console.log('FestivalDetail preload', festivalId, rParams)
 		return festivals
-			.subjectDetails({ subject: festivalId, subjectType: FESTIVAL })
+			.subjectDetails({ subject: festivalId, subjectType: globals.FESTIVAL })
 			.then(() => rParams.titleSet(festivals.getEventName(festivalId)))
 			.then(() => {
 				const decoded = rParams.gtt
@@ -105,7 +106,7 @@ const FestivalDetail = {
 		const festivalId = parseInt(m.route.param("id"), 10)
 		//console.log('FestivalDetail attrs', attrs)
 
-		const so = { subjectType: FESTIVAL, subject: festivalId }
+		const so = { subjectType: globals.FESTIVAL, subject: festivalId }
 		if (attrs.focusSubject) attrs.focusSubject(so)
 		const decoded = attrs.auth && attrs.auth.gtt()
 		const accessible = decoded && !festivals.sellAccess(festivalId, decoded)

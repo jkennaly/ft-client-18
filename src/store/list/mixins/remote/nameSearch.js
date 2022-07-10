@@ -2,11 +2,12 @@
 
 import _ from "lodash"
 import fetchT from "../../../../services/fetchT"
+const apiUrl = API_URL || 'https://api.festigram.app'
 
 export default {
 	remoteSearch(pattern) {
 		return (
-			fetchT(`/api/${this.fieldName}/search/${pattern}`)
+			fetchT(`${apiUrl}/api/${this.fieldName}/search/${pattern}`)
 				//.then(response => console.log('remoteSearch', pattern, response) || response)
 				.then(response => response && response.json())
 				.then(response =>

@@ -1,5 +1,6 @@
 // src/store/list/mixins/remote/details/flag.js
 
+import globals from "../../../../../services/globals"
 
 
 import _ from 'lodash'
@@ -29,7 +30,7 @@ export default (messages) => {
 				.then(subjectData => {
 					//direct messages
 					const skipIds = messages
-						.getFiltered({ subjectType: FLAG, subject: subjectData.id })
+						.getFiltered({ subjectType: globals.FLAG, subject: subjectData.id })
 						.map(x => x.id)
 					const messEnd = `/api/Messages`
 					const messQuery = `filter=` + JSON.stringify({
@@ -44,7 +45,7 @@ export default (messages) => {
 					return messages.acquireListSupplement(messQuery, messEnd)
 						.then(upd => updated = updated || upd)
 						.then(() => {
-							const bases = messages.getFiltered({ subjectType: FLAG, subject: subjectData.id })
+							const bases = messages.getFiltered({ subjectType: globals.FLAG, subject: subjectData.id })
 								.map(x => x.id)
 							const discuss = messages.getFiltered({ baseMessage: { inq: bases } })
 								.map(x => x.id)

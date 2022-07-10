@@ -4,6 +4,7 @@
 import m from 'mithril'
 import _ from 'lodash'
 // Services
+import globals from '../../services/globals.js';
 import Auth from '../../services/auth.js';
 const auth = Auth;
 
@@ -22,8 +23,8 @@ import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import LineupWidget from '../../components/widgets/canned/LineupWidget.jsx';
 
-import {remoteData} from '../../store/data';
-import {subjectData} from '../../store/subjectData';
+import { remoteData } from '../../store/data';
+import { subjectData } from '../../store/subjectData';
 
 const dates = remoteData.Dates
 const messages = remoteData.Messages
@@ -33,7 +34,7 @@ const lineups = remoteData.Lineups
 
 const id = () => parseInt(m.route.param('id'), 10)
 const date = () => dates.get(id())
-const dso = dateId => {return {subject: dateId, subjectType: DATE}}
+const dso = dateId => { return { subject: dateId, subjectType: globals.DATE } }
 const festivalId = dateId => dates.getSuperId(dateId)
 const sets = () => {
 	const dayIds = dates.getSubDayIds(id())
@@ -47,40 +48,40 @@ const lineup = lineups.forFestival
 
 const DateDetail = {
 	name: 'DateDetail',
-		preload: (rParams) => {
-			//if a promise returned, instantiation of component held for completion
-			//route may not be resolved; use rParams and not m.route.param
-			const dateId = parseInt(rParams.id, 10)
-			//messages.forArtist(dateId)
-			//console.log('DateDetail preload', dateId, rParams)
-			
-			if(dateId) return dates.subjectDetails({subject: dateId, subjectType: DATE})
+	preload: (rParams) => {
+		//if a promise returned, instantiation of component held for completion
+		//route may not be resolved; use rParams and not m.route.param
+		const dateId = parseInt(rParams.id, 10)
+		//messages.forArtist(dateId)
+		//console.log('DateDetail preload', dateId, rParams)
 
-		},
-		oninit: ({attrs}) => {
-			const dateId = id()
-			//if (attrs.titleSet) attrs.titleSet(dates.getEventName(dateId))
-			//const endMoment = 
-			const so = {subject: dateId, subjectType: DATE}
-			attrs.focusSubject(so)
-			const decoded = attrs.auth.gtt()
-			const accessible = decoded && !dates.sellAccess(dateId, decoded)
-			const evtString = accessible ? 'hasAccess' : 'noAccess'
-			attrs.eventSet(evtString)
+		if (dateId) return dates.subjectDetails({ subject: dateId, subjectType: globals.DATE })
+
+	},
+	oninit: ({ attrs }) => {
+		const dateId = id()
+		//if (attrs.titleSet) attrs.titleSet(dates.getEventName(dateId))
+		//const endMoment = 
+		const so = { subject: dateId, subjectType: globals.DATE }
+		attrs.focusSubject(so)
+		const decoded = attrs.auth.gtt()
+		const accessible = decoded && !dates.sellAccess(dateId, decoded)
+		const evtString = accessible ? 'hasAccess' : 'noAccess'
+		attrs.eventSet(evtString)
 
 
-		},
-	view: ({attrs}) => <div class="main-stage">
+	},
+	view: ({ attrs }) => <div class="main-stage">
 		{date() ? <DateVenueField id={id()} /> : ''}
 		{date() ? <DateBaseField id={id()} /> : ''}
 		<FestivalCard seriesId={(dates.getSeriesId(id())
-						)
-			}
+		)
+		}
 			festivalId={festivalId(id())}
 			eventId={(dates.getSuperId(id()))}
 		/>
 		{
-		//show the intent toggle if:
+			//show the intent toggle if:
 			//there is a valid date id
 			//the date has not ended
 			//there is no checkin for the date 
@@ -90,57 +91,57 @@ const DateDetail = {
 
 
 		}
-		{ date() && !dates.ended(id()) && !messages.implicit(dso(id())) ? 
-			<IntentToggle 
+		{date() && !dates.ended(id()) && !messages.implicit(dso(id())) ?
+			<IntentToggle
 				subjectObject={dso(id())}
 				permission={attrs.userRoles.includes('user')}
-			/> 
-		: '' }
+			/>
+			: ''}
 		{
-		//show the checkin toggle if:
+			//show the checkin toggle if:
 			//there is a valid date id
 			//there is a valid user
 			//the date has not ended
 			//one of:
-				//there is an implicit checkin for the date
-				//there is an intent for the date
-				/*
-			console.log('DateDetail show checkin toggle', date() , 
-			roles(attrs).includes('user') , 
-			!dates.ended(id()) , 
-			dates.active(id()) , (
-				messages.implicit(dso(id())) ||
-				intentions.find(dso(id()))
-			))
-			*/
+			//there is an implicit checkin for the date
+			//there is an intent for the date
+			/*
+		console.log('DateDetail show checkin toggle', date() , 
+		roles(attrs).includes('user') , 
+		!dates.ended(id()) , 
+		dates.active(id()) , (
+			messages.implicit(dso(id())) ||
+			intentions.find(dso(id()))
+		))
+		*/
 		}
-		{ date() && 
-			roles(attrs).includes('user') && 
-			!dates.ended(id()) && 
+		{date() &&
+			roles(attrs).includes('user') &&
+			!dates.ended(id()) &&
 			dates.active(id()) && (
 				messages.implicit(dso(id())) ||
 				intentions.find(dso(id()))
-			) ? 
-			<CheckinToggle 
+			) ?
+			<CheckinToggle
 				subjectObject={dso(id())}
 				permission={roles(attrs).includes('user')}
 				userId={user(attrs)}
-			/> 
-		: '' }
-		
-			{sets().length ? '' : <WidgetContainer>
-		<LineupWidget festivalId={festivalId(id())} />
-			</WidgetContainer>}
-			{
-				//console.log(`DateDetail sets ${sets().length}`, id())
-			}
-		{sets().length ? 
+			/>
+			: ''}
+
+		{sets().length ? '' : <WidgetContainer>
+			<LineupWidget festivalId={festivalId(id())} />
+		</WidgetContainer>}
+		{
+			//console.log(`DateDetail sets ${sets().length}`, id())
+		}
+		{sets().length ?
 			<DaySchedule
 				dateId={id()}
 				sets={sets()}
 				stages={places.getFiltered(s => s.festival === festivalId(id()))}
-		/> : ''}
-		
+			/> : ''}
+
 	</div>
 }
 export default DateDetail;

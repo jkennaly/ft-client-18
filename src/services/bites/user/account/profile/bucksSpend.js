@@ -7,6 +7,7 @@ import moment from "dayjs"
 import BuyAccessLine from "../../../../../components/fields/form/BuyAccessLine.jsx"
 import EventSelector from "../../../../../components/detailViewsPregame/fields/event/EventSelector.jsx"
 import IconText from "../../../../../components/fields/IconText.jsx"
+import globals from "../../../../globals.js"
 
 const biteCache = {}
 const biteTimes = {}
@@ -105,7 +106,7 @@ const onchange = radix => e => {
 	return cacheId(radix, newId)
 }
 const extractEvent = eo => {
-	if (eo.subjectType === SERIES)
+	if (eo.subjectType === globals.SERIES)
 		return {
 			seriesId: eo.subject
 		}
@@ -123,10 +124,10 @@ export default (users, days, dates, festivals, eventObject = {}) => {
 	const rdf = dayIdCache
 		? days
 		: dateIdCache
-		? dates
-		: festivalIdCache
-		? festivals
-		: users
+			? dates
+			: festivalIdCache
+				? festivals
+				: users
 	if (festivalIdCache && !dateIdCache)
 		dates.acquireListSupplement(
 			`filter=${JSON.stringify({ where: { festival: festivalIdCache } })}`
@@ -172,75 +173,75 @@ export default (users, days, dates, festivals, eventObject = {}) => {
 		eventObject.festivalId
 			? ""
 			: m(EventSelector, {
-					seriesId: seriesIdCache,
-					festivalId: festivalIdCache,
-					dateId: dateIdCache,
-					dayId: dayIdCache,
-					seriesChange: onchange("series"),
-					festivalChange: onchange("fest"),
-					dateChange: onchange("date"),
-					dayChange: onchange("day")
-			  }),
+				seriesId: seriesIdCache,
+				festivalId: festivalIdCache,
+				dateId: dateIdCache,
+				dayId: dayIdCache,
+				seriesChange: onchange("series"),
+				festivalChange: onchange("fest"),
+				dateChange: onchange("date"),
+				dayChange: onchange("day")
+			}),
 		..._.map(costObject, (v, k, a) =>
 			/Id$/.test(k)
 				? ""
 				: m(BuyAccessLine, {
-						name:
-							k === "day"
-								? festivals.getEventName(festivalIdCache)
-								: k === "date"
+					name:
+						k === "day"
+							? festivals.getEventName(festivalIdCache)
+							: k === "date"
 								? festivals.getEventName(festivalIdCache)
 								: k === "festival"
-								? festivals.getEventName(festivalIdCache)
-								: k === "full"
-								? "Full Access"
-								: k,
-						subtitle:
-							k === "day"
-								? days
-										.getEventNameArray(dayIdCache)
-										.reduce((n, pn, i) => {
-											if (i === 2) n = pn
-											if (i === 3) n = `${n} ${pn}`
-											return n
-										}, "")
-								: k === "date"
+									? festivals.getEventName(festivalIdCache)
+									: k === "full"
+										? "Full Access"
+										: k,
+					subtitle:
+						k === "day"
+							? days
+								.getEventNameArray(dayIdCache)
+								.reduce((n, pn, i) => {
+									if (i === 2) n = pn
+									if (i === 3) n = `${n} ${pn}`
+									return n
+								}, "")
+							: k === "date"
 								? dates.getPartName(dateIdCache)
 								: k === "festival"
-								? "All Dates"
-								: k === "full"
-								? "All events through " + moment(endTime).format("ll")
-								: k,
-						value: v,
-						accessLevel: k,
-						clickFunction: e => {
-							e.stopPropagation()
-							e.preventDefault()
-							const rdf =
-								k === "day"
-									? days
-									: k === "date"
+									? "All Dates"
+									: k === "full"
+										? "All events through " + moment(endTime).format("ll")
+										: k,
+					value: v,
+					accessLevel: k,
+					clickFunction: e => {
+						e.stopPropagation()
+						e.preventDefault()
+						const rdf =
+							k === "day"
+								? days
+								: k === "date"
 									? dates
 									: k === "festival"
-									? festivals
-									: users
-							const id =
-								k === "day"
-									? dayIdCache
-									: k === "date"
+										? festivals
+										: users
+						const id =
+							k === "day"
+								? dayIdCache
+								: k === "date"
 									? dateIdCache
 									: festivalIdCache
-							let buyObject = {}
-							buyObject[k] = v
-							buyObject[`${k}Id`] = a[`${k}Id`]
-							//console.log('bucksSpend buyObject', buyObject)
-							return rdf
-								.buy(buyObject)
-								.then(eventObject.bucksUpdate)
-								.then(eventObject.closeModal)
-						},
-						unaffordable: currentBucks < v
-				  })
+						let buyObject = {}
+						buyObject[k] = v
+						buyObject[`${k}Id`] = a[`${k}Id`]
+						//console.log('bucksSpend buyObject', buyObject)
+						return rdf
+							.buy(buyObject)
+							.then(eventObject.bucksUpdate)
+							.then(eventObject.closeModal)
+					},
+					unaffordable: currentBucks < v
+				})
 		)
 	)
 	return {

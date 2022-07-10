@@ -53,6 +53,7 @@ import FixArtist from "../../components/createFestivals/lineups/FixArtist.jsx"
 
 // Services
 import Auth, { authwrapper } from "../../services/auth.js"
+import globals from "../../services/globals"
 import batchCreate from "../../store/list/mixins/remote/batchCreate"
 const auth = Auth
 
@@ -311,37 +312,37 @@ const App = {
 				onmatch: rParams => {
 					//console.log('pregame subject', rParams)
 					const nextParams = _.omit(rParams, ["mode", "subjectType", "subject"])
-					if (rParams.subjectType === `${ARTIST}`)
+					if (rParams.subjectType === `${globals.ARTIST}`)
 						return m.route.set(
 							`/artists/${rParams.mode}/${rParams.subject}`,
 							nextParams
 						)
-					if (rParams.subjectType === `${SERIES}`)
+					if (rParams.subjectType === `${globals.SERIES}`)
 						return m.route.set(
 							`/series/${rParams.mode}/${rParams.subject}`,
 							nextParams
 						)
-					if (rParams.subjectType === `${FESTIVAL}`)
+					if (rParams.subjectType === `${globals.FESTIVAL}`)
 						return m.route.set(
 							`/fests/${rParams.mode}/${rParams.subject}`,
 							nextParams
 						)
-					if (rParams.subjectType === `${DATE}`)
+					if (rParams.subjectType === `${globals.DATE}`)
 						return m.route.set(
 							`/dates/${rParams.mode}/${rParams.subject}`,
 							nextParams
 						)
-					if (rParams.subjectType === `${DAY}` && rParams.mode === `pregame`)
+					if (rParams.subjectType === `${globals.DAY}` && rParams.mode === `pregame`)
 						return m.route.set(
 							`/days/${rParams.mode}/${rParams.subject}`,
 							nextParams
 						)
-					if (rParams.subjectType === `${DAY}` && rParams.mode === `gametime`)
+					if (rParams.subjectType === `${globals.DAY}` && rParams.mode === `gametime`)
 						return m.route.set(
 							`/gametime/${subjectType}/${subject}`,
 							nextParams
 						)
-					if (rParams.subjectType === `${SET}` && rParams.mode === `pregame`)
+					if (rParams.subjectType === `${globals.SET}` && rParams.mode === `pregame`)
 						return m.route.set(
 							`/artists/pregame/${_.get(
 								remoteData.Sets.get(_.toInteger(rParams.subject)),
@@ -349,7 +350,7 @@ const App = {
 							)}`,
 							nextParams
 						)
-					if (rParams.subjectType === `${SET}` && rParams.mode === `gametime`)
+					if (rParams.subjectType === `${globals.SET}` && rParams.mode === `gametime`)
 						return m.route.set(
 							`/gametime/${subjectType}/${subject}`,
 							nextParams

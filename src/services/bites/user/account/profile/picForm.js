@@ -4,6 +4,7 @@
 
 import m from "mithril"
 import _ from "lodash"
+import globals from "../../../../globals.js"
 
 import StringUpdate from "../../../../../components/fields/form/StringUpdate.jsx"
 import UIButton from "../../../../../components/ui/UIButton.jsx"
@@ -88,48 +89,48 @@ export default (userId, remoteDataField, images) => {
 		}),
 		widgetExists()
 			? m(CloudinaryUploadWidget, {
-					subject: userId,
-					subjectType: USER,
-					resultFunction: result => {
-						//fail silently
-						if (!result) return
-						//console.log(result)
-						if (result.info.secure_url.indexOf("image" > 0)) {
-							images
-								.create({
-									subject: userId,
-									subjectType: USER,
-									url: result.info.secure_url,
-									title: "Profile Pic",
-									sourceUrl: result.info.secure_url,
-									author: userId,
-									license: "self",
-									licenseUrl: "http://festigram"
+				subject: userId,
+				subjectType: globals.USER,
+				resultFunction: result => {
+					//fail silently
+					if (!result) return
+					//console.log(result)
+					if (result.info.secure_url.indexOf("image" > 0)) {
+						images
+							.create({
+								subject: userId,
+								subjectType: globals.USER,
+								url: result.info.secure_url,
+								title: "Profile Pic",
+								sourceUrl: result.info.secure_url,
+								author: userId,
+								license: "self",
+								licenseUrl: "http://festigram"
+							})
+							.then(img => {
+								console.log("img uploaded", img)
+								const newData = Object.assign(_.clone(data), {
+									picture: img.url
 								})
-								.then(img => {
-									console.log("img uploaded", img)
-									const newData = Object.assign(_.clone(data), {
-										picture: img.url
-									})
-									return remoteDataField.updateInstance(
-										newData,
-										newData.id
-									)
-								})
-								.then(() => (formCache = biteCache = biteTimes = {}))
-								.then(m.redraw)
-								.catch(console.log)
-							widgetExists(false)
-						}
-					},
-					cancelFunction: result => {
-						//fail silently
-						if (!result) return
-						//console.log("cancelFunction", result.event)
+								return remoteDataField.updateInstance(
+									newData,
+									newData.id
+								)
+							})
+							.then(() => (formCache = biteCache = biteTimes = {}))
+							.then(m.redraw)
+							.catch(console.log)
 						widgetExists(false)
-						m.redraw()
 					}
-			  })
+				},
+				cancelFunction: result => {
+					//fail silently
+					if (!result) return
+					//console.log("cancelFunction", result.event)
+					widgetExists(false)
+					m.redraw()
+				}
+			})
 			: ""
 	)
 

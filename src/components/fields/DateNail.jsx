@@ -5,16 +5,16 @@ import _ from 'lodash'
 
 import CircleNail from './CircleNail.jsx'
 
-import {remoteData} from '../../store/data.js'
-
+import { remoteData } from '../../store/data'
+import globals from '../../services/globals'
 const images = remoteData.Images
 
 
 const DateNail = {
-        view: ({attrs}) => <CircleNail 
-        subjectType={ARTIST} 
-        subject={_.get(images.forDateSingle(attrs.eventId), 'subject', 0)}
-      />
+  view: ({ attrs }) => <CircleNail
+    subjectType={globals.ARTIST}
+    subject={_.get(images.forDateSingle(attrs.eventId), 'subject', 0)}
+  />
 }
 
 export default DateNail;

@@ -2,6 +2,7 @@
 
 import m from "mithril"
 import _ from "lodash"
+import globals from "../../services/globals.js"
 
 import MessageCategoryPane from "../../components/panes/MessageCategoryPane.jsx"
 import DiscussionPane from "../../components/panes/DiscussionPane.jsx"
@@ -22,7 +23,7 @@ const messageArrays = {
 	related: related
 }
 const baseFilter = userId => m =>
-	m.fromuser !== userId && ![RATING, CHECKIN].includes(m.messageType)
+	m.fromuser !== userId && ![globals.RATING, globals.CHECKIN].includes(m.messageType)
 
 const Messages = {
 	oninit: ({ attrs }) => {
@@ -54,10 +55,10 @@ const Messages = {
 						messageArrays={(messageArrays[attrs.filter]
 							? messageArrays[attrs.filter]
 							: messageArrays.unread)(
-							attrs.userId,
-							attrs.userRoles,
-							attrs.messageId
-						)}
+								attrs.userId,
+								attrs.userRoles,
+								attrs.messageId
+							)}
 						popModal={attrs.popModal}
 					/>
 				</div>

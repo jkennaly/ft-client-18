@@ -1,19 +1,16 @@
-const path = require("path")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
-const { CleanWebpackPlugin } = require("clean-webpack-plugin")
-const TerserPlugin = require("terser-webpack-plugin")
-const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-const webpack = require("webpack")
-const WorkboxPlugin = require("workbox-webpack-plugin")
-const CopyPlugin = require("copy-webpack-plugin")
-const { InjectManifest } = require("workbox-webpack-plugin")
-
-const payOptionsDev = require("./src/services/payOptions/pay-variables-test.json")
-const payOptionsProd = require("./src/services/payOptions/pay-variables-live.json")
-const authLocal = require("./src/services/authLocal-variables.local.json")
-const authRemote = require("./src/services/authLocal-variables.remote.json")
-
-
+import path from "path"
+import HtmlWebpackPlugin from "html-webpack-plugin"
+import { CleanWebpackPlugin } from "clean-webpack-plugin"
+import TerserPlugin from "terser-webpack-plugin"
+import MiniCssExtractPlugin from "mini-css-extract-plugin"
+import webpack from "webpack"
+import WorkboxPlugin from "workbox-webpack-plugin"
+import CopyPlugin from "copy-webpack-plugin"
+import { InjectManifest } from "workbox-webpack-plugin"
+import payOptionsDev from "./src/services/payOptions/pay-variables-test.json" assert {type: 'json'}
+import payOptionsProd from "./src/services/payOptions/pay-variables-live.json" assert {type: 'json'}
+import authLocal from "./src/services/authLocal-variables.local.json" assert {type: 'json'}
+import authRemote from "./src/services/authLocal-variables.remote.json" assert {type: 'json'}
 
 const mode = "production"
 

@@ -22,6 +22,7 @@ import EventSelector from "../detailViewsPregame/fields/event/EventSelector.jsx"
 import { remoteData } from "../../store/data"
 import { subjectData } from "../../store/subjectData"
 import { seriesChange, festivalChange } from "../../store/action/event"
+import globals from "../../services/globals.js"
 
 const series = remoteData.Series
 const festivals = remoteData.Festivals
@@ -87,7 +88,7 @@ const Research = {
 		const festivalId = parseInt(rParams.festivalId, 10)
 		//console.log("Research preload", seriesId, festivalId, rParams)
 		const id = festivalId ? festivalId : seriesId
-		const type = festivalId ? FESTIVAL : SERIES
+		const type = festivalId ? globals.FESTIVAL : globals.SERIES
 		const so = { subjectType: type, subject: id }
 		return (festivalId
 			? festivals.subjectDetails(so)
@@ -104,11 +105,11 @@ const Research = {
 		const festivalId = parseInt(m.route.param("festivalId"), 10)
 		const endMoment = festivals.getEndMoment(festivalId)
 		const id = festivalId ? festivalId : seriesId
-		const type = festivalId ? FESTIVAL : SERIES
+		const type = festivalId ? globals.FESTIVAL : globals.SERIES
 		const so = { subjectType: type, subject: id }
 		const key = JSON.stringify(so)
 		return (
-			type === FESTIVAL &&
+			type === globals.FESTIVAL &&
 			attrs.auth.getGttDecoded()
 				//.then(baseAccess => console.log('baseAccess', baseAccess) || baseAccess)
 				.then(decoded => !festivals.sellAccess(festivalId, decoded))
@@ -124,7 +125,7 @@ const Research = {
 		const festivalId = parseInt(m.route.param("festivalId"), 10)
 		const endMoment = festivals.getEndMoment(festivalId)
 		const id = festivalId ? festivalId : seriesId
-		const type = festivalId ? FESTIVAL : SERIES
+		const type = festivalId ? globals.FESTIVAL : globals.SERIES
 		const so = { subjectType: type, subject: id }
 		const key = JSON.stringify(so)
 		const access = _.get(lastAccess, key, false)

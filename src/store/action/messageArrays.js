@@ -4,10 +4,11 @@ import m from "mithril"
 import _ from "lodash"
 import { remoteData } from "../../store/data"
 import { subjectData } from "../../store/subjectData"
+import globals from "../../services/globals"
 const baseFilter = userId => m =>
-	m.fromuser !== userId && ![RATING, CHECKIN].includes(m.messageType)
+	m.fromuser !== userId && ![globals.RATING, globals.CHECKIN].includes(m.messageType)
 const personalFilter = userId => m =>
-	m.fromuser === userId && ![RATING, CHECKIN].includes(m.messageType)
+	m.fromuser === userId && ![globals.RATING, globals.CHECKIN].includes(m.messageType)
 
 const { Messages: messages } = remoteData
 
@@ -19,7 +20,7 @@ export const remote = {
 			skip: 0,
 			where: {
 				and: [
-					{ messageType: { nin: [RATING, CHECKIN] } },
+					{ messageType: { nin: [globals.RATING, globals.CHECKIN] } },
 					{ fromuser: { neq: attrs.userId } }
 				]
 			}
@@ -58,7 +59,7 @@ export const remote = {
 			skip: 0,
 			where: {
 				and: [
-					{ messageType: { nin: [RATING, CHECKIN] } },
+					{ messageType: { nin: [globals.RATING, globals.CHECKIN] } },
 					{ fromuser: attrs.userId }
 				]
 			}
@@ -78,7 +79,7 @@ export const remote = {
 					Promise.all(
 						baseMessages.map(m =>
 							remoteData.Messages.subjectDetails({
-								subjectType: MESSAGE,
+								subjectType: globals.MESSAGE,
 								subject: m.id
 							})
 						)
@@ -109,7 +110,7 @@ export const remote = {
 					Promise.all(
 						_.map(remoteData.Flags.list, f =>
 							remoteData.Flags.subjectDetails({
-								subjectType: FLAG,
+								subjectType: globals.FLAG,
 								subject: f.id
 							})
 						)
@@ -170,8 +171,7 @@ export const userRecent = userId =>
 			return m => m.id === id || m.baseMessage === id
 		})
 		.map(discussFilter => remoteData.Messages.getFiltered(discussFilter))
-		//.map(discussion => _.some(discussion, m => m.subjectType === FLAG) ? [remoteData.Flags.get(_.get(_.find(discussion, m => m.subjectType === FLAG), 'subject', 0)), ...discussion] : discussion)
-		.filter(discussion => !discussion.some(x => x.subjectType === FLAG))
+		.filter(discussion => !discussion.some(x => x.subjectType === globals.FLAG))
 
 export const flags = (userId, userRoles) => {
 	const pending = remoteData.Flags.pending([userId, userRoles])
@@ -179,7 +179,7 @@ export const flags = (userId, userRoles) => {
 	return [...pending, ...waiting]
 		.map(f => [
 			f,
-			...remoteData.Messages.getFiltered({ subjectType: FLAG, subject: f.id })
+			...remoteData.Messages.getFiltered({ subjectType: globals.FLAG, subject: f.id })
 		])
 		.map(([f, ...ma]) => [f, ...ma.map(m => m.id)])
 		.map(([f, ...ids]) => {

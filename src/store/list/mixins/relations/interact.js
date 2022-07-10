@@ -4,8 +4,9 @@ import _ from "lodash"
 
 import archive from "../../../loading/archive"
 import { loadModel } from "../../../loading/enlist"
+import globals from "../../../../services/globals"
 
-const clearBlockedMessages = blockUserId => {}
+const clearBlockedMessages = blockUserId => { }
 
 export default messages => {
 	return {
@@ -50,7 +51,7 @@ export default messages => {
 					return this.create(data)
 				})
 				.then(() => {
-					if (type === BLOCK && subjectObject.subjectType === USER)
+					if (type === globals.BLOCK && subjectObject.subjectType === globals.USER)
 						messages.senderPurge(subjectObject.subject)
 				})
 

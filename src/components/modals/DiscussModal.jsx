@@ -4,21 +4,22 @@
 
 import m from 'mithril'
 import _ from 'lodash'
+import globals from "../../services/globals"
 
 // change selections
 import UIButton from '../../components/ui/UIButton.jsx';
 
 import ActivityCard from '../../components/cards/ActivityCard.jsx';
 
-import {remoteData} from '../../store/data';
-import {subjectData} from '../../store/subjectData'
+import { remoteData } from '../../store/data';
+import { subjectData } from '../../store/subjectData'
 
-const classes = attrs => {return 'ft-modal ' + (attrs.display ? '' : 'hidden');}
+const classes = attrs => { return 'ft-modal ' + (attrs.display ? '' : 'hidden'); }
 var selectedId = 0
 
 const displayComment = me => me.filter(m => m.messageType === 1 || m.messageType === 8)[0]
 
-const id = ({messageArray}) => {
+const id = ({ messageArray }) => {
 
     const cm = displayComment(messageArray)
     const c = cm ? cm.id : 0
@@ -45,37 +46,37 @@ const DiscussModal = vnode => {
         const newCommentMessage = localComment
         const activeMessage = attrs.flag ? attrs.flag : displayComment(attrs.messageArray)
         const activeId = activeMessage.id
-        if(newCommentMessage) remoteData.Messages.create({
+        if (newCommentMessage) remoteData.Messages.create({
             fromuser: attrs.user,
             subject: activeId,
-            subjectType: activeMessage.flagType ? FLAG : MESSAGE,
+            subjectType: activeMessage.flagType ? globals.FLAG : globals.MESSAGE,
             messageType: 8,
             content: localComment,
-            baseMessage: activeMessage.baseMessage ? activeMessage.baseMessage : 
+            baseMessage: activeMessage.baseMessage ? activeMessage.baseMessage :
                 activeMessage.flagType ? undefined :
-                activeId
+                    activeId
 
         })
-        if(remoteData.MessagesMonitors.unread(activeId)) remoteData.MessagesMonitors.markRead(activeId)
+        if (remoteData.MessagesMonitors.unread(activeId)) remoteData.MessagesMonitors.markRead(activeId)
         //console.log('newRatingMessage ' + newRatingMessage)
         //console.log('newCommentMessage ' + newCommentMessage)
         e.stopPropagation()
     }
     return {
-        oncreate: ({dom, attrs}) => {
-            if(!attrs.startText) return
+        oncreate: ({ dom, attrs }) => {
+            if (!attrs.startText) return
             dom.querySelector('#discuss').value = attrs.startText
             localComment = attrs.startText
 
         },
-    	view: ({attrs}) => <div class={classes(attrs)}>
+        view: ({ attrs }) => <div class={classes(attrs)}>
             <div class="ft-modal-content">
                 {attrs.headline ? <h3>{attrs.headline}</h3> : subjectData.name(attrs.subjectObject.subject, attrs.subjectObject.subjectType)}
                 {/* base comment with no discussion overlay */}
-                {attrs.messageArray ? 
+                {attrs.messageArray ?
 
-                    <ActivityCard 
-                        messageArray={attrs.messageArray} 
+                    <ActivityCard
+                        messageArray={attrs.messageArray}
                         discusser={attrs.reviewer}
                         overlay={'discuss'}
                         shortDefault={true}
@@ -84,16 +85,16 @@ const DiscussModal = vnode => {
                 {/* base comment with no discussion overlay */}
                 {/* show each new discussion, and it's immdeiate predeccessor */}
 
-                <textarea 
+                <textarea
                     id="discuss" name="discuss"
                     onchange={e => {
-        //console.log('e.target.value ' + e.target.value)
-        //console.log('localComment ' + localComment)
-                        localComment = e.target.value; 
-                    }} 
+                        //console.log('e.target.value ' + e.target.value)
+                        //console.log('localComment ' + localComment)
+                        localComment = e.target.value;
+                    }}
                     class="ft-modal-textarea"
                     onkeypress={e => {
-                        if(e.keyCode === 13) return submit(attrs)(e)
+                        if (e.keyCode === 13) return submit(attrs)(e)
                     }}
 
                 ></textarea>
@@ -110,11 +111,12 @@ const DiscussModal = vnode => {
                     m.redraw()
 
                 }} buttonName="Cancel" />
-     {           <UIButton action={submit(attrs)} 
-                buttonName="Save" />
-            }
+                {<UIButton action={submit(attrs)}
+                    buttonName="Save" />
+                }
             </div>
         </div>
-}};
+    }
+};
 
 export default DiscussModal;

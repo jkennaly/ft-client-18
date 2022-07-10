@@ -5,7 +5,8 @@
 
 import m from 'mithril'
 import _ from 'lodash'
-import {subjectCard} from '../../../../components/cards/subjectCard'
+import { subjectCard } from '../../../../components/cards/subjectCard'
+import globals from '../../../globals'
 
 const biteCache = {}
 const biteTimes = {}
@@ -16,50 +17,58 @@ const biteTimes = {}
 
 const favoriteArtists = (raterId, artists, sets, messages) => messages
 	.lbfilter({
-		where: { and: [
-			{fromuser: raterId},
-			{subjectType: ARTIST},
-			{messageType: RATING},
-			{content: '5'}
-		]},
-		fields: {subject: true}
+		where: {
+			and: [
+				{ fromuser: raterId },
+				{ subjectType: globals.ARTIST },
+				{ messageType: globals.RATING },
+				{ content: '5' }
+			]
+		},
+		fields: { subject: true }
 	})
 	.then(favArtistRaw => favArtistRaw.map(x => x.subject))
 	.then(_.uniq)
 	.then(allFavArtistIds => Promise.all([allFavArtistIds, (sets
 		.lbfilter({
-			where: { and: [
-			{band: {inq: allFavArtistIds}}
-		]},
-		fields: {id: true}
+			where: {
+				and: [
+					{ band: { inq: allFavArtistIds } }
+				]
+			},
+			fields: { id: true }
 		}))]
 
 	))
 	.then(([allFavArtistIds, allArtistSetRaw]) => [allFavArtistIds, _.uniq(allArtistSetRaw.map(x => x.id))])
 	.then(([allFavArtistIds, allArtistSetIds]) => Promise.all([allFavArtistIds, messages
-			.lbfilter({
-				where: { and: [
-					{fromuser: raterId},
-					{subjectType: SET},
-					{messageType: RATING},
-					{subject: {inq: allArtistSetIds}},
-					{content: '5'}
-				]},
-				fields: {subject: true}
-			})
-		]))
+		.lbfilter({
+			where: {
+				and: [
+					{ fromuser: raterId },
+					{ subjectType: globals.SET },
+					{ messageType: globals.RATING },
+					{ subject: { inq: allArtistSetIds } },
+					{ content: '5' }
+				]
+			},
+			fields: { subject: true }
+		})
+	]))
 	.then(([allFavArtistIds, favSetRaw]) => [allFavArtistIds, _.uniq(favSetRaw.map(x => x.subject))])
 	.then(([allFavArtistIds, favSetIds]) => Promise.all([allFavArtistIds, sets
-			.lbfilter({
-				where: { and: [
-					{id: {inq: favSetIds}}
-				]},
-				fields: {band: true},
-				order: [
-					'id DESC'
+		.lbfilter({
+			where: {
+				and: [
+					{ id: { inq: favSetIds } }
 				]
-			})
-		]))
+			},
+			fields: { band: true },
+			order: [
+				'id DESC'
+			]
+		})
+	]))
 	.then(([allFavArtistIds, favSetArtistRaw]) => [allFavArtistIds, _.uniq(favSetArtistRaw.map(x => x.band))])
 	.then(([allFavArtistIds, favSetArtistIds]) => favSetArtistIds.length ? favSetArtistIds : allFavArtistIds)
 	.then(favArtistIds => artists.getManyPromise(favArtistIds))
@@ -75,20 +84,14 @@ const foundArtists = (raterId, artists, sets, messages) => {
 		.catch(console.log)
 	return _.get(biteCache, `users.favoriteArtists[${raterId}]`, [])
 }
-export default  (raterId, artists, sets, messages) => {
+export default (raterId, artists, sets, messages) => {
 	const value = foundArtists(raterId, artists, sets, messages)
 		//.filter(x => console.log('foundArtist', x) || true)
-		.map(baseValue => subjectCard({subject: baseValue.id, subjectType: ARTIST}, {
+		.map(baseValue => subjectCard({ subject: baseValue.id, subjectType: globals.ARTIST }, {
 			userId: raterId,
-			uiClass:''
+			uiClass: ''
 		}))
-		/*
-		.map(baseValue => baseValue ? subjectCard({subject: baseValue.id, subjectType: ARTIST}, {
-		userId: raterId,
-		uiClass:''
 
-	}) : '')
-	*/
 	//console.log('recentFavoriteBite', baseValue)
 
 	const title = 'Favorite Artists'

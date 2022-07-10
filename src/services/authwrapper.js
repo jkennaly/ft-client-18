@@ -2,6 +2,7 @@
 import { remoteData } from "../store/data"
 import m from 'mithril'
 import _ from 'lodash'
+import globals from "./globals"
 
 
 export default (auth, ModalBox, Launcher, bannerTitle, eventBadge, focusSubject, bucksUpdate, popModal, appStartTime) => (resolveComponent, rejectComponent) => async (rParams) => {
@@ -48,7 +49,7 @@ export default (auth, ModalBox, Launcher, bannerTitle, eventBadge, focusSubject,
                 JSON.stringify({
                     where: {
                         fromuser: security.userId,
-                        messageType: CHECKIN
+                        messageType: globals.CHECKIN
                     }
                 }),
                 undefined,

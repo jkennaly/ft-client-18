@@ -1,15 +1,16 @@
 // messageArrayFunctions.js
 import m from 'mithril'
 import _ from 'lodash'
+import globals from "./globals"
 
 const displayRating = me => {
-    
-    const rm = me.filter(m => m.messageType === 2)
-    const r = rm.length ? rm[0] : 0
-    return r
+
+	const rm = me.filter(m => m.messageType === 2)
+	const r = rm.length ? rm[0] : 0
+	return r
 }
 
-export const baseMessage = me => me.find(m => m.subjectType !== MESSAGE)
+export const baseMessage = me => me.find(m => m.subjectType !== globals.MESSAGE)
 const getReplies = (m, messageArray) => messageArray
 	.filter(possibleReply => possibleReply.subject === m.id)
 
@@ -23,17 +24,17 @@ const getRepliedTo = (replyArray, replyToArrayPossible) => replyToArrayPossible
 
 
 const getEnds = assocObject => _.keys(assocObject).map(k => {
-		if(assocObject[k].id) return [assocObject[k].id]
-		return getEnds(assocObject[k])
+	if (assocObject[k].id) return [assocObject[k].id]
+	return getEnds(assocObject[k])
 
-	})
+})
 	//flatten the array one level
 	.reduce((prev, cur) => prev.concat(cur), [])
 
 const replaceEnd = (newEnd, assocObject, replaceKey) => {
 	const keys = _.keys(assocObject)
 	//if our target key is at this level of assocObject
-	if(keys.indexOf(replaceKey) > -1) {
+	if (keys.indexOf(replaceKey) > -1) {
 		assocObject[replaceKey] = newEnd
 		return assocObject
 	}
@@ -56,7 +57,7 @@ const replaceEnd = (newEnd, assocObject, replaceKey) => {
 
 //an array of objects for each message in the replyToArray
 const makeReplyAssocObjects = (replyArray, assocObject) => {
-	if(!replyArray.length) return assocObject
+	if (!replyArray.length) return assocObject
 	//find repliable ids in the assocObject
 	const repliableIds = getEnds(assocObject)
 	//get the items in the replyArray that are replying to repliableIds
@@ -67,15 +68,15 @@ const makeReplyAssocObjects = (replyArray, assocObject) => {
 	//console.log(attachableReplies)
 
 	//if there are no attachable replies, process is complete
-	if(!attachableReplies.length) return assocObject
+	if (!attachableReplies.length) return assocObject
 
 	//convert attachble replies to assoc Objects
 	const assocEnds = attachableReplies
-		.map(function (m) { 
+		.map(function (m) {
 			const assoc = {}
 			assoc['' + m.id] = m
-	//console.log('messageArrayFunctions assocEnds')
-	//console.log(assoc)
+			//console.log('messageArrayFunctions assocEnds')
+			//console.log(assoc)
 			return assoc
 		})
 	//console.log('messageArrayFunctions makeReplyAssocObjects2a')
@@ -85,20 +86,20 @@ const makeReplyAssocObjects = (replyArray, assocObject) => {
 		.map(m => m.subject))
 
 	const replyAssocObjects = idsWithReplies
-		.map(function(id) {
+		.map(function (id) {
 			const baseObject = assocEnds
 				.filter(endAssoc => endAssoc[_.keys(endAssoc)[0]].subject === id)
-				.reduce(function(assoc, endAssoc) {
+				.reduce(function (assoc, endAssoc) {
 					const replyId = endAssoc[_.keys(endAssoc)[0]].subject
-		//console.log('messageArrayFunctions makeReplyAssocObjects2b')
-		//console.log(replyId)
-		//console.log(assoc)
-					if(!assoc[replyId]) {
+					//console.log('messageArrayFunctions makeReplyAssocObjects2b')
+					//console.log(replyId)
+					//console.log(assoc)
+					if (!assoc[replyId]) {
 						assoc[replyId] = endAssoc
 					} else {
 						_.assign(assoc[replyId], endAssoc)
 					}
-		//console.log(assoc)
+					//console.log(assoc)
 					return assoc
 				}, {})
 			return baseObject
@@ -117,7 +118,7 @@ const makeReplyAssocObjects = (replyArray, assocObject) => {
 		.filter(m => repliableIds.indexOf(m.subject) < 0)
 
 	//console.log('messageArrayFunctions makeReplyAssocObjects2b')
-	
+
 
 
 
@@ -138,20 +139,20 @@ const makeReplyAssocObjects = (replyArray, assocObject) => {
 export const buildTree = (me, discussion) => {
 	//console.log('messageArrayFunctions buildTree me discussion', me, discussion)
 	const base = baseMessage(me)
-	if(!base) return {}
+	if (!base) return {}
 
 	//arrange discussionMessages into a tree object
 	const unreplied = getUnreplied(discussion)
 	const replied = getRepliedTo(unreplied, discussion)
 		.concat(unreplied.length ? [base] : [])
-	const startObject = base.subjectType !== FLAG ? { [`${base.id}`]: base} : (
-		me.filter(m => m.subjectType === FLAG).reduce((so, m) => _.set(so, `${m.id}`, m), {})
+	const startObject = base.subjectType !== globals.FLAG ? { [`${base.id}`]: base } : (
+		me.filter(m => m.subjectType === globals.FLAG).reduce((so, m) => _.set(so, `${m.id}`, m), {})
 	)
 	const assocObject = makeReplyAssocObjects(discussion, startObject)
 	//const assocObject = discussion.reduce((pv, cv))
 	//console.log('messageArrayFunctions buildTree', base, discussion, unreplied, replied, assocObject)
 
-		//first level: the baseMessage
+	//first level: the baseMessage
 	return assocObject
 
 }
@@ -162,65 +163,65 @@ export const mapActivities = (loadSubjectObject, messages, ActivityCard, userId)
 	const message = messages.get(id)
 	//console.log('messageArrayFunctions mapActivities', obj, spacers, message)
 	//object end: the current object is a message
-	if(obj.fromuser && obj.subjectType === MESSAGE) {
-	//console.log('messageArrayFunctions mapActivities prep end div')
+	if (obj.fromuser && obj.subjectType === globals.MESSAGE) {
+		//console.log('messageArrayFunctions mapActivities prep end div')
 		let spacerArr = []
-		for(var i=1;i<=spacers;i++) {
+		for (var i = 1; i <= spacers; i++) {
 			spacerArr.push(m('.spacer'))
 		}
 		const newDiv = m(".ft-horizontal-fields",
 			spacerArr,
 			m(ActivityCard, {
-				messageArray: [obj] ,
+				messageArray: [obj],
 				discusser: obj.fromuser,
 				overlay: 'discuss',
 				discussSubject: loadSubjectObject,
 				userId: userId
 			})
 		)
-	//console.log('messageArrayFunctions mapActivities push end div')
+		//console.log('messageArrayFunctions mapActivities push end div')
 		updatedDivs = divs.concat([newDiv])
 		updatesSpacers++
 	}
 	//not object end: increase spacer count, and mapActivities for all values
 	//the baseMessage is handled separately, so include only replies
-	else if(message && [MESSAGE, FLAG].includes(message.subjectType))  {
-	//console.log('messageArrayFunctions mapActivities prep mid div')
+	else if (message && [globals.MESSAGE, globals.FLAG].includes(message.subjectType)) {
+		//console.log('messageArrayFunctions mapActivities prep mid div')
 		let spacerArr = []
-		for(var i=1;i<=spacers;i++) {
+		for (var i = 1; i <= spacers; i++) {
 			spacerArr.push(m('.spacer'))
 		}
-	//console.log('messageArrayFunctions mapActivities mid div')
-	//console.log(id)
-	//console.log(id + 123456)
-	//console.log(message)
+		//console.log('messageArrayFunctions mapActivities mid div')
+		//console.log(id)
+		//console.log(id + 123456)
+		//console.log(message)
 		const newDiv = m(".ft-horizontal-fields",
-					spacerArr,
-					m(ActivityCard, {
-						messageArray: [message],
-						discusser: message.fromuser,
-						overlay: 'discuss',
-						discussSubject: loadSubjectObject,
-						userId: userId
-					}
-					
-				)
-				)
-	//console.log('messageArrayFunctions mapActivities push mid div')
+			spacerArr,
+			m(ActivityCard, {
+				messageArray: [message],
+				discusser: message.fromuser,
+				overlay: 'discuss',
+				discussSubject: loadSubjectObject,
+				userId: userId
+			}
+
+			)
+		)
+		//console.log('messageArrayFunctions mapActivities push mid div')
 		//only messages that are replies are shown this way
 		updatedDivs = divs.concat([newDiv])
 		updatesSpacers++
 	}
-	
+
 	const objKeys = _.keys(obj).map(k => parseInt(k, 10))
-	
+
 	//console.log('messageArrayFunctions mapActivities')
 	//if(!obj.fromuser) console.log(objKeys)
 	//	else console.log(obj)
 	//console.log(updatedDivs)
-	
+
 	//console.log(spacers)
-	if(!objKeys.length || obj.fromuser) return updatedDivs
+	if (!objKeys.length || obj.fromuser) return updatedDivs
 	return objKeys.map(k => recurse(obj[k], updatesSpacers, updatedDivs, k))
 
 }

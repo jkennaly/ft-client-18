@@ -1,11 +1,12 @@
-// services/bites/counts/mostDiscussed.js
+// services/bites/user/counts/mostDiscussed.js
 
 //get the subjectCard for the three subjects the user has discussed most
 
 
 import m from 'mithril'
 import _ from 'lodash'
-import {subjectCard} from '../../../../components/cards/subjectCard'
+import { subjectCard } from '../../../../components/cards/subjectCard'
+import globals from "../../../globals"
 
 const biteCache = {}
 const biteTimes = {}
@@ -17,22 +18,26 @@ const biteTimes = {}
 
 const discussedSubjects = (discusserId, messages) => messages
 	.lbfilter({
-		where: { and: [
-			{fromuser: discusserId},
-			{messageType: DISCUSSION}
-		]},
-		fields: {baseMessage: true, id:true},
+		where: {
+			and: [
+				{ fromuser: discusserId },
+				{ messageType: globals.DISCUSSION }
+			]
+		},
+		fields: { baseMessage: true, id: true },
 		order: 'id DESC',
 		limit: '500'
 	})
 	.then(discussionBaseRaw => discussionBaseRaw.map(x => x.baseMessage))
 	.then(allDiscussBaseIds => Promise.all([allDiscussBaseIds, (messages
 		.lbfilter({
-			where: { and: [
-			{id: {inq: _.uniq(allDiscussBaseIds)}},
-			{subjectType: {nin: [FLAG, USER, MESSAGE]}}
-		]},
-		fields: {subject: true, subjectType: true, id:true}
+			where: {
+				and: [
+					{ id: { inq: _.uniq(allDiscussBaseIds) } },
+					{ subjectType: { nin: [globals.FLAG, globals.USER, globals.MESSAGE] } }
+				]
+			},
+			fields: { subject: true, subjectType: true, id: true }
 		}))]
 
 	))
@@ -41,7 +46,7 @@ const discussedSubjects = (discusserId, messages) => messages
 		return idMap
 	}, {})])
 	.then(([allDiscussBaseIds, discussSubjectKeys]) => [
-		allDiscussBaseIds, 
+		allDiscussBaseIds,
 		allDiscussBaseIds.reduce((total, baseId) => {
 			const key = discussSubjectKeys[baseId]
 			total[key] = 1 + (total[key] ? total[key] : 0)
@@ -53,10 +58,10 @@ const discussedSubjects = (discusserId, messages) => messages
 	.then(([allDiscussBaseIds, discussSubjectCountsUnsorted]) => [allDiscussBaseIds, discussSubjectCountsUnsorted.filter(x => x[0] && x[0] !== 'undefined' && x[1]).sort((a, b) => b[1] - a[1])])
 	//.then(x => console.log(`[allDiscussBaseIds, discussSubjectCountsSorted]`, x) || x)
 	.then(([allDiscussBaseIds, discussSubjectCountsSorted]) => _.take(discussSubjectCountsSorted, 3)
-			.map(dsc => Array.from(dsc[0].matchAll(/\[([0-9]{1,})\]/g)))
-			//.filter(x => console.log('discussionCounts', x) || true)
-			.map(x => [parseInt(x[0][1], 10), parseInt(x[1][1], 10)])
-			.map(([subjectType, subject]) => {return {subjectType: subjectType, subject: subject}})
+		.map(dsc => Array.from(dsc[0].matchAll(/\[([0-9]{1,})\]/g)))
+		//.filter(x => console.log('discussionCounts', x) || true)
+		.map(x => [parseInt(x[0][1], 10), parseInt(x[1][1], 10)])
+		.map(([subjectType, subject]) => { return { subjectType: subjectType, subject: subject } })
 	)
 	.then(fav => {
 		_.set(biteTimes, `users.discussedSubjects[${discusserId}]`, Date.now())
@@ -70,20 +75,14 @@ const cachedBite = (discusserId, messages) => {
 		.catch(console.log)
 	return _.get(biteCache, `users.discussedSubjects[${discusserId}]`, [])
 }
-export default  (discusserId, messages) => {
+export default (discusserId, messages) => {
 	const value = cachedBite(discusserId, messages)
 		//.filter(x => console.log('discussedSubjects cachedBite', x) || true)
 		.map(baseValue => subjectCard(baseValue, {
 			userId: discusserId,
-			uiClass:''
+			uiClass: ''
 		}))
-		/*
-		.map(baseValue => baseValue ? subjectCard({subject: baseValue.id, subjectType: ARTIST}, {
-		userId: discusserId,
-		uiClass:''
 
-	}) : '')
-	*/
 	//console.log('recentFavoriteBite', baseValue)
 
 	const title = 'Most Discussed'

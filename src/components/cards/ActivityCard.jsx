@@ -3,7 +3,7 @@
 import m from "mithril"
 import _ from "lodash"
 import moment from "dayjs"
-var relativeTime = require("dayjs/plugin/relativeTime")
+import relativeTime from "dayjs/plugin/relativeTime"
 moment.extend(relativeTime)
 
 import ComposedNameField from "../fields/ComposedNameField.jsx"
@@ -46,9 +46,8 @@ const classes = ({ messageArray, userId, discusser }) => {
 	const reviewUnread =
 		reviewId && !ownReview && remoteData.MessagesMonitors.unread(reviewId)
 	//console.log('ActivityCard classes', userId, ownReview, reviewUnread, reviewMessage)
-	return `ft-card-large ft-activity-card ${
-		ownReview ? "ft-own-content" : !reviewUnread ? "ft-already-read" : ""
-	}`
+	return `ft-card-large ft-activity-card ${ownReview ? "ft-own-content" : !reviewUnread ? "ft-already-read" : ""
+		}`
 }
 const ActivityCard = vnode => {
 	var showLong = false
@@ -69,8 +68,8 @@ const ActivityCard = vnode => {
 					//console.log('ActivityCard discusser user', attrs.discusser, attrs.userId)
 				}
 				{attrs.overlay === "discuss" &&
-				attrs.discussSubject &&
-				attrs.messageArray ? (
+					attrs.discussSubject &&
+					attrs.messageArray ? (
 					<DiscussOverlay
 						discussSubject={attrs.discussSubject}
 						messageArray={attrs.messageArray}
@@ -94,7 +93,7 @@ const ActivityCard = vnode => {
 							""
 						)}
 						{attrs.discusser === attrs.userId ||
-						!remoteData.MessagesMonitors.unread(id(attrs)) ? (
+							!remoteData.MessagesMonitors.unread(id(attrs)) ? (
 							""
 						) : (
 							<div
@@ -122,7 +121,7 @@ const ActivityCard = vnode => {
 						>
 							<UserAvatarField
 								data={attrs.discusser}
-								itemClicked={e => {}}
+								itemClicked={e => { }}
 								userId={attrs.userId}
 							/>
 							{attrs.rating ? (
