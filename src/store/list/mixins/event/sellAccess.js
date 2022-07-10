@@ -1,20 +1,6 @@
 // src/store/list/mixins/event/sellAccess.js
 
 
-const FLAG = 13
-const IMAGE = 12
-const FESTIGRAM = 11
-const MESSAGE = 10
-const DAY = 9
-const DATE = 8
-const FESTIVAL = 7
-const SERIES = 6
-const VENUE = 5
-const PLACE = 4
-const SET = 3
-const ARTIST = 2
-const USER = 1
-
 const alwaysAccessibleSubjects = [
 	FLAG,
 	IMAGE,
