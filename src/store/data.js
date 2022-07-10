@@ -123,6 +123,7 @@ import update from "./list/mixins/remote/update"
 import updateInstance from "./list/mixins/remote/updateInstance"
 import uploadLineupArtists from "./list/mixins/remote/uploadLineupArtists"
 import upsert from "./list/mixins/remote/upsert"
+import localforage from "localforage"
 
 let dataLoad = Promise.resolve(false)
 
@@ -527,9 +528,23 @@ coreChecked
 export const clearData = () => {
 	_.each(remoteData, dataField => dataField.clear && dataField.clear())
 	_.each(remoteData, dataField => dataField.clearCaches && dataField.clearCaches())
+	if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+		//console.log("auth.logout: sw found", swCacheClear)
+		var cacheWhitelist = []
+		caches.keys().then(cacheName => {
+			const precache = /precache/.test(cacheName)
+			const font = precache || /fonts/.test(cacheName)
+			const img = font || /cloud-image/.test(cacheName)
+			const save = img || cacheWhitelist.indexOf(cacheName) > -1
+			return save ? caches.delete(cacheName) : Promise.resolve(true)
+		}
+		)
+	}
+
 	//init the lists with core data
 
 	coreCheck()
+		.then(localforage.clear)
 		.then(coreData =>
 			Promise.all(
 				_.map(coreData, (l, k) => {
