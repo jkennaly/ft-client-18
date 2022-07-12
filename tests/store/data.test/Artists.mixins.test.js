@@ -1,6 +1,6 @@
 // Artists.mixins.test.js
 
-import o from "ospec"
+import { describe, expect, it } from 'vitest';
 import _ from 'lodash'
 import { remoteData } from "../../../src/store/data"
 import validData from '../../apiData/artist.json'
@@ -8,7 +8,7 @@ import coreData from '../../apiData/core.json'
 import artistRating from '../../apiData/artistRating.json'
 import { timeStampSort } from '../../../src/services/sorts.js'
 
-o.spec("store/data Artist Mixin methods", function () {
+describe("store/data Artist Mixin methods", function () {
 	const artists = remoteData.Artists
 	const messages = remoteData.Messages
 	const festivals = remoteData.festivals
@@ -17,22 +17,22 @@ o.spec("store/data Artist Mixin methods", function () {
 	artists.replaceList(validData)
 
 	//filterable
-	o.spec("filterable", function () {
-		o('getFiltered', function () {
+	describe("filterable", function () {
+		it('getFiltered' + `replace list length match`, function () {
 			artists.clear()
 			artists.replaceList(validData)
-			o(artists.list.length).equals(validData.length)`replace list length match`
+			expect(artists.list.length).toEqual(validData.length)
 			const [a, b, c, ...restArtists] = validData
 			const targetArtists = [a, b, c].sort((a, b) => a.id - b.id)
 			const targetIds = targetArtists.map(a => a.id)
 			const gotArtists = artists.getFiltered(a => targetIds.includes(a.id)).sort((a, b) => a.id - b.id)
-			o(targetArtists).deepEquals(gotArtists)`getMany data objects`
+			expect(targetArtists).toEqual(gotArtists)
 		})
 	})
 
 	//appendable
-	o.spec("appendable", function () {
-		o('append', function (done) {
+	describe("appendable", function () {
+		it('append', function () {
 			const [a, ...restArtists] = validData
 			artists.clear()
 			artists.replaceList(restArtists)
@@ -40,34 +40,34 @@ o.spec("store/data Artist Mixin methods", function () {
 			artists.append(a)
 				.then(() => {
 					const gotArtists = artists.getFiltered(a => true).sort((a, b) => a.id - b.id)
-					o(targetArtists).deepEquals(gotArtists)`getMany data objects`
+					expect(targetArtists).toEqual(gotArtists)
 
 				})
-				.then(done)
-				.catch(done)
+
+				.catch()
 		})
 	})
 
 	//named
-	o.spec("named", function () {
-		o('getName', function (done) {
+	describe("named", function () {
+		it('getName' + `getName data objects`, function () {
 			artists.clear()
 			const [a, ...restArtists] = validData
 			artists.append(a)
 				.then(() => {
 					const name = artists.getName(a.id)
-					o(name).deepEquals(a.name)`getName data objects`
+					expect(name).toEqual(a.name)
 
 				})
-				.then(done)
-				.catch(done)
+
+				.catch()
 		})
 	})
 
 
 	//rated
-	o.spec("rated", function () {
-		o('getRating', function () {
+	describe("rated", function () {
+		it('getRating', function () {
 			messages.replaceList(artistRating)
 			const [a, ...restRatings] = artistRating
 			const allArtistRatings = artistRating
@@ -85,37 +85,37 @@ o.spec("store/data Artist Mixin methods", function () {
 					.reduce((pv, cv, i, ar) => pv + cv / ar.length, 0)
 			)
 
-			o(artists.getRating(a.subject)).equals(averageRate)`getRating averageRate`
-			o(artists.getRating(a.subject, userRate.userId)).equals(userRate.rating)`getRating userRate`
+			expect(artists.getRating(a.subject)).toEqual(averageRate)
+			expect(artists.getRating(a.subject, userRate.userId)).toEqual(userRate.rating)
 		})
 	})
 
 	//virginal
-	o.spec("virginal", function () {
-		o('virgins', function () {
+	describe("virginal", function () {
+		it('virgins', function () {
 			messages.replaceList(artistRating)
 			artists.replaceList(validData)
 			const virgins = artists.list.filter(ar => !messages.getFiltered({ subjectType: 2, subject: ar.id }).length)
 				.sort((a, b) => a.id - b.id)
 			const foundVirgins = artists.virgins()
 				.sort((a, b) => a.id - b.id)
-			o(virgins).deepEquals(foundVirgins)`getRating foundVirgins`
+			expect(virgins).toEqual(foundVirgins)
 
 		})
 	})
 	//subjective
-	o.spec("subjective", function () {
-		o('getSubjectObject', function () {
+	describe("subjective", function () {
+		it('getSubjectObject', function () {
 			artists.clear()
 			const testNum = 1234
 
-			o(artists.getSubjectObject(testNum)).deepEquals({ subjectType: 2, subject: testNum })`subjectObject ok`
+			expect(artists.getSubjectObject(testNum)).toEqual({ subjectType: 2, subject: testNum })
 
 		})
 	})
 	//nameMatch
-	o.spec("nameMatch", function () {
-		o('patternMatch', function () {
+	describe("nameMatch", function () {
+		it('patternMatch', function () {
 			artists.replaceList(validData)
 			//get a fragment of a name
 			const targetMatch = validData.find(d => d.name && d.name.length > 3)
@@ -127,97 +127,95 @@ o.spec("store/data Artist Mixin methods", function () {
 
 			const matches = artists.patternMatch(frag, validData.length)
 			const matchedIds = matches.map(x => x.id)
-			o(matchedIds.includes(targetMatch.id)).equals(true)`patternMatch ok`
+			expect(matchedIds.includes(targetMatch.id)).toEqual(true)
 
 
 		})
 	})
 	//messageArtistConnections
-	o.spec("messageArtistConnections", function () {
-		o('messageEventConnection', function () {
-			o(artists.messageEventConnection({})({})).equals(false)
+	describe("messageArtistConnections", function () {
+		it('messageEventConnection', function () {
+			expect(artists.messageEventConnection({})({})).toEqual(false)
 
 
 
 		})
 	})
 	//merge
-	o.spec("merge", function () {
+	describe("merge", function () {
 		const id1 = 44
 		const id2 = 23
 
-		o.spec("merge", function () {
+		describe("merge", function () {
 			//
-			o("resolve", function (done) {
+			it("resolve", function () {
 				const v = artists.merge(id1, id2, {
 					remoteData: validData,
 					remoteResult: 'resolve'
 				})
 					.then(check => {
-						o(check).equals(`/api/${artists.fieldName}/admin/merge/${id1}/${id2}`)`update`
+						expect(check).toEqual(`/api/${artists.fieldName}/admin/merge/${id1}/${id2}`)
 					})
-					.then(done)
 					.catch(err => {
-						o(err).equals('dead')`rejection`
-						done()
+						expect(err).toEqual('dead')
+
 					})
 
 			})
 
 			//
-			o("reject", function (done) {
+			it("reject", function () {
 				const j = artists.merge(id1, id2, {
 					remoteData: validData,
 					remoteResult: 'reject'
 				})
 					.then(check => {
-						o(check).equals('dead')`no update`
+						expect(check).toEqual('dead')
 					})
-					.then(done)
+
 					.catch(err => {
-						o(err).notEquals(undefined)`rejection`
-						done()
+						expect(err).not.toEqual(undefined)
+
 					})
 
 			})
 		})
 	})
 	//update
-	o.spec("update", function () {
+	describe("update", function () {
 		const id = 44
 		const data = []
 
-		o.spec("update", function () {
+		describe("update", function () {
 			//
-			o("resolve", function (done) {
+			it("resolve", function () {
 				const v = artists.update(data, id, {
 					remoteData: validData,
 					remoteResult: 'resolve'
 				})
 					.then(check => {
-						o(check).equals(`/api/${artists.fieldName}/update?where={"id":${id}}`)`update`
+						expect(check).toEqual(`/api/${artists.fieldName}/update?where={"id":${id}}`)
 					})
-					.then(done)
 					.catch(err => {
-						o(err).equals('dead')`rejection`
-						done()
+						expect(err).toEqual('dead')
+
 					})
 
 			})
 
 			//
-			o("reject", function (done) {
+			it("reject", function () {
 				const j = artists.update(data, id, {
 					remoteData: validData,
 					remoteResult: 'reject'
 				})
 					.then(check => {
-						o(check).equals('dead')`no update`
+						expect(check).toEqual('dead')
 					})
-					.then(done)
+
 					.catch(err => {
-						o(err).notEquals(undefined)`rejection`
-						done()
+						expect(err).not.toEqual(undefined)
+
 					})
 
 			})

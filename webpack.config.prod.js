@@ -14,7 +14,7 @@ import authRemote from "./src/services/authLocal-variables.remote.json" assert {
 
 const mode = "production"
 
-module.exports = config => {
+const f = config => {
 	const apiUrl = config.LOCAL_API ? "'http://localhost:8080'" : "'https://api.festigram.app'"
 	const env = {
 		mode: mode,
@@ -80,7 +80,7 @@ module.exports = config => {
 			//new BundleAnalyzerPlugin()
 		],
 		output: {
-			path: path.resolve(__dirname, "./dist"),
+			path: path.resolve("./dist"),
 			filename: "bundle.js"
 		},
 		module: {
@@ -105,6 +105,9 @@ module.exports = config => {
 							plugins: ["lodash"],
 							presets: [["@babel/env", { "targets": { "browsers": "> 1%" } }]]
 						}
+					},
+					resolve: {
+						fullySpecified: false,
 					}
 				},
 				{
@@ -136,3 +139,4 @@ module.exports = config => {
 		}
 	}
 }
+export default f

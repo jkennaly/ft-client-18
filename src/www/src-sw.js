@@ -2,13 +2,13 @@
 
 // Add any other logic here as needed.
 
-import { CacheableResponsePlugin } from "workbox-cacheable-response/CacheableResponsePlugin"
-import { CacheFirst } from "workbox-strategies/CacheFirst"
-import { createHandlerBoundToURL } from "workbox-precaching/createHandlerBoundToURL"
-import { ExpirationPlugin } from "workbox-expiration/ExpirationPlugin"
-import { NavigationRoute } from "workbox-routing/NavigationRoute"
-import { precacheAndRoute } from "workbox-precaching/precacheAndRoute"
-import { registerRoute } from "workbox-routing/registerRoute"
+import { CacheableResponsePlugin } from "workbox-cacheable-response/CacheableResponsePlugin.js"
+import { CacheFirst } from "workbox-strategies/CacheFirst.js"
+import { createHandlerBoundToURL } from "workbox-precaching/createHandlerBoundToURL.js"
+import { ExpirationPlugin } from "workbox-expiration/ExpirationPlugin.js"
+import { NavigationRoute } from "workbox-routing/NavigationRoute.js"
+import { precacheAndRoute } from "workbox-precaching/precacheAndRoute.js"
+import { registerRoute } from "workbox-routing/registerRoute.js"
 
 self.__WB_DISABLE_DEV_LOGS = true
 const caching = self.__WB_MANIFEST

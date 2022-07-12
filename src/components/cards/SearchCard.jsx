@@ -2,13 +2,13 @@
 
 import m from 'mithril'
 
-import  ComposedNameField from '../fields/ComposedNameField.jsx';
+import ComposedNameField from '../fields/ComposedNameField.js';
 
 const SearchCard = {
   view: ({ attrs }) =>
     <div class={"ft-card ft-card-search " + (attrs.uiClass ? attrs.uiClass : '')}>
-    	<label class="hidden" for="artist-search-input">Search for artist</label>
-      	<input type="text" oninput={attrs.patternChange} name="artist-search-input" placeholder="Search" />
+      <label class="hidden" for="artist-search-input">Search for artist</label>
+      <input type="text" oninput={attrs.patternChange} name="artist-search-input" placeholder="Search" />
     </div>
 };
 

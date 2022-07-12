@@ -17,7 +17,7 @@ import WidgetContainer from '../../components/layout/WidgetContainer.jsx';
 import FixedCardWidget from '../../components/widgets/FixedCard.jsx';
 import ReviewArraysWidget from '../../components/widgets/canned/ReviewArraysWidget.jsx';
 
-import NameField from '../../components/fields/NameField.jsx';
+import NameField from '../../components/fields/NameField.js';
 import CloudImageField from '../../components/fields/CloudImageField.jsx';
 
 import DiscussModal from '../modals/DiscussModal.jsx';

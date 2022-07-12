@@ -16,7 +16,7 @@ import "./img/symbol-defs.svg"
 //import "./www/robots.txt"
 //import "./www/manifest.json"
 
-import App from "./components/layout/App.jsx"
+import App from "./components/layout/App.js"
 if ("serviceWorker" in navigator) {
 	// Use the window load event to keep the page load performant
 	window.addEventListener("load", async () => {

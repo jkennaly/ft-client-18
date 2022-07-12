@@ -5,8 +5,8 @@ import m from 'mithril'
 import _ from 'lodash'
 import globals from '../../services/globals.js';
 
-import ComposedNameField from '../fields/ComposedNameField.jsx';
-import NameField from '../fields/NameField.jsx';
+import ComposedNameField from '../fields/ComposedNameField.js';
+import NameField from '../fields/NameField.js';
 import AverageRatingField from '../fields/AverageRatingField.jsx';
 import Icon from '../fields/Icon.jsx'
 import UserAvatarField from '../fields/UserAvatarField.jsx';
@@ -50,8 +50,8 @@ const classes = ({ messageArray, userId, reviewer }) => {
   const reviewUnread = reviewId && !ownReview && remoteData.MessagesMonitors.unread(reviewId)
 
   return `ft-card-large ft-subject-review-card ${ownReview ? 'ft-own-content' :
-      !reviewUnread ? 'ft-already-read' :
-        ''}`
+    !reviewUnread ? 'ft-already-read' :
+      ''}`
 }
 
 const readAlready = attrs => !attrs.userId || (attrs.reviewer === attrs.userId || !remoteData.MessagesMonitors.unread(_.get(attrs.messageArray.find(m => m.messageType === 1), 'id')))

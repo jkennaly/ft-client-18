@@ -1,24 +1,24 @@
 // Artists.prim.test.js
-import o from "ospec"
+import { describe, expect, it } from 'vitest';
 import _ from 'lodash'
 
 import { remoteData } from "../../../src/store/data"
 
-o.spec("store/data Artist Primitives", function () {
+describe("store/data Artist Primitives", function () {
     const artists = _.cloneDeep(remoteData.Artists)
     artists.clear()
 
-    o("Artist boolean fields", function () {
-        o(artists.core).equals(true)
+    it("Artist boolean fields", function () {
+        expect(artists.core).toEqual(true)
     })
-    o("Artist string fields", function () {
-        o(artists.fieldName).equals('Artists')
-        o(artists.baseEndpoint).equals('/api/Artists')
+    it("Artist string fields", function () {
+        expect(artists.fieldName).toEqual('Artists')
+        expect(artists.baseEndpoint).toEqual('/api/Artists')
     })
-    o("Artist number fields", function () {
-        o(artists.lastRemoteLoad).equals(0)
-        o(artists.lastRemoteCheck).equals(0)
-        o(artists.remoteInterval).equals(3600)
-        o(artists.subjectType).equals(2)
+    it("Artist number fields", function () {
+        expect(artists.lastRemoteLoad).toEqual(0)
+        expect(artists.lastRemoteCheck).toEqual(0)
+        expect(artists.remoteInterval).toEqual(3600)
+        expect(artists.subjectType).toEqual(2)
     })
 })

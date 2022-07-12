@@ -4,7 +4,7 @@ import m from 'mithril'
 import Icon from '../../fields/Icon.jsx'
 // Services
 
-import  ComposedNameField from '../../fields/ComposedNameField.jsx';
+import ComposedNameField from '../../fields/ComposedNameField.js';
 
 const getSubject = attrs => {
 	//console.log('ReviewButton subject ' + attrs.subject )
@@ -14,18 +14,19 @@ const getSubject = attrs => {
 	}
 }
 
-const ReviewButton = vnode => { 
+const ReviewButton = vnode => {
 	return {
-	  view: ({ attrs }) =>
-	    <div class="ft-fifty-button" onclick={e => {
-	    	const sub = getSubject(attrs)
-	    	attrs.reviewSubject(sub)
-	    	e.stopPropagation()
-	    }} >
-	      
-	      <Icon name="bubble2"/>
-	      <Icon name="star-full"/>
-	    </div>
-}};
+		view: ({ attrs }) =>
+			<div class="ft-fifty-button" onclick={e => {
+				const sub = getSubject(attrs)
+				attrs.reviewSubject(sub)
+				e.stopPropagation()
+			}} >
+
+				<Icon name="bubble2" />
+				<Icon name="star-full" />
+			</div>
+	}
+};
 
 export default ReviewButton;

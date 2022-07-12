@@ -95,8 +95,7 @@ export function updateModel(modelName, queryString = "", url, simResponse) {
 		.then(() =>
 			simResponse && simResponse.remoteData
 				? Promise[simResponse.remoteResult](simResponse.remoteData)
-				: auth
-					.getBothTokens()
+				: Promise.all([auth.getAccessToken(), auth.getGttRaw()])
 					.catch(err => {
 						if (
 							err.error === "login_required" ||
@@ -107,10 +106,6 @@ export function updateModel(modelName, queryString = "", url, simResponse) {
 							return []
 						throw err
 					})
-
-					//.then(x => console.log('getBothTokens', x) && x || x)
-					//.then(([authResult, gtt]) => authResult ? [authResult, gtt] : [false])
-
 					.then(([authResult, gtt]) =>
 						!authResult && authOnly.includes(modelName)
 							? { ok: true, json: () => [] }

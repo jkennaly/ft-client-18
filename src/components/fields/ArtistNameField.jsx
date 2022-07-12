@@ -1,14 +1,14 @@
-// src/components/fields/ArtistNameField.jsx
+// src/components/fields/ArtistNameField.js
 //attrs: artistId
 
 import m from 'mithril'
 ////import _ from 'lodash'
 
-import {remoteData} from '../../store/data';
+import { remoteData } from '../../store/data';
 
 const getArtistName = id => {
 	const artist = remoteData.Artists.get(id)
-	if(!artist) return ''
+	if (!artist) return ''
 	return artist.name
 }
 

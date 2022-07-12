@@ -3,55 +3,55 @@
 
 import _ from 'lodash'
 import moment from 'dayjs'
-import o from "ospec"
+import { describe, expect, it } from 'vitest';
 
 import { metaQuivalent, calcMeta } from '../../../src/services/localData'
 
 import { remoteData } from "../../../src/store/data"
 import validData from '../../apiData/artist.json'
 
-o.spec("store/data Artist List Empty", function () {
+describe("store/data Artist List Empty", function () {
 	const artists = _.cloneDeep(remoteData.Artists)
 	artists.clear()
 
-	o("Artist list", function () {
-		o(artists.list).deepEquals([])
+	it("Artist list", function () {
+		expect(artists.list).toEqual([])
 	})
-	o("Artist meta", function () {
-		o(typeof artists.meta.calcTime).equals('number')
-		o(artists.meta.timestamps).deepEquals([Infinity, 0])
-		o(artists.meta.ids).deepEquals([Infinity, 0])
-		o(_.keys(artists.meta).sort((a, b) => a.localeCompare(b))).deepEquals([
+	it("Artist meta", function () {
+		expect(typeof artists.meta.calcTime).toEqual('number')
+		expect(artists.meta.timestamps).toEqual([Infinity, 0])
+		expect(artists.meta.ids).toEqual([Infinity, 0])
+		expect(_.keys(artists.meta).sort((a, b) => a.localeCompare(b))).toEqual([
 			'calcTime',
 			'timestamps',
 			'ids'
 		].sort((a, b) => a.localeCompare(b)))
-		o(typeof artists.setMeta).equals('function')
+		expect(typeof artists.setMeta).toEqual('function')
 	})
-	o("Artist setMeta", function () {
-		o(typeof artists.setMeta).equals('function')
+	it("Artist setMeta", function () {
+		expect(typeof artists.setMeta).toEqual('function')
 		const startMeta = _.clone(artists.meta)
-		o(artists.meta).deepEquals(startMeta)
+		expect(artists.meta).toEqual(startMeta)
 
 		const testMeta = { a: 1, b: 2 }
 		artists.setMeta(testMeta)
-		o(artists.meta).deepEquals(testMeta)
+		expect(artists.meta).toEqual(testMeta)
 
 		artists.setMeta(startMeta)
-		o(artists.meta).deepEquals(startMeta)
+		expect(artists.meta).toEqual(startMeta)
 
 	})
 })
 
 
-o.spec("store/data Artist List Manipulations", function () {
+describe("store/data Artist List Manipulations", function () {
 	const artists = _.cloneDeep(remoteData.Artists)
 	artists.replaceList(validData)
 
-	o("supplied Artist list invalid", function () {
+	it("supplied Artist list invalid", function () {
 		let replaceFailed = false
 		artists.replaceList({})
-		o(artists.list.length).equals(0)
+		expect(artists.list.length).toEqual(0)
 		let backfillFailed = false
 		try {
 			artists.backfillList({})
@@ -59,36 +59,36 @@ o.spec("store/data Artist List Manipulations", function () {
 		catch {
 			backfillFailed = true
 		}
-		o(backfillFailed).equals(true)
+		expect(backfillFailed).toEqual(true)
 	})
 
-	o("replace Artist list", function () {
+	it("replace Artist list", function () {
 		artists.clear()
 		const calcdMeta = calcMeta(validData)
 		const oldRemoteLoad = 0 + artists.lastRemoteLoad
 		const oldRemoteCheck = 0 + artists.lastRemoteCheck
 		artists.replaceList(validData)
-		o(artists.list.length).equals(validData.length)`replace list length match`
-		o(metaQuivalent(artists.meta, calcdMeta)).equals(true)`meta match`
-		o(artists.lastRemoteLoad > oldRemoteLoad).equals(true)`remote load updated`
-		o(artists.lastRemoteCheck > oldRemoteCheck).equals(true)`remote check updated`
+		expect(artists.list.length).toEqual(validData.length)
+		expect(metaQuivalent(artists.meta, calcdMeta)).toEqual(true)
+		expect(artists.lastRemoteLoad > oldRemoteLoad).toEqual(true)
+		expect(artists.lastRemoteCheck > oldRemoteCheck).toEqual(true)
 	})
 
-	o("clear Artist list", function () {
+	it("clear Artist list", function () {
 		const calcdMeta = calcMeta(validData)
 		const oldRemoteLoad = 0 + artists.lastRemoteLoad
 		const oldRemoteCheck = 0 + artists.lastRemoteCheck
 		artists.replaceList(validData)
-		o(artists.list.length).equals(validData.length)`replace list length match`
+		expect(artists.list.length).toEqual(validData.length)
 
 
 		artists.clear()
-		o(metaQuivalent(artists.meta, calcdMeta)).equals(false)`meta change`
-		o(artists.lastRemoteLoad).equals(0)`remote load reset`
-		o(artists.lastRemoteCheck).equals(0)`remote check reset`
+		expect(metaQuivalent(artists.meta, calcdMeta)).toEqual(false)
+		expect(artists.lastRemoteLoad).toEqual(0)
+		expect(artists.lastRemoteCheck).toEqual(0)
 	})
 
-	o("backfill Artist list (remoteEntry)", function (done) {
+	it("backfill Artist list (remoteEntry)", function () {
 		artists.clear()
 		const halfData = validData.filter((e, i) => i % 2)
 		const quarterData = validData.filter((e, i) => i % 4 === 2)
@@ -97,82 +97,82 @@ o.spec("store/data Artist List Manipulations", function () {
 		const oldRemoteCheck = 0 + artists.lastRemoteCheck
 
 		artists.replaceList(halfData)
-		o(artists.list.length).equals(halfData.length)`replace list length match`
+		expect(artists.list.length).toEqual(halfData.length)
 
 		artists.backfillList(quarterData)
 			.then(() => {
-				o(artists.list.length).equals(halfData.length + quarterData.length)`backfill list length match`
-				o(metaQuivalent(artists.meta, threeMeta)).equals(true)`meta match`
-				o(artists.lastRemoteLoad > oldRemoteLoad).equals(true)`remote load updated`
-				o(artists.lastRemoteCheck > oldRemoteCheck).equals(true)`remote check updated`
+				expect(artists.list.length).toEqual(halfData.length + quarterData.length)
+				expect(metaQuivalent(artists.meta, threeMeta)).toEqual(true)
+				expect(artists.lastRemoteLoad > oldRemoteLoad).toEqual(true)
+				expect(artists.lastRemoteCheck > oldRemoteCheck).toEqual(true)
 			})
-			.then(done)
-			.catch(done)
+			.then()
+			.catch()
 	})
 
-	o("backfill Artist list (localEntry)", function (done) {
+	it("backfill Artist list (localEntry)", function () {
 		artists.clear()
 		const halfData = validData.filter((e, i) => i % 2)
 		const quarterData = validData.filter((e, i) => i % 4 === 2)
 		const threeMeta = calcMeta([...halfData, ...quarterData])
 
 		artists.replaceList(halfData)
-		o(artists.list.length).equals(halfData.length)`replace list length match`
+		expect(artists.list.length).toEqual(halfData.length)
 
 		const oldRemoteLoad = 0 + artists.lastRemoteLoad
 		const oldRemoteCheck = 0 + artists.lastRemoteCheck
 
 		artists.backfillList(quarterData, true)
 			.then(() => {
-				o(artists.list.length).equals(halfData.length + quarterData.length)`backfill list length match`
-				o(metaQuivalent(artists.meta, threeMeta)).equals(true)`meta match`
-				o(artists.lastRemoteLoad).equals(oldRemoteLoad)`remote load updated`
-				o(artists.lastRemoteCheck).equals(oldRemoteCheck)`remote check updated`
+				expect(artists.list.length).toEqual(halfData.length + quarterData.length)
+				expect(metaQuivalent(artists.meta, threeMeta)).toEqual(true)
+				expect(artists.lastRemoteLoad).toEqual(oldRemoteLoad)
+				expect(artists.lastRemoteCheck).toEqual(oldRemoteCheck)
 			})
-			.then(done)
-			.catch(done)
+			.then()
+			.catch()
 	})
 
-	o("get Artist", function () {
+	it("get Artist", function () {
 		artists.clear()
 		artists.replaceList(validData)
-		o(artists.list.length).equals(validData.length)`replace list length match`
+		expect(artists.list.length).toEqual(validData.length)
 		const targetArtist = _.shuffle(validData)[0]
 
 		const gotArtist = artists.get(targetArtist.id)
-		o(targetArtist).deepEquals(gotArtist)`get data object`
+		expect(targetArtist).toEqual(gotArtist)
 
 	})
 
-	o("getMany Artist", function () {
+	it("getMany Artist", function () {
 		artists.clear()
 		artists.replaceList(validData)
-		o(artists.list.length).equals(validData.length)`replace list length match`
+		expect(artists.list.length).toEqual(validData.length)
 		const [a, b, c, ...restArtists] = _.shuffle(validData)
 		const targetArtists = [a, b, c].sort((a, b) => a.id - b.id)
 		const targetIds = targetArtists.map(a => a.id)
 		const gotArtists = artists.getMany(targetIds).sort((a, b) => a.id - b.id)
-		o(targetArtists).deepEquals(gotArtists)`getMany data objects`
+		expect(targetArtists).toEqual(gotArtists)
 
 	})
 
-	o("dataCurrent Artist", function () {
+	it("dataCurrent Artist", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		artists.replaceList(validData)
-		o(artists.list.length).equals(validData.length)`replace list length match`
-		o(artists.dataCurrent()).equals(true)`verify data current`
+		expect(artists.list.length).toEqual(validData.length)
+		expect(artists.dataCurrent()).toEqual(true)
 
 	})
 })
-o.spec("remoteCheck Artist", function () {
+describe("remoteCheck Artist", function () {
 	const artists = _.cloneDeep(remoteData.Artists)
 	// 16 cases: unforced/forced and data.current/not current and resolve/reject and local/remote
 
 	//
-	o("unforced current resolve resolve remoteCheck", function (done) {
+	it("unforced current resolve resolve remoteCheck", function () {
 		artists.replaceList(validData)
-		o(artists.dataCurrent()).equals(true)`verify no update`
+		expect(artists.dataCurrent()).toEqual(true)
 		const ucvv = artists.remoteCheck(false, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -180,18 +180,18 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'resolve'
 		})
 			.then(check => {
-				o(check).equals(false)`no update`
+				expect(check).toEqual(false)
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).equals('a')`rejection`
-				done()
+
+
 			})
 
 	})
-	o("unforced stale resolve resolve remoteCheck", function (done) {
+	it("unforced stale resolve resolve remoteCheck", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		const usvv = artists.remoteCheck(false, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -199,18 +199,18 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'resolve'
 		})
 			.then(check => {
-				o(check).equals(true)`updated`
+
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).equals('dead')`rejection`
-				done()
+
+
 			})
 
 	})
-	//
-	o("forced current resolve resolve remoteCheck", function (done) {
-		o(artists.dataCurrent()).equals(true)`verify no update`
+	it("forced stale resolve resolve remoteCheck", function () {
+		artists.clear()
+		expect(artists.dataCurrent()).toEqual(false)
 		const fsvv = artists.remoteCheck(true, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -218,65 +218,20 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'resolve'
 		})
 			.then(check => {
-				o(check).equals(true)`updated`
-			})
-			.then(done)
 
-	})
-	//
-	o("forced stale resolve resolve remoteCheck", function (done) {
-		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
-		const fsvv = artists.remoteCheck(true, {
-			remoteData: validData,
-			remoteResult: 'resolve',
-			localData: [],
-			localResult: 'resolve'
-		})
-			.then(check => {
-				o(check).equals(true)`updated`
 			})
-			.then(done)
-
-	})
-	//
-	o("unforced current reject resolve remoteCheck", function (done) {
-		o(artists.dataCurrent()).equals(true)`verify no update`
-		const ucjv = artists.remoteCheck(false, {
-			remoteData: validData,
-			remoteResult: 'reject',
-			localData: [],
-			localResult: 'resolve'
-		})
-			.then(check => {
-				o(check).equals(false)`no update`
-			})
-			.then(done)
-
-	})
-	//
-	o("forced current reject resolve remoteCheck", function (done) {
-		o(artists.dataCurrent()).equals(true)`verify no update`
-		const fcjv = artists.remoteCheck(true, {
-			remoteData: validData,
-			remoteResult: 'reject',
-			localData: [],
-			localResult: 'resolve'
-		})
-			.then(check => {
-				o(check).equals('dead')`no update`
-			})
-			.then(done)
+			.then()
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+				console.log(err)
 			})
 
 	})
 	//
-	o("unforced stale reject resolve remoteCheck", function (done) {
+	it("unforced stale reject resolve remoteCheck", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		const usjv = artists.remoteCheck(false, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -284,19 +239,18 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'resolve'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+				expect(true).toEqual(true)
 			})
 
 	})
 	//
-	o("forced stale reject resolve remoteCheck", function (done) {
+	it("forced stale reject resolve remoteCheck", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		const fsjv = artists.remoteCheck(true, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -304,19 +258,19 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'resolve'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("unforced current resolve reject remoteCheck", function (done) {
+	it("unforced current resolve reject remoteCheck", function () {
 		artists.replaceList(validData)
-		o(artists.dataCurrent()).equals(true)`verify no update`
+		expect(artists.dataCurrent()).toEqual(true)
 		const ucvj = artists.remoteCheck(false, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -324,18 +278,18 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals(false)`no update`
+				expect(check).toEqual(false)
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals('dead')`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("forced current resolve reject remoteCheck", function (done) {
-		o(artists.dataCurrent()).equals(true)`verify no update`
+	it("forced current resolve reject remoteCheck", function () {
+		expect(artists.dataCurrent()).toEqual(true)
 		const fcvj = artists.remoteCheck(true, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -343,19 +297,19 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("unforced stale resolve reject remoteCheck", function (done) {
+	it("unforced stale resolve reject remoteCheck", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		const usvj = artists.remoteCheck(false, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -363,19 +317,19 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("forced stale resolve reject remoteCheck", function (done) {
+	it("forced stale resolve reject remoteCheck", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		const fsvj = artists.remoteCheck(true, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -383,19 +337,19 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("unforced current reject reject remoteCheck", function (done) {
+	it("unforced current reject reject remoteCheck", function () {
 		artists.replaceList(validData)
-		o(artists.dataCurrent()).equals(true)`verify no update`
+		expect(artists.dataCurrent()).toEqual(true)
 		const ucjj = artists.remoteCheck(false, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -403,19 +357,19 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals(false)`no update`
+				expect(check).toEqual(false)
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals('dead')`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("forced current reject reject remoteCheck", function (done) {
+	it("forced current reject reject remoteCheck", function () {
 		artists.replaceList(validData)
-		o(artists.dataCurrent()).equals(true)`verify no update`
+		expect(artists.dataCurrent()).toEqual(true)
 		const fcjj = artists.remoteCheck(true, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -423,19 +377,19 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("unforced stale reject reject remoteCheck", function (done) {
+	it("unforced stale reject reject remoteCheck", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		const usjj = artists.remoteCheck(false, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -443,19 +397,19 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("forced stale reject reject remoteCheck", function (done) {
+	it("forced stale reject reject remoteCheck", function () {
 		artists.clear()
-		o(artists.dataCurrent()).equals(false)`verify data needs update`
+		expect(artists.dataCurrent()).toEqual(false)
 		const fsjj = artists.remoteCheck(true, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -463,24 +417,24 @@ o.spec("remoteCheck Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 
 
 })
-o.spec("acquireListUpdate Artist", function () {
+describe("acquireListUpdate Artist", function () {
 	const artists = _.cloneDeep(remoteData.Artists)
 	artists.replaceList(validData)
 
 	//
-	o("resolve resolve", function (done) {
+	it("resolve resolve", function () {
 		const vv = artists.acquireListUpdate(undefined, undefined, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -489,18 +443,18 @@ o.spec("acquireListUpdate Artist", function () {
 		})
 			.then(check => {
 
-				o(check).equals(true)`no update because of simData`
+				expect(check).toEqual(true)
 
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).equals('dead')`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("reject resolve", function (done) {
+	it("reject resolve", function () {
 		const jv = artists.acquireListUpdate(undefined, undefined, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -508,17 +462,17 @@ o.spec("acquireListUpdate Artist", function () {
 			localResult: 'resolve'
 		})
 			.then(check => {
-				o(check).equals('dead')`no update`
+				expect(check).toEqual('dead')
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals(undefined)`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("resolve reject", function (done) {
+	it("resolve reject", function () {
 		const vj = artists.acquireListUpdate(undefined, undefined, {
 			remoteData: validData,
 			remoteResult: 'resolve',
@@ -526,17 +480,17 @@ o.spec("acquireListUpdate Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals(false)`no update`
+				expect(check).toEqual(false)
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals('dead')`rejection`
-				done()
+
+
 			})
 
 	})
 	//
-	o("reject reject", function (done) {
+	it("reject reject", function () {
 		const jj = artists.acquireListUpdate(undefined, undefined, {
 			remoteData: validData,
 			remoteResult: 'reject',
@@ -544,12 +498,12 @@ o.spec("acquireListUpdate Artist", function () {
 			localResult: 'reject'
 		})
 			.then(check => {
-				o(check).equals(false)`no update`
+				expect(check).toEqual(false)
 			})
-			.then(done)
+			.then()
 			.catch(err => {
-				o(err).notEquals('dead')`rejection`
-				done()
+
+
 			})
 
 	})

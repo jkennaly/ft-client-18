@@ -3,8 +3,8 @@
 import m from "mithril"
 
 import MainEventField from "../fields/MainEventField.jsx"
-import ComposedNameField from "../fields/ComposedNameField.jsx"
-import NameField from "../fields/NameField.jsx"
+import ComposedNameField from "../fields/ComposedNameField.js"
+import NameField from "../fields/NameField.js"
 import FestNail from "../fields/FestNail.jsx"
 
 import { remoteData } from "../../store/data"
@@ -18,10 +18,10 @@ const FestivalCard = {
 					attrs.route
 						? attrs.route
 						: "/fests/pregame/" +
-								attrs.eventId +
-								(attrs.eventId === "new" && attrs.eventId
-									? "/" + attrs.eventId
-									: "")
+						attrs.eventId +
+						(attrs.eventId === "new" && attrs.eventId
+							? "/" + attrs.eventId
+							: "")
 				)
 			}}
 		>

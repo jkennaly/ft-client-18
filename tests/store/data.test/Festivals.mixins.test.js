@@ -1,12 +1,10 @@
 // Festivals.mixins.test.js
 
-import o from "ospec"
-import _ from 'lodash'
+import _ from "lodash"
+import { describe, expect, it } from 'vitest';
+
 import { remoteData } from "../../../src/store/data"
 import validData from '../../apiData/festival.json'
-import venueData from '../../apiData/venue.json'
-import coreData from '../../apiData/core.json'
-import { timeStampSort } from '../../../src/services/sorts.js'
 import moment from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 moment.extend(isBetween)
@@ -66,7 +64,7 @@ const dateData = [
 ]
 
 
-o.spec("store/data Festival Mixin methods", function () {
+describe("store/data Festival Mixin methods", function () {
 	const {
 		Festivals: festivals,
 		Dates: dates,
@@ -75,28 +73,28 @@ o.spec("store/data Festival Mixin methods", function () {
 	} = remoteData
 
 	//filterable
-	o.spec("filterable", function () {
-		o('getFiltered', function () {
+	describe("filterable", function () {
+		it('getFiltered', function () {
 			festivals.clear()
 			festivals.replaceList(validData)
 			//console.log('list', festivals.list.map(x => x.id))
 			//console.log('data', validData.map(x => x.id))
-			o(festivals.list.map(x => x.id).length).equals(validData.filter(x => !x.deleted).map(x => x.id).length)`replace list length match`
+			expect(festivals.list.map(x => x.id).length).toEqual(validData.filter(x => !x.deleted).map(x => x.id).length)
 			const [a, b, c, ...restFestivals] = validData
 			const targetFestivals = [a, b, c].sort((a, b) => a.id - b.id)
 			const targetIds = targetFestivals.map(a => a.id)
 			const gotFestivals = festivals.getFiltered(a => targetIds.includes(a.id)).sort((a, b) => a.id - b.id)
-			o(targetFestivals).deepEquals(gotFestivals)`getMany data objects`
+			expect(targetFestivals).toEqual(gotFestivals)
 		})
 	})
 
 	//subjective
-	o.spec("subjective", function () {
-		o('getSubjectObject', function () {
+	describe("subjective", function () {
+		it('getSubjectObject', function () {
 			festivals.clear()
 			const testNum = 1234
 
-			o(festivals.getSubjectObject(testNum)).deepEquals({ subjectType: 7, subject: testNum })`subjectObject ok`
+			expect(festivals.getSubjectObject(testNum)).toEqual({ subjectType: 7, subject: testNum })
 
 		})
 	})
@@ -107,9 +105,9 @@ o.spec("store/data Festival Mixin methods", function () {
 
 
 	//messageFestivalConnections(messages, lineups)
-	o.spec("messageFestivalConnections", function () {
-		o('messageEventConnection', function () {
-			o(festivals.messageEventConnection({})({})).equals(false)
+	describe("messageFestivalConnections", function () {
+		it('messageEventConnection', function () {
+			expect(festivals.messageEventConnection({})({})).toEqual(false)
 
 
 
@@ -118,7 +116,7 @@ o.spec("store/data Festival Mixin methods", function () {
 	//research(artists, messages, lineups, artistPriorities),
 	//festivalActive(dates),
 
-	o.spec("festivalActive", function () {
+	describe("festivalActive", function () {
 		const pastDates = dateData.map(d => Object.assign({}, d, { basedate: moment(d.basedate).subtract(1, 'years').format() }))
 		const currentDates = dateData.map(d => Object.assign({}, d, { basedate: moment().subtract(6, 'hours').format() }))
 		const futureDates = dateData.map(d => Object.assign({}, d, { basedate: moment(d.basedate).add(1, 'years').format() }))
@@ -126,17 +124,17 @@ o.spec("store/data Festival Mixin methods", function () {
 		const splitActiveDates = dateData.map((d, i, arr) => i < (arr.length / 3) ? pastDates[i] : i > (arr.length / 3 + 1) ? futureDates[i] : currentDates[i])
 		const testId = 72
 		const unknownId = 400
-		o('getStartMoment', function () {
+		it('getStartMoment', function () {
 			festivals.replaceList(festData)
 
-			o(festivals.getStartMoment(unknownId)).equals(undefined)`find start of missing festival`
+			expect(festivals.getStartMoment(unknownId)).toEqual(undefined)
 			dates.replaceList(futureDates)
 			const startValue = futureDates
 				.map(x => dates.getStartMoment(x.id))
 				.map(m => m.valueOf())
 				.filter(_.isNumber)
 				.reduce((lowest, test) => test < lowest ? test : lowest, 32503683600000)
-			o(festivals.getStartMoment(testId).valueOf()).equals(startValue)`find start of soon to start festival`
+			expect(festivals.getStartMoment(testId).valueOf()).toEqual(startValue)
 
 			dates.replaceList(pastDates)
 			const startValue2 = pastDates
@@ -144,28 +142,28 @@ o.spec("store/data Festival Mixin methods", function () {
 				.map(m => m.valueOf())
 				.filter(_.isNumber)
 				.reduce((lowest, test) => test < lowest ? test : lowest, 32503683600000)
-			o(festivals.getStartMoment(testId).valueOf()).equals(startValue2)`find start of ended festival`
+			expect(festivals.getStartMoment(testId).valueOf()).toEqual(startValue2)
 
 			dates.clear()
 			const startValue3 = moment(
 				_.get(festData.find(f => f.id === testId), 'year', 32503683600000),
 				'YYYY'
 			).valueOf()
-			o(festivals.getStartMoment(testId).valueOf()).equals(startValue3)`no dates`
+			expect(festivals.getStartMoment(testId).valueOf()).toEqual(startValue3)
 		})
 
-		o('getEndMoment', function () {
+		it('getEndMoment', function () {
 			festivals.replaceList(festData)
 
 
-			o(festivals.getEndMoment(unknownId)).equals(undefined)`find end of missing festival`
+			expect(festivals.getEndMoment(unknownId)).toEqual(undefined)
 			dates.replaceList(futureDates)
 			const endValue = futureDates
 				.map(x => dates.getEndMoment(x.id))
 				.map(m => m.valueOf())
 				.filter(_.isNumber)
 				.reduce((highest, test) => test > highest ? test : highest, 0)
-			o(festivals.getEndMoment(testId).valueOf()).equals(endValue)`find end of soon to end festival`
+			expect(festivals.getEndMoment(testId).valueOf()).toEqual(endValue)
 
 			dates.replaceList(pastDates)
 			const endValue2 = pastDates
@@ -173,22 +171,22 @@ o.spec("store/data Festival Mixin methods", function () {
 				.map(m => m.valueOf())
 				.filter(_.isNumber)
 				.reduce((highest, test) => test > highest ? test : highest, 0)
-			o(festivals.getEndMoment(testId).valueOf()).equals(endValue2)`find end of ended festival`
+			expect(festivals.getEndMoment(testId).valueOf()).toEqual(endValue2)
 
 			dates.clear()
 			const endValue3 = moment(
 				_.get(festData.find(f => f.id === testId), 'year', 32503683600000),
 				'YYYY'
 			).valueOf()
-			o(festivals.getEndMoment(testId).valueOf()).equals(endValue3)`no dates`
+			expect(festivals.getEndMoment(testId).valueOf()).toEqual(endValue3)
 		})
 
-		o('active', function () {
+		it('active', function () {
 			dates.clear()
 			festivals.replaceList(festData)
 
 
-			o(festivals.active(unknownId)).equals(false)`find status of missing festival`
+			expect(festivals.active(unknownId)).toEqual(false)
 
 
 			dates.replaceList(splitActiveDates)
@@ -201,27 +199,27 @@ o.spec("store/data Festival Mixin methods", function () {
 			//console.log('start to end:', s.format(), e.format())
 			//console.log('active:', moment().isBetween(s, e, 'day'))
 
-			o(festivals.active(testId)).equals(true)`find status of active festival`
+			expect(festivals.active(testId)).toEqual(true)
 
 			dates.clear()
 			dates.replaceList(pastDates)
-			o(festivals.active(testId)).equals(false)`find status of ended festival`
+			expect(festivals.active(testId)).toEqual(false)
 
 			dates.clear()
 			dates.replaceList(futureDates)
-			o(festivals.active(testId)).equals(false)`find status of future festival`
+			expect(festivals.active(testId)).toEqual(false)
 
 			dates.clear()
-			o(festivals.active(testId)).equals(false)`no dates`
+			expect(festivals.active(testId)).toEqual(false)
 		})
 
 
-		o('activeDate', function () {
+		it('activeDate', function () {
 			dates.clear()
 			festivals.replaceList(festData)
 
 
-			o(festivals.activeDate(unknownId)).equals(false)`find status of missing festival`
+			expect(festivals.activeDate(unknownId)).toEqual(false)
 
 
 			dates.replaceList(splitActiveDates)
@@ -237,21 +235,21 @@ o.spec("store/data Festival Mixin methods", function () {
 			})
 			console.log('active:', activeDates)
 			*/
-			o(festivals.activeDate(testId)).equals(true)`find status of activeDate festival`
+			expect(festivals.activeDate(testId)).toEqual(true)
 
 			dates.clear()
 			dates.replaceList(pastDates)
-			o(festivals.activeDate(testId)).equals(false)`find status of ended festival`
+			expect(festivals.activeDate(testId)).toEqual(false)
 
 			dates.clear()
 			dates.replaceList(futureDates)
-			o(festivals.activeDate(testId)).equals(false)`find status of future festival`
+			expect(festivals.activeDate(testId)).toEqual(false)
 
 			dates.clear()
-			o(festivals.activeDate(testId)).equals(false)`no dates`
+			expect(festivals.activeDate(testId)).toEqual(false)
 		})
 
-		o('future', function () {
+		it('future', function () {
 			dates.clear()
 			festivals.replaceList(festData)
 			const daysAhead = 100
@@ -259,7 +257,7 @@ o.spec("store/data Festival Mixin methods", function () {
 
 
 			dates.replaceList(splitActiveDates)
-			o(festivals.future().length === 1).equals(true)`find status of missing festival`
+			expect(festivals.future().length === 1).toEqual(true)
 			//console.log('splitActiveDates', testId, splitActiveDates)
 
 			//const s = festivals.getStartMoment(testId)
@@ -267,28 +265,28 @@ o.spec("store/data Festival Mixin methods", function () {
 			//console.log('start to end:', s.format(), e.format())
 			//console.log('active:', moment().isBetween(s, e, 'day'))
 
-			o(festivals.future(daysAhead).length === 1).equals(true)`find status of future festival`
+			expect(festivals.future(daysAhead).length === 1).toEqual(true)
 
 			dates.clear()
 			dates.replaceList(pastDates)
-			o(festivals.future().length === 1).equals(false)`find status of missing festival`
-			o(festivals.future(daysAhead).length === 1).equals(false)`find status of ended festival`
+			expect(festivals.future().length === 1).toEqual(false)
+			expect(festivals.future(daysAhead).length === 1).toEqual(false)
 
 			dates.clear()
 			dates.replaceList(futureDates)
-			o(festivals.future().length === 1).equals(true)`find status of missing festival`
-			o(festivals.future(daysAhead).length === 1).equals(true)`find status of future festival`
+			expect(festivals.future().length === 1).toEqual(true)
+			expect(festivals.future(daysAhead).length === 1).toEqual(true)
 
 			dates.clear()
-			o(festivals.future().length === 1).equals(false)`find status of missing festival`
-			o(festivals.future(daysAhead).length === 1).equals(false)`no dates`
+			expect(festivals.future().length === 1).toEqual(false)
+			expect(festivals.future(daysAhead).length === 1).toEqual(false)
 		})
 	})
 	//intended(intentions),
 
-	o.spec("intended", function () {
+	describe("intended", function () {
 		const bigHorizon = 400
-		o('intended', function () {
+		it('intended', function () {
 			festivals.replaceList(festData)
 			const pastDates = dateData.map(d => Object.assign({}, d, { basedate: moment(d.basedate).subtract(1, 'years').format() }))
 			const currentDates = dateData.map(d => Object.assign({}, d, { basedate: moment().format() }))
@@ -330,12 +328,12 @@ o.spec("store/data Festival Mixin methods", function () {
 			dates.clear()
 			dates.replaceList(futureDates)
 			intentions.replaceList(noIntentions)
-			o(festivals.intended(bigHorizon, { skipDetails: true }).length).equals(0)`no intentions, date in future`
+			expect(festivals.intended(bigHorizon, { skipDetails: true }).length).toEqual(0)
 
 			dates.clear()
 			dates.replaceList(pastDates)
 			intentions.replaceList(noIntentions)
-			o(festivals.intended(bigHorizon, { skipDetails: true }).length).equals(0)`no intentions, no date in future`
+			expect(festivals.intended(bigHorizon, { skipDetails: true }).length).toEqual(0)
 
 			dates.clear()
 			dates.replaceList(splitDates)
@@ -352,7 +350,7 @@ o.spec("store/data Festival Mixin methods", function () {
 							
 						))
 			*/
-			o(festivals.intended(bigHorizon, { skipDetails: true }).length).equals(0)`intention for date, date has passed, other dates for festival in future`
+			expect(festivals.intended(bigHorizon, { skipDetails: true }).length).toEqual(0)
 
 			//returns
 			dates.clear()
@@ -369,7 +367,7 @@ o.spec("store/data Festival Mixin methods", function () {
 						))
 			*/
 
-			o(festivals.intended(bigHorizon, { skipDetails: true }).length).equals(1)`intention for date, date in future, other dates for festival in past`
+			expect(festivals.intended(bigHorizon, { skipDetails: true }).length).toEqual(1)
 
 
 		})
@@ -377,40 +375,40 @@ o.spec("store/data Festival Mixin methods", function () {
 
 	/*
 		//update -> create
-		o.spec("update", function() {
+		describe("update", function() {
 			const id = 44
 			const data = []
 			
-			o.spec("update", function() {
+			describe("update", function() {
 				//
-				o("resolve", function(done) {
+				expect("resolve", function(done) {
 					const v = festivals.update(data, id, {
 						remoteData: validData,
 						remoteResult: 'resolve'
 					})
 						.then(check => {
-							o(check).equals(`/api/${festivals.fieldName}/update?where={"id":${id}}`) `update`
+							expect(check).toEqual(`/api/${festivals.fieldName}/update?where={"id":${id}}`) `update`
 						})
 						.then(done)
 						.catch(err => {
-							o(err).equals('dead') `rejection`
+							expect(err).toEqual('dead') `rejection`
 							done()
 						})
 	
 				})
 	
 				//
-				o("reject", function(done) {
+				expect("reject", function(done) {
 				const j = festivals.update(data, id, {
 					remoteData: validData,
 					remoteResult: 'reject'
 				})
 					.then(check => {
-						o(check).equals('dead') `no update`
+						expect(check).toEqual('dead') `no update`
 					})
 					.then(done)
 					.catch(err => {
-						o(err).notEquals(undefined) `rejection`
+						expect(err).notEquals(undefined) `rejection`
 						done()
 					})
 	

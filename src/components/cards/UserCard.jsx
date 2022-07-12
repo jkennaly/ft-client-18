@@ -5,7 +5,7 @@ import m from 'mithril'
 import _ from 'lodash'
 
 import UserAvatarField from '../fields/UserAvatarField.jsx';
-import NameField from '../fields/NameField.jsx';
+import NameField from '../fields/NameField.js';
 import { subjectData } from '../../store/subjectData';
 import globals from '../../services/globals.js';
 

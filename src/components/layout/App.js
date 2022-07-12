@@ -23,33 +23,33 @@ import Messages from "./Messages.jsx"
 import Admin from "./Admin.jsx"
 import Discussion from "./Discussion.jsx"
 import ModalBox from "../modals/ModalBox.jsx"
-import Gametime from "../../components/gametime/Gametime.jsx"
+import Gametime from "../gametime/Gametime.jsx"
 // Components
-import LauncherBanner from "../../components/ui/LauncherBanner.jsx"
-import CardContainer from "../../components/layout/CardContainer.jsx"
-import ConfirmLogout from "../../components/layout/ConfirmLogout.jsx"
-import SeriesView from "../../components/cardViews/SeriesView.jsx"
-import UserView from "../../components/cardViews/UserView.jsx"
-import UIButton from "../../components/ui/UIButton.jsx"
+import LauncherBanner from "../ui/LauncherBanner.jsx"
+import CardContainer from "./CardContainer.jsx"
+import ConfirmLogout from "./ConfirmLogout.jsx"
+import SeriesView from "../cardViews/SeriesView.jsx"
+import UserView from "../cardViews/UserView.jsx"
+import UIButton from "../ui/UIButton.jsx"
 
-import SeriesDetail from "../../components/detailViewsPregame/SeriesDetail.jsx"
-import FestivalDetail from "../../components/detailViewsPregame/FestivalDetail.jsx"
-import DateDetail from "../../components/detailViewsPregame/DateDetail.jsx"
-import DayDetail from "../../components/detailViewsPregame/DayDetail.jsx"
-import SetDetail from "../../components/detailViewsPregame/SetDetail.jsx"
-import ArtistDetail from "../../components/detailViewsPregame/ArtistDetail.jsx"
-import UserDetail from "../../components/detailViewsPregame/UserDetail.js"
+import SeriesDetail from "../detailViewsPregame/SeriesDetail.jsx"
+import FestivalDetail from "../detailViewsPregame/FestivalDetail.jsx"
+import DateDetail from "../detailViewsPregame/DateDetail.jsx"
+import DayDetail from "../detailViewsPregame/DayDetail.jsx"
+import SetDetail from "../detailViewsPregame/SetDetail.jsx"
+import ArtistDetail from "../detailViewsPregame/ArtistDetail.jsx"
+import UserDetail from "../detailViewsPregame/UserDetail.js"
 
-import CreateSeries from "../../components/createFestivals/series/createSeries.jsx"
-import CreateFestival from "../../components/createFestivals/festivals/createFestival.jsx"
-import CreateDate from "../../components/createFestivals/dates/createDate.jsx"
-import CreateVenue from "../../components/createFestivals/venues/createVenue.jsx"
-import AssignDays from "../../components/createFestivals/sets/AssignDays.jsx"
-import AssignSetStages from "../../components/createFestivals/sets/AssignStages.jsx"
-import AssignTimes from "../../components/createFestivals/sets/AssignTimes.jsx"
-import SetStages from "../../components/createFestivals/festivals/SetStages.jsx"
-import SetLineup from "../../components/createFestivals/lineups/SetLineup.jsx"
-import FixArtist from "../../components/createFestivals/lineups/FixArtist.jsx"
+import CreateSeries from "../createFestivals/series/createSeries.jsx"
+import CreateFestival from "../createFestivals/festivals/createFestival.jsx"
+import CreateDate from "../createFestivals/dates/createDate.jsx"
+import CreateVenue from "../createFestivals/venues/createVenue.jsx"
+import AssignDays from "../createFestivals/sets/AssignDays.jsx"
+import AssignSetStages from "../createFestivals/sets/AssignStages.jsx"
+import AssignTimes from "../createFestivals/sets/AssignTimes.jsx"
+import SetStages from "../createFestivals/festivals/SetStages.jsx"
+import SetLineup from "../createFestivals/lineups/SetLineup.jsx"
+import FixArtist from "../createFestivals/lineups/FixArtist.jsx"
 
 // Services
 import Auth, { authwrapper } from "../../services/auth.js"
@@ -58,12 +58,21 @@ import batchCreate from "../../store/list/mixins/remote/batchCreate"
 const auth = Auth
 
 const WelcomeView = ({ attrs }) => [
+	m('h1.app-title', `FestiGram`),
+	m('h2.app-greeting', `Welcome`),
+	m('span.app-description', `A Festival App for the Rest of Us`),
+	m('.login-button', m(UIButton, {
+		action: () => auth.login(attrs.prev),
+		buttonName: `Login`
+	}))
+	/*
 	<h1 class="app-title">FestiGram</h1>,
 	<h2 class="app-greeting">Welcome</h2>,
 	<span class="app-description">A Festival App For The Rest Of Us</span>,
 	<div class="login-button">
 		<UIButton action={() => auth.login(attrs.prev)} buttonName="LOGIN" />
 	</div>
+	*/
 ]
 
 const forceLoginRoute = err => {
@@ -290,15 +299,18 @@ const App = {
 						.getAccessToken()
 						.then(() => Promise.all([auth.getFtUserId(), auth.getRoles()]))
 						.then(userDataRaw => (
+							m(Launcher, { userId: userDataRaw[0], userRoles: userDataRaw[1] })
+							/*
 							<Launcher
 								userId={userDataRaw[0]}
 								userRoles={userDataRaw[1]}
 							/>
+							*/
 						))
 						//.then(userDataRaw => m(Launcher, {userId: userDataRaw[0], userRoles: userDataRaw[1]}))
 						.catch(err => {
 							if (err.error === "login_required")
-								return <Launcher userId={0} userRoles={[]} />
+								return m(Launcher, { userId: 0, userRoles: [] })
 							console.error(err)
 						})
 			},
@@ -450,7 +462,22 @@ const App = {
 
 		//m.mount(document.getElementById("DisplayBar"), {view: function () {return m(LauncherBanner, _.assign({}, lastUser, {}))}})
 	},
-	view: ({ children }) => (
+	view: ({ children }) => m('.App',
+		[/gametime/.test(m.route.get()) ? '' : m(LauncherBanner,
+			{
+				userId: auth.userId(),
+				userRoles: auth.userRoles(),
+				titleGet: bannerTitle,
+				eventGet: eventBadge,
+				popModal: popModal,
+				focusSubject: focusSubject,
+				bucksUpdate: bucksUpdate,
+			}
+		),
+		m('#main-stage', children)
+		]),
+	/*
+	old: (
 		<div class="App">
 			{
 				//console.log("app view elapsed", Date.now() - appStartTime)
@@ -471,6 +498,7 @@ const App = {
 			<div id="main-stage">{children}</div>
 		</div>
 	)
+	*/
 }
 
 export default App

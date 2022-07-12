@@ -6,8 +6,8 @@ import moment from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 moment.extend(relativeTime)
 
-import ComposedNameField from "../fields/ComposedNameField.jsx"
-import NameField from "../fields/NameField.jsx"
+import ComposedNameField from "../fields/ComposedNameField.js"
+import NameField from "../fields/NameField.js"
 import AverageRatingField from "../fields/AverageRatingField.jsx"
 import UserAvatarField from "../fields/UserAvatarField.jsx"
 import Icon from "../fields/Icon.jsx"

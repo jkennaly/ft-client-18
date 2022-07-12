@@ -1,14 +1,15 @@
 // data.test.js
 
 import _ from "lodash"
-import o from "ospec"
+import { describe, expect, it } from 'vitest';
+
 
 console.log('hello')
-import { remoteData, clearData, initData } from "../../src/store/data"
+import { remoteData, clearData, initData } from "../../src/store/data.js"
 
-o.spec("store/data", function () {
-	o("remoteData", function () {
-		o(_.keys(remoteData).sort((a, b) => a.localeCompare(b))).deepEquals(
+describe("store/data", function () {
+	it("remoteData", function () {
+		expect(_.keys(remoteData).sort((a, b) => a.localeCompare(b))).toEqual(
 			[
 				"Artists",
 				"Images",
@@ -40,15 +41,15 @@ o.spec("store/data", function () {
 				//'dataLoad'
 			].sort((a, b) => a.localeCompare(b))
 		)
-		//o(1).equals(1) (`failed math`)
+		//it(1).toEqual(1) (`failed math`)
 	})
-	o("clearData", function () {
-		//o(out.rootNode.text).equals(fv)
-		o(1).equals(1)
+	it("clearData", function () {
+		//it(out.rootNode.text).toEqual(fv)
+		expect(1).toEqual(1)
 	})
-	o("initData", function () {
-		//o(out.rootNode.text).equals(fv)
-		o(1).equals(1)
+	it("initData", function () {
+		//it(out.rootNode.text).toEqual(fv)
+		expect(1).toEqual(1)
 	})
 })
 

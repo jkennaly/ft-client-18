@@ -3,7 +3,7 @@
 import m from 'mithril'
 import globals from '../../services/globals.js';
 
-import ComposedNameField from '../fields/ComposedNameField.jsx'
+import ComposedNameField from '../fields/ComposedNameField.js'
 
 const ReviewCard = {
 	view: ({ attrs }) =>

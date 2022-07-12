@@ -2,7 +2,7 @@
 
 import m from 'mithril'
 
-import ComposedNameField from '../fields/ComposedNameField.jsx';
+import ComposedNameField from '../fields/ComposedNameField.js';
 import CheckedInUsersField from '../fields/CheckedInUsersField.jsx';
 import { remoteData } from '../../store/data'
 import globals from '../../services/globals';

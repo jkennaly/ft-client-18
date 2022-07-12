@@ -1,14 +1,14 @@
-// src/components/fields/DayNameField.jsx
+// src/components/fields/DayNameField.js
 //attrs: dayId
 
 import m from 'mithril'
 ////import _ from 'lodash'
 
-import {remoteData} from '../../store/data';
+import { remoteData } from '../../store/data';
 
 const getDayName = id => {
 	const day = remoteData.Days.get(id)
-	if(!day) return ''
+	if (!day) return ''
 	return day.name
 }
 
@@ -16,9 +16,9 @@ const DayNameField = {
 	view: ({ attrs }) =>
 		<span class="ft-name-field">
 			{(getDayName(attrs.dayId))}
-			
-		
-		
+
+
+
 		</span >
 };
 

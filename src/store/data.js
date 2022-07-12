@@ -507,8 +507,8 @@ export const remoteData = {
 }
 
 window.festigram = _.assign({}, remoteData)
-festigram.auth = auth
-festigram.build = new Date(BUILD_TIME)
+window.festigram.auth = auth
+window.festigram.build = new Date(BUILD_TIME)
 const coreKeys = _.keys(remoteData).filter(k => remoteData[k].core)
 //console.log("coreKeys", coreKeys)
 coreChecked
@@ -544,7 +544,7 @@ export const clearData = () => {
 	//init the lists with core data
 
 	coreCheck()
-		.then(localforage.clear)
+		.then(() => localforage.clear())
 		.then(coreData =>
 			Promise.all(
 				_.map(coreData, (l, k) => {

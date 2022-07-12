@@ -1,4 +1,4 @@
-// src/components/fields/SetNameField.jsx
+// src/components/fields/SetNameField.js
 //attrs: 
 //	artistName
 //	seriesId
@@ -7,14 +7,14 @@
 import m from 'mithril'
 ////import _ from 'lodash'
 
-import  ComposedNameField from './ComposedNameField.jsx';
-import  MainEventField from './MainEventField.jsx';
+import ComposedNameField from './ComposedNameField.js';
+import MainEventField from './MainEventField.jsx';
 
 const SetNameField = {
 	view: ({ attrs }) =>
 		<span class="ft-set-name-field">
-	        <ComposedNameField fieldValue={attrs.artistName + ' @'} />
-	        <MainEventField seriesId={attrs.seriesId} festivalId={attrs.festivalId} />
+			<ComposedNameField fieldValue={attrs.artistName + ' @'} />
+			<MainEventField seriesId={attrs.seriesId} festivalId={attrs.festivalId} />
 		</span >
 };
 

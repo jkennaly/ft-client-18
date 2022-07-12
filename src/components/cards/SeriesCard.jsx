@@ -3,8 +3,8 @@
 import m from 'mithril'
 import _ from 'lodash'
 
-import  ComposedNameField from '../fields/ComposedNameField.jsx';
-import {remoteData} from '../../store/data';
+import ComposedNameField from '../fields/ComposedNameField.js';
+import { remoteData } from '../../store/data';
 
 
 const SeriesCard = {

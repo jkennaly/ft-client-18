@@ -2,7 +2,7 @@
 
 import m from 'mithril'
 
-import  ComposedNameField from '../fields/ComposedNameField.jsx';
+import ComposedNameField from '../fields/ComposedNameField.js';
 
 const SpotifyCard = {
   view: ({ attrs }) => <a href={'https://open.spotify.com/search/' + attrs.fieldValue} target="_blank">
@@ -11,7 +11,7 @@ const SpotifyCard = {
         <ComposedNameField fieldValue={'Search Spotify for ' + attrs.fieldValue} />
       </div>
     </div>
-    </a>
+  </a>
 };
 
 export default SpotifyCard;

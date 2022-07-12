@@ -2,7 +2,7 @@
 
 import m from 'mithril'
 
-import  ComposedNameField from '../fields/ComposedNameField.jsx';
+import ComposedNameField from '../fields/ComposedNameField.js';
 
 const NavCard = {
   view: ({ attrs }) =>

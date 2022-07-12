@@ -5,12 +5,12 @@ import m from 'mithril'
 import _ from 'lodash'
 
 // change selections
-import ComposedNameField from '../../components/fields/ComposedNameField.jsx';
+import ComposedNameField from '../../components/fields/ComposedNameField.js';
 import StageNameField from '../../components/fields/StageNameField.jsx';
 import ArtistNameField from '../../components/fields/ArtistNameField.jsx';
 import UIButton from '../../components/ui/UIButton.jsx';
 import FestivalTimePicker from '../../components/ui/FestivalTimePicker.jsx';
-import {remoteData} from '../../store/data';
+import { remoteData } from '../../store/data';
 
 const upsertSet = data => 0
 const classes = attrs => 'ft-modal ' + (attrs.display ? '' : 'hidden')
@@ -18,7 +18,7 @@ var startTime = 0
 var endTime = 0
 var selectedId = 0
 const SetScheduleModal = {
-	view: ({attrs}) => <div class={classes(attrs)}>
+    view: ({ attrs }) => <div class={classes(attrs)}>
         <div class="ft-modal-content">
             <ComposedNameField fieldValue={remoteData.Days.getEventName(attrs.set.day)} />
             <StageNameField stageId={attrs.set.stage} />
@@ -52,21 +52,21 @@ const SetScheduleModal = {
                     user: attrs.user
                 }
                 const verb = data.id ? 'updateInstance' : 'create'
-                if(attrs.set && endTime && endTime > startTime) attrs.action(data, verb)(remoteData.Sets.upsert(data))
-                if(endTime && endTime > startTime) attrs.hide()
+                if (attrs.set && endTime && endTime > startTime) attrs.action(data, verb)(remoteData.Sets.upsert(data))
+                if (endTime && endTime > startTime) attrs.hide()
 
 
                 //
             }} buttonName="Create/Update" />
 
             {!attrs.set.end ? '' : <UIButton action={e => {
-                
+
                 const data = {
                     id: attrs.set.id
                 }
                 const verb = 'delete'
-                if(attrs.set) attrs.action(data, verb)(remoteData.Sets.delete(data))
-                if(attrs.set) attrs.hide()
+                if (attrs.set) attrs.action(data, verb)(remoteData.Sets.delete(data))
+                if (attrs.set) attrs.hide()
 
 
                 //
