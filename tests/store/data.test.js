@@ -3,8 +3,6 @@
 import _ from "lodash"
 import { describe, expect, it } from 'vitest';
 
-
-console.log('hello')
 import { remoteData, clearData, initData } from "../../src/store/data.js"
 
 describe("store/data", function () {

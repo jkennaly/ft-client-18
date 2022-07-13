@@ -2,6 +2,7 @@
 
 import _ from 'lodash'
 import moment from 'dayjs'
+import globals from "./globals"
 
 let timestampCache = {}
 let soonestCache = {}
@@ -16,11 +17,7 @@ export const timeStampSort = (a, b) => {
 	return retVal
 }
 
-export const soonestStart = (a, b) => {
-	const cachedValue = _.get(soonestCache, `${a.start}.${b.start}`)
-	if (cachedValue) return cachedValue
-
-}
+export const soonestStart = (a, b) => a.start - b.start
 
 var futureComboCache = {}
 
